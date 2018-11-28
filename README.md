@@ -52,3 +52,7 @@ Several predefined layouts are available:
 * TODO file dialog
 
 Layouts can be __animated__ (slide-in, transparency, rotation)
+
+# Documentation
+
+The doc can be found [here](http://sanette.github.io/bogue/Bogue.html).
