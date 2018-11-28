@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Mixer.html">
+<link rel="next" href="Bogue.Draw.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Sync</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Mixer.html" title="Bogue.Mixer">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Draw.html" title="Bogue.Draw">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Sync.html">Bogue.Sync</a></h1>
+
+<pre><span class="keyword">module</span> Sync: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Sync.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Synchronized execution queue
+<p>
+
+    FIFO queue of actions to be executed by the main thread at each graphical
+    frame. It is much easier to use this rather that let actions be executed by
+    various threads and try to guess in which order...
+<p>
+
+<div align=right><a href="file:graph-b_sync.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="VALpush"><span class="keyword">val</span> push</span> : <code class="type">(unit -> unit) -> unit</code></pre><div class="info ">
+Register a action to be executed by the mainloop at next frame, or at a
+     subsequent frame if the queue is already large.<br>
+</div>
+</body></html>

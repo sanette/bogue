@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Check.html">
+<link rel="next" href="Bogue.Text_input.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Preparing the text" rel="Section" href="#2_Preparingthetext">
+<link title="Creating the widgets" rel="Section" href="#2_Creatingthewidgets">
+<link title="Modifying the widgets" rel="Section" href="#2_Modifyingthewidgets">
+<title>Bogue.Text_display</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Check.html" title="Bogue.Check">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Text_input.html" title="Bogue.Text_input">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Text_display.html">Bogue.Text_display</a></h1>
+
+<pre><span class="keyword">module</span> Text_display: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Text_display.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Multi-line text display widget
+<p>
+
+<div align=right><a href="file:graph-b_text_display.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="TYPEwords"><span class="keyword">type</span> <code class="type"></code>words</span> </pre>
+
+<br>
+<h2 id="2_Preparingthetext">Preparing the text</h2><br>
+
+<pre><span id="VALexample"><span class="keyword">val</span> example</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALraw"><span class="keyword">val</span> raw</span> : <code class="type">string -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALbold"><span class="keyword">val</span> bold</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALitalic"><span class="keyword">val</span> italic</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALnormal"><span class="keyword">val</span> normal</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALunderline"><span class="keyword">val</span> underline</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALstrikethrough"><span class="keyword">val</span> strikethrough</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALpage"><span class="keyword">val</span> page</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> list -> <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre>
+<pre><span id="VALpara"><span class="keyword">val</span> para</span> : <code class="type">string -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre><br>
+<h2 id="2_Creatingthewidgets">Creating the widgets</h2><br>
+<br>
+<h2 id="2_Modifyingthewidgets">Modifying the widgets</h2><br>
+
+<pre><span id="VALupdate_verbatim"><span class="keyword">val</span> update_verbatim</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEt">t</a> -> string -> unit</code></pre></body></html>

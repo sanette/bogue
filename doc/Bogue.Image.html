@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Selection.html">
+<link rel="next" href="Bogue.Style.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Image</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Selection.html" title="Bogue.Selection">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Style.html" title="Bogue.Style">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Image.html">Bogue.Image</a></h1>
+
+<pre><span class="keyword">module</span> Image: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Image.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Image widget
+<p>
+
+<div align=right><a href="file:graph-b_image.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?width:int -><br>       ?height:int -><br>       ?noscale:bool -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">create <span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code> (using the path
+     <code class="code"><span class="constructor">Theme</span>.get_path <span class="string">"image.jpg"</span></code>). The actual load occurs only once, on the
+     first time the image widget is effectively displayed. The image is then
+     stored in a texture. All
+     <a href="https://www.libsdl.org/projects/SDL_image/">Sdl_image</a> image formats are
+      supported.<br>
+</div>
+
+<pre><span id="VALcreate_from_svg"><span class="keyword">val</span> create_from_svg</span> : <code class="type">?width:int -> ?height:int -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
+Load an svg image. This requires the <code class="code">rsvg</code> program.<br>
+</div>
+</body></html>

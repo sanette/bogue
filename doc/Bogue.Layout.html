@@ -1,0 +1,341 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Update.html">
+<link rel="next" href="Bogue.Space.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Backgrounds" rel="Section" href="#2_Backgrounds">
+<link title="Creation of layouts" rel="Section" href="#2_Creationoflayouts">
+<link title="Some useful layout combinations" rel="Section" href="#2_Someusefullayoutcombinations">
+<link title="Get layout attributes" rel="Section" href="#2_Getlayoutattributes">
+<link title="Modify existing layouts" rel="Section" href="#2_Modifyexistinglayouts">
+<link title="Animations" rel="Section" href="#2_Animations">
+<link title="Windows" rel="Section" href="#2_Windows">
+<link title="Misc" rel="Section" href="#2_Misc">
+<link title="Create layouts from widgets" rel="Subsection" href="#3_Createlayoutsfromwidgets">
+<link title="Create layouts from other layouts" rel="Subsection" href="#3_Createlayoutsfromotherlayouts">
+<link title="Generic animations" rel="Subsection" href="#3_Genericanimations">
+<link title="Predefined animations" rel="Subsection" href="#3_Predefinedanimations">
+<title>Bogue.Layout</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Update.html" title="Bogue.Update">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Space.html" title="Bogue.Space">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Layout.html">Bogue.Layout</a></h1>
+
+<pre><span class="keyword">module</span> Layout: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Layout.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+The main, all-purpose graphics container
+<p>
+
+ A layout is a "box" (a rectangle) whose purpose is to place onscreen the
+   various elements composing the GUI. It can contain a single widget, or a list
+   of sub-layouts. We often use the housing metaphor: a layout is a house that
+   contains either a single resident, or several rooms. Each room can be seen as
+   a sub-house, and can contain a resident or sub-rooms. Houses and rooms have
+   the type <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>, while a resident has the type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>.
+<p>
+
+     Technically, the usual metaphor in computer science is a <em>Tree</em>. A layout
+   is a tree, each vertex (or node) has any number of branches (or children). A
+   leaf (terminal node: without any child) is either empty or contains a
+   widget. However, the tree is upside-down (as often): we think of the trunk
+   (or <em>top-layout</em>) to be a the top, and the leaves at the bottom. 
+<p>
+
+<div align=right><a href="file:graph-b_layout.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="EXCEPTIONFatal_error"><span class="keyword">exception</span> Fatal_error</span> <span class="keyword">of</span> <code class="type">(<a href="Bogue.Layout.html#TYPEt">t</a> * string)</code></pre>
+
+<pre><code><span id="TYPEroom_content"><span class="keyword">type</span> <code class="type"></code>room_content</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTroom_content.Rooms"><span class="constructor">Rooms</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> list</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTroom_content.Resident"><span class="constructor">Resident</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Widget.html#TYPEt">Widget.t</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEadjust"><span class="keyword">type</span> <code class="type"></code>adjust</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTadjust.Fit"><span class="constructor">Fit</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTadjust.Width"><span class="constructor">Width</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTadjust.Height"><span class="constructor">Height</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTadjust.Nothing"><span class="constructor">Nothing</span></span></code></td>
+
+</tr></table>
+
+<div class="info ">
+Not implemented.<br>
+</div>
+
+<br>
+<h2 id="2_Backgrounds">Backgrounds</h2><br>
+
+<pre><span id="TYPEbackground"><span class="keyword">type</span> <code class="type"></code>background</span> </pre>
+<div class="info ">
+Warning, there is also Style.background... Maybe this will change in the
+      future.<br>
+</div>
+
+
+<pre><span id="VALcolor_bg"><span class="keyword">val</span> color_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALbox_bg"><span class="keyword">val</span> box_bg</span> : <code class="type"><a href="Bogue.Box.html#TYPEt">Box.t</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALunload_background"><span class="keyword">val</span> unload_background</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Free the texture associated with the background (if any). This can be used
+     to force recreating it.<br>
+</div>
+<br>
+<h2 id="2_Creationoflayouts">Creation of layouts</h2> 
+<p>
+
+      All layouts have a <code class="code">name</code> property, which is used only for debugging.<br>
+
+<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">?name:string -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       w:int -> h:int -> unit -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+An empty layout can reserve some space without stealing focus.<br>
+</div>
+<br>
+<h3 id="3_Createlayoutsfromwidgets">Create layouts from widgets</h3><br>
+
+<pre><span id="VALresident"><span class="keyword">val</span> resident</span> : <code class="type">?name:string -><br>       ?x:int -><br>       ?y:int -><br>       ?w:int -><br>       ?h:int -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?draggable:bool -><br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -><br>       ?layer:<a href="Bogue.Draw.html#TYPElayer">Draw.layer</a> -><br>       ?keyboard_focus:bool -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
+<pre><span id="VALflat_of_w"><span class="keyword">val</span> flat_of_w</span> : <code class="type">?name:string -><br>       ?sep:int -><br>       ?h:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?widget_bg:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
+<pre><span id="VALtower_of_w"><span class="keyword">val</span> tower_of_w</span> : <code class="type">?name:string -><br>       ?sep:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?widget_bg:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><br>
+<h3 id="3_Createlayoutsfromotherlayouts">Create layouts from other layouts</h3><br>
+
+<pre><span id="VALflat"><span class="keyword">val</span> flat</span> : <code class="type">?name:string -><br>       ?sep:int -><br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -><br>       ?margins:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> list -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
+<pre><span id="VALtower"><span class="keyword">val</span> tower</span> : <code class="type">?name:string -><br>       ?sep:int -><br>       ?margins:int -><br>       ?hmargin:int -><br>       ?vmargin:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> list -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
+<pre><span id="VALsuperpose"><span class="keyword">val</span> superpose</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?name:string -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> list -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+Create a new layout by superposing a list of layouts without changing
+      their (x,y) position.<br>
+</div>
+<br>
+<h2 id="2_Someusefullayoutcombinations">Some useful layout combinations</h2><br>
+
+<pre><span id="VALmake_clip"><span class="keyword">val</span> make_clip</span> : <code class="type">?w:int -><br>       ?scrollbar:bool -><br>       ?scrollbar_inside:bool -><br>       ?scrollbar_width:int -> h:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+Clip a layout inside a smaller container and make it scrollable, and
+      optionnally add a scrollbar widget.<br>
+</div>
+<br>
+<h2 id="2_Getlayoutattributes">Get layout attributes</h2><br>
+
+<pre><span id="VALxpos"><span class="keyword">val</span> xpos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+get current absolute x position of the layout (relative to the top-left
+      corner of the window)<br>
+</div>
+
+<pre><span id="VALypos"><span class="keyword">val</span> ypos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+see <a href="Bogue.Layout.html#VALxpos"><code class="code"><span class="constructor">Layout</span>.xpos</code></a><br>
+</div>
+
+<pre><span id="VALwidth"><span class="keyword">val</span> width</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
+<pre><span id="VALheight"><span class="keyword">val</span> height</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
+<pre><span id="VALget_size"><span class="keyword">val</span> get_size</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
+<code class="code">get_size l</code> is equivalent to <code class="code">(width l, height l)</code><br>
+</div>
+
+<pre><span id="VALget_physical_size"><span class="keyword">val</span> get_physical_size</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
+multiplies <code class="code">get_size</code> by the Theme scaling factor. This gives in principle
+     the correct size in physical pixels, up to an error of +/- 1pixel, due to
+     rounding error.<br>
+</div>
+
+<pre><span id="VALgetx"><span class="keyword">val</span> getx</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+Compute the relative x position of the room with respect to its house,
+     using animations if any. Because of this, this function should not be
+      called by the animation itself! Use <a href="Bogue.Layout.html#VALget_oldx"><code class="code"><span class="constructor">Layout</span>.get_oldx</code></a> instead.<br>
+</div>
+
+<pre><span id="VALget_oldx"><span class="keyword">val</span> get_oldx</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+Return the last computed value for the relative x position of the
+     layout.<br>
+</div>
+
+<pre><span id="VALgety"><span class="keyword">val</span> gety</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
+<pre><span id="VALget_oldy"><span class="keyword">val</span> get_oldy</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
+<pre><span id="VALwidget"><span class="keyword">val</span> widget</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a></code></pre><div class="info ">
+Return the resident widget, or<br>
+<b>Raises</b> <code>Not_found</code> if the layout is not a <em>     leaf</em>.<br>
+</div>
+
+<pre><span id="VALtop_house"><span class="keyword">val</span> top_house</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+Return the top of the layout tree (the "house" that contains the given
+     layout and that is not contained in another layout). It is the only layout
+     that is directly attached to a "physical" (SDL) window.<br>
+</div>
+
+<pre><span id="VALget_content"><span class="keyword">val</span> get_content</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEroom_content">room_content</a></code></pre><br>
+<h2 id="2_Modifyexistinglayouts">Modify existing layouts</h2>
+<p>
+
+      These functions will not work if there is an animation running acting of the
+     variable we want to set.<br>
+
+<pre><span id="VALset_width"><span class="keyword">val</span> set_width</span> : <code class="type">?update_bg:bool -> <a href="Bogue.Layout.html#TYPEt">t</a> -> int -> unit</code></pre>
+<pre><span id="VALset_height"><span class="keyword">val</span> set_height</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int -> unit</code></pre>
+<pre><span id="VALsetx"><span class="keyword">val</span> setx</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int -> unit</code></pre>
+<pre><span id="VALsety"><span class="keyword">val</span> sety</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int -> unit</code></pre>
+<pre><span id="VALset_show"><span class="keyword">val</span> set_show</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> bool -> unit</code></pre>
+<pre><span id="VALfit_content"><span class="keyword">val</span> fit_content</span> : <code class="type">?sep:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Adapt the size of the layout (and their houses) to the disposition of the
+     contained rooms.<br>
+</div>
+
+<pre><span id="VALset_rooms"><span class="keyword">val</span> set_rooms</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> ?sync:bool -> <a href="Bogue.Layout.html#TYPEt">t</a> list -> unit</code></pre><div class="info ">
+Modify the layout content by replacing the former content by a new list of
+     rooms. Use <code class="code">sync=<span class="keyword">true</span></code> (the default) as much as possible in order to avoid
+     multi-threading problems. Then the changes will be applied by the main
+      thread at next frame (see <a href="Bogue.Sync.html"><code class="code"><span class="constructor">Sync</span></code></a>).<br>
+</div>
+
+<pre><span id="VALunload_textures"><span class="keyword">val</span> unload_textures</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Use this to free the textures stored by the layout (and its children) for
+     reducing memory. The layout can still be used without any impact, the
+     textures will be recreated on the fly.<br>
+</div>
+
+<pre><span id="VALlock"><span class="keyword">val</span> lock</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALunlock"><span class="keyword">val</span> unlock</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Since layouts can be modified by different threads, it might be useful to
+     lock it with a mutex. This does *not* always prevent from modifying it, but
+     another <code class="code">lock</code> statement will wait for the previous lock to be removed by
+     <a href="Bogue.Layout.html#VALunlock"><code class="code"><span class="constructor">Layout</span>.unlock</code></a>.<br>
+</div>
+<br>
+<h2 id="2_Animations">Animations</h2>
+<p>
+
+      Position, size, alpha channel, and rotation of Layouts use <code class="code"><span class="constructor">Avar</span></code>
+     variables and hence can be easily animated. Most predefined animations have
+      a default duration of 300ms.<br>
+<br>
+<h3 id="3_Genericanimations">Generic animations</h3>
+<p>
+
+      These functions assign an animated variable if type <a href="Bogue.Avar.html#TYPEt"><code class="code"><span class="constructor">Avar</span>.t</code></a> to one
+     of the properties of the layout (position, width, etc.)<br>
+
+<pre><span id="VALanimate_x"><span class="keyword">val</span> animate_x</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int <a href="Bogue.Avar.html#TYPEt">Avar.t</a> -> unit</code></pre><div class="info ">
+Assign an Avar to the layout x position.<br>
+</div>
+
+<pre><span id="VALanimate_y"><span class="keyword">val</span> animate_y</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int <a href="Bogue.Avar.html#TYPEt">Avar.t</a> -> unit</code></pre>
+<pre><span id="VALstop_pos"><span class="keyword">val</span> stop_pos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Stop animations of the variables x and y.<br>
+</div>
+
+<pre><span id="VALanimate_w"><span class="keyword">val</span> animate_w</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int <a href="Bogue.Avar.html#TYPEt">Avar.t</a> -> unit</code></pre>
+<pre><span id="VALanimate_h"><span class="keyword">val</span> animate_h</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int <a href="Bogue.Avar.html#TYPEt">Avar.t</a> -> unit</code></pre>
+<pre><span id="VALanimate_alpha"><span class="keyword">val</span> animate_alpha</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> float <a href="Bogue.Avar.html#TYPEt">Avar.t</a> -> unit</code></pre>
+<pre><span id="VALanimate_angle"><span class="keyword">val</span> animate_angle</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> float <a href="Bogue.Avar.html#TYPEt">Avar.t</a> -> unit</code></pre><br>
+<h3 id="3_Predefinedanimations">Predefined animations</h3><br>
+
+<pre><span id="VALhide"><span class="keyword">val</span> hide</span> : <code class="type">?duration:int -> ?towards:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+See <a href="Bogue.Layout.html#VALshow"><code class="code"><span class="constructor">Layout</span>.show</code></a>.<br>
+</div>
+
+<pre><span id="VALshow"><span class="keyword">val</span> show</span> : <code class="type">?duration:int -> ?from:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Does nothing is the layout is already fully displayed. Only the
+     <code class="code"><span class="constructor">Avar</span>.<span class="constructor">Top</span></code> and <code class="code"><span class="constructor">Avar</span>.<span class="constructor">Bottom</span></code> directions are currently implemented. For
+     these directions, <code class="code">hide</code> and <code class="code">show</code> do <em>not</em> modify the position
+     variables (x,y) of the layout, they use a special variable called
+     <code class="code">voffset</code>.<br>
+</div>
+
+<pre><span id="VALfade_in"><span class="keyword">val</span> fade_in</span> : <code class="type">?duration:int -><br>       ?from_alpha:float -> ?to_alpha:float -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Animate the alpha channel of the layout. Can be combined with animations
+     involving the other animated variables. Does <em>not</em> modify the <code class="code">show</code>
+     status of the layout. By default, <code class="code">from_alpha=0.</code> (transparent) and
+      <code class="code">to_alpha=1.</code>  (opaque).<br>
+</div>
+
+<pre><span id="VALfade_out"><span class="keyword">val</span> fade_out</span> : <code class="type">?duration:int -><br>       ?from_alpha:float -> ?to_alpha:float -> ?hide:bool -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+See <a href="Bogue.Layout.html#VALfade_in"><code class="code"><span class="constructor">Layout</span>.fade_in</code></a>. WARNING: fading out to alpha=0 results in a completely
+     transparent layout, but the layout is <em>still there</em> (it's not
+     "hidden"). Which means it can still get mouse focus. If you want to hide
+     it, then use <code class="code">hide=<span class="keyword">true</span></code>. By default, <code class="code">hide=<span class="keyword">false</span></code>, <code class="code">from_alpha</code> is the
+     current alpha of the layout, and <code class="code">to_alpha=0.</code><br>
+</div>
+
+<pre><span id="VALrotate"><span class="keyword">val</span> rotate</span> : <code class="type">?duration:int -> ?from_angle:float -> angle:float -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Rotate all widgets inside the layout around their respective centers. For
+      a global rotation, use a <a href="Bogue.Snapshot.html"><code class="code"><span class="constructor">Snapshot</span></code></a>.<br>
+</div>
+
+<pre><span id="VALslide_in"><span class="keyword">val</span> slide_in</span> : <code class="type">?from:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -> dst:<a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALslide_to"><span class="keyword">val</span> slide_to</span> : <code class="type">?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> int * int -> unit</code></pre><div class="info ">
+<code class="code">slide_to room (x0,y0)</code> will translate the <code class="code">room</code> to the position
+     <code class="code">(x0,y0)</code>.<br>
+</div>
+
+<pre><span id="VALfollow_mouse"><span class="keyword">val</span> follow_mouse</span> : <code class="type">?dx:int -><br>       ?dy:int -><br>       ?modifierx:(int -> int) -> ?modifiery:(int -> int) -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALoscillate"><span class="keyword">val</span> oscillate</span> : <code class="type">?duration:int -> ?frequency:float -> int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALzoom"><span class="keyword">val</span> zoom</span> : <code class="type">?duration:int -><br>       from_factor:float -> to_factor:float -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALreflat"><span class="keyword">val</span> reflat</span> : <code class="type">?sep:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -> ?margins:int -> ?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Adjust an existing layout to arrange its rooms in a "flat" fashion, as if
+     they were created by <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a>. Will be animated if <code class="code">duration &lt;&gt; 0</code>.<br>
+</div>
+
+<pre><span id="VALretower"><span class="keyword">val</span> retower</span> : <code class="type">?sep:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -> ?margins:int -> ?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><br>
+<h2 id="2_Windows">Windows</h2>
+<p>
+
+      A very special use of layout is to represent the 'window' on which
+     everything is drawn. Thus, this specific to the 'main house' (or <em>     top-layout</em>), <em>i.e.</em> a layout that is not a sublayout of another
+     layout.<br>
+
+<pre><span id="VALwindow"><span class="keyword">val</span> window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> Tsdl.Sdl.window</code></pre>
+<pre><span id="VALset_window_pos"><span class="keyword">val</span> set_window_pos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int * int -> unit</code></pre><div class="info ">
+It should be set <b>after</b> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> and <b>before</b>
+     <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. Otherwise it has possibly no effect, or perhaps causes some
+      glitches.<br>
+</div>
+<br>
+<h2 id="2_Misc">Misc</h2><br>
+
+<pre><span id="VALset_cursor"><span class="keyword">val</span> set_cursor</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> option -> unit</code></pre><div class="info ">
+Sets the cursor to the default value for this layout.<br>
+</div>
+</body></html>

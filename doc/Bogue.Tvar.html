@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Mouse.html">
+<link rel="next" href="Bogue.Avar.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Tvar</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Mouse.html" title="Bogue.Mouse">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Avar.html" title="Bogue.Avar">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Tvar.html">Bogue.Tvar</a></h1>
+
+<pre><span class="keyword">module</span> Tvar: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Tvar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Transform variables
+<p>
+
+    Transform variables are a way to share a common data between two widgets,
+   when the data has a different meaning (or even a different type) for each
+   widget. One widget holds the original value, and the other widget needs to
+   apply a <em>transformation</em> each time we wants to read or modify the
+   value.
+<p>
+
+    For instance you want to share an bank account <code class="code">b</code> between Alice in
+   France and Bob in the USA. The value is stored by Alice in EUR, and when Bob
+   does <code class="code">get b</code>, he gets the value in USD. Similarly, if he does <code class="code">set b 50</code> to
+   put 50USD on the account, then Alice's value will automatically have the
+   amont in EUR.
+<p>
+
+    What is interesting is that the transformation functions can also have <em>   side-effects</em>. For instance, send an email each time Bob or Alice modifies
+   the amount.
+<p>
+
+    A more prosaic example would be a slider which shares its value as an
+   integer between 0 and 100, and another widget which needs to read/save this
+   value as a float between 0 and 1, and each one of them gets notified when the
+   other changes the value.
+<p>
+
+<div align=right><a href="file:graph-b_tvar.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">('a, 'b)</code> t</span> </pre>
+<div class="info ">
+a transform variable of type <code class="code">(<span class="keywordsign">'</span>a,<span class="keywordsign">'</span>b)</code> is a variable of type <code class="code"><span class="keywordsign">'</span>b</code> attached to
+     a variable of type <code class="code"><span class="keywordsign">'</span>a <span class="constructor">Var</span>.t</code> by a bi-directional transformation.<br>
+</div>
+
+</body></html>

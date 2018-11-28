@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Widgets" rel="Section" href="#2_Widgets">
+<link title="Layouts" rel="Section" href="#2_Layouts">
+<link title="The Bogue mainloop" rel="Section" href="#2_TheBoguemainloop">
+<link title="Example" rel="Section" href="#example">
+<title>Bogue</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Bogue.html">Bogue</a></h1>
+
+<pre><span class="keyword">module</span> Bogue: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+A GUI Library for Ocaml
+<p>
+
+ Entirely written in <a href="https://ocaml.org/">ocaml</a> except for the hardware
+   accelerated graphics library <a href="https://www.libsdl.org/">SDL2</a>.<br>
+<b>Author(s):</b> Vu Ngoc San<br>
+<b>Version:</b> 0.1-alpha<br>
+</div>
+<hr width="100%">
+
+<pre><span class="keyword">module</span> <a href="Bogue.Utils.html">Utils</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Utils.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Utilities
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Theme.html">Theme</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Theme.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Theming variables
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Time.html">Time</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Time.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Time in msec 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Var.html">Var</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Var.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Gobal variables with mutex 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Timeout.html">Timeout</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Timeout.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Delayed actions 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Trigger.html">Trigger</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Trigger.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Dealing with events
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Mixer.html">Mixer</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mixer.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Basic audio mixer for sound effects
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Sync.html">Sync</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Sync.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Synchronized execution queue
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Draw.html">Draw</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Draw.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Low-level graphics 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Mouse.html">Mouse</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mouse.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Mouse information 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Tvar.html">Tvar</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Tvar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Transform variables
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Avar.html">Avar</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Avar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Animated variables
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Selection.html">Selection</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Selection.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Unions of ranges of integers
+</div>
+<br>
+<h2 id="2_Widgets">Widgets</h2>
+<p>
+
+    Widgets are building blocks of the GUI. They also receive all events (mouse
+   focus, etc.) and contain the <em>intelligence</em> of your GUI, through <em>   connections</em> (or callbacks, see <a href="Bogue.Widget.html#TYPEconnection"><code class="code"><span class="constructor">Widget</span>.connection</code></a>). However, in order to
+   be displayed, they need to be packed into <em>layouts</em> (<a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>).<br>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Image.html">Image</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Image.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Image widget
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Style.html">Style</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Style.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Line and box styles
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Label.html">Label</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Label.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+One-line text widget
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Button.html">Button</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Button.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Button widget with text or icon 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Slider.html">Slider</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Slider.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Slider widget
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Check.html">Check</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Check.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Checkbox widget
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Text_display.html">Text_display</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Text_display.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Multi-line text display widget
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Text_input.html">Text_input</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Text_input.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+One-line text-input widget
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Box.html">Box</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Box.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Box widget 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Widget.html">Widget</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Widget.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Creating and using widgets 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Update.html">Update</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Update.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Updating widgets
+</div>
+<br>
+<h2 id="2_Layouts">Layouts</h2>
+<p>
+
+    Layouts are rectangular graphical placeholders, in which you should pack all
+   your widgets in order to display your GUI. Sophisticated gadgets are usually
+   obtained by combining several layouts together.<br>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Layout.html">Layout</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Layout.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+The main, all-purpose graphics container
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Space.html">Space</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Space.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Adjust various spacings and sizes of layouts
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Print.html">Print</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Print.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Convert Bogue objects to strings for debugging 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Snapshot.html">Snapshot</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Snapshot.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Create an image from a Layout 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Long_list.html">Long_list</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Long_list.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Handle large lists by not displaying all elements at once
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Tabs.html">Tabs</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Tabs.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Switch between layouts using Tabs 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Popup.html">Popup</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Put layouts on top of others 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Menu.html">Menu</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Various types of menus 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Select.html">Select</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Select.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Drop-down select list
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Radiolist.html">Radiolist</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Radiolist.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Check list with a single choice
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Table.html">Table</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Table.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Tables with sortable columns and selectable rows 
+</div>
+<br>
+<h2 id="2_TheBoguemainloop">The Bogue mainloop</h2>
+<p>
+
+Because a GUI continuously waits for user interaction, everything has to run
+   inside a loop.<br>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Main.html">Main</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Main.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Control the workflow of the GUI mainloop 
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Bogue.html">Bogue</a>: <code class="type"><a href="Bogue.Main.html">Main</a></code></pre><div class="info">
+Alias for <code class="code"><span class="constructor">Main</span></code>
+</div>
+<br>
+<h2 id="example">Example</h2>
+<p>
+
+    Here is a minimal example with a label and a check box.
+<p>
+
+<pre class="codepre"><code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">Bogue</span>
+<span class="keyword">module</span>&nbsp;<span class="constructor">W</span>&nbsp;=&nbsp;<span class="constructor">Widget</span>
+<span class="keyword">module</span>&nbsp;<span class="constructor">L</span>&nbsp;=&nbsp;<span class="constructor">Layout</span>
+
+<span class="keyword">let</span>&nbsp;main&nbsp;()&nbsp;=
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;<span class="constructor">W</span>.check_box&nbsp;()&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;l&nbsp;=&nbsp;<span class="constructor">W</span>.label&nbsp;<span class="string">"Hello&nbsp;world"</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;layout&nbsp;=&nbsp;<span class="constructor">L</span>.flat_of_w&nbsp;[b;l]&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;board&nbsp;=&nbsp;<span class="constructor">Bogue</span>.make&nbsp;[]&nbsp;[layout]&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="constructor">Bogue</span>.run&nbsp;board;;
+
+<span class="keyword">let</span>&nbsp;()&nbsp;=&nbsp;main&nbsp;();
+&nbsp;&nbsp;<span class="constructor">Draw</span>.quit&nbsp;()
+</code></pre>
+<p>
+
+This can be compiled to bytecode with
+<p>
+
+<pre class="verbatim">ocamlfind ocamlc -package str,bogue -linkpkg -o minimal -thread minimal.ml</pre>
+<p>
+
+and to native code with
+<p>
+
+<pre class="verbatim">ocamlfind ocamlopt -package str,bogue -linkpkg -o minimal -thread minimal.ml</pre><br>
+</body></html>

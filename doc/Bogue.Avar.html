@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Tvar.html">
+<link rel="next" href="Bogue.Selection.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Avar information" rel="Section" href="#2_Avarinformation">
+<link title="Avar creation" rel="Section" href="#2_Avarcreation">
+<title>Bogue.Avar</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Tvar.html" title="Bogue.Tvar">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Selection.html" title="Bogue.Selection">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Avar.html">Bogue.Avar</a></h1>
+
+<pre><span class="keyword">module</span> Avar: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Avar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Animated variables
+<p>
+
+    An Avar.t is a special case of dynamic variables <code class="code"><span class="constructor">Dynvar</span></code>, where we know
+     that the variable will be used (and thus, updated) at every iteration of
+     the main loop. 
+<p>
+
+<div align=right><a href="file:graph-b_avar.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> </pre>
+
+
+<pre><code><span id="TYPEdirection"><span class="keyword">type</span> <code class="type"></code>direction</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.No"><span class="constructor">No</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Left"><span class="constructor">Left</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Right"><span class="constructor">Right</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Top"><span class="constructor">Top</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Bottom"><span class="constructor">Bottom</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.TopLeft"><span class="constructor">TopLeft</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.TopRight"><span class="constructor">TopRight</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.BottomLeft"><span class="constructor">BottomLeft</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.BottomRight"><span class="constructor">BottomRight</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Random"><span class="constructor">Random</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEcallback"><span class="keyword">type</span> <code class="type"></code>callback</span> = <code class="type">unit -> unit</code> </pre>
+
+<br>
+<h2 id="2_Avarinformation">Avar information</h2><br>
+
+<pre><span id="VALprogress"><span class="keyword">val</span> progress</span> : <code class="type">'a <a href="Bogue.Avar.html#TYPEt">t</a> -> float</code></pre><div class="info ">
+<code class="code">progress v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
+     when the last v.value was computed. In case of inifinite animation, this is
+     juste the elapsed Time (in ms).<br>
+</div>
+<br>
+<h2 id="2_Avarcreation">Avar creation</h2><br>
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?duration:<a href="Bogue.Time.html#TYPEt">Time.t</a> -><br>       ?init:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -><br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -><br>       ?finished:bool -><br>       ?update:('a <a href="Bogue.Avar.html#TYPEt">t</a> -> float -> 'a) -> 'a -> 'a <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
+Generic Avar creation. If <code class="code">finished = <span class="keyword">true</span></code>, the var never gets updated, <em>     ie</em> behaves like a normal Var. Otherwise, the <code class="code">update</code> parameter is
+     compulsory. <code class="code">update</code> is a function <code class="code">v <span class="keywordsign">-&gt;</span> t <span class="keywordsign">-&gt;</span> <span class="keywordsign">'</span>a</code> which gives the new value
+     of the variable given the old value <code class="code">v</code>, where <code class="code">t</code> is the current timing of
+     the animation as described in <a href="Bogue.Avar.html#VALprogress"><code class="code"><span class="constructor">Avar</span>.progress</code></a>.<br>
+</div>
+
+<pre><span id="VALfromto"><span class="keyword">val</span> fromto</span> : <code class="type">?duration:int -><br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -> int -> int -> int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">fromto x1 x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
+      time elapses, moves continuously to <code class="code">x2</code>, with a final slowdown.<br>
+</div>
+</body></html>

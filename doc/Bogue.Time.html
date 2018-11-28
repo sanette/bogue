@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Theme.html">
+<link rel="next" href="Bogue.Var.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Time</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Theme.html" title="Bogue.Theme">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Var.html" title="Bogue.Var">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Time.html">Bogue.Time</a></h1>
+
+<pre><span class="keyword">module</span> Time: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Time.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Time in msec 
+<p>
+
+<div align=right><a href="file:graph-b_time.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">int</code> </pre>
+
+
+<pre><span id="VALnow"><span class="keyword">val</span> now</span> : <code class="type">unit -> <a href="Bogue.Time.html#TYPEt">t</a></code></pre><div class="info ">
+Time elapsed from the initialisation of SDL (roughly, since the start of
+      your program).<br>
+</div>
+
+<pre><span id="VALadaptive_fps"><span class="keyword">val</span> adaptive_fps</span> : <code class="type">int -> (unit -> unit) * (unit -> unit)</code></pre><div class="info ">
+Create helper functions to help controlling the frame rate of the graphics
+     loop. This is only useful if you have your own graphics loop, and do not
+     use <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.
+<p>
+
+     <code class="code">adaptive_fps 60</code> returns two functions <code class="code">start,fps</code>. The statement <code class="code">start
+     ()</code> will start the timing. At each iteration of your loop, you should call
+     <code class="code">fps ()</code>, which will try to sleep long enough to achieve the desired 60FPS
+     rate. It works on average: if some frames take longer, it will shorten the
+     next frame to keep up. However, it tries to be nice to the CPU: even if one
+     is really too slow, it will guarantee a 5ms sleep to the CPU and <em>not</em>
+     try to keep up.<br>
+</div>
+</body></html>

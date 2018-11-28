@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Trigger.html">
+<link rel="next" href="Bogue.Sync.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Mixer</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Trigger.html" title="Bogue.Trigger">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Sync.html" title="Bogue.Sync">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Mixer.html">Bogue.Mixer</a></h1>
+
+<pre><span class="keyword">module</span> Mixer: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mixer.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Basic audio mixer for sound effects
+<p>
+
+<div align=right><a href="file:graph-b_mixer.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="TYPEsound"><span class="keyword">type</span> <code class="type"></code>sound</span> = <code class="type">(int, Bigarray.int16_signed_elt) Tsdl.Sdl.bigarray</code> </pre>
+
+
+<pre><code><span id="TYPErepeat"><span class="keyword">type</span> <code class="type"></code>repeat</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTrepeat.Repeat"><span class="constructor">Repeat</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTrepeat.Forever"><span class="constructor">Forever</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALtest"><span class="keyword">val</span> test</span> : <code class="type">unit -> unit</code></pre>
+<pre><span id="VALinit"><span class="keyword">val</span> init</span> : <code class="type">unit -> string option</code></pre><div class="info ">
+Initialize SDL audio.<br>
+<b>Returns</b> the name of the audio driver.<br>
+</div>
+
+<pre><span id="VALcreate_mixer"><span class="keyword">val</span> create_mixer</span> : <code class="type">?tracks:int -> ?freq:int -> string option -> <a href="Bogue.Mixer.html#TYPEt">t</a></code></pre><div class="info ">
+Create the mixer an open sound device. Only <code class="code">s16le</code> format is supported by
+      the callback at this time.<br>
+</div>
+
+<pre><span id="VALload_chunk"><span class="keyword">val</span> load_chunk</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> string -> <a href="Bogue.Mixer.html#TYPEsound">sound</a></code></pre><div class="info ">
+Load a WAV file.<br>
+</div>
+
+<pre><span id="VALplay_chunk"><span class="keyword">val</span> play_chunk</span> : <code class="type">?track:int -><br>       ?effects:(<a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit) list -><br>       ?volume:float -><br>       ?repeat:<a href="Bogue.Mixer.html#TYPErepeat">repeat</a> -><br>       <a href="Bogue.Mixer.html#TYPEt">t</a> -> <a href="Bogue.Mixer.html#TYPEsound">sound</a> -> int option</code></pre><div class="info ">
+Play chunk on the desired track number. If <code class="code">track</code> is not specified, find
+     an available track. By default <code class="code">repeat = <span class="constructor">Repeat</span> 1</code>.<br>
+<b>Returns</b> chosen track
+      number, or None<br>
+</div>
+
+<pre><span id="VALfree_chunk"><span class="keyword">val</span> free_chunk</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit</code></pre>
+<pre><span id="VALchange_volume"><span class="keyword">val</span> change_volume</span> : <code class="type">float -> <a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit</code></pre><div class="info ">
+Multiply sound intensity by a float factor<br>
+</div>
+
+<pre><span id="VALpause"><span class="keyword">val</span> pause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALunpause"><span class="keyword">val</span> unpause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALclose"><span class="keyword">val</span> close</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre></body></html>

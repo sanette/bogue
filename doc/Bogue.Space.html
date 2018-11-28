@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Layout.html">
+<link rel="next" href="Bogue.Print.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Space</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Layout.html" title="Bogue.Layout">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Print.html" title="Bogue.Print">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Space.html">Bogue.Space</a></h1>
+
+<pre><span class="keyword">module</span> Space: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Space.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Adjust various spacings and sizes of layouts
+<p>
+
+These functions <em>do not take effect immediately!</em> They will be executed, in
+   the order of their invocation, at the next graphics frame (or at startup if
+   they are invoked before the start of the mainloop).  
+<p>
+
+<div align=right><a href="file:graph-b_space.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="VALhfill"><span class="keyword">val</span> hfill</span> : <code class="type">?margin:int -> unit -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+When used in a <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> structure, this special empty layout will
+     automatically expand in order to fill the available width in the parent
+     house.<br>
+</div>
+
+<pre><span id="VALvfill"><span class="keyword">val</span> vfill</span> : <code class="type">?margin:int -> unit -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+When used in a <a href="Bogue.Layout.html#VALtower"><code class="code"><span class="constructor">Layout</span>.tower</code></a> structure, this special empty layout will
+     automatically expand in order to fill the available height in the parent
+     house.<br>
+</div>
+
+<pre><span id="VALfull_width"><span class="keyword">val</span> full_width</span> : <code class="type">?margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+This will set the width of the room (layout) in order to occupy the whole
+     width of its house.<br>
+</div>
+
+<pre><span id="VALmake_hfill"><span class="keyword">val</span> make_hfill</span> : <code class="type">?margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+Like <a href="Bogue.Space.html#VALhfill"><code class="code"><span class="constructor">Space</span>.hfill</code></a>, but applies to the specified layout instead of creating an
+      empty one.<br>
+</div>
+
+<pre><span id="VALmake_vfill"><span class="keyword">val</span> make_vfill</span> : <code class="type">?margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
+<pre><span id="VALvcenter"><span class="keyword">val</span> vcenter</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+Will certically center the layout in its house.<br>
+</div>
+</body></html>

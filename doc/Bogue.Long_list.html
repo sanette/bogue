@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Snapshot.html">
+<link rel="next" href="Bogue.Tabs.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Long_list</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Snapshot.html" title="Bogue.Snapshot">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Tabs.html" title="Bogue.Tabs">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Long_list.html">Bogue.Long_list</a></h1>
+
+<pre><span class="keyword">module</span> Long_list: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Long_list.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Handle large lists by not displaying all elements at once
+<p>
+
+Very quickly, displaying a list of layouts (for instance, listing files in a
+   directory) can run the computer out of memory if it tries to keep in memory
+   the textures of <b>all</b> entries of the list. In these cases you need to use a
+   <code class="code"><span class="constructor">Long_list</span></code>. 
+<p>
+
+<div align=right><a href="file:graph-b_long_list.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">w:int -><br>       h:int -><br>       length:int -><br>       ?first:int -><br>       generate:(int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -><br>       ?height_fn:(int -> int option) -><br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit) -><br>       ?max_memory:int -><br>       ?linear:bool -> ?scrollbar_width:int -> unit -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+Create a long list through the function <code class="code">generate</code> which maps any index
+      to the <em>ieth</em> element (layout) of the list. If specified (which is
+     not a good idea), the <code class="code">max_memory</code> should be at least twice the area (in
+     physical pixels) of the visible part of the list. If the number of elements
+     is large (typically 100000 or more, this depends on your CPU), its is
+     highly advisable to provide a <code class="code">height_fn</code>, which to an index <em>i</em> gives
+     the height (in logical pixels) of the <em>ieth</em> entry. If some heights are
+     not known in advance, it's ok to return <code class="code"><span class="constructor">None</span></code>. For instance, if all
+     entries have the same height, say 30 pixels, one can define
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;<span class="keyword">let</span>&nbsp;height_fn&nbsp;_&nbsp;=&nbsp;<span class="constructor">Some</span>&nbsp;30&nbsp;</code></pre><br>
+</div>
+</body></html>

@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Tabs.html">
+<link rel="next" href="Bogue.Menu.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Popup</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Tabs.html" title="Bogue.Tabs">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Menu.html" title="Bogue.Menu">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Popup.html">Bogue.Popup</a></h1>
+
+<pre><span class="keyword">module</span> Popup: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Put layouts on top of others 
+<p>
+
+<div align=right><a href="file:graph-b_popup.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="VALadd_screen"><span class="keyword">val</span> add_screen</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+Add a screen on top of the layout. This can be useful to make the whole
+     layout clickable as a whole.<br>
+<b>Returns</b> the screen.<br>
+</div>
+
+<pre><span id="VALattach"><span class="keyword">val</span> attach</span> : <code class="type">?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?show:bool -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+Generic modal type popup
+<p>
+<code class="code">attach house layout</code> adds two layers on top of the house: one for the
+     screen to hide the house, one for the layout on top of the screen.<br>
+<b>Returns</b> the screen.<br>
+</div>
+
+<pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -> ?h:int -> ?button:string -> string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+Add to the layout a modal popup with a text and a close button. By
+     default, <code class="code">button=<span class="string">"Close"</span></code>.<br>
+</div>
+
+<pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?yes:string -><br>       ?no:string -><br>       yes_action:(unit -> unit) -><br>       no_action:(unit -> unit) -> string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+Add to the layout a modal popup with two yes/no buttons. By default,
+      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>.<br>
+</div>
+
+<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?w:'a -><br>       ?h:'b -><br>       label1:string -><br>       label2:string -><br>       action1:(unit -> unit) -><br>       action2:(unit -> unit) -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
+<pre><code><span id="TYPEposition"><span class="keyword">type</span> <code class="type"></code>position</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTposition.LeftOf"><span class="constructor">LeftOf</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTposition.RightOf"><span class="constructor">RightOf</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTposition.Above"><span class="constructor">Above</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTposition.Below"><span class="constructor">Below</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTposition.Mouse"><span class="constructor">Mouse</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALtooltip"><span class="keyword">val</span> tooltip</span> : <code class="type">?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       ?position:<a href="Bogue.Popup.html#TYPEposition">position</a> -><br>       string -> target:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+<code class="code">tooltip text ~target widget layout</code> adds a tooltip which will appear on
+     <code class="code">layout</code>, next to <code class="code">target</code> (which should be a sublayout of <code class="code">layout</code>), when
+     the <code class="code">widget</code> gets mouse focus and mouse is idle for some time on it. A
+     tooltip it not a modal popup, it does not prevent from interacting with the
+     rest of the layout.<br>
+</div>
+</body></html>

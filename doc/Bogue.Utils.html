@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Bogue.Theme.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Debugging" rel="Section" href="#2_Debugging">
+<link title="Maths" rel="Section" href="#2_Maths">
+<link title="Tsdl Result" rel="Section" href="#2_TsdlResult">
+<link title="Options" rel="Section" href="#2_Options">
+<link title="Others" rel="Section" href="#2_Others">
+<link title="Binary masks (=flags) for debugging messages." rel="Subsection" href="#3_Binarymasksflagsfordebuggingmessages">
+<title>Bogue.Utils</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Theme.html" title="Bogue.Theme">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Utils.html">Bogue.Utils</a></h1>
+
+<pre><span class="keyword">module</span> Utils: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Utils.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Utilities
+<p>
+
+    This module contains several utilities, in particular for debug logs.
+<p>
+
+<div align=right><a href="file:graph-b_utils.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+<br>
+<h2 id="2_Debugging">Debugging</h2><br>
+
+<pre><span id="VALprintd"><span class="keyword">val</span> printd</span> : <code class="type">int -> ('a, unit, string, unit) Pervasives.format4 -> 'a</code></pre><div class="info ">
+For instance <code class="code">printd debug_warning <span class="string">"The value x=%u is too big"</span> x</code> will
+     print a message in the console only if the <a href="Bogue.Utils.html#VALdebug"><code class="code"><span class="constructor">Utils</span>.debug</code></a> variable contains the
+     <code class="code">debug_warning</code> flag.<br>
+</div>
+
+<pre><span id="VALdebug"><span class="keyword">val</span> debug</span> : <code class="type">bool Pervasives.ref</code></pre>
+<pre><span id="VALdebug_code"><span class="keyword">val</span> debug_code</span> : <code class="type">int Pervasives.ref</code></pre><div class="info ">
+Logical <em>ored</em> of <code class="code">!debug</code> with debug flags (below) controls the amount
+     of debuging.<br>
+</div>
+<br>
+<h3 id="3_Binarymasksflagsfordebuggingmessages">Binary masks (=flags) for debugging messages.</h3><br>
+
+<pre><span id="VALdebug_thread"><span class="keyword">val</span> debug_thread</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_warning"><span class="keyword">val</span> debug_warning</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_graphics"><span class="keyword">val</span> debug_graphics</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_error"><span class="keyword">val</span> debug_error</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_io"><span class="keyword">val</span> debug_io</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_memory"><span class="keyword">val</span> debug_memory</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_board"><span class="keyword">val</span> debug_board</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_event"><span class="keyword">val</span> debug_event</span> : <code class="type">int</code></pre>
+<pre><span id="VALdebug_custom"><span class="keyword">val</span> debug_custom</span> : <code class="type">int</code></pre><br>
+<h2 id="2_Maths">Maths</h2><br>
+
+<pre><span id="VALpi"><span class="keyword">val</span> pi</span> : <code class="type">float</code></pre>
+<pre><span id="VALround"><span class="keyword">val</span> round</span> : <code class="type">float -> int</code></pre><div class="info ">
+Round float to nearest integer.<br>
+</div>
+
+<pre><span id="VALimax"><span class="keyword">val</span> imax</span> : <code class="type">int -> int -> int</code></pre><div class="info ">
+<code class="code">imax a b</code> returns max(a,b)<br>
+</div>
+
+<pre><span id="VALimin"><span class="keyword">val</span> imin</span> : <code class="type">int -> int -> int</code></pre><br>
+<h2 id="2_TsdlResult">Tsdl Result</h2><br>
+
+<pre><span id="VALgo"><span class="keyword">val</span> go</span> : <code class="type">('a, 'b) Pervasives.result -> 'a</code></pre><div class="info ">
+Transform a <code class="code">result</code> into a standard value, or fail with an error. Used
+      only for SDL functions.<br>
+</div>
+<br>
+<h2 id="2_Options">Options</h2>
+<p>
+
+      Monadic style operations on optional variables.<br>
+
+<pre><span id="VALmap_option"><span class="keyword">val</span> map_option</span> : <code class="type">'a option -> ('a -> 'b) -> 'b option</code></pre>
+<pre><span id="VALdo_option"><span class="keyword">val</span> do_option</span> : <code class="type">'a option -> ('a -> unit) -> unit</code></pre>
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type">'a option -> 'a -> 'a</code></pre>
+<pre><span id="EXCEPTIONNone_option"><span class="keyword">exception</span> None_option</span></pre>
+
+<pre><span id="VALremove_option"><span class="keyword">val</span> remove_option</span> : <code class="type">'a option -> 'a</code></pre><div class="info ">
+Warning: <code class="code">remove_option <span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.<br>
+</div>
+<br>
+<h2 id="2_Others">Others</h2><br>
+
+<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">(unit -> 'a) -> 'a</code></pre><div class="info ">
+<code class="code">run f</code> is equivalent to <code class="code">f ()</code>.<br>
+</div>
+</body></html>

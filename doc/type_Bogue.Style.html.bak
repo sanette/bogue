@@ -1,0 +1,30 @@
+<html><head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Style</title>
+</head>
+<body>
+<pre class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;line_style&nbsp;=&nbsp;<span class="constructor">Solid</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Dotted</span>&nbsp;<span class="keyword">of</span>&nbsp;(int&nbsp;*&nbsp;int)
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;line
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;border
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;gradient
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;background&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Image</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Image</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Solid</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Gradient</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.gradient
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;color_bg&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;gradient&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;?angle:float&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;hgradient&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;vgradient&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;line&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;?color:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;?width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?style:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line_style&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;border&nbsp;:&nbsp;?radius:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border
+<span class="keyword">end</span></code></body></html>

@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Button.html">
+<link rel="next" href="Bogue.Check.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Slider</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Button.html" title="Bogue.Button">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Check.html" title="Bogue.Check">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Slider.html">Bogue.Slider</a></h1>
+
+<pre><span class="keyword">module</span> Slider: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Slider.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Slider widget
+<p>
+
+<div align=right><a href="file:graph-b_slider.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><code><span id="TYPEkind"><span class="keyword">type</span> <code class="type"></code>kind</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkind.Horizontal"><span class="constructor">Horizontal</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkind.HBar"><span class="constructor">HBar</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkind.Vertical"><span class="constructor">Vertical</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkind.Circular"><span class="constructor">Circular</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -> int * int</code></pre>
+<pre><span id="VALvalue"><span class="keyword">val</span> value</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+Get current value.<br>
+</div>
+
+<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -> int -> unit</code></pre><div class="info ">
+Set a new value.<br>
+</div>
+</body></html>

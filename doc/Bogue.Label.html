@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Style.html">
+<link rel="next" href="Bogue.Button.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Label</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Style.html" title="Bogue.Style">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Button.html" title="Bogue.Button">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Label.html">Bogue.Label</a></h1>
+
+<pre><span class="keyword">module</span> Label: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Label.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+One-line text widget
+<p>
+
+<div align=right><a href="file:graph-b_label.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="TYPEfont"><span class="keyword">type</span> <code class="type"></code>font</span> </pre>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -><br>       ?font:<a href="Bogue.Label.html#TYPEfont">font</a> -><br>       ?style:Tsdl_ttf.Ttf.Style.t -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
+Create a new Label.t<br>
+</div>
+
+<pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -> ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
+Create a Label.t using the name of a Fontawesome symbol<br>
+</div>
+
+<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
+Modify the text of the label<br>
+</div>
+
+<pre><span id="VALset_fg_color"><span class="keyword">val</span> set_fg_color</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> <a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> unit</code></pre>
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
+Logical size (w,h). Warning, a +/- 1 error can be observed due
+     to roundind.<br>
+</div>
+</body></html>

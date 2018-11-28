@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Radiolist.html">
+<link rel="next" href="Bogue.Main.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Table</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Radiolist.html" title="Bogue.Radiolist">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Main.html" title="Bogue.Main">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Table.html">Bogue.Table</a></h1>
+
+<pre><span class="keyword">module</span> Table: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Table.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Tables with sortable columns and selectable rows 
+<p>
+
+<div align=right><a href="file:graph-b_table.html">Dependency graph</a></div><br>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEcolumn"><span class="keyword">type</span> <code class="type"></code>column</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcolumn.title">title</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcolumn.length">length</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcolumn.rows">rows</span>&nbsp;: <code class="type">int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcolumn.compare">compare</span>&nbsp;: <code class="type">(int -> int -> int) option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcolumn.width">width</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?w:int -><br>       h:int -><br>       ?row_height:int -><br>       ?name:string -><br>       <a href="Bogue.Table.html#TYPEcolumn">column</a> list -><br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<b>Returns</b> a layout and a Tvar. The Tvar can be used to see which rows were
+     selected by the user, and also to modify the selection if needed.<br>
+</div>
+</body></html>

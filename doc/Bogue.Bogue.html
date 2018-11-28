@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Main.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Using Bogue together with another graphics loop" rel="Section" href="#2_UsingBoguetogetherwithanothergraphicsloop">
+<title>Bogue.Bogue</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Main.html" title="Bogue.Main">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Bogue.Bogue.html">Bogue.Bogue</a></h1>
+
+<pre><span class="keyword">module</span> Bogue: <code class="type"><a href="Bogue.Main.html">Main</a></code></pre><div class="info module top">
+Alias for <code class="code"><span class="constructor">Main</span></code><br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEboard"><span class="keyword">type</span> <code class="type"></code>board</span> </pre>
+<div class="info ">
+The board is the whole universe of your GUI. It contains everything.<br>
+</div>
+
+
+<pre><span id="EXCEPTIONExit"><span class="keyword">exception</span> Exit</span></pre>
+<div class="info ">
+Raising the <code class="code"><span class="constructor">Exit</span></code> exception will tell the GUI loop to terminate.<br>
+</div>
+
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type"><a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -> <a href="Bogue.Main.html#TYPEboard">board</a></code></pre>
+<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">?before_display:(unit -> unit) -><br>       ?after_display:(unit -> unit) -> <a href="Bogue.Main.html#TYPEboard">board</a> -> unit</code></pre><br>
+<h2 id="2_UsingBoguetogetherwithanothergraphicsloop">Using Bogue together with another graphics loop</h2> 
+<p>
+
+      See the <code class="code">embed</code> example.<br>
+
+<pre><span id="VALmake_sdl_windows"><span class="keyword">val</span> make_sdl_windows</span> : <code class="type">?windows:Tsdl.Sdl.window list -> <a href="Bogue.Main.html#TYPEboard">board</a> -> unit</code></pre><div class="info ">
+This is only useful if you have your own graphics loop, and do <em>not</em> use
+     <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. This function creates an SDL window for each top layout in the
+     board. One can use predefined windows with the optional argument
+     <code class="code">windows</code>. They will be used by the layouts in the order they appear in the
+     list. If there are fewer windows than layouts, new windows are created. If
+      there are more, the excess is disregarded.<br>
+</div>
+
+<pre><span id="VALrefresh_custom_windows"><span class="keyword">val</span> refresh_custom_windows</span> : <code class="type"><a href="Bogue.Main.html#TYPEboard">board</a> -> unit</code></pre><div class="info ">
+Ask the GUI to refresh (ie. repaint) the custom windows (those that were
+     not created by Bogue itself).<br>
+</div>
+
+<pre><span id="VALone_step"><span class="keyword">val</span> one_step</span> : <code class="type">?before_display:(unit -> unit) -><br>       bool -><br>       (unit -> unit) * (unit -> unit) -> ?clear:bool -> <a href="Bogue.Main.html#TYPEboard">board</a> -> bool</code></pre><div class="info ">
+This is only useful if you have your own graphics loop, and do <em>not</em> use
+     <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. Calling <code class="code">one_step ~before_display anim (start_fps, fps) ~clear
+     board</code> is what is executed at each step of the Bogue mainloop. If
+     <code class="code">anim=<span class="keyword">true</span></code> this step is <em>non blocking</em>; this is what you want if either
+     Bogue or your loop has an animation running. If <code class="code">anim=<span class="keyword">false</span></code> then the
+     function will wait until an event is received.<br>
+<b>Returns</b> <code class="code"><span class="keyword">true</span></code> if the GUI
+     currently handles an animation. In this case <code class="code">fps()</code> was executed by
+     <code class="code">one_step</code>. If not, you should handle the frame rate yourself.<br>
+</div>
+</body></html>
