@@ -25,4 +25,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;bool&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;*&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;?clear:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.board&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

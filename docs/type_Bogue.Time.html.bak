@@ -13,4 +13,4 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=&nbsp;int
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;now&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Time</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;adaptive_fps&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;*&nbsp;(unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

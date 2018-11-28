@@ -13,4 +13,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;layout_down&nbsp;:&nbsp;?indent:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;layout_up&nbsp;:&nbsp;?indent:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;layout_error&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

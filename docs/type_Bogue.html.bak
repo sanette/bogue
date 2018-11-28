@@ -727,4 +727,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?clear:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.board&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
 &nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Bogue</span>&nbsp;=&nbsp;<span class="constructor">Main</span>
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

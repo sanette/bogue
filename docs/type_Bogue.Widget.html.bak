@@ -105,4 +105,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_slider&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Slider</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_text_display&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_display</span>.t
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_text_input&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_input</span>.t
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

@@ -9,4 +9,4 @@
 <link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Theme</title>
 </head>
 <body>
-<pre class="code"><span class="keyword">sig</span>&nbsp;<span class="keyword">val</span>&nbsp;room_margin&nbsp;:&nbsp;int&nbsp;<span class="keyword">end</span></code></body></html>
+<pre class="code"><span class="keyword">sig</span>&nbsp;<span class="keyword">val</span>&nbsp;room_margin&nbsp;:&nbsp;int&nbsp;<span class="keyword">end</span></pre></body></html>

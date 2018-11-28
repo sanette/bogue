@@ -17,4 +17,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?expand:bool&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;?canvas:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.canvas&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;?name:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(string&nbsp;*&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

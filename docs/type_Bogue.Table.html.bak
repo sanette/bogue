@@ -25,4 +25,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?name:string&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Table</span>.column&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;*&nbsp;(<span class="constructor">Bogue</span>.<span class="constructor">Selection</span>.t,&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Selection</span>.t)&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Tvar</span>.t
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

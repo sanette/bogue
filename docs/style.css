@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono|Fira+Sans:300,400|Roboto+Slab|Roboto:400i");
 /* line 23, ../sass/style.scss */
 html {
-  background-image: url("/home/san/prog/ocaml/bogue/doc-css/background.jpg");
+  background-image: url("background.jpg");
   background-attachment: fixed;
   background-position: bottom;
   background-repeat: no-repeat;
