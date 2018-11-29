@@ -53,6 +53,17 @@ Several predefined layouts are available:
 
 Layouts can be __animated__ (slide-in, transparency, rotation)
 
+# Installation
+
+TODO
+
 # Documentation
 
 The doc can be found [here](http://sanette.github.io/bogue/Bogue.html).
+
+# Examples
+
+You should first try a
+[minimal example](http://sanette.github.io/bogue/Bogue.html#example).
+
+The `examples` directory contains more sophisticated examples.

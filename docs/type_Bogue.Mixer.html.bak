@@ -29,4 +29,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pause&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Mixer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unpause&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Mixer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;close&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Mixer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
-<span class="keyword">end</span></pre></body></html>
+<span class="keyword">end</span></code></body></html>

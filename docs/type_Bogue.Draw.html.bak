@@ -43,4 +43,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;use_new_layer&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unscale_size&nbsp;:&nbsp;int&nbsp;*&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_system_cursor&nbsp;:&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.<span class="constructor">System_cursor</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
-<span class="keyword">end</span></pre></body></html>
+<span class="keyword">end</span></code></body></html>

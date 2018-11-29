@@ -14,4 +14,4 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;filter&nbsp;=&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;uint_filter&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_input</span>.filter
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;text&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_input</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string
-<span class="keyword">end</span></pre></body></html>
+<span class="keyword">end</span></code></body></html>

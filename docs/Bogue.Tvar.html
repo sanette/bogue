@@ -27,15 +27,14 @@ Transform variables
     Transform variables are a way to share a common data between two widgets,
    when the data has a different meaning (or even a different type) for each
    widget. One widget holds the original value, and the other widget needs to
-   apply a <em>transformation</em> each time we wants to read or modify the
-   value.
+   apply a <em>transformation</em> each time it wants to read or modify the value.
 <p>
 
-    For instance you want to share an bank account <code class="code">b</code> between Alice in
-   France and Bob in the USA. The value is stored by Alice in EUR, and when Bob
-   does <code class="code">get b</code>, he gets the value in USD. Similarly, if he does <code class="code">set b 50</code> to
-   put 50USD on the account, then Alice's value will automatically have the
-   amont in EUR.
+    For instance you want to share a bank account <code class="code">b</code> between Alice in France
+   and Bob in the USA. The value is stored by Alice in EUR, and when Bob does
+   <code class="code">get b</code>, he gets the value in USD. Similarly, if he does <code class="code">set b 50</code> to put
+   50USD on the account, then Alice's value will automatically have the amount
+   in EUR.
 <p>
 
     What is interesting is that the transformation functions can also have <em>   side-effects</em>. For instance, send an email each time Bob or Alice modifies

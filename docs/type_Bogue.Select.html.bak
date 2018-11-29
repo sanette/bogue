@@ -21,4 +21,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;selected&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Select</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_label&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Select</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_action&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Select</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
-<span class="keyword">end</span></pre></body></html>
+<span class="keyword">end</span></code></body></html>

@@ -9,4 +9,4 @@
 <link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Mouse</title>
 </head>
 <body>
-<pre class="code"><span class="keyword">sig</span>&nbsp;<span class="keyword">val</span>&nbsp;pos&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int&nbsp;<span class="keyword">end</span></pre></body></html>
+<pre class="code"><span class="keyword">sig</span>&nbsp;<span class="keyword">val</span>&nbsp;pos&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int&nbsp;<span class="keyword">end</span></code></body></html>
