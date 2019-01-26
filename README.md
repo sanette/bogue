@@ -2,21 +2,20 @@
 
 _bogue_ is a GUI library for ocaml, with animations, based on SDL2.
 
-This library can be used for games or for adding nice GUI elements to
-any ocaml program.
+This library can be used for games or for adding GUI elements to any
+ocaml program.
 
 It uses the __SDL2 renderer__ library, which makes it quite fast.
 
-It is __themable__, and does not try to look like your desktop. Instead,
-it will look the same on every platform.
+It is __themable__, and does not try to look like your
+desktop. Instead, it will look the same on every platform.
 
-Graphics output is scalable, and will hence easily adapt to __Hi-DPI
+Graphics output is scalable, and hence easily adapts to __Hi-DPI
 displays__.
 
-Programming is easy if you're used to GUIs with widgets, layouts,
-callbacks, and of course it has a functional flavor.  ​It uses
+Programming with _bogue_ is easy if you're used to GUIs with widgets,
+layouts, callbacks, and of course it has a functional flavor.  ​It uses
 __Threads__ when non-blocking reactions are needed.
-
 
 # features
 
