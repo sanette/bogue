@@ -1,0 +1,24 @@
+EXCLUDE_QUERY_DIR
+B /home/san/.opam/ocaml-system/lib/bytes
+B /home/san/.opam/ocaml-system/lib/ctypes
+B /home/san/.opam/ocaml-system/lib/integers
+B /home/san/.opam/ocaml-system/lib/result
+B /home/san/.opam/ocaml-system/lib/tsdl
+B /home/san/.opam/ocaml-system/lib/tsdl_image
+B /home/san/.opam/ocaml-system/lib/tsdl_ttf
+B /usr/lib/ocaml
+B /usr/lib/ocaml/threads
+B ../_build/default/examples/.example.eobjs/byte
+B ../_build/default/lib/.bogue.objs/byte
+S /home/san/.opam/ocaml-system/lib/bytes
+S /home/san/.opam/ocaml-system/lib/ctypes
+S /home/san/.opam/ocaml-system/lib/integers
+S /home/san/.opam/ocaml-system/lib/result
+S /home/san/.opam/ocaml-system/lib/tsdl
+S /home/san/.opam/ocaml-system/lib/tsdl_image
+S /home/san/.opam/ocaml-system/lib/tsdl_ttf
+S /usr/lib/ocaml
+S /usr/lib/ocaml/threads
+S .
+S ../lib
+FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs

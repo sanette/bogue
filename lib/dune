@@ -1,0 +1,8 @@
+(library
+ (name bogue)
+ (public_name bogue)
+ (libraries str tsdl tsdl_image tsdl_ttf))
+
+(install
+ (section share)
+ (files ../share/themes.tgz))
