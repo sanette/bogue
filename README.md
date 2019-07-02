@@ -54,6 +54,15 @@ Layouts can be __animated__ (slide-in, transparency, rotation)
 
 # Installation
 
+## Compiling
+
+Download the git archive, cd into the `bogue` dir, and then:
+```
+dune build
+opam install .
+```
+
+## Using the opam package
 TODO
 
 # Documentation
@@ -65,4 +74,14 @@ The doc can be found [here](http://sanette.github.io/bogue/Bogue.html).
 You should first try a
 [minimal example](http://sanette.github.io/bogue/Bogue.html#example).
 
-The `examples` directory contains more sophisticated examples.
+The `examples` directory contains more sophisticated examples. If you installed (or compiled) the opam package, these examples are available via the `boguex` program. For instance, run examples 34 and 41 by:
+
+```
+boguex 34 41
+```
+
+Type `boguex -h` to have the list of all examples.
+
+# A minimal app using Bogue
+
+See [here](https://github.com/sanette/randomize).
