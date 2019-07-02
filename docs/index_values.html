@@ -2,6 +2,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
@@ -94,7 +95,7 @@ Multiply sound intensity by a float factor
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALcheck_box_with_label">check_box_with_label</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-<code class="code"><span class="keyword">let</span> b,l = check_box_with_label text</code> creates a check box <code class="code">b</code>, a label
+<code class="code"><span class="keyword">let</span>&nbsp;b,l&nbsp;=&nbsp;check_box_with_label&nbsp;text</code> creates a check box <code class="code">b</code>, a label
      <code class="code">l</code>, and connect them so that clicking on the text will also act on the
      check box.
 </div>
@@ -107,14 +108,14 @@ Multiply sound intensity by a float factor
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALconnect">connect</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-<code class="code">connect source target action triggers</code> creates a connection from the
+<code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
      <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
      may change in the future...</em>
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALconnect_main">connect_main</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-Alias to <code class="code">connect ~priority:<span class="constructor">Main</span></code>.
+Alias to <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Table.html#VALcreate">create</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
@@ -123,7 +124,7 @@ Alias to <code class="code">connect ~priority:<span class="constructor">Main</sp
 </td></tr>
 <tr><td><a href="Bogue.Select.html#VALcreate">create</a> [<a href="Bogue.Select.html">Bogue.Select</a>]</td>
 <td><div class="info">
-For instance <code class="code">create [| <span class="string">"A"</span>; <span class="string">"B"</span>; <span class="string">"C"</span> |] 1</code> will create a select box with
+For instance <code class="code">create&nbsp;[|&nbsp;<span class="string">"A"</span>;&nbsp;<span class="string">"B"</span>;&nbsp;<span class="string">"C"</span>&nbsp;|]&nbsp;1</code> will create a select box with
      default choice <code class="code"><span class="string">"B"</span></code>.
 </div>
 </td></tr>
@@ -156,8 +157,8 @@ Create a new Label.t
 </td></tr>
 <tr><td><a href="Bogue.Image.html#VALcreate">create</a> [<a href="Bogue.Image.html">Bogue.Image</a>]</td>
 <td><div class="info">
-<code class="code">create <span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code> (using the path
-     <code class="code"><span class="constructor">Theme</span>.get_path <span class="string">"image.jpg"</span></code>).
+<code class="code">create&nbsp;<span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code> (using the path
+     <code class="code"><span class="constructor">Theme</span>.get_path&nbsp;<span class="string">"image.jpg"</span></code>).
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Avar.html#VALcreate">create</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
@@ -264,7 +265,7 @@ Adapt the size of the layout (and their houses) to the disposition of the
 <td></td></tr>
 <tr><td><a href="Bogue.Avar.html#VALfromto">fromto</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
 <td><div class="info">
-<code class="code">fromto x1 x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
+<code class="code">fromto&nbsp;x1&nbsp;x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
       time elapses, moves continuously to <code class="code">x2</code>, with a final slowdown.
 </div>
 </td></tr>
@@ -304,7 +305,7 @@ multiplies <code class="code">get_size</code> by the Theme scaling factor.
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_size">get_size</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<code class="code">get_size l</code> is equivalent to <code class="code">(width l, height l)</code>
+<code class="code">get_size&nbsp;l</code> is equivalent to <code class="code">(width&nbsp;l,&nbsp;height&nbsp;l)</code>
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_slider">get_slider</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -382,7 +383,7 @@ Requires <code class="code">rsvg</code>.
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALimax">imax</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td><div class="info">
-<code class="code">imax a b</code> returns max(a,b)
+<code class="code">imax&nbsp;a&nbsp;b</code> returns max(a,b)
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALimin">imin</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
@@ -397,6 +398,8 @@ Add to the layout a modal popup with a text and a close button.
 Initialize SDL audio.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Button.html#VALis_pressed">is_pressed</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALitalic">italic</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>L</td></tr>
@@ -476,9 +479,15 @@ This is only useful if you have your own graphics loop, and do <em>not</em> use
 <tr><td><a href="Bogue.Widget.html#VALmouse_over">mouse_over</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>N</td></tr>
+<tr><td><a href="Bogue.Trigger.html#VALnice_delay">nice_delay</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
+<td><div class="info">
+<code class="code">nice_delay&nbsp;ev&nbsp;t</code> Wait during a delay (<code class="code">t</code> seconds), but quit anyway when
+     <code class="code">{!should_exit}&nbsp;ev</code> is true.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Draw.html#VALnone">none</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
-<code class="code">none = (0,0,0,0)</code> is completely transparent black.
+<code class="code">none&nbsp;=&nbsp;(0,0,0,0)</code> is completely transparent black.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALnormal">normal</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
@@ -497,7 +506,7 @@ Time elapsed from the initialization of SDL (roughly, since the start of
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALon_release">on_release</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-<code class="code">on_release ~release:f w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
+<code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
      which will be executed when the mouse button is released on this widget.
 </div>
 </td></tr>
@@ -538,14 +547,14 @@ Get current mouse position
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALprintd">printd</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td><div class="info">
-For instance <code class="code">printd debug_warning <span class="string">"The value x=%u is too big"</span> x</code> will
+For instance <code class="code">printd&nbsp;debug_warning&nbsp;<span class="string">"The&nbsp;value&nbsp;x=%u&nbsp;is&nbsp;too&nbsp;big"</span>&nbsp;x</code> will
      print a message in the console only if the <a href="Bogue.Utils.html#VALdebug"><code class="code"><span class="constructor">Utils</span>.debug</code></a> variable contains the
      <code class="code">debug_warning</code> flag.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Avar.html#VALprogress">progress</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
 <td><div class="info">
-<code class="code">progress v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
+<code class="code">progress&nbsp;v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
      when the last v.value was computed.
 </div>
 </td></tr>
@@ -590,7 +599,7 @@ Ask the GUI to refresh (ie.
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALremove_option">remove_option</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td><div class="info">
-Warning: <code class="code">remove_option <span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.
+Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Button.html#VALreset">reset</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
@@ -617,7 +626,7 @@ Round float to nearest integer.
 <td></td></tr>
 <tr><td><a href="Bogue.Utils.html#VALrun">run</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td><div class="info">
-<code class="code">run f</code> is equivalent to <code class="code">f ()</code>.
+<code class="code">run&nbsp;f</code> is equivalent to <code class="code">f&nbsp;()</code>.
 </div>
 </td></tr>
 <tr><td align="left"><br>S</td></tr>
@@ -722,7 +731,7 @@ Logical size (w,h).
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALslide_to">slide_to</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<code class="code">slide_to room (x0,y0)</code> will translate the <code class="code">room</code> to the position
+<code class="code">slide_to&nbsp;room&nbsp;(x0,y0)</code> will translate the <code class="code">room</code> to the position
      <code class="code">(x0,y0)</code>.
 </div>
 </td></tr>
@@ -762,7 +771,7 @@ Create a new layout by superposing a list of layouts without changing
 <td></td></tr>
 <tr><td><a href="Bogue.Popup.html#VALtooltip">tooltip</a> [<a href="Bogue.Popup.html">Bogue.Popup</a>]</td>
 <td><div class="info">
-<code class="code">tooltip text ~target widget layout</code> adds a tooltip which will appear on
+<code class="code">tooltip&nbsp;text&nbsp;~target&nbsp;widget&nbsp;layout</code> adds a tooltip which will appear on
      <code class="code">layout</code>, next to <code class="code">target</code> (which should be a sublayout of <code class="code">layout</code>), when
      the <code class="code">widget</code> gets mouse focus and mouse is idle for some time on it.
 </div>

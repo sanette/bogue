@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="next" href="Bogue.Theme.html">
 <link rel="Up" href="Bogue.html">
@@ -38,7 +39,7 @@ Utilities
 <h2 id="2_Debugging">Debugging</h2><br>
 
 <pre><span id="VALprintd"><span class="keyword">val</span> printd</span> : <code class="type">int -> ('a, unit, string, unit) Pervasives.format4 -> 'a</code></pre><div class="info ">
-For instance <code class="code">printd debug_warning <span class="string">"The value x=%u is too big"</span> x</code> will
+For instance <code class="code">printd&nbsp;debug_warning&nbsp;<span class="string">"The&nbsp;value&nbsp;x=%u&nbsp;is&nbsp;too&nbsp;big"</span>&nbsp;x</code> will
      print a message in the console only if the <a href="Bogue.Utils.html#VALdebug"><code class="code"><span class="constructor">Utils</span>.debug</code></a> variable contains the
      <code class="code">debug_warning</code> flag.<br>
 </div>
@@ -68,7 +69,7 @@ Round float to nearest integer.<br>
 </div>
 
 <pre><span id="VALimax"><span class="keyword">val</span> imax</span> : <code class="type">int -> int -> int</code></pre><div class="info ">
-<code class="code">imax a b</code> returns max(a,b)<br>
+<code class="code">imax&nbsp;a&nbsp;b</code> returns max(a,b)<br>
 </div>
 
 <pre><span id="VALimin"><span class="keyword">val</span> imin</span> : <code class="type">int -> int -> int</code></pre><br>
@@ -90,12 +91,12 @@ Transform a <code class="code">result</code> into a standard value, or fail with
 <pre><span id="EXCEPTIONNone_option"><span class="keyword">exception</span> None_option</span></pre>
 
 <pre><span id="VALremove_option"><span class="keyword">val</span> remove_option</span> : <code class="type">'a option -> 'a</code></pre><div class="info ">
-Warning: <code class="code">remove_option <span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.<br>
+Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.<br>
 </div>
 <br>
 <h2 id="2_Others">Others</h2><br>
 
 <pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">(unit -> 'a) -> 'a</code></pre><div class="info ">
-<code class="code">run f</code> is equivalent to <code class="code">f ()</code>.<br>
+<code class="code">run&nbsp;f</code> is equivalent to <code class="code">f&nbsp;()</code>.<br>
 </div>
 </body></html>

@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Tvar.html">
 <link rel="next" href="Bogue.Selection.html">
@@ -118,7 +119,7 @@ Animated variables
 <h2 id="2_Avarinformation">Avar information</h2><br>
 
 <pre><span id="VALprogress"><span class="keyword">val</span> progress</span> : <code class="type">'a <a href="Bogue.Avar.html#TYPEt">t</a> -> float</code></pre><div class="info ">
-<code class="code">progress v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
+<code class="code">progress&nbsp;v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
      when the last v.value was computed. In case of infinite animation, this is
      just the elapsed Time (in ms).<br>
 </div>
@@ -126,14 +127,14 @@ Animated variables
 <h2 id="2_Avarcreation">Avar creation</h2><br>
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?duration:<a href="Bogue.Time.html#TYPEt">Time.t</a> -><br>       ?init:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -><br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -><br>       ?finished:bool -><br>       ?update:('a <a href="Bogue.Avar.html#TYPEt">t</a> -> float -> 'a) -> 'a -> 'a <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
-Generic Avar creation. If <code class="code">finished = <span class="keyword">true</span></code>, the var never gets updated, <em>     ie</em> behaves like a normal Var. Otherwise, the <code class="code">update</code> parameter is
-     compulsory. <code class="code">update</code> is a function <code class="code">v <span class="keywordsign">-&gt;</span> t <span class="keywordsign">-&gt;</span> <span class="keywordsign">'</span>a</code> which gives the new value
+Generic Avar creation. If <code class="code">finished&nbsp;=&nbsp;<span class="keyword">true</span></code>, the var never gets updated, <em>     ie</em> behaves like a normal Var. Otherwise, the <code class="code">update</code> parameter is
+     compulsory. <code class="code">update</code> is a function <code class="code">v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a</code> which gives the new value
      of the variable given the old value <code class="code">v</code>, where <code class="code">t</code> is the current timing of
      the animation as described in <a href="Bogue.Avar.html#VALprogress"><code class="code"><span class="constructor">Avar</span>.progress</code></a>.<br>
 </div>
 
 <pre><span id="VALfromto"><span class="keyword">val</span> fromto</span> : <code class="type">?duration:int -><br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -> int -> int -> int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
-<code class="code">fromto x1 x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
+<code class="code">fromto&nbsp;x1&nbsp;x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
       time elapses, moves continuously to <code class="code">x2</code>, with a final slowdown.<br>
 </div>
 </body></html>

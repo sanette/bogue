@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Theme.html">
 <link rel="next" href="Bogue.Var.html">
@@ -42,9 +43,9 @@ Create helper functions to help controlling the frame rate of the graphics
      use <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.
 <p>
 
-     <code class="code">adaptive_fps 60</code> returns two functions <code class="code">start,fps</code>. The statement <code class="code">start
-     ()</code> will start the timing. At each iteration of your loop, you should call
-     <code class="code">fps ()</code>, which will try to sleep long enough to achieve the desired 60FPS
+     <code class="code">adaptive_fps&nbsp;60</code> returns two functions <code class="code">start,fps</code>. The statement <code class="code">start<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;()</code> will start the timing. At each iteration of your loop, you should call
+     <code class="code">fps&nbsp;()</code>, which will try to sleep long enough to achieve the desired 60FPS
      rate. It works on average: if some frames take longer, it will shorten the
      next frame to keep up. However, it tries to be nice to the CPU: even if one
      is really too slow, it will guarantee a 5ms sleep to the CPU and <em>not</em>

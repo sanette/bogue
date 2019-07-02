@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Update.html">
 <link rel="next" href="Bogue.Space.html">
@@ -173,7 +174,7 @@ see <a href="Bogue.Layout.html#VALxpos"><code class="code"><span class="construc
 <pre><span id="VALwidth"><span class="keyword">val</span> width</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
 <pre><span id="VALheight"><span class="keyword">val</span> height</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
 <pre><span id="VALget_size"><span class="keyword">val</span> get_size</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
-<code class="code">get_size l</code> is equivalent to <code class="code">(width l, height l)</code><br>
+<code class="code">get_size&nbsp;l</code> is equivalent to <code class="code">(width&nbsp;l,&nbsp;height&nbsp;l)</code><br>
 </div>
 
 <pre><span id="VALget_physical_size"><span class="keyword">val</span> get_physical_size</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
@@ -306,19 +307,19 @@ Rotate all widgets inside the layout around their respective centers. For
 
 <pre><span id="VALslide_in"><span class="keyword">val</span> slide_in</span> : <code class="type">?from:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -> dst:<a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
 <pre><span id="VALslide_to"><span class="keyword">val</span> slide_to</span> : <code class="type">?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> int * int -> unit</code></pre><div class="info ">
-<code class="code">slide_to room (x0,y0)</code> will translate the <code class="code">room</code> to the position
+<code class="code">slide_to&nbsp;room&nbsp;(x0,y0)</code> will translate the <code class="code">room</code> to the position
      <code class="code">(x0,y0)</code>.<br>
 </div>
 
 <pre><span id="VALfollow_mouse"><span class="keyword">val</span> follow_mouse</span> : <code class="type">?dx:int -><br>       ?dy:int -><br>       ?modifierx:(int -> int) -> ?modifiery:(int -> int) -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
 <pre><span id="VALoscillate"><span class="keyword">val</span> oscillate</span> : <code class="type">?duration:int -> ?frequency:float -> int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
 <pre><span id="VALzoom"><span class="keyword">val</span> zoom</span> : <code class="type">?duration:int -><br>       from_factor:float -> to_factor:float -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALreflat"><span class="keyword">val</span> reflat</span> : <code class="type">?sep:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -> ?margins:int -> ?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALreflat"><span class="keyword">val</span> reflat</span> : <code class="type">?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -> ?margins:int -> ?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
 Adjust an existing layout to arrange its rooms in a "flat" fashion, as if
-     they were created by <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a>. Will be animated if <code class="code">duration &lt;&gt; 0</code>.<br>
+     they were created by <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a>. Will be animated if <code class="code">duration&nbsp;&lt;&gt;&nbsp;0</code>.<br>
 </div>
 
-<pre><span id="VALretower"><span class="keyword">val</span> retower</span> : <code class="type">?sep:int -><br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -> ?margins:int -> ?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><br>
+<pre><span id="VALretower"><span class="keyword">val</span> retower</span> : <code class="type">?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -><br>       ?hmargin:int -><br>       ?vmargin:int -> ?margins:int -> ?duration:int -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><br>
 <h2 id="2_Windows">Windows</h2>
 <p>
 

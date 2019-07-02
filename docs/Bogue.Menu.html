@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Popup.html">
 <link rel="next" href="Bogue.Select.html">
@@ -198,8 +199,8 @@ By default, <code class="code">hide=<span class="keyword">false</span></code>. T
      entries. See <code class="code">example41</code>.<br>
 </div>
 
-<pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type">?background:'a -><br>       ?name:string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
-A menu bar, with drop-down submenus. <code class="code">bar dst entries</code> creates a layout
+<pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type">?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       ?name:string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+A menu bar, with drop-down submenus. <code class="code">bar&nbsp;dst&nbsp;entries</code> creates a layout
      which contains the menu bar on top of the <code class="code">dst</code> layout. The <code class="code">dst</code> layout
      should be big enough to contain the submenus. Any item flowing out of <code class="code">dst</code>
      will not get focus. The system will automatically try to shift the submenus
