@@ -1,6 +1,7 @@
-# bogue
+# Bogue
 
-_bogue_ is a GUI library for ocaml, with animations, based on SDL2.
+_bogue_ is a GUI library for [ocaml](https://ocaml.org/), with
+animations, based on [SDL2](http://www.libsdl.org/).
 
 This library can be used for games or for adding GUI elements to any
 ocaml program.
@@ -15,11 +16,12 @@ displays__.
 
 Programming with _bogue_ is easy if you're used to GUIs with widgets,
 layouts, callbacks, and of course it has a functional flavor.  ​It uses
-__Threads__ when non-blocking reactions are needed.
+__[Threads](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html)__
+when non-blocking reactions are needed.
 
-# features
+# Features
 
-## widgets
+## Widgets
 
 Widgets are the building bricks, reponsible for graphic elements that
 respond to events (mouse, touchscreen, keyboard, etc.).
@@ -34,7 +36,7 @@ moment) instead of reacting with callbacks (see examples).
 * slider (horizontal, vertical, or circular)
 * text input
 
-## layouts
+## Layouts
 
 widgets can be combined in various ways into layouts. For instance, a
 check box followed by a text label is a common layout.
@@ -48,15 +50,22 @@ Several predefined layouts are available:
 * various menus (menu bar, drop down menus with submenus)
 * select list
 * radio list
-* TODO file dialog
 
 Layouts can be __animated__ (slide-in, transparency, rotation)
 
 # Installation
 
-## Compiling
+## Prerequisites
 
-Download the git archive, cd into the `bogue` dir, and then:
+You need a working `ocaml` installation with `opam`, see the [ocaml doc](https://ocaml.org/docs/install.html). Then, make sure
+you have `dune`, `tsdl`, `tsdl-image` and `tsdl-ttf`:
+```
+opam install dune tsdl tsdl-image tsdl-ttf
+```
+
+## Using this git repository
+
+Download the git archive, cd into the `bogue` (or `bogue-master`) dir, and then:
 ```
 dune build
 opam install .
@@ -68,13 +77,17 @@ TODO
 # Documentation
 
 The doc can be found [here](http://sanette.github.io/bogue/Bogue.html).
+It does not cover all available features (yet), but it's already a good start.
 
 # Examples
 
 You should first try a
 [minimal example](http://sanette.github.io/bogue/Bogue.html#example).
 
-The `examples` directory contains more sophisticated examples. If you installed (or compiled) the opam package, these examples are available via the `boguex` program. For instance, run examples 34 and 41 by:
+The `examples` directory contains more sophisticated examples. If you
+installed the `bogue` package with `opam` (as described above), these
+examples are available via the `boguex` program. For instance, run
+examples 34 and 41 by:
 
 ```
 boguex 34 41
