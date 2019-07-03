@@ -53,6 +53,11 @@ Several predefined layouts are available:
 
 Layouts can be __animated__ (slide-in, transparency, rotation)
 
+
+# Screenshots
+
+![demo](https://raw.githubusercontent.com/sanette/bogue/master/docs/images/bogue_demo-s.png)
+
 # Installation
 
 ## Prerequisites
