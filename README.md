@@ -1,4 +1,4 @@
-# Bogue
+# Bogue ![bogue-icon](https://raw.githubusercontent.com/sanette/bogue/master/bogue-icon.png)
 
 _bogue_ is a GUI library for [ocaml](https://ocaml.org/), with
 animations, based on [SDL2](http://www.libsdl.org/).
