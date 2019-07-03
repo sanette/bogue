@@ -278,7 +278,7 @@ See <a href="Bogue.Layout.html#VALshow"><code class="code"><span class="construc
 </div>
 
 <pre><span id="VALshow"><span class="keyword">val</span> show</span> : <code class="type">?duration:int -> ?from:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-Does nothing is the layout is already fully displayed. Only the
+Does nothing if the layout is already fully displayed. Only the
      <code class="code"><span class="constructor">Avar</span>.<span class="constructor">Top</span></code> and <code class="code"><span class="constructor">Avar</span>.<span class="constructor">Bottom</span></code> directions are currently implemented. For
      these directions, <code class="code">hide</code> and <code class="code">show</code> do <em>not</em> modify the position
      variables (x,y) of the layout, they use a special variable called

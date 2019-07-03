@@ -656,7 +656,8 @@ module Text_display : sig
   val strikethrough : words -> words
   val page : words list -> words list
   val para : string -> words
-
+  val paragraphs_of_string : string -> words list
+    
   (** {2 Creating the widgets} *)
 
   (** {2 Modifying the widgets} *)
@@ -1085,7 +1086,7 @@ module Layout : sig
   (** See {!show}. *)
 
   val show : ?duration:int -> ?from:Avar.direction -> t -> unit
-  (** Does nothing is the layout is already fully displayed. Only the
+  (** Does nothing if the layout is already fully displayed. Only the
      [Avar.Top] and [Avar.Bottom] directions are currently implemented. For
      these directions, [hide] and [show] do {e not} modify the position
      variables (x,y) of the layout, they use a special variable called

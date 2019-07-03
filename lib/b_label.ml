@@ -28,6 +28,7 @@ let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
     size;
     fg = Var.create fg};;
 
+(* see https://lab.artlung.com/font-awesome-sample/*)
 let icon ?size ?fg name =
   create ?size ?fg ~font:(File Theme.fa_font) (Theme.fa_symbol name);;
   

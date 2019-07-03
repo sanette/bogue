@@ -90,7 +90,7 @@ let make_widgets ?selected ?(click_on_label=true) entries =
 (* create a vertical (ie. standard) layout *)
 let vertical ?(name = "radiolist") ?(click_on_label=true) ?selected entries =
   let widgets = make_widgets ?selected ~click_on_label entries in
-  let layout = Layout.tower ~sep:0 ~name
+  let layout = Layout.tower ~sep:0 ~margins:0 ~name
       (List.map (fun (b,l) -> 
            Layout.flat_of_w ~sep:2 ~align:Draw.Center [b;l])
           (Array.to_list widgets.data)) in

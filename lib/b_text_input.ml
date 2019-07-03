@@ -467,7 +467,8 @@ let size ti =
     | Some tex -> Draw.tex_size tex
     | None -> text_dims (font ti) (ti.prompt) in
   let w,h = Draw.unscale_size (w,h) in
-  (w + left_margin, h + 2*bottom_margin);;
+  (w + 2*left_margin (* this should probably be left_margin + cursor_width/2 *),
+   h + 2*bottom_margin);;
 (* The bottom margin is also added at the top, in order to keep the text
    vertically centered. *) 
 
