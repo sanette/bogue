@@ -58,6 +58,10 @@ Layouts can be __animated__ (slide-in, transparency, rotation)
 
 ![demo](https://raw.githubusercontent.com/sanette/bogue/master/docs/images/bogue_demo-s.png)
 
+## Videos
+
+[randomize](https://www.youtube.com/watch?v=b7rBCctJ7Cw), [demo 1907](https://youtu.be/isFLxnDooL8)
+
 # Installation
 
 ## Prerequisites
