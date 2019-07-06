@@ -5,6 +5,8 @@
 
     @version 1907 @author Vu Ngoc San
 
+ For a quick start, see Bogue's {{:https://sanette.github.io/bogue/Principles.html}general principles}.
+
 *)
 
 (* ---------------------------------------------------------------------------- *)

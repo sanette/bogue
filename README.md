@@ -85,8 +85,12 @@ TODO
 
 # Documentation
 
-The doc can be found [here](http://sanette.github.io/bogue/Bogue.html).
-It does not cover all available features (yet), but it's already a good start.
+It's good to first have a look at Bogue's
+[general principles](http://sanette.github.io/bogue/Principles.html).
+
+A much more complete doc can be found
+[here](http://sanette.github.io/bogue/Bogue.html).  It does not cover
+all available features (yet), but it's already a good start.
 
 # Examples
 

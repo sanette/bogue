@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<meta content="text/html; charset=utf8" http-equiv="Content-Type">
+<title>Principles</title>
+</head>
+<body><h1 id="bogue-bogue-the-ocaml-gui"><img src="bogue-icon.png" alt="BOGUE" /> BOGUE, the ocaml GUI</h1>
+<h2 id="about">About</h2>
+<p>BOGUE is a desktop GUI library (graphical user interface) for <a href="https://ocaml.org/">ocaml</a>, which is</p>
+<ul>
+<li>lightweight (well, at least relatively to <a href="https://www.gtk.org/">gtk</a> or <a href="https://www.qt.io/">qt</a>, everything looks lightweight!);</li>
+<li>not a binding to another library (contrary to lablgtk);</li>
+<li>using <a href="https://www.libsdl.org/">SDL2</a> as a graphics engine.</li>
+</ul>
+<p>It can be used for desktop applications, for games, or simply for debugging programs (modifying variables on-the-fly, printing output, etc.)</p>
+<h2 id="disclaimer">Disclaimer</h2>
+<ul>
+<li><p><em>This is an alpha release. There are known bugs, and it has not been tested for large and complex applications. Use at your own risk!</em></p></li>
+<li><p>Distributed under <a href="https://en.wikipedia.org/wiki/ISC_license">ISC license</a>.</p></li>
+</ul>
+<h2 id="i-want-to-use-it-right-now">I want to use it right now</h2>
+<p>OK, go <a href="INSTALL.html"><strong>install</strong></a> it and try the minimal <a href="../doc/bogue/html/Bogue.html#example">example</a>. But then come back here to read a little bit about the general principles, it should help.</p>
+<h2 id="general-principles">General Principles</h2>
+<p>BOGUE is built around usual GUI notions (widgets, events, callbacks) but has some particularities that are good to know.</p>
+<h3 id="the-main-loop">The main loop</h3>
+<p>BOGUE has three ways of functioning (and they can be mixed):</p>
+<ol style="list-style-type: decimal">
+<li><em>Let it run the mainloop:</em></li>
+</ol>
+<p>it waits for events, draws the graphics, execute predefined actions when the user interacts (for instance, click on a button), and does this forever, until we decide to quit.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><em>react on &quot;realtime&quot; with &quot;immediate&quot; actions:</em></li>
+</ol>
+<p>instead of using events to trigger an action, you can directly read data from any widget. For instance, continuously read what the user is typing in English to propose in real-time a translation in esperanto showed in another widget.</p>
+<ol start="3" style="list-style-type: decimal">
+<li><em>embed BOGUE in your own mainloop:</em></li>
+</ol>
+<p>you have written a mainloop for your game, and sometimes you want to show GUI elements without stopping your loop. You just need to call BOGUE's &quot;one_step&quot; function at each frame, as you need.</p>
+<h3 id="widgets-and-layouts">Widgets and Layouts</h3>
+<p>BOGUE is not object oriented (it uses standard ocaml modules) but the feeling is not too different. There are mainly two types of objects: widgets and layout. Widgets are small graphics elements (buttons, images, etc.) and they can be combined into a Layout. Roughly speaking:</p>
+<ul>
+<li>widgets = content</li>
+<li>layout = container</li>
+</ul>
+<p>It's convenient to alias these modules in your program:</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="ot">module</span> W = Bogue<span class="kw">.</span><span class="dt">Widget</span>
+<span class="ot">module</span> L = Bogue<span class="kw">.</span><span class="dt">Layout</span>
+<span class="ot">module</span> Bogue = Bogue<span class="kw">.</span><span class="dt">Bogue</span></code></pre></div>
+<p>Widgets use directly the SDL2 library to draw themselves. Here is the <strong>list of implemented widgets:</strong></p>
+<ul>
+<li><strong>Empty</strong>: draws nothing but can react to an event</li>
+<li><strong>Box</strong>: draws a rectangular texture (with possible borders and rounded corners)</li>
+<li><strong>Label</strong>: plain text display</li>
+<li><strong>Image</strong>: image read from a file (jpg, png, etc.)</li>
+<li><strong>Check</strong>: a check box</li>
+<li><strong>Button</strong>: a text or an icon that can be clicked</li>
+<li><strong>TextDisplay</strong>: text display with word wrapping and simple formatting (bold, italics, underline)</li>
+<li><strong>TextInput</strong>: let the user enter a one-line text</li>
+<li><strong>Slider</strong>: linear or circular slider to let the user select a value between a range.</li>
+</ul>
+<h4 id="widgets-and-connections">Widgets and connections</h4>
+<p>Widgets also carry the <em>logic</em> of the GUI. They respond to <em>events</em> and they can be <em>connected</em> to another widget.</p>
+<p>In some sense, a layout is like a <em>house</em>, or a room in a house, and a widget is a <em>resident</em> (inhabitant) of the house, or an object in a room. Objects can be connected: for instance your thermostat is connected to your heating system. If some event (like a heat wave) makes your thermostat react, then it should tell the heating system to do something.</p>
+<p>More prosaically, if you click on a <strong>checkbox</strong> widget, you may want to change the text in a <strong>label</strong> widget (which can be located in another room (layout).</p>
+<p>BOGUE uses this vocabulary of <em>connections</em>, but if you wish, they can be treated as simple callbacks (actions). The user can create connections either for the main program or to be run in a separate thread (which should be the default as soon at the action to be executed could take a long time to execute --- more than the frame rate which is about 17ms).</p>
+<h4 id="layouts-a-tree-structure">Layouts: a tree structure</h4>
+<p>Layouts are created by the user to combine several widgets together. Of course the library also provides a number of predefined layouts, see below.</p>
+<p>There are two types of layouts:</p>
+<ul>
+<li>a single <em>resident</em>: the layout only contains a widget</li>
+<li>a layout that contains a <em>list of layouts</em>. Think as a house containing several rooms.</li>
+</ul>
+<p>The geometry of rooms inside a house (= children layouts inside a parent layout) can be arbitrary, but the two main useful ones are:</p>
+<ul>
+<li><em>flat</em> arrangement (sometimes called hbox): rooms are on a horizontal level</li>
+</ul>
+<pre><code>[ [room#1] [room#2] ... [room#n] ]</code></pre>
+<ul>
+<li><em>tower</em> arrangement (sometimes called vbox): rooms are vertically arranged</li>
+</ul>
+<pre><code>[
+  [room#1]
+  [room#2]
+  ...
+  [room#n]
+]</code></pre>
+<h2 id="a-simple-example">A simple example</h2>
+<p>Here is what we want to program:</p>
+<p>We let the user enter her/his name on top of the window, for instance &quot;Audrey&quot;, and simultaneously there is a large greeting message in the center of the window saying &quot;Hello Audrey!&quot;.</p>
+<h3 id="the-standard-method-events-and-callbacks">The standard method (events and callbacks)</h3>
+<p>[examples/input]</p>
+<p>It's not the most natural way of programming if one is not used to event-driven GUIs (like GTK+), but it's a powerful method (and also quite efficient, for large programs).</p>
+<p>The program will look like the following.</p>
+<ol style="list-style-type: decimal">
+<li><p>The <strong>action</strong>: given a TextInput widget and a Label widget, we want to update the Label each time the user presses a key in the TextInput. Here is the action:</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> action input label _ =
+  <span class="kw">let</span> text = W<span class="kw">.</span>get_text input <span class="kw">in</span>
+  W<span class="kw">.</span>set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></code></pre></div></li>
+<li><p>The <strong>widgets</strong>: we need a TextInput and a Label:</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> input = W<span class="kw">.</span>text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span>
+<span class="kw">let</span> label = W<span class="kw">.</span>label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></code></pre></div></li>
+<li><p>We create a <strong>connection</strong> between them, reacting to the key-pressed events:</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> c = W<span class="kw">.</span>connect input label action Sdl<span class="kw">.</span>Event<span class="kw">.</span>[text_input; key_down] <span class="kw">in</span></code></pre></div></li>
+<li><p>We arrange the widgets in a <strong>layout</strong> (a tower with two residents):</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> layout = L<span class="kw">.</span>tower [L<span class="kw">.</span>resident ~w:<span class="dv">400</span> input; L<span class="kw">.</span>resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></code></pre></div></li>
+<li><p>It remains to create the board and run it. That's it!</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> board = Bogue<span class="kw">.</span>make [c] [layout] <span class="kw">in</span>
+Bogue<span class="kw">.</span>run board</code></pre></div></li>
+</ol>
+<p>Note that the order 1. and 2. can be swapped. In more complex examples, you cannot always separate all these steps like this, you may need to mix them, for instance because you want a widget action to modify a layout on the fly...</p>
+<h3 id="the-immediate-method">The &quot;immediate&quot; method</h3>
+<p>[examples/input-immediate]</p>
+<p>For simple programs like our example, when the action is fast and will not block the interface, one can use the immediate mode, which is easier to program and debug (no event, no callback).</p>
+<ol style="list-style-type: decimal">
+<li><p>We define the two widgets and the layout as in steps 2 and 4 in the standard method above:</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> input = W<span class="kw">.</span>text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span>
+<span class="kw">let</span> label = W<span class="kw">.</span>label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span>
+<span class="kw">let</span> layout = L<span class="kw">.</span>tower [L<span class="kw">.</span>resident ~w:<span class="dv">400</span> input; L<span class="kw">.</span>resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></code></pre></div></li>
+<li><p>We define the action to be executed at each frame display (of course it's not a pure function, it uses the variables <code>input</code> and <code>label</code> defined above):</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> before_display () =
+  <span class="kw">let</span> text = W<span class="kw">.</span>get_text input <span class="kw">in</span>
+  W<span class="kw">.</span>set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></code></pre></div></li>
+<li><p>We make the board and run it. Done!</p>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> board = Bogue<span class="kw">.</span>make [] [layout] <span class="kw">in</span>
+Bogue<span class="kw">.</span>run ~before_display board</code></pre></div></li>
+</ol>
+<h3 id="the-embedded-method">The &quot;embedded&quot; method</h3>
+<p>[examples/embed]</p>
+<p>This is only useful if you already have an application with an event/display loop (like a game) and you want to add some GUI on top of this.</p>
+<ol style="list-style-type: decimal">
+<li><p>use one of the methods above to create your board</p></li>
+<li><p>use <code>Bogue.make_windows</code> to either create news windows for the GUI, or use already existing SDL windows.</p></li>
+<li><p>anytime you want to show the GUI, just call the <code>Bogue.one_step</code> function in your loop, in general after all other renderings and just before <code>Sdl.render_present</code>. When the GUI is displayed, be sure to disable all event handling functions that could interfere with BOGUE.</p></li>
+</ol>
+<p>See the file <a href="Embedded.html"><code>Embedded.md</code></a> for more details.</p>
+</body></html>
