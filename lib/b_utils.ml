@@ -8,7 +8,7 @@ exception Sdl2_error of string
 
 let nop _ = ();;
              
-let debug = ref false;;
+let debug = ref false;; (* set to false for production *)
 let debug_thread = 1;;
 let debug_warning = 2;;
 let debug_graphics = 4;;
@@ -19,7 +19,7 @@ let debug_board = 64;;
 let debug_event = 128;;
 let debug_custom = 256;;
 
-let debug_code = ref ((*debug_thread +*) debug_warning (* + debug_graphics *) + debug_error + debug_io + debug_board (* + debug_memory *) + debug_event + debug_custom);;
+let debug_code = ref ((*debug_thread +*) debug_warning (* + debug_graphics *) + debug_error + debug_io + (* debug_board *) (* + debug_memory *) + (* debug_event *) + debug_custom);;
 
 let debug_vars = [ "Thread", debug_thread;
                    "Warning", debug_warning;

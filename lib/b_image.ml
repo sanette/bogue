@@ -1,6 +1,5 @@
 (** a simple image display *)
 
-open B_utils
 module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
@@ -37,11 +36,15 @@ let create ?width ?height ?(noscale = false)
     ?(bg = Draw.(opaque black)) file =
   let width, height = match width, height with
     | Some w, Some h -> (w,h)
-    | _ -> let (w,h) = Draw.image_size file in
-      default width w, default height h in
+    | _ -> begin let (w0,h0) = Draw.image_size file in
+               match width, height with
+               | None, Some h -> (w0 * h) / h0, h
+               | Some w, None -> w, (h0 * w) / w0
+               | _ -> w0, h0
+           end in
   let width, height = if noscale
-    then Draw.unscale_size (width, height)
-    else width, height in
+                      then Draw.unscale_size (width, height)
+                      else width, height in
   { file = Var.create file;
     xpos = Draw.Center; (* TODO, make this changeable *)
     ypos = Draw.Center; (* idem *)

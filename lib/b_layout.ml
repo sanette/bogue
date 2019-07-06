@@ -903,13 +903,15 @@ let next_keyboard_old room =
   loop room;;
 
 let next_keyboard room =
-  let rec loop r =
-    let n = next_leaf r in
-    if equal room n then (printd (debug_board+debug_custom) "No keyboard_focus found"; None)
-    else if n.keyboard_focus <> None && n.show
-    then (printd (debug_board+debug_custom) "Found %s" (sprint_id n); Some n)
-    else loop n in
-  loop room;;
+  let rec loop r visited =
+    if List.mem r.id visited then None (* this happens sometimes (why??) *)
+    else
+      let n = next_leaf r in
+      if equal room n then (printd (debug_board+debug_custom) "No keyboard_focus found"; None)
+      else if n.keyboard_focus <> None && n.show
+      then (printd (debug_board+debug_custom) "Found %s" (sprint_id n); Some n)
+      else loop n (r.id :: visited) in
+  loop room [];;
 
 (********************)
 
