@@ -1,11 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf8" http-equiv="Content-Type">
 <title>Embedded</title>
 </head>
-<body><h1 id="how-to-embed-bogue-in-an-existing-graphics-loop">How to embed BOGUE in an existing graphics loop?</h1>
+<body>
+<h1 id="how-to-embed-bogue-in-an-existing-graphics-loop">How to embed BOGUE in an existing graphics loop?</h1>
 <p>If you have a game using the SDL2 renderer library, then it's easy to use BOGUE to add GUI elements to your game, without stopping your graphics loop.</p>
 <p>The basic idea is to call the <code>Bogue.one_step</code> function whenever you need to display the GUI. But some caution has to be taken to make sure that:</p>
 <ul>
@@ -14,7 +15,7 @@
 <li>the events are sent to the GUI when it's shown.</li>
 </ul>
 <p>Here is how to do it (see examples/embed). We will use an alias for Sdl.Event:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="ot">module</span> E = Sdl<span class="kw">.</span><span class="dt">Event</span>;;</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">module</span> E = Sdl.Event;;</code></pre></div>
 <ol style="list-style-type: decimal">
 <li><p>Do the SDL initialization (window, renderer) yourself.</p></li>
 <li><p>Define your GUI board with <code>Bogue.make</code> (and define the <code>before_display</code> function if you use it)</p></li>
@@ -23,27 +24,27 @@
 <div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> show_gui = <span class="dt">ref</span> <span class="kw">false</span> <span class="kw">in</span></code></pre></div></li>
 <li><p>Start your loop. In principle you will clear the screen at each frame with <code>Sdl.set_render_draw_color</code> and <code>Sdl.render_clear</code>.</p></li>
 <li><p>Make sure your event handling is done only when <code>!show_gui =    false</code>. For instance, here we will stop when Escape is pressed, and show the GUI when TAB is pressed:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml">   <span class="kw">if</span> not !show_gui &amp;&amp; Sdl<span class="kw">.</span>poll_event (<span class="dt">Some</span> e)
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml">   <span class="kw">if</span> <span class="dt">not</span> !show_gui &amp;&amp; Sdl.poll_event (<span class="dt">Some</span> e)
    <span class="kw">then</span> <span class="kw">begin</span>
- <span class="kw">match</span> E<span class="kw">.</span>(enum (get e typ)) <span class="kw">with</span>
- | <span class="dt">`Key_up</span> <span class="kw">when</span> E<span class="kw">.</span>(get e keyboard_keycode) = Sdl<span class="kw">.</span>K<span class="kw">.</span>tab -&gt;
-   show_gui := not !show_gui
- | <span class="dt">`Key_up</span> <span class="kw">when</span> E<span class="kw">.</span>(get e keyboard_keycode) = Sdl<span class="kw">.</span>K<span class="kw">.</span>escape -&gt;
-   raise Sys<span class="kw">.</span><span class="dt">Break</span>
+ <span class="kw">match</span> E.(enum (get e typ)) <span class="kw">with</span>
+ | `Key_up <span class="kw">when</span> E.(get e keyboard_keycode) = Sdl.K.tab -&gt;
+   show_gui := <span class="dt">not</span> !show_gui
+ | `Key_up <span class="kw">when</span> E.(get e keyboard_keycode) = Sdl.K.escape -&gt;
+   <span class="dt">raise</span> <span class="dt">Sys</span>.Break
  | _ -&gt; ()
  <span class="kw">end</span>;</code></pre></div></li>
 <li><p>Call the one_step function when needed:</p>
 <div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">if</span> !show_gui
 <span class="kw">then</span> <span class="kw">begin</span>
-  Bogue<span class="kw">.</span>refresh_custom_windows board;
-  <span class="kw">try</span> <span class="kw">if</span> not (Bogue<span class="kw">.</span>one_step ~before_display <span class="kw">true</span> (start_fps, fps) board)
+  Bogue.refresh_custom_windows board;
+  <span class="kw">try</span> <span class="kw">if</span> <span class="dt">not</span> (Bogue.one_step ~before_display <span class="kw">true</span> (start_fps, fps) board)
   <span class="co">(* one_step returns true if fps was executed *)</span>
     <span class="kw">then</span> fps () <span class="kw">with</span>
-  | Bogue<span class="kw">.</span><span class="dt">Exit</span> -&gt; show_gui := <span class="kw">false</span>
-  | e -&gt; raise e
+  | Bogue.<span class="dt">Exit</span> -&gt; show_gui := <span class="kw">false</span>
+  | e -&gt; <span class="dt">raise</span> e
 <span class="kw">end</span>
 <span class="kw">else</span> fps ();</code></pre></div>
-<p>The <code>Bogue.refresh_custom_windows board</code> tells BOGUE that the custom window should be completely rendered even though BOGUE may think there was no change since last frame. The <code>true</code> argument of the <code>one_step</code> function indicates that an animation is running and BOGUE should not interrupt it by waiting for an event. Then, the <code>one_step</code> function will return <code>true</code> if BOGUE itself has an animation running, which means that <em>you</em> should not interrupt the graphics loop.</p>
+<p>The <code>Bogue.refresh_custom_windows board</code> tells BOGUE that the custom window should be completely rendered even though BOGUE may think there was no change since last frame. The <code>true</code> argument of the <code>one_step</code> function indicates that an animation is running and BOGUE should not interrupt it by waiting for an event. Then, the <code>one_step</code> function will return <code>true</code> if BOGUE itself has an animation running, which means that you should <em>not</em> interrupt the graphics loop.</p>
 <p>Here we close the GUI when the user presses Esc, which raises the <code>Bogue.Exit</code> exception.</p>
 <p>The <code>fps</code> function was created earlier by <code>let start_fps, fps = Time.adaptive_fps 60</code> but you may use your own FPS handling.</p></li>
 <li><p>Flip the graphics buffer with <code>Sdl.render_present</code> and loop (jump to Step 5.)</p></li>

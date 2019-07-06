@@ -1,11 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<link rel="stylesheet" href="/home/san/prog/ocaml/bogue/doc-css/stylesheets/style.css" type="text/css">
+<link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf8" http-equiv="Content-Type">
 <title>Principles</title>
 </head>
-<body><h1 id="bogue-bogue-the-ocaml-gui"><img src="bogue-icon.png" alt="BOGUE" /> BOGUE, the ocaml GUI</h1>
+<body>
+<h1 id="bogue-bogue-the-ocaml-gui"><img src="bogue-icon.png" alt="BOGUE" /> BOGUE, the ocaml GUI</h1>
 <h2 id="about">About</h2>
 <p>BOGUE is a desktop GUI library (graphical user interface) for <a href="https://ocaml.org/">ocaml</a>, which is</p>
 <ul>
@@ -20,7 +21,7 @@
 <li><p>Distributed under <a href="https://en.wikipedia.org/wiki/ISC_license">ISC license</a>.</p></li>
 </ul>
 <h2 id="i-want-to-use-it-right-now">I want to use it right now</h2>
-<p>OK, go <a href="INSTALL.html"><strong>install</strong></a> it and try the minimal <a href="../doc/bogue/html/Bogue.html#example">example</a>. But then come back here to read a little bit about the general principles, it should help.</p>
+<p>OK, go <a href="INSTALL.html">install</a> it and try the minimal <a href="Bogue.html#example">example</a>. But then come back here to read a little bit about the general principles, it should help.</p>
 <h2 id="general-principles">General Principles</h2>
 <p>BOGUE is built around usual GUI notions (widgets, events, callbacks) but has some particularities that are good to know.</p>
 <h3 id="the-main-loop">The main loop</h3>
@@ -44,9 +45,9 @@
 <li>layout = container</li>
 </ul>
 <p>It's convenient to alias these modules in your program:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="ot">module</span> W = Bogue<span class="kw">.</span><span class="dt">Widget</span>
-<span class="ot">module</span> L = Bogue<span class="kw">.</span><span class="dt">Layout</span>
-<span class="ot">module</span> Bogue = Bogue<span class="kw">.</span><span class="dt">Bogue</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">module</span> W = Bogue.Widget
+<span class="kw">module</span> L = Bogue.Layout
+<span class="kw">module</span> Bogue = Bogue.Main</code></pre></div>
 <p>Widgets use directly the SDL2 library to draw themselves. Here is the <strong>list of implemented widgets:</strong></p>
 <ul>
 <li><strong>Empty</strong>: draws nothing but can react to an event</li>
@@ -69,7 +70,7 @@
 <p>There are two types of layouts:</p>
 <ul>
 <li>a single <em>resident</em>: the layout only contains a widget</li>
-<li>a layout that contains a <em>list of layouts</em>. Think as a house containing several rooms.</li>
+<li>a layout that contains a <em>list of layouts</em>. Think of a house containing several rooms.</li>
 </ul>
 <p>The geometry of rooms inside a house (= children layouts inside a parent layout) can be arbitrary, but the two main useful ones are:</p>
 <ul>
@@ -94,19 +95,19 @@
 <p>The program will look like the following.</p>
 <ol style="list-style-type: decimal">
 <li><p>The <strong>action</strong>: given a TextInput widget and a Label widget, we want to update the Label each time the user presses a key in the TextInput. Here is the action:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> action input label _ =
-  <span class="kw">let</span> text = W<span class="kw">.</span>get_text input <span class="kw">in</span>
-  W<span class="kw">.</span>set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> action <span class="dt">input</span> label _ =
+  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span>
+  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></code></pre></div></li>
 <li><p>The <strong>widgets</strong>: we need a TextInput and a Label:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> input = W<span class="kw">.</span>text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span>
-<span class="kw">let</span> label = W<span class="kw">.</span>label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span>
+<span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></code></pre></div></li>
 <li><p>We create a <strong>connection</strong> between them, reacting to the key-pressed events:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> c = W<span class="kw">.</span>connect input label action Sdl<span class="kw">.</span>Event<span class="kw">.</span>[text_input; key_down] <span class="kw">in</span></code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> c = W.connect <span class="dt">input</span> label action Sdl.Event.[text_input; key_down] <span class="kw">in</span></code></pre></div></li>
 <li><p>We arrange the widgets in a <strong>layout</strong> (a tower with two residents):</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> layout = L<span class="kw">.</span>tower [L<span class="kw">.</span>resident ~w:<span class="dv">400</span> input; L<span class="kw">.</span>resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></code></pre></div></li>
 <li><p>It remains to create the board and run it. That's it!</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> board = Bogue<span class="kw">.</span>make [c] [layout] <span class="kw">in</span>
-Bogue<span class="kw">.</span>run board</code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> board = Bogue.make [c] [layout] <span class="kw">in</span>
+Bogue.run board</code></pre></div></li>
 </ol>
 <p>Note that the order 1. and 2. can be swapped. In more complex examples, you cannot always separate all these steps like this, you may need to mix them, for instance because you want a widget action to modify a layout on the fly...</p>
 <h3 id="the-immediate-method">The &quot;immediate&quot; method</h3>
@@ -114,16 +115,16 @@ Bogue<span class="kw">.</span>run board</code></pre></div></li>
 <p>For simple programs like our example, when the action is fast and will not block the interface, one can use the immediate mode, which is easier to program and debug (no event, no callback).</p>
 <ol style="list-style-type: decimal">
 <li><p>We define the two widgets and the layout as in steps 2 and 4 in the standard method above:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> input = W<span class="kw">.</span>text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span>
-<span class="kw">let</span> label = W<span class="kw">.</span>label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span>
-<span class="kw">let</span> layout = L<span class="kw">.</span>tower [L<span class="kw">.</span>resident ~w:<span class="dv">400</span> input; L<span class="kw">.</span>resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span>
+<span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span>
+<span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></code></pre></div></li>
 <li><p>We define the action to be executed at each frame display (of course it's not a pure function, it uses the variables <code>input</code> and <code>label</code> defined above):</p>
 <div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> before_display () =
-  <span class="kw">let</span> text = W<span class="kw">.</span>get_text input <span class="kw">in</span>
-  W<span class="kw">.</span>set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></code></pre></div></li>
+  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span>
+  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></code></pre></div></li>
 <li><p>We make the board and run it. Done!</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> board = Bogue<span class="kw">.</span>make [] [layout] <span class="kw">in</span>
-Bogue<span class="kw">.</span>run ~before_display board</code></pre></div></li>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">let</span> board = Bogue.make [] [layout] <span class="kw">in</span>
+Bogue.run ~before_display board</code></pre></div></li>
 </ol>
 <h3 id="the-embedded-method">The &quot;embedded&quot; method</h3>
 <p>[examples/embed]</p>
