@@ -2,7 +2,7 @@
 (name bogue)
 (version "1907")
 (generate_opam_files true)
-(license GPL2)
+(license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
 (authors "Vu Ngoc San <san.vu-ngoc@laposte.net>")
 (source (github sanette/bogue))
