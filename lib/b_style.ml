@@ -31,6 +31,12 @@ type background =
   | Solid of Draw.color
   | Gradient of gradient
 
+type shadow = {
+    size: int; (* should the shadow be larger than the box? *)
+    offset: int * int;
+    radius: int option; (* corner radius *)
+    width: int (* the width of the gradient *)
+  }
 let color_bg color =
   Solid color
 
@@ -55,3 +61,9 @@ let line ?(color = Draw.(opaque black)) ?(width = 1)
 let border ?radius line =
   { up=line; down=line; left=line; right=line; radius };;
 
+let shadow ?(offset = (1,3)) ?(size = 4) ?(width = 8) ?radius () : shadow =
+  { size;
+    offset;
+    radius;
+    width
+  }

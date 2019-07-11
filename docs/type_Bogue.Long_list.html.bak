@@ -22,4 +22,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?cleanup:(<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?max_memory:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?linear:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?scrollbar_width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

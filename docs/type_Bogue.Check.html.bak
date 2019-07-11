@@ -15,4 +15,4 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;style<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?state:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?style:<span class="constructor">Bogue</span>.<span class="constructor">Check</span>.style&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Check</span>.t<br>
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

@@ -13,7 +13,8 @@
    size of the widget at the time it receives the startup event... *)
 
 (* TODO: we have trouble rendering correctly when the room background has alpha
-   channel... *)
+   channel... ? use the new https://wiki.libsdl.org/SDL_ComposeCustomBlendMode??
+   *)
 
 (* Warning: a new texture is created at every update, because size might
    change. TODO add an option in case we want to be fast and reuse the same
@@ -41,6 +42,10 @@ let update widget room =
   Var.release Draw.current_layer;
   Draw.pop_target renderer save;
   printd debug_graphics "...rendering snapshot done.";
+
+  (* essai blur *)
+  (* let target = Draw.blur_texture renderer target 24 in *)
+  
   let box = Widget.get_box widget in
   do_option (Var.get box.Box.render) Draw.forget_texture;
   Var.set box.Box.render (Some target);;

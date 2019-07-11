@@ -354,8 +354,8 @@ let lines_display ?w ?h lines =
 let verbatim text =
   create_empty (TextDisplay (Text_display.create_verbatim text));;
 
-let box ?w ?h ?background ?border () =
-  create_empty (Box (Box.create ?width:w ?height:h ?background ?border ()));;
+let box ?w ?h ?background ?border ?shadow () =
+  create_empty (Box (Box.create ?width:w ?height:h ?background ?border ?shadow ()));;
 
 let label ?size ?fg ?font text =
   create_empty (Label (Label.create ?size ?fg ?font text));;

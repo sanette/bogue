@@ -68,8 +68,10 @@ let activate t i =
 (* warning: not thread safe ? we modify the dest_room *)
 module W = B_widget;;
 
-let bg_on = Style.gradient Draw.[opaque white;opaque pale_grey;opaque pale_grey;opaque pale_grey];;
-let bg_off = Style.gradient Draw.[opaque pale_grey;opaque grey;opaque grey;opaque grey];;
+let bg_on = Style.gradient Draw.[opaque Button.button_color_off; opaque Button.button_color_off; opaque Button.button_color_on];;
+  (* Style.gradient Draw.[opaque white;opaque pale_grey;opaque pale_grey;opaque pale_grey];; *)
+let bg_off = Style.Solid Draw.(opaque Button.button_color_off);;
+(* Style.gradient Draw.[opaque pale_grey;opaque grey;opaque grey;opaque grey];; *)
 
 (* TODO en fait il faudrait plutôt attacher tous les rooms dans le layout (en
    mode "superposition"), et mettre en show=true celui qu'on veut. ça

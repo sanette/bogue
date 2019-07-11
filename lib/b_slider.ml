@@ -274,7 +274,9 @@ let display canvas layer s g =
   match s.kind with
   | Horizontal -> 
     (* let rect = Sdl.Rect.create ~x:x0 ~y:g.y ~w:thickness ~h:width in *)
-    (* go (Sdl.render_fill_rect renderer (Some rect)); *)
+     (* go (Sdl.render_fill_rect renderer (Some rect)); *)
+
+     (* TODO horizontal gradient for the slider (with button color) *)
     let box = texture canvas.renderer ~color ~w:tick_size ~h:thickness in
     let dst = Sdl.Rect.create ~x:x0 ~y:g.y ~w:tick_size ~h:thickness in
     forget_texture box; (* or save ? but be careful color may change *)

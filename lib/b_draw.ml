@@ -46,7 +46,7 @@ let ttf_surfaces_in_memory = ref 0;;
 let textures_to_destroy = Var.create (Queue.create ());;
 (* TODO this should be attached to a window. Make sure all textures that
    belonged to a renderer are removed from this queue when the renderer is
-   detroyed. Otherwise we will be detroying a new texture! *)
+   detroyed. Otherwise we will be destroying a new texture! *)
 
 (* the generic window icon *)
 let icon  : (Sdl.surface option) ref = ref None;;
@@ -608,6 +608,9 @@ let blit_to_layer blit =
   Queue.add blit queue;;
 
 (* render a blit onscreen *)
+(* WARNING: this does NOT free the texture, because often we want to keep it for
+   re-use. In case of a one-time texture, use forget_texture before calling
+   make_blit. *)
 let render_blit blit =
   go (Sdl.render_set_clip_rect blit.rndr blit.clip);
   (* if no transform = go (Sdl.render_copy ?src:blit.src ?dst:blit.dst blit.rndr
@@ -628,10 +631,13 @@ let render_blits blits =
 let render_all_layers (layer : layer) =
   Chain.iter render_blits layer;;
 
+(* TODO it could be convenient (for a probably very small cost) to render the
+   blits onto a target texture instead of directly to the renderer, so that we
+   could do image processing (blur...) more easily *)
 
 (**********)
 
-(* draw a thin rectangle of witdh=1. See also "rectangle" for specifying
+(* draw a thin rectangle of width=1. See also "rectangle" for specifying
    width. *)
 let draw_rect ?color renderer (x,y) w h =
   do_option color (set_color renderer);
@@ -849,6 +855,7 @@ let box renderer ?bg x y w h =
 let box_to_layer canvas layer ?(bg = opaque grey) ?voffset x y w h =
   let tex = texture canvas.renderer ~color:bg ~w ~h in
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
+  forget_texture tex;
   make_blit ?voffset ~dst canvas layer tex;;
 
 (** save and reset some useful settings before setting a render target *)
@@ -1047,6 +1054,7 @@ let rect_to_layer ?color ?bg canvas layer (x,y) w h =
          Sdl.Point.create ~x:0 ~y:0]);
   pop_target canvas.renderer push;
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
+  forget_texture target;
   make_blit ~dst canvas layer target;;
 
 
@@ -1092,6 +1100,7 @@ let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thic
   let tex, center, dst, _ = make_ray canvas.renderer ?thickness ~bg ~radius ~width x y in
   let transform = make_transform ~angle ~center () in
   (* { flip = Sdl.Flip.none; angle; center = Some center; alpha = 255 } in *)
+  forget_texture tex;
   make_blit ?voffset ~dst ~transform canvas layer tex;;
 
 (* draw a ring *)
@@ -1117,6 +1126,7 @@ let ring_tex_old renderer ?(bg = opaque grey) ~radius ~width x y =
       go(Sdl.render_copy_ex renderer ~dst:dst_ray tex a (Some center) Sdl.Flip.none);
     done;
     pop_target renderer push;
+    forget_texture tex;
     target
   end
   else failwith "Render target not supported. TODO";; (* TODO *)
@@ -1642,60 +1652,197 @@ let ring_tex renderer ?(color = opaque grey) ~radius ~width x y =
   pop_target renderer push;
   target;;
 
-(* gradient *)
+(* Draw gradient on the renderer. *)
 (* vertical gradient with n colors -- hinted version only *)
 (* Of course it would be much better to do it directly in opengl *)
 (* angle is in degrees *)
-let gradientv3 renderer ?angle ~target colors =
+(* ici pour faire le gradient, on utilise le "linear filtering" de opengl quand
+   on scale deux pixels.  Cependant il y a des effets de bord. Pour deux pixels,
+   il semble qu'il faille supprimer les 2 1/4 de chaque côté. Pour n pixels, je
+   ne sais pas...J'imagine que c'est toujours 1/2 pixel de chaque coté ? *)
+let gradientv3 renderer ?angle colors =
   printd debug_graphics "rendering Gradient";
+  let w,h = go(Sdl.get_renderer_output_size renderer) in
   let n = List.length colors in
   if n <> 0 then begin
-    let small = 
-      if (Sdl.(set_hint Hint.render_scale_quality "1"))
-      then begin
-        (* create an n pixels texture *)
-        let small = create_target renderer 1 n in
+      let small = 
+        if (Sdl.(set_hint Hint.render_scale_quality "1"))
+        then begin
+            (* create an n pixels texture *)
+            let small = create_target renderer 1 n in
+            let push = push_target renderer small in
+            
+            (* draw the n points *)
+            go (Sdl.set_render_target renderer (Some small));
+            List.iteri (fun i c ->
+                set_color renderer c;
+                go (Sdl.render_draw_point renderer 0 i)) colors;
+            pop_target renderer push;
+            go (Sdl.set_texture_blend_mode small Sdl.Blend.mode_none);
+            small
+          end
+        else (* Cannot set SDL_HINT_RENDER_SCALE_QUALITY *)
+          failwith "todo"
+      in
+
+      begin
+        let h' = (n*h)/(n-1) in (* we need a larger box to remove 1/2 pixels at the top and bottom *)
+        match angle with
+        | None ->
+           let dh = h/(n-1) in
+           let dst = Sdl.Rect.create ~x:0 ~y:(-dh/2) ~w ~h:h' in
+           go(Sdl.render_copy renderer ~dst small)
+        | Some t ->
+           (* we compute the size of the virtual box before cropping due to
+            rotation. This virtual box is the smallest rectangle which, when
+            rotated by theta, contains the upright box (w,h).*)
+           let theta = pi *. t /. 180. in
+           let c,s = cos theta, sin theta in
+           let vh = int_of_float (abs_float (float w *. s) +.
+                                    abs_float (float h *. c) ) in
+           let vw = int_of_float (abs_float (float w *. c) +.
+                                    abs_float (float h *. s) ) in
+           (* Then we need to * enlarge the height of the VB in order to remove
+              the 1/2 pixels at * the top and bottom.  *)
+           let vh = ((vh * n)/(n-1)) in
+           
+           (* copy the small onto the target texture *)
+           (* TODO boundary pixels as above *)
+           let flip = Sdl.Flip.none in
+           let dw = vw - w
+           and dh = vh - h in
+           let center = Sdl.Point.create ~x:(vw/2) ~y:(vh/2) in
+           let dst = Sdl.Rect.create ~x:(-dw/2) ~y:(-dh/2) ~w:(vw) ~h:(vh) in
+           go(Sdl.render_copy_ex renderer ~dst small t (Some center) flip)
+      end;
+      
+      forget_texture small
+    end
+  else ();;
+
+(* top right corner for a box *)
+let corner_gradient2 renderer c1 c2 =
+    let w,h = go(Sdl.get_renderer_output_size renderer) in
+  let small = 
+    if (Sdl.(set_hint Hint.render_scale_quality "1"))
+    then begin
+        (* create an 2x2 texture *)
+        let small = create_target renderer 2 2 in
         let push = push_target renderer small in
         
-        (* draw the n points *)
+        (* draw the point *)
         go (Sdl.set_render_target renderer (Some small));
-        List.iteri (fun i c ->
-            set_color renderer c;
-            go (Sdl.render_draw_point renderer 0 i)) colors;
+        set_color renderer c2;
+        go (Sdl.render_clear renderer);
+        set_color renderer c1;
+        (* we draw a point in the bottom-left corner *)
+        go (Sdl.render_draw_point renderer 0 1);
         pop_target renderer push;
+        go (Sdl.set_texture_blend_mode small Sdl.Blend.mode_none);
         small
       end
       else (* Cannot set SDL_HINT_RENDER_SCALE_QUALITY *)
         failwith "todo"
-    in
+  in
+  (* we double the size of the destination blit to remove the 1/2 pixel boundary
+     effects: *)
+  let dst = Sdl.Rect.create ~x:(-w/2) ~y:(-h/2) ~w:(2*w) ~h:(2*h) in
+  go (Sdl.render_copy ~dst renderer small);
+  forget_texture small;;
 
+(* draw a "shadow" all around the dst rectangle. *)
+(* uses gradient. the patching of the corners is not perfect... *)
+(* TODO: this simple technique does not work for round corners *)
+(* but it's very fast *)
+(* Note: shadows look better if the box has a white (or light) background *)
+(* Warning: the 'radius' here corresponds to 'width' in Style module (+ theme
+   scaling) *)
+let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
+      ?(size=Theme.scale_int 2) ?(offset=scale_pos (3,5)) dst  =
+  (* size = 0 means that the complete shadow has the same size as the box -- and
+     hence cannot be seen if offset=(0,0). If size>0 then the shadow is larger
+     than the box by 'size' pixels in each of the 4 directions. 'size' should be
+     less than radius, otherwise there will be a gap between the box and the
+     shadow. *)
+  let ox,oy = offset in
+  let x,y = Sdl.Rect.(x dst, y dst) in
+  let w,h = Sdl.Rect.(w dst, h dst) in
+  let x = x + ox + radius - size in
+  let y = y + oy + radius - size in
+  let w = w - 2*radius + 2*size in (* width of the inner rectangle on which the
+                                      shadow is fitted *)
+  let h = h - 2*radius + 2*size in (* idem *)
+
+  if h <= 0 || w <= 0 then
     begin
-      match angle with
-      | None -> go(Sdl.render_copy renderer small)
-      | Some t ->
-        let w,h = tex_size target in
-        (* we compute the size of the virtual box before cropping due to rotation *)
-        let theta = pi *. t /. 180. in
-        let c,s = cos theta, sin theta in
-        let vh = int_of_float (abs_float (float w *. s) +.
-                               abs_float (float h *. c) ) in
-        let vw = int_of_float (abs_float (float w *. c) +.
-                               abs_float (float h *. s) ) in
+      printd debug_error "Box too small for the requested Shadow.";
+      []
+    end else
+    begin
+      let tcolor = set_alpha 0 color in
+      let scolor = set_alpha 200 color in
 
-        (* copy the small onto the target texture *)
-        let flip = Sdl.Flip.none in
-        let dw = vw - w
-        and dh = vh - h in
-        let center = Sdl.Point.create ~x:(vw/2) ~y:(vh/2) in
-        let dst = Sdl.Rect.create ~x:(-dw/2) ~y:(-dh/2) ~w:(vw) ~h:(vh) in
-        go(Sdl.render_copy_ex renderer ~dst small t (Some center) flip)
-    end;
-    
-    forget_texture small
-  end
-  else ();;
+      (* create the textures *)
+      (* TODO: pre-compute and store this!  On the other hand, the advantage of
+     doing this here is that the shadow will always adapt to the box, when the
+     latter is animated or transformed. *)
+      let corner = create_target canvas.renderer radius radius in
+      let p = push_target ~clear:false canvas.renderer corner in
+      corner_gradient2 canvas.renderer scolor tcolor;
+      let horiz = create_target canvas.renderer w radius in
+      let _ = push_target ~clear:false canvas.renderer horiz in
+      gradientv3 canvas.renderer [scolor; tcolor];
+      let vert = create_target canvas.renderer radius h in
+      let _ = push_target ~clear:false canvas.renderer vert in
+      gradientv3 canvas.renderer ~angle:90. [scolor; tcolor];
+      pop_target canvas.renderer p;
 
+      (* create the blits *)
+      (* it would be --slightly-- faster to pre-rotate the textures instead of
+         doing this for each blit *)
+      let bottom =
+        let dst = Sdl.Rect.create ~x ~y:(y+h) ~w ~h:radius in
+        make_blit ~dst canvas layer horiz in
+      let top =
+        let dst = Sdl.Rect.create ~x ~y:(y-radius) ~w ~h:radius in
+        let transform = make_transform ~flip:Sdl.Flip.vertical () in
+        make_blit ~dst ~transform canvas layer horiz in
+      let left =
+        let dst = Sdl.Rect.create ~x:(x-radius) ~y ~w:radius ~h in
+        make_blit ~dst canvas layer vert in
+      let right =
+        let dst = Sdl.Rect.create ~x:(x+w) ~y ~w:radius ~h in
+        let transform = make_transform ~flip:Sdl.Flip.horizontal () in
+        make_blit ~dst ~transform canvas layer vert in
 
+      let top_right =
+        let dst = Sdl.Rect.create ~x:(x+w) ~y:(y-radius) ~w:radius ~h:radius in
+        make_blit ~dst canvas layer corner in
+      let top_left =
+        let dst = Sdl.Rect.create ~x:(x-radius) ~y:(y-radius)
+                    ~w:radius ~h:radius in
+        let transform = make_transform ~flip:Sdl.Flip.horizontal () in
+        make_blit ~dst ~transform canvas layer corner in
+      let bottom_left =
+        let dst = Sdl.Rect.create ~x:(x-radius) ~y:(y+h) ~w:radius ~h:radius in
+        let transform = make_transform
+                          ~flip:Sdl.Flip.(horizontal + vertical) () in
+        make_blit ~dst ~transform canvas layer corner in
+      let bottom_right =
+        let dst = Sdl.Rect.create ~x:(x+w) ~y:(y+h) ~w:radius ~h:radius in
+        let transform = make_transform ~flip:Sdl.Flip.vertical () in
+        make_blit ~dst ~transform canvas layer corner in
+
+      (* we fill also the inside rectangle, otherwise it looks bad if applied to
+         a transparent box (but who wants to add shadow to a transparent box?),
+         and also if the offset is larger than the radius.  *)
+      let inside = box_to_layer canvas layer ~bg:scolor x y w h in
+
+      List.iter forget_texture [horiz; vert; corner];
+      
+      [inside; bottom; top; left; right;
+       bottom_right; bottom_left; top_left; top_right]
+    end;;
 
 let center x0 big_w small_w =
   x0 + (big_w - small_w) / 2;;
@@ -2117,3 +2264,19 @@ let mask_texture ~mask renderer texture =
   go(Sdl.update_texture target (Some rect) pixels pitch);
   target;;
 
+(* cheap blur by zooming *) (* not used yet *)
+let blur_texture renderer tex scale =
+  let w,h = tex_size tex in
+  let w',h' = imax 1 (w/scale), imax 1 (h/scale) in
+  ignore (Sdl.(set_hint Hint.render_scale_quality "1"));
+  let small = create_target renderer w' h' in
+  let p = push_target ~clear:false renderer small in
+  go (Sdl.set_texture_blend_mode tex Sdl.Blend.mode_none);
+  go (Sdl.render_copy renderer tex);
+  let final = create_target renderer w h in
+  let _ = push_target ~clear:false renderer final in
+  go (Sdl.set_texture_blend_mode small Sdl.Blend.mode_none);
+  go (Sdl.render_copy renderer small);
+  pop_target renderer p;
+  forget_texture small;
+  final;;

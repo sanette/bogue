@@ -514,15 +514,16 @@ let example26 () =
        triggered, therefore we manually update the target. *)
   in
   let cf = W.connect box l action_leave [T.mouse_leave] in
-  let layout = L.flat [room; L.resident l] in
+  let layout = L.flat ~margins:20 [room; L.resident l] in
   let board = make [ce;cf] [layout] in
   run board;;
 
-let desc26bis = "the mouse enter/leave event"
+let desc26bis = "the mouse enter/leave event + box shadow"
 let example26bis () =
   (* same as example26, here one uses l as a global variable, and no thread *)
   (* Which one is the best?? *)
-  let box = W.box ~w:200 () in
+  let shadow = Style.shadow () in
+  let box = W.box ~w:200 ~shadow () in
   let room = L.resident box in
   let l = W.label "Put the mouse over the box" in
   let enter _ = print_endline "action_enter";
@@ -536,7 +537,7 @@ let example26bis () =
        triggered, therefore we manually update the target. *)
   in
   W.mouse_over ~enter ~leave box;
-  let layout = L.flat [room; L.resident l] in
+  let layout = L.flat ~margins:20 [room; L.resident l] in
   let board = make [] [layout] in
   run board;;
 

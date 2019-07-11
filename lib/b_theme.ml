@@ -85,8 +85,8 @@ let conf = try Sys.getenv "XDG_CONFIG_HOME" with
 
 let skip_comment buffer =
   let rec loop () =
-    let comment = Scanf.bscanf buffer " #%s@\n" id in
-    printd debug_io "Comment ignored: \"%s\"" comment;
+    let (* comment *) _ = Scanf.bscanf buffer " #%s@\n" id in
+    (* printd debug_io "Comment ignored: \"%s\"" comment; *)
     loop () in
   try loop () with
   | End_of_file

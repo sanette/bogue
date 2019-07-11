@@ -19,4 +19,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_from_svg&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?width:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?height:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?bg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Image</span>.t<br>
-<span class="keyword">end</span></code></body></html>
+<span class="keyword">end</span></pre></body></html>

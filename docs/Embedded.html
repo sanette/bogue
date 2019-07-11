@@ -6,6 +6,14 @@
 <title>Embedded</title>
 </head>
 <body>
+  <div style="float: right;">
+    <a href="https://github.com/sanette/bogue">Find bogue on
+      <img 
+	src="images/github.svg" 
+	alt="Github"
+	height="42px"
+	width="42px" style="vertical-align: middle;"/></a>
+  </div>
 <h1 id="how-to-embed-bogue-in-an-existing-graphics-loop">How to embed BOGUE in an existing graphics loop?</h1>
 <p>If you have a game using the SDL2 renderer library, then it's easy to use BOGUE to add GUI elements to your game, without stopping your graphics loop.</p>
 <p>The basic idea is to call the <code>Bogue.one_step</code> function whenever you need to display the GUI. But some caution has to be taken to make sure that:</p>
