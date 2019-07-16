@@ -623,27 +623,6 @@ let mouse_pos () =
   let _, (x,y) = Sdl.get_mouse_state () in
     Theme.(unscale_int x, unscale_int y);;
 
-(* guess where the pointer is, trying mouse first and then touch *)
-(* in logical pixels *)
-(* TODO retrieve also from mouse_at_rest *)
-let pointer_pos ev =
-  match event_kind ev with
-  | `Mouse_motion
-  | `Mouse_button_down
-  | `Mouse_button_up ->
-    let x = E.(get ev mouse_button_x) in
-    let y = E.(get ev mouse_button_y) in
-    Theme.(unscale_int x, unscale_int y)
-  | `Finger_down
-  | `Finger_up
-  | `Finger_motion ->
-    let x = E.(get ev touch_finger_x) |> Theme.unscale_f in
-    let y = E.(get ev touch_finger_y) |> Theme.unscale_f in
-    (round x, round y)
-  | _ ->
-    printd debug_error "The event for pointer pos should be a mouse or touch event";
-    mouse_pos ();;
-
 (* check if mouse didn't move for a while *)
 (* TODO use get_touch_finger *)
 let check_mouse_rest =

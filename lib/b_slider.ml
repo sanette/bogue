@@ -255,6 +255,16 @@ let x_pos s =
 let y_pos s =
   Var.get s.room_y + s.length -s.tick_size - (value s) * (s.length - s.tick_size) / s.max;;
 
+
+let make_box_blit ~dst ?(shadow=true) ~focus voffset canvas layer box =
+  (* Let's see if it is nice to add a "shadow" to the tick *)
+  let box_blit = Draw.make_blit ~voffset ~dst canvas layer box in
+  if shadow && focus then
+    let shadow_blits = Draw.box_shadow ~offset:(0,0) ~size:(Theme.scale_int 6)
+                         canvas layer dst in
+    List.rev (box_blit :: shadow_blits)
+  else [box_blit]
+  
 let display canvas layer s g =
   update_value s;
   let scale = Theme.scale_int in
@@ -266,32 +276,38 @@ let display canvas layer s g =
   and gy = Theme.unscale_int g.y in
   if Var.get s.room_x <> gx then Var.set s.room_x gx;
   if Var.get s.room_y <> gy then Var.set s.room_y gy;
-  let color = if has_keyboard_focus s
-    then Draw.(darker (set_alpha 200 (find_color "slategray")))
-    else Draw.(set_alpha 200 (find_color "slategray")) in
+  let focus = has_keyboard_focus s in
+  let shadow = true (* for testing *) in
+  let c = if shadow then opaque (find_color "slategray")
+          else set_alpha 200 (find_color "slategray") in
+  let color = if has_keyboard_focus s && not shadow
+              then Draw.(darker c)
+              else c in
   let x0 = scale (x_pos s) in
   (*   set_color renderer (opaque color); *)
   match s.kind with
   | Horizontal -> 
     (* let rect = Sdl.Rect.create ~x:x0 ~y:g.y ~w:thickness ~h:width in *)
      (* go (Sdl.render_fill_rect renderer (Some rect)); *)
-
-     (* TODO horizontal gradient for the slider (with button color) *)
     let box = texture canvas.renderer ~color ~w:tick_size ~h:thickness in
     let dst = Sdl.Rect.create ~x:x0 ~y:g.y ~w:tick_size ~h:thickness in
     forget_texture box; (* or save ? but be careful color may change *)
-    [make_blit ~voffset:g.voffset ~dst canvas layer box]
+    make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
   | HBar ->
-    let box = texture canvas.renderer ~color ~w:(x0 - g.x + tick_size) ~h:thickness in
-    let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w:(x0 - g.x + tick_size) ~h:thickness in
-    forget_texture box; (* or save ? *)
-    [make_blit ~voffset:g.voffset ~dst canvas layer box]
+     (* horizontal gradient for the slider (TODO: with button color) *)
+     let box = gradient_texture canvas.renderer ~w:(x0 - g.x + tick_size)
+                 ~h:thickness ~angle:90. [lighter color; color] in
+     let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w:(x0 - g.x + tick_size)
+                 ~h:thickness in
+     forget_texture box; (* or save ? *)
+     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
+    (* [make_blit ~voffset:g.voffset ~dst canvas layer box] *)
   | Vertical -> 
     let y0 = scale (y_pos s) in
     let box = texture canvas.renderer ~color ~h:tick_size ~w:thickness in
     let dst = Sdl.Rect.create ~x:g.x ~y:y0 ~h:tick_size ~w:thickness in
     forget_texture box; (* or save ? *)
-    [make_blit ~voffset:g.voffset ~dst canvas layer box]
+    make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
   | Circular ->
     let radius = g.w/2-2 in
     let tex = match Var.get s.render with

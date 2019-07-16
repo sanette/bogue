@@ -7,7 +7,7 @@
  Entirely written in {{:https://ocaml.org/}ocaml} except for the hardware
    accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-    @version 20190712 @author Vu Ngoc San
+    @version 20190716 @author Vu Ngoc San
 
 *)
 
@@ -414,7 +414,17 @@ end (* of Draw *)
 module Mouse : sig
   val pos : unit -> int * int
   (** Get current mouse position *)
-                    
+
+  val window_pos : Tsdl.Sdl.window -> int * int
+(** Return the mouse position with respect to the given window, using window
+   position if necessary. *)
+
+  val button_pos : Tsdl.Sdl.event -> int * int
+
+  val finger_pos : Tsdl.Sdl.event -> float * float
+
+  val pointer_pos : Tsdl.Sdl.event -> int * int
+    
 end (* of Mouse *)
 
 (* ---------------------------------------------------------------------------- *)

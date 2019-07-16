@@ -12,7 +12,7 @@ bug-reports: "https://github.com/sanette/bogue/issues"
 homepage: "https://github.com/sanette/bogue"
 doc: "http://sanette.github.io/bogue/Bogue.html"
 license: "GPL2"
-version: "20190712"
+version: "20190716"
 dev-repo: "git+https://github.com/sanette/bogue.git"
 synopsis: "GUI library for ocaml, with animations, based on SDL2"
 description: """
@@ -33,8 +33,8 @@ Programming with bogue is easy if you're used to GUIs with widgets,
 layouts, callbacks, and of course it has a functional flavor. ​It uses
 Threads when non-blocking reactions are needed."""
 depends: [
-  "tsdl-image" {build}
-  "tsdl-ttf" {build}
+  "tsdl-image" {>= "0.2"}
+  "tsdl-ttf" {>= "0.2"}
   "ocaml" {>= "4.03.0"}
   "dune" {build & > "1.10"}
   "tsdl" {>= "0.9.0"}

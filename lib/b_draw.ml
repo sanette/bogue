@@ -874,7 +874,7 @@ let push_target ?(clear=true) ?(bg=none) renderer target =
   set_color renderer bg;
   (* go (Sdl.render_fill_rect renderer None); *)
   if clear then go (Sdl.render_clear renderer);
-  clip, old_target, color;;
+  clip, old_target, color;; (* TODO include the renderer here *)
 
 (** restore the settings saved by "push_target" *)
 let pop_target renderer (clip, old_target, (r,g,b,a)) =
@@ -1750,7 +1750,18 @@ let corner_gradient2 renderer c1 c2 =
   go (Sdl.render_copy ~dst renderer small);
   forget_texture small;;
 
-(* draw a "shadow" all around the dst rectangle. *)
+(* create a gradient texture. Use pop=false only for optimization when using
+   several push in a row, only one pop is usually needed. But well, this
+   optimization is really nothing... (pop_target is so fast) *)
+let gradient_texture renderer ~w ~h ?angle ?(pop=true) colors =
+  let target = create_target renderer w h in
+  let p = push_target ~clear:false renderer target in
+  gradientv3 renderer ?angle colors;
+  if pop then pop_target renderer p;
+  target;;
+  
+
+(* blits a "shadow" (to the layer) all around the dst rectangle. *)
 (* uses gradient. the patching of the corners is not perfect... *)
 (* TODO: this simple technique does not work for round corners *)
 (* but it's very fast *)
@@ -1785,16 +1796,20 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
       (* create the textures *)
       (* TODO: pre-compute and store this!  On the other hand, the advantage of
      doing this here is that the shadow will always adapt to the box, when the
-     latter is animated or transformed. *)
+     latter is animatesld or transformed. *)
       let corner = create_target canvas.renderer radius radius in
       let p = push_target ~clear:false canvas.renderer corner in
       corner_gradient2 canvas.renderer scolor tcolor;
-      let horiz = create_target canvas.renderer w radius in
-      let _ = push_target ~clear:false canvas.renderer horiz in
-      gradientv3 canvas.renderer [scolor; tcolor];
-      let vert = create_target canvas.renderer radius h in
-      let _ = push_target ~clear:false canvas.renderer vert in
-      gradientv3 canvas.renderer ~angle:90. [scolor; tcolor];
+      let horiz = gradient_texture ~pop:false canvas.renderer ~w ~h:radius
+                    [scolor; tcolor] in
+      (*   create_target canvas.renderer w radius in
+       * let _ = push_target ~clear:false canvas.renderer horiz in
+       * gradientv3 canvas.renderer [scolor; tcolor]; *)
+      let vert = gradient_texture ~pop:false canvas.renderer ~w:radius ~h
+                    ~angle:90. [scolor; tcolor] in
+      (* create_target canvas.renderer radius h in
+       * let _ = push_target ~clear:false canvas.renderer vert in
+       * gradientv3 canvas.renderer ~angle:90. [scolor; tcolor]; *)
       pop_target canvas.renderer p;
 
       (* create the blits *)
@@ -2212,6 +2227,15 @@ let land_texture renderer mask texture =
 (* SDL_BLENDMODE_BLEND alpha blending dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA)); dstA = srcA + (dstA * (1-srcA)) *)
 (* SDL_BLENDMODE_ADD additive blending dstRGB = (srcRGB * srcA) + dstRGB; dstA = dstA *)
 (* SDL_BLENDMODE_MOD color modulate dstRGB = srcRGB * dstRGB; dstA = dstA *)
+
+(* WANRNIG: the RGB encoding is NOT linear wrt light intensity. See
+   https://en.wikipedia.org/wiki/SRGB
+   https://photosounder.com/michel_rouzic/#srgb
+
+When blending, we should not just ADD values. Not sure what SDL does for this.
+
+*)
+
 
 (* Remark: blending half transparent blue (srcA=0.5) onto full transparent red
    (dstA=0) gives 0.5blue+0.5red, alpha=0.5: the hidden red reappears!

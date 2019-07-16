@@ -1,6 +1,6 @@
 (lang dune 1.10)
 (name bogue)
-(version "20190712")
+(version "20190716")
 (generate_opam_files true)
 (license GPL2)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
@@ -29,8 +29,8 @@ layouts, callbacks, and of course it has a functional flavor. ​It uses
 Threads when non-blocking reactions are needed.")
  (tags ("gui"))
  (depends
-  (tsdl-image :build)
-  (tsdl-ttf :build)
+  (tsdl-image (>= 0.2))
+  (tsdl-ttf (>= 0.2))
   (ocaml (>= 4.03.0))
   (dune (and :build (> 1.10)))
   (tsdl (>= 0.9.0))))
