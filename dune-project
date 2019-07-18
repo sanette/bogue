@@ -1,6 +1,6 @@
 (lang dune 1.10)
 (name bogue)
-(version "20190716")
+(version "20190717")
 (generate_opam_files true)
 (license GPL2)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
@@ -25,7 +25,7 @@ Graphics output is scalable, and hence easily adapts to Hi-DPI
 displays.
 
 Programming with bogue is easy if you're used to GUIs with widgets,
-layouts, callbacks, and of course it has a functional flavor. ​It uses
+layouts, callbacks, and of course it has a functional flavor. It uses
 Threads when non-blocking reactions are needed.")
  (tags ("gui"))
  (depends
