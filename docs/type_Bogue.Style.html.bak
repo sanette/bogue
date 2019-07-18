@@ -32,4 +32,4 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;shadow&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?offset:int&nbsp;*&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?size:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?radius:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow<br>
-<span class="keyword">end</span></pre></body></html>
+<span class="keyword">end</span></code></body></html>

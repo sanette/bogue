@@ -262,3 +262,24 @@ let list_sum list =
   List.fold_left (+) 0 list;;
 
 (* let find_file list_list = *)
+
+let which command =
+(* BETTER: (specially for portability to WIN/MAC) use
+   https://opam.ocaml.org/packages/fileutils/ *)
+  try
+    let s = Unix.open_process_in ("which " ^ command) in
+    let res = try 
+        Some (input_line s)
+      with
+      | _ -> None in begin
+        match Unix.close_process_in s with
+        | Unix.WEXITED 0 -> res
+        | Unix.WEXITED 1 -> None (* in principle this is redundant since `res`
+                                    is already None at this point *)
+        | _ -> printd (debug_error + debug_io)
+                 "The `which` command exited with error.";
+               None
+      end
+  with
+  | _ -> printd (debug_error + debug_io) "Cannot use the `which` command.";
+         None;;

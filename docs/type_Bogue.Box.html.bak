@@ -18,4 +18,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?background:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?border:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?shadow:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Box</span>.t<br>
-<span class="keyword">end</span></pre></body></html>
+<span class="keyword">end</span></code></body></html>

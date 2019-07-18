@@ -7,7 +7,7 @@
  Entirely written in {{:https://ocaml.org/}ocaml} except for the hardware
    accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-    @version 20190716 @author Vu Ngoc San
+    @version 20190717 @author Vu Ngoc San
 
 *)
 

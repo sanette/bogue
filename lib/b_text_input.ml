@@ -30,7 +30,7 @@ type t =
     cursor : (Draw.texture option) Var.t; (* make this a global variable? *)
     cursor_font : (Label.font) Var.t; (* make this a Theme variable? *)
     cursor_pos : int Var.t;
-    cursor_char : bytes;
+    cursor_char : string;
     render : (Draw.texture option) Var.t;
     offset : int Var.t;
     (* = this is the x-offset of the section to be rendered on

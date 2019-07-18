@@ -203,6 +203,8 @@ let dir =
         config
       end
     else try
+        (* TODO use `opam config var prefix` instead of ocamlfind to remove
+           ocamlfind dependency. *)
         let system = Unix.open_process_in "ocamlfind query bogue" in
         let res = input_line system in
         match Unix.close_process_in system with
@@ -348,7 +350,7 @@ let load_fa_variables () =
       let key =  Scanf.bscanf buffer "@fa-var-%s@: " (fun x -> x) in
       let value = Scanf.bscanf buffer "\"\\%s@\"" (fun x -> x) in
       let int_value = int_of_string ("0x" ^ value) in
-      let ucode = Utf8.uencode int_value in
+      let ucode = Bytes.to_string (Utf8.uencode int_value) in
       loop ((key, ucode) :: list)
     with 
     | End_of_file -> 
