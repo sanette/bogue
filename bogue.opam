@@ -11,7 +11,7 @@ bug-reports: "https://github.com/sanette/bogue/issues"
 homepage: "https://github.com/sanette/bogue"
 doc: "http://sanette.github.io/bogue/Bogue.html"
 license: "GPL2"
-version: "20190717"
+version: "20190719"
 dev-repo: "git+https://github.com/sanette/bogue.git"
 synopsis: "GUI library for ocaml, with animations, based on SDL2"
 description: """
@@ -35,6 +35,6 @@ depends: [
   "tsdl-image" {>= "0.2"}
   "tsdl-ttf" {>= "0.2"}
   "ocaml" {>= "4.03.0"}
-  "dune" {build & > "1.10"}
+  "dune" {"1.10"}
   "tsdl" {>= "0.9.0"}
 ]

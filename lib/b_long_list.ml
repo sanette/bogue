@@ -523,7 +523,8 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
   then container (* no need for scrollbar *)
   else begin
     let clicked_value = ref None (* TODO protect this *) in
-    let steps = max ll.length h in (* TODO can do better, taking tick size into account *)
+    let steps = max ll.length h in (* TODO can do better, taking tick size into
+                                      account *)
     let var = Tvar.create ll.offset (* the var for the scrollbar (slider) *)
         ~t_from: (* from offset we set slider new position *)
           (fun v -> let o = Avar.get v in

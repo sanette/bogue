@@ -25,7 +25,10 @@ type t = {
     (* TODO: (int Avar.t) is here to make smoother transitions. not done yet *)
     cache : int Var.t; (* used to avoid computing too many times the same value *)
     clicked_value : (int option) Var.t;
-    offset : int Var.t; (* if offset=0 the tick will place itself with the mouse pointer exactly in its middle point. Offset is used to not move the tick if one clicks at any other position of the tick. *)
+    offset : int Var.t; (* if offset=0 the tick will place itself with the mouse
+                           pointer exactly in its middle point. Offset is used
+                           to not move the tick if one clicks at any other
+                           position of the tick. *)
     max: int;
     step: int;
     length : int; (* length in pixels *)
@@ -114,7 +117,10 @@ let set s value =
   Tvar.set s.var value;
   Var.set s.cache value;;
 
-(* this has to be done for each external call to this module *)
+(* This has to be done for each external call to this module *)
+(* It will update the position of the slider by looking at the s.var. Hence, if
+   the s.var has a nontrivial transformation, it might be that the value differs
+   from the value initially computed from the mouse position. See example 34. *)
 let update_value s =
   Var.set s.cache (Tvar.get s.var);;
 
@@ -151,10 +157,11 @@ let compute_value s ev =
          let x0 = Var.get s.room_x + s.length/6 in
          let y0 = Var.get s.room_y + s.length/6 in
          if x = x0 then if y>y0 then 3 * s.max / 4 else s.max / 4
-         else let a = (float s.max) *. atan (float (y0-y) /. (float (x-x0))) /. pi /. 2. in
-              let a' = if x > x0 then if y <= y0 then a else a +. (float s.max)
-                       else a +. (float  s.max) /. 2. in
-           round (a') in
+         else
+           let a = (float s.max) *. atan (float (y0-y) /. (float (x-x0))) /. pi /. 2. in
+           let a' = if x > x0 then if y <= y0 then a else a +. (float s.max)
+                    else a +. (float  s.max) /. 2. in
+           round a' in
     (* printd debug_custom "Mouse (%d,%d), value=%d" x y v; *)
     v;;
 
@@ -266,6 +273,10 @@ let make_box_blit ~dst ?(shadow=true) ~focus voffset canvas layer box =
   else [box_blit]
   
 let display canvas layer s g =
+  (* We use y_pos before updating to display a gradient box at the real mouse
+     position, in case of non-linear (vertical) slider (see example 34)...  TODO
+     do the same for Horizontal sliders. *)
+  let oldy = y_pos s in
   update_value s;
   let scale = Theme.scale_int in
   let tick_size = scale s.tick_size
@@ -287,12 +298,12 @@ let display canvas layer s g =
   (*   set_color renderer (opaque color); *)
   match s.kind with
   | Horizontal -> 
-    (* let rect = Sdl.Rect.create ~x:x0 ~y:g.y ~w:thickness ~h:width in *)
+     (* let rect = Sdl.Rect.create ~x:x0 ~y:g.y ~w:thickness ~h:width in *)
      (* go (Sdl.render_fill_rect renderer (Some rect)); *)
-    let box = texture canvas.renderer ~color ~w:tick_size ~h:thickness in
-    let dst = Sdl.Rect.create ~x:x0 ~y:g.y ~w:tick_size ~h:thickness in
-    forget_texture box; (* or save ? but be careful color may change *)
-    make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
+     let box = texture canvas.renderer ~color ~w:tick_size ~h:thickness in
+     let dst = Sdl.Rect.create ~x:x0 ~y:g.y ~w:tick_size ~h:thickness in
+     forget_texture box; (* or save ? but be careful color may change *)
+     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
   | HBar ->
      (* horizontal gradient for the slider (TODO: with button color) *)
      let box = gradient_texture canvas.renderer ~w:(x0 - g.x + tick_size)
@@ -301,37 +312,44 @@ let display canvas layer s g =
                  ~h:thickness in
      forget_texture box; (* or save ? *)
      make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
-    (* [make_blit ~voffset:g.voffset ~dst canvas layer box] *)
+  (* [make_blit ~voffset:g.voffset ~dst canvas layer box] *)
   | Vertical -> 
-    let y0 = scale (y_pos s) in
-    let box = texture canvas.renderer ~color ~h:tick_size ~w:thickness in
-    let dst = Sdl.Rect.create ~x:g.x ~y:y0 ~h:tick_size ~w:thickness in
-    forget_texture box; (* or save ? *)
-    make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
+     let y0 = scale (y_pos s) in
+     let dy = scale oldy - y0 in
+     let y = imin y0 (y0 + dy) in
+     let h = imax tick_size (abs dy) in (* see example 34 .*)
+     let box = if dy = 0
+               then texture canvas.renderer ~color ~h ~w:thickness
+               else let colors = [lighter color; color] in
+                    let colors = if dy < 0 then colors else List.rev colors in
+                    gradient_texture canvas.renderer ~h ~w:thickness colors in
+     let dst = Sdl.Rect.create ~x:g.x ~y ~h ~w:thickness in
+     forget_texture box; (* or save ? *)
+     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
   | Circular ->
-    let radius = g.w/2-2 in
-    let tex = match Var.get s.render with
-      | Some t -> t
-      | None ->
-        let t' = ring_tex renderer ~color:(lighter (transp grey))
-            ~radius ~width:thickness (g.w/2) (g.h/2) in
-        (* j'ai essayé de mettre une taille double puis de réduire avec
+     let radius = g.w/2-2 in
+     let tex = match Var.get s.render with
+       | Some t -> t
+       | None ->
+          let t' = ring_tex renderer ~color:(lighter (transp grey))
+                     ~radius ~width:thickness (g.w/2) (g.h/2) in
+          (* j'ai essayé de mettre une taille double puis de réduire avec
            render_copy, mais apparemment ça ne fait pas d'antialiasing *)
-        (* let t' = convolution ~emboss:false renderer *)
-        (*            (gaussian_blur ~radius:3) 3 t in *)
-        Var.set s.render (Some t'); t' in
-    let w',h' = tex_size tex in
-    let dst = Sdl.Rect.create ~x:(g.x) ~y:(g.y) ~w:w' ~h:h' in
-    (* go (Sdl.render_copy ~dst renderer tex); *)
-    let sbox = make_blit ~voffset:g.voffset ~dst canvas layer tex in
-    (* ring renderer ~bg:(lighter (opaque grey)) ~radius:(w/2-2)
+          (* let t' = convolution ~emboss:false renderer *)
+          (*            (gaussian_blur ~radius:3) 3 t in *)
+          Var.set s.render (Some t'); t' in
+     let w',h' = tex_size tex in
+     let dst = Sdl.Rect.create ~x:(g.x) ~y:(g.y) ~w:w' ~h:h' in
+     (* go (Sdl.render_copy ~dst renderer tex); *)
+     let sbox = make_blit ~voffset:g.voffset ~dst canvas layer tex in
+     (* ring renderer ~bg:(lighter (opaque grey)) ~radius:(w/2-2)
        ~width (x+w/2) (y+h/2); *)
-    let tick = ray_to_layer canvas layer ~voffset:g.voffset ~bg:color
-        ~thickness:tick_size 
-        ~angle:(360. *. (float (s.max - value s)) /. (float s.max)) ~radius 
-        ~width:thickness (g.x + g.w/2) (g.y + g.h/2) in
-    forget_texture tick.texture;
-    [sbox; tick];;
+     let tick = ray_to_layer canvas layer ~voffset:g.voffset ~bg:color
+                  ~thickness:tick_size 
+                  ~angle:(360. *. (float (s.max - value s)) /. (float s.max)) ~radius 
+                  ~width:thickness (g.x + g.w/2) (g.y + g.h/2) in
+     forget_texture tick.texture;
+     [sbox; tick];;
 
 
 (* this function can be used for the ~t_to function to slow down the slider when
