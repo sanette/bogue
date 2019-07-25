@@ -558,7 +558,7 @@ let mouse_select ti ev=
 
 (* render letter by letter so that x position is precise *)
 let draw_keys ?fg font keys =
-  let color = if keys = [] then (127,127,127,127)
+  let color = if keys = [] then Draw.(transp faint_color) (* inutile ? *)
     else default fg (10,11,12,255) in
   printd debug_graphics "Renders keys";
   let rec loop keys surfs w h =
@@ -607,7 +607,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
       let start_time = Unix.gettimeofday () in (* =for debug only *)
       let keys = Var.get ti.keys in
       let fg = if keys <> [] then Draw.(opaque text_color) else
-          (* if is_active ti then Draw.(opaque pale_grey) else *) Draw.(opaque pale_grey) in
+          (* if is_active ti then Draw.(opaque pale_grey) else *) Draw.(opaque faint_color) in
       let keys = if keys = [] && not (is_active ti) then [ti.prompt] else keys in
       let surf = draw_keys (font ti) keys ~fg in
       (* TODO: draw only the relevent text, not everything. *)
@@ -631,11 +631,13 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
          let x2 = cursor_xpos ~n:n2 ti in
          let sel_rect = Sdl.Rect.create ~x:x1 ~y:0 ~w:(x2-x1) ~h:th in
          let sel_rect_cw = Draw.rect_translate sel_rect (cw/2, 0) in
-         Draw.fill_rect box (Some sel_rect_cw) Draw.(opaque pale_grey);
+         Draw.fill_rect box (Some sel_rect_cw) Draw.(opaque sel_bg_color);
          (* now we reblit the text on the selection rectangle, this time with
             blending *)
-         go (Sdl.set_surface_blend_mode surf Sdl.Blend.mode_blend);
-         go (Sdl.blit_surface ~src:surf (Some sel_rect) ~dst:box (Some sel_rect_cw))
+         let sel =  draw_keys (font ti) keys ~fg:Draw.(opaque sel_fg_color) in
+         (* TODO: draw only the relevent text, not everything. *)
+         go (Sdl.set_surface_blend_mode sel Sdl.Blend.mode_blend);
+         go (Sdl.blit_surface ~src:sel (Some sel_rect) ~dst:box (Some sel_rect_cw))
        | Start n1 ->
          let x1 = cursor_xpos ~n:n1 ti in
          let n2 = Var.get ti.cursor_pos in

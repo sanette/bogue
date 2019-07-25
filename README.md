@@ -64,7 +64,18 @@ Layouts can be __animated__ (slide-in, transparency, rotation)
 
 # Installation
 
-## Prerequisites
+## Using the opam package
+This is the easiest way unless you want to try out the development version.
+
+```
+opam install bogue
+```
+
+That's it.
+
+## Bulding from sources
+
+### Prerequisites
 
 You need a working `ocaml` installation with `opam`, see the [ocaml doc](https://ocaml.org/docs/install.html). Then, make sure
 you have `dune`, `tsdl`, `tsdl-image` and `tsdl-ttf`:
@@ -72,16 +83,12 @@ you have `dune`, `tsdl`, `tsdl-image` and `tsdl-ttf`:
 opam install dune tsdl tsdl-image tsdl-ttf
 ```
 
-## Using this git repository
+### Get the latest source
 
-Download the git archive, cd into the `bogue` (or `bogue-master`) dir, and then:
-```
-dune build
-opam install .
-```
-
-## Using the opam package
-TODO
+Download the
+[git archive](https://github.com/sanette/bogue/archive/master.zip),
+unzip it, cd into the `bogue-master` dir, and then: ``` dune build
+opam install .  ```
 
 # Documentation
 

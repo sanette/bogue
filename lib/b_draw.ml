@@ -455,13 +455,16 @@ let find_color c =
       grey
     | e -> raise e;;
 
-
 (* alpha=0 means totally transparent, alpha=1 means totally opaque *)
 let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * int *) color =
   (r,g,b,alpha);;
 
+let bg_color = find_color Theme.bg_color;;
 let cursor_color = find_color Theme.cursor_color;;
+let faint_color = find_color Theme.faint_color;;
 let text_color = find_color Theme.text_color;;
+let sel_bg_color = find_color Theme.sel_bg_color;;
+let sel_fg_color = find_color Theme.sel_fg_color;;
 let label_color = find_color Theme.label_color;;
 let menu_hl_color = find_color Theme.menu_hl_color;;
 let menu_bg_color = find_color Theme.menu_bg_color;;
@@ -803,6 +806,15 @@ let fill_of_string renderer s =
   else (printd debug_error "Wrong background format. Expecting color:... or file:..., got %s instead" s;
         Solid (opaque pale_grey));;
 
+
+let svg_loader =
+  if which "rsvg-convert" <> None then "rsvg-convert"
+  else if which "rsvg" <> None then "rsvg"
+  else begin
+      printd (debug_warning + debug_io) "Cannot find rsvg converter. You will not be able to load SVG images.";
+      ""
+    end;;
+
 (* load svg using rsvg from command-line. Return name of output png file *)
 (* rsvg -w 1024 -h 1024 input.svg -o output.png *)
 (* maybe better (but slower) with inkscape: *)
@@ -819,10 +831,16 @@ let convert_svg ?w ?h file =
     | None, Some h -> (sprintf "-h %u -a " (Theme.scale_int h))
     | Some w, Some h -> (sprintf "-w %u -h %u "
                            (Theme.scale_int w) (Theme.scale_int h)) in
-  let ret = Sys.command (sprintf "rsvg-convert %s %s > %s" args file tmp) in
+  let ret = match svg_loader with
+    | "rsvg" -> Sys.command (sprintf "rsvg %s %s %s" args file tmp)
+    | "rsvg-convert" ->
+       Sys.command (sprintf "rsvg-convert %s %s > %s" args file tmp)
+    | _ -> failwith "You should install rsvg or rsvg-convert to be able to \
+                     load SVG images."
+  in
   if ret <> 0
   then printd (debug_io+debug_error)
-      "converting %s to %s via rsvg failed with exit code %u" file tmp ret;
+         "converting %s to %s via rsvg failed with exit code %u" file tmp ret;
   at_exit (fun () -> Sys.remove tmp);
   tmp;;
 
@@ -1670,10 +1688,11 @@ let gradientv3 renderer ?angle colors =
         then begin
             (* create an n pixels texture *)
             let small = create_target renderer 1 n in
-            let push = push_target renderer small in
+            let push = push_target ~clear:false renderer small in
             
             (* draw the n points *)
             go (Sdl.set_render_target renderer (Some small));
+            go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_none);
             List.iteri (fun i c ->
                 set_color renderer c;
                 go (Sdl.render_draw_point renderer 0 i)) colors;
@@ -1686,10 +1705,13 @@ let gradientv3 renderer ?angle colors =
       in
 
       begin
-        let h' = (n*h)/(n-1) in (* we need a larger box to remove 1/2 pixels at the top and bottom *)
+        let h' = if n > 1 then (n*h)/(n-1)
+                 (* we need a larger box to remove 1/2 pixels at the top and
+                    bottom *)
+                 else h in
         match angle with
         | None ->
-           let dh = h/(n-1) in
+           let dh = if n > 1 then h/(n-1) else 0 in
            let dst = Sdl.Rect.create ~x:0 ~y:(-dh/2) ~w ~h:h' in
            go(Sdl.render_copy renderer ~dst small)
         | Some t ->
@@ -1704,10 +1726,9 @@ let gradientv3 renderer ?angle colors =
                                     abs_float (float h *. s) ) in
            (* Then we need to * enlarge the height of the VB in order to remove
               the 1/2 pixels at * the top and bottom.  *)
-           let vh = ((vh * n)/(n-1)) in
+           let vh = if n > 1 then ((vh * n)/(n-1)) else vh in
            
            (* copy the small onto the target texture *)
-           (* TODO boundary pixels as above *)
            let flip = Sdl.Flip.none in
            let dw = vw - w
            and dh = vh - h in
@@ -1728,10 +1749,11 @@ let corner_gradient2 renderer c1 c2 =
     then begin
         (* create an 2x2 texture *)
         let small = create_target renderer 2 2 in
-        let push = push_target renderer small in
+        let push = push_target ~clear:false renderer small in
         
         (* draw the point *)
         go (Sdl.set_render_target renderer (Some small));
+        go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_none);
         set_color renderer c2;
         go (Sdl.render_clear renderer);
         set_color renderer c1;
@@ -1796,7 +1818,7 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
       (* create the textures *)
       (* TODO: pre-compute and store this!  On the other hand, the advantage of
      doing this here is that the shadow will always adapt to the box, when the
-     latter is animatesld or transformed. *)
+     latter is animated or transformed. *)
       let corner = create_target canvas.renderer radius radius in
       let p = push_target ~clear:false canvas.renderer corner in
       corner_gradient2 canvas.renderer scolor tcolor;

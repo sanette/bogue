@@ -29,14 +29,13 @@ type t =
     box_over : Box.t option
   }
 
-let button_color_on = Draw.find_color "darkturquoise" (* TODO theme this *)
+let color_on = Draw.find_color Theme.button_color_on
+let color_off = Draw.find_color Theme.button_color_off
 
-let button_color_off = Draw.find_color "steelblue" (* TODO theme this *)
-    
 (* if label_on and/or label_off is provided, then label is ignored *)
 let create ?size ?border_radius ?border_color ?fg
-    ?(bg_on = Style.color_bg Draw.(opaque button_color_on))
-    ?(bg_off = Style.color_bg Draw.(opaque button_color_off))
+    ?(bg_on = Style.color_bg Draw.(opaque color_on))
+    ?(bg_off = Style.color_bg Draw.(opaque color_off))
     ?bg_over ?label ?label_on ?label_off ?(state=false) text =
   let label_on, label_off = match label, label_on, label_off with
     | None, None, None -> let l = Label.create ?size ?fg text in l,l

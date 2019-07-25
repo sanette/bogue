@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
     
 *)
 
-let this_version = "20190719"  (* see VERSION file *)
+let this_version = "20190725"  (* see VERSION file *)
   
 let default_vars = [
   (* Debug: *)
@@ -32,15 +32,25 @@ let default_vars = [
   (* The chosen theme: *)
   "THEME", "default"; (* It must be a subdirectory of DIR: *)
   (* The window background image: *)
-  "BACKGROUND", "file:background.png"; (* if is starts with "/" it is an absolute path. Otherwise, it is a file path inside THEME: *)
+  "BACKGROUND", "file:background.png"; (* if is starts with "/" it is an absolute path. Otherwise, it is a file path inside THEME. *)
+  (* This background color should be clearly visible over the BACKGROUND *)
+  "BG_COLOR", "lightsteelblue";
+  (* Color for active or inactive button *)
+  "BUTTON_COLOR_ON", "darkturquoise";
+  "BUTTON_COLOR_OFF", "steelblue";
   (* The "checked" image: either image or fa icon, eg. "fa:check-square-o" *)
   "CHECK_ON", "check_on.png"; 
   (* The "unchecked" image: (eg: "fa:square-o") *)
   "CHECK_OFF", "check_off.png";
   (* The cursor color for text input: *)
   "CURSOR_COLOR", "#2a7da2"; (* a color identifier. Either a name like "black" or a RGB code as "#FE01BC" *)
+  (* Color for unimportant things that should not be so visible *)
+  "FAINT_COLOR", "gainsboro"; (* idem *)
   (* The color for standard text display: *)
   "TEXT_COLOR", "black"; (* idem *)
+  (* Text section background and foreground colors: *)
+  "SEL_BG_COLOR", "slategray";
+  "SEL_FG_COLOR", "white";
   (* The color for text labels: *)
   "LABEL_COLOR", "black"; (* idem *)
   (* The color for highlighting selected menu entries: *)
@@ -138,27 +148,27 @@ let load_theme_vars dir vars =
   let rec loop newv = function
     | [] -> printd debug_io "No theme specified"; newv 
     | (name, value)::rest ->
-      if name = "THEME"
-      then
-        let theme_file = sub_file value "bogue.conf" in
-        let theme_vars = load_vars (sub_file dir theme_file) in
-        (name, value) :: (List.rev_append newv (List.append theme_vars rest))
-      else loop ((name, value)::newv) rest
+       if name = "THEME"
+       then
+         let theme_file = sub_file value "bogue.conf" in
+         let theme_vars = load_vars (sub_file dir theme_file) in
+         (name, value) :: (List.rev_append newv (List.append theme_vars rest))
+       else loop ((name, value)::newv) rest
   in
   loop [] vars;;
     
 let get_var s =
   try let v = List.assoc s !user_vars in
-    printd debug_warning "Using %s=%s" s v;
-    v
+      printd debug_warning "Using %s=%s" s v;
+      v
   with
   | Not_found -> begin
       try let v = List.assoc s default_vars in
-        printd debug_warning "User variable '%s' not found in config. Using default '%s'" s v; v
+          printd debug_warning "User variable '%s' not found in config. Using default '%s'" s v; v
       with
       | Not_found ->
-        printd debug_error "Variable '%s' not found. Prepare for a crash." s;
-        ""
+         printd debug_error "Variable '%s' not found. Prepare for a crash." s;
+         ""
       | e -> raise e;
     end
   | e -> raise e;;
@@ -293,10 +303,16 @@ let get_font_path name =
       )
       
 let background = get_var "BACKGROUND";;
+let bg_color = get_var "BG_COLOR";;
+let button_color_off = get_var "BUTTON_COLOR_OFF";;
+let button_color_on = get_var "BUTTON_COLOR_ON";;
 let check_on = get_fa_or_path (get_var "CHECK_ON");;
 let check_off = get_fa_or_path (get_var "CHECK_OFF");;
 let cursor_color = get_var "CURSOR_COLOR";;
+let faint_color = get_var "FAINT_COLOR";;
 let text_color = get_var "TEXT_COLOR";;
+let sel_bg_color = get_var "SEL_BG_COLOR";;
+let sel_fg_color = get_var "SEL_FG_COLOR";;
 let label_color = get_var "LABEL_COLOR";;
 let menu_hl_color = get_var "MENU_HL_COLOR";;
 let menu_bg_color = get_var "MENU_BG_COLOR";;

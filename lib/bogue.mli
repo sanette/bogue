@@ -2,19 +2,25 @@
 
 
 
-(** A GUI Library for Ocaml
+(** General purpose GUI (Graphical user interface) library for Ocaml.
 
- Entirely written in {{:https://ocaml.org/}ocaml} except for the hardware
-   accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
+   Bogue is a lightweight and fast GUI for developing desktop applications,
+   games, or for easy debugging of non-GUI programs.
 
-    @version 20190717 @author Vu Ngoc San
+   Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
+   hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
+
+@version 20190725
+
+@author Vu Ngoc San
 
 *)
 
 (** {3 Quick start} 
 
  For a quick start, see Bogue's
-   {{:https://sanette.github.io/bogue/Principles.html}general principles}.
+   {{:https://sanette.github.io/bogue/Principles.html}general principles},
+and the minimal {{!examples}example}.
 
 
 *)
@@ -269,7 +275,8 @@ module Mixer : sig
   val test : unit -> unit
 
   val init : unit -> string option
-  (** Initialize SDL audio. @return the name of the audio driver. *)
+  (** Initialize SDL audio. 
+      @return the name of the audio driver. *)
 
   val create_mixer : ?tracks:int -> ?freq:int -> string option -> t
   (** Create the mixer an open sound device. Only [s16le] format is supported by
@@ -282,8 +289,8 @@ module Mixer : sig
     ?effects:(sound -> unit) list ->
     ?volume:float -> ?repeat:repeat -> t -> sound -> int option
   (** Play chunk on the desired track number. If [track] is not specified, find
-     an available track. By default [repeat = Repeat 1]. @return chosen track
-      number, or None *)
+     an available track. By default [repeat = Repeat 1].
+     @return chosen track number, or None *)
       
   val free_chunk : sound -> unit
     
@@ -546,7 +553,7 @@ module Image : sig
       supported. *)
 
   val create_from_svg : ?width:int -> ?height:int -> ?bg:Draw.color -> string -> t
-  (** Load an svg image. This requires the [rsvg] program. *)
+  (** Load an svg image. This requires the [rsvg] or [rsvg-convert] program. *)
     
 end (* of Image *)
 
@@ -952,6 +959,8 @@ module Layout : sig
 
   val color_bg : Draw.color -> background
   val box_bg : Box.t -> background
+
+  val bg_color: background
     
   val unload_background : t -> unit
   (** Free the texture associated with the background (if any). This can be used
@@ -1246,7 +1255,8 @@ module Snapshot : sig
 
   val create : ?border:Style.border -> Layout.t -> Widget.t
   (** Should be called from the main thread only. There are some issues with
-     transparency. @return a Box widget. *)
+     transparency. 
+     @return a Box widget. *)
                                                                    
 end (* of Snapshot *)
 
@@ -1309,14 +1319,15 @@ module Popup : sig
 
   val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
   (** Add a screen on top of the layout. This can be useful to make the whole
-     layout clickable as a whole. @return the screen. *)
+     layout clickable as a whole. 
+     @return the screen. *)
   
   (** Generic modal type popup *)
   val attach : ?bg:Draw.color ->
     ?show:bool -> Layout.t -> Layout.t -> Layout.t
   (** [attach house layout] adds two layers on top of the house: one for the
-     screen to hide the house, one for the layout on top of the screen. @return
-      the screen. *)
+     screen to hide the house, one for the layout on top of the screen.
+     @return the screen. *)
 
   val info : ?w:int -> ?h:int -> ?button:string -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with a text and a close button. By
@@ -1406,10 +1417,10 @@ module Menu : sig
   val create : ?hide:bool -> ?name:string ->
     ?background:Layout.background ->
     ?select_bg:Layout.background -> dst:Layout.t -> t -> Layout.t
-  (** By default, [hide=false]. The [dst] layout will contain the
-     submenus. @return the layout of the main menu. This is generic menu
-     construction function, it does {b not} compute the positions of the
-     entries. See [example41]. *)
+  (** By default, [hide=false]. The [dst] layout will contain the submenus.
+      @return the layout of the main menu. This is generic menu construction
+      function, it does {b not} compute the positions of the entries. See
+      [example41]. *)
                                                               
   val bar : ?background:Layout.background ->
     ?name:string -> Layout.t -> entry list -> Layout.t
@@ -1552,14 +1563,15 @@ module Main : sig
   
   val one_step : ?before_display:(unit -> unit) ->
     bool -> (unit -> unit) * (unit -> unit) -> ?clear:bool -> board -> bool
-  (** This is only useful if you have your own graphics loop, and do {e not} use
-     {!run}. Calling [one_step ~before_display anim (start_fps, fps) ~clear
-     board] is what is executed at each step of the Bogue mainloop. If
-     [anim=true] this step is {e non blocking}; this is what you want if either
-     Bogue or your loop has an animation running. If [anim=false] then the
-     function will wait until an event is received. @return [true] if the GUI
-     currently handles an animation. In this case [fps()] was executed by
-     [one_step]. If not, you should handle the frame rate yourself. *)
+(** This is only useful if you have your own graphics loop, and do {e not} use
+   {!run}. Calling [one_step ~before_display anim (start_fps, fps) ~clear board]
+   is what is executed at each step of the Bogue mainloop. If [anim=true] this
+   step is {e non blocking}; this is what you want if either Bogue or your loop
+   has an animation running. If [anim=false] then the function will wait until
+   an event is received.
+   @return [true] if the GUI currently handles an animation. In this case
+   [fps()] was executed by [one_step]. If not, you should handle the frame rate
+   yourself. *)
     
 end (* of Main *)
 

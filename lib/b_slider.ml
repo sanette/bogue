@@ -1,6 +1,7 @@
 open B_utils
 open Tsdl
 module Avar = B_avar
+module Button = B_button
 module Theme = B_theme
 module Time = B_time
 module Var = B_var
@@ -289,8 +290,8 @@ let display canvas layer s g =
   if Var.get s.room_y <> gy then Var.set s.room_y gy;
   let focus = has_keyboard_focus s in
   let shadow = true (* for testing *) in
-  let c = if shadow then opaque (find_color "slategray")
-          else set_alpha 200 (find_color "slategray") in
+  let c = if shadow then opaque Button.color_on
+          else set_alpha 200 Button.color_on in
   let color = if has_keyboard_focus s && not shadow
               then Draw.(darker c)
               else c in
@@ -305,9 +306,10 @@ let display canvas layer s g =
      forget_texture box; (* or save ? but be careful color may change *)
      make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
   | HBar ->
-     (* horizontal gradient for the slider (TODO: with button color) *)
+     (* horizontal gradient for the slider *)
+     let colors = [opaque Button.color_on; opaque Button.color_off] in
      let box = gradient_texture canvas.renderer ~w:(x0 - g.x + tick_size)
-                 ~h:thickness ~angle:90. [lighter color; color] in
+                 ~h:thickness ~angle:90. colors in
      let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w:(x0 - g.x + tick_size)
                  ~h:thickness in
      forget_texture box; (* or save ? *)
@@ -320,7 +322,8 @@ let display canvas layer s g =
      let h = imax tick_size (abs dy) in (* see example 34 .*)
      let box = if dy = 0
                then texture canvas.renderer ~color ~h ~w:thickness
-               else let colors = [lighter color; color] in
+               else let colors = [opaque Button.color_on;
+                                  opaque Button.color_off] in
                     let colors = if dy < 0 then colors else List.rev colors in
                     gradient_texture canvas.renderer ~h ~w:thickness colors in
      let dst = Sdl.Rect.create ~x:g.x ~y ~h ~w:thickness in

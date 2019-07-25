@@ -39,6 +39,8 @@ type background = (* TODO instead we should keep track of how the box was create
 let color_bg color =
   Solid color
 
+let bg_color = color_bg Draw.(opaque bg_color)
+             
 let box_bg b =
   Box b
     
@@ -782,6 +784,12 @@ let rec iter_widgets f room =
   | Resident w -> f w
   | Rooms list -> List.iter (iter_widgets f) list;;
 
+(* iter the direct children *)
+let iter_rooms f house =
+  match house.content with
+  | Resident _ -> printd (debug_error + debug_board) "Layout %s has no rooms: cannot iter." (sprint_id house)
+  | Rooms list -> List.iter f list;;
+  
 (* not used, just to fix the vocabulary "leaf" *)
 let is_leaf room =
   match room.content with

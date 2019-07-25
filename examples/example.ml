@@ -218,7 +218,7 @@ let example12 () =
 
 let desc13 = "circular sliders"
 let example13 () =
-  let background = L.color_bg Draw.(transp blue) in
+  let background = L.bg_color in
   let s = W.slider ~kind:Slider.Circular 100 ~tick_size:4 in
   let s' = W.slider ~kind:Slider.Circular 10 ~length:100 ~thickness:6 ~tick_size:3 in
   let l =  L.flat [L.resident ~background s; L.resident s'] in
@@ -239,11 +239,11 @@ let example14 () =
   let events = List.flatten [T.buttons_down; T.buttons_up; T.pointer_motion; [Sdl.Event.key_down]] in
   (* NOTE instead of using this connection/events, one can use
      W.slider_with_action. Cf example/bounce *)
-  let c = W.connect s l action events in
-  let c' = W.connect s' l' action events in
-  let c'' = W.connect s'' l'' action events in
+  let c = W.connect_main s l action events in
+  let c' = W.connect_main s' l' action events in
+  let c'' = W.connect_main s'' l'' action events in
   (* notice that action is a pure function, we can use it for both connections *)
-  let slider = L.resident ~background:(L.color_bg Draw.(transp blue)) s in
+  let slider = L.resident ~background:L.bg_color s in
   let slider' = L.resident ~background:(L.color_bg Draw.(transp green)) s' in
   let slider'' = L.resident ~background:(L.color_bg Draw.(transp red)) s'' in
   let lay =  L.tower [
@@ -750,7 +750,7 @@ let example38 () =
 
 let desc39 = "the hfill/vfill elements. Try to resize the window."
 let example39 () =
-  let background = L.color_bg(Draw.(transp blue)) in
+  let background = L.bg_color in
   let label1 = W.label "Left" in
   let label2 = W.label "right" in
   let line1 = L.flat ~background
@@ -844,7 +844,7 @@ let desc42 = "effect of rotate on a composite room"
 let example42 () =
   let l = W.label "Rotation" in
   let td = W.text_display lorem in
-  let background = L.color_bg(Draw.(transp blue)) in
+  let background = L.bg_color in
   let layout = L.tower_of_w ~background [l;td] in
   L.rotate ~duration:5000 ~angle:180. layout;
   let board = make [] [layout] in
@@ -857,7 +857,7 @@ let example43 () =
   let l = W.label "We snapshot this pack:" in
   let b = W.check_box () in
   let box = W.box () in
-  let background = L.color_bg(Draw.(transp blue)) in
+  let background = L.bg_color in
   let room = L.tower ~background
       [ L.resident l;
         L.flat_of_w [b;box] ] in
