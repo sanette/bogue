@@ -87,8 +87,12 @@ opam install dune tsdl tsdl-image tsdl-ttf
 
 Download the
 [git archive](https://github.com/sanette/bogue/archive/master.zip),
-unzip it, cd into the `bogue-master` dir, and then: ``` dune build
-opam install .  ```
+unzip it, cd into the `bogue-master` dir, and then:
+
+```
+dune build
+opam install .
+```
 
 # Documentation
 
