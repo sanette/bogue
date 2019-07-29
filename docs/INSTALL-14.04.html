@@ -16,6 +16,7 @@
 	width="42px" style="vertical-align: middle;"/></a>
   </div>
 <h1 id="how-to-install-bogue-on-ubuntu-14.04-or-higher">How to install BOGUE on Ubuntu 14.04 or higher</h1>
+<p><em>(Warning: this file is old. If needed, don't hesitate to report a bug on the github page.)</em></p>
 <h2 id="prerequisites">prerequisites:</h2>
 <p>Some packages that you may not already have.</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">sudo</span> apt install m4
@@ -40,16 +41,7 @@
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">opam</span> install tsdl-ttf
 <span class="ex">opam</span> install tsdl-image</code></pre></div>
 <h2 id="bogue">Bogue:</h2>
-<p>(à améliorer... faire un paquet opam)</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="bu">cd</span> bogue
-<span class="fu">mkdir</span> _build
-<span class="fu">cp</span> -r src/* _build
-<span class="fu">cp</span> -r themes _build/
-<span class="bu">cd</span> _build
-<span class="fu">make</span> install</code></pre></div>
-<p>pour désinstaller, actuellement:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="va">dir=$(</span><span class="ex">ocamlfind</span> query bogue<span class="va">)</span>
-<span class="bu">echo</span> <span class="st">&quot;ENTER to remove </span><span class="va">$dir</span><span class="st"> completely -- CRTL-c to abort&quot;</span>
-<span class="bu">read</span>
-<span class="fu">rm</span> -rf <span class="va">$dir</span></code></pre></div>
+<p>either</p>
+<pre><code>opam install bogue</code></pre>
+<p>or follow the instructions on the main <a href="INSTALL.html">install</a> page.</p>
 </body></html>

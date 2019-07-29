@@ -28,7 +28,8 @@ Create helper functions to help controlling the frame rate of the graphics
 </td></tr>
 <tr><td><a href="Bogue.Timeout.html#VALadd">add</a> [<a href="Bogue.Timeout.html">Bogue.Timeout</a>]</td>
 <td><div class="info">
-Register a new timeout and return it.
+<code class="code">add&nbsp;delay&nbsp;action</code> will execute
+     <code class="code">action&nbsp;()</code> after the delay of <code class="code">delay</code> ms.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALadd_connection">add_connection</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -68,7 +69,10 @@ A menu bar, with drop-down submenus.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALbg_color">bg_color</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+This is the value of the current theme's BG_COLOR.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Draw.html#VALblack">black</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALblue">blue</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
@@ -78,7 +82,11 @@ A menu bar, with drop-down submenus.
 <tr><td><a href="Bogue.Style.html#VALborder">border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALbox">box</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Create a Box widget, which simply displays a rectangle, optionally with
+     rounded corners and drop shadow.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALbox_bg">box_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALbutton">button</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -86,10 +94,23 @@ A menu bar, with drop-down submenus.
 <tr><td><a href="Bogue.Mouse.html#VALbutton_pos">button_pos</a> [<a href="Bogue.Mouse.html">Bogue.Mouse</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALbuttons_down">buttons_down</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
-<td></td></tr>
+<td><div class="info">
+A list of events containing the mouse_button_down event, and the
+     finger_down event.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALbuttons_up">buttons_up</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
-<td></td></tr>
+<td><div class="info">
+A list of events containing the mouse_button_up event, and the
+     finger_up event.
+</div>
+</td></tr>
 <tr><td align="left"><br>C</td></tr>
+<tr><td><a href="Bogue.Timeout.html#VALcancel">cancel</a> [<a href="Bogue.Timeout.html">Bogue.Timeout</a>]</td>
+<td><div class="info">
+Cancel the Timeout.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALchange_volume">change_volume</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td><div class="info">
 Multiply sound intensity by a float factor
@@ -156,13 +177,12 @@ Should be called from the main thread only.
 <td></td></tr>
 <tr><td><a href="Bogue.Label.html#VALcreate">create</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
 <td><div class="info">
-Create a new Label.t
+Create a new <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a>.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Image.html#VALcreate">create</a> [<a href="Bogue.Image.html">Bogue.Image</a>]</td>
 <td><div class="info">
-<code class="code">create&nbsp;<span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code> (using the path
-     <code class="code"><span class="constructor">Theme</span>.get_path&nbsp;<span class="string">"image.jpg"</span></code>).
+<code class="code">create&nbsp;<span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code>.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Avar.html#VALcreate">create</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
@@ -171,7 +191,10 @@ Generic Avar creation.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Var.html#VALcreate">create</a> [<a href="Bogue.Var.html">Bogue.Var</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">create&nbsp;v</code> returns a Var with initial value <code class="code">v</code>.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Image.html#VALcreate_from_svg">create_from_svg</a> [<a href="Bogue.Image.html">Bogue.Image</a>]</td>
 <td><div class="info">
 Load an svg image.
@@ -231,7 +254,11 @@ An empty layout can reserve some space without stealing focus.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALempty">empty</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Create a widget that does not display anything but still gets focus and
+     reacts to events.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALevent_kind">event_kind</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALexample">example</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
@@ -369,12 +396,14 @@ See <a href="Bogue.Layout.html#VALshow"><code class="code"><span class="construc
 <tr><td align="left"><br>I</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALicon">icon</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-fontawesome icon
+Create a Label widget with a
+     <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> icon.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Label.html#VALicon">icon</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
 <td><div class="info">
-Create a Label.t using the name of a Fontawesome symbol
+Create a <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> using the name of a
+     <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> symbol.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALimage">image</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -389,11 +418,14 @@ Requires <code class="code">rsvg</code>.
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALimax">imax</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td><div class="info">
-<code class="code">imax&nbsp;a&nbsp;b</code> returns max(a,b)
+<code class="code">imax&nbsp;a&nbsp;b</code> returns max(<code class="code">a</code>, <code class="code">b</code>).
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALimin">imin</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">imin&nbsp;a&nbsp;b</code> returns min(<code class="code">a</code>, <code class="code">b</code>).
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Popup.html#VALinfo">info</a> [<a href="Bogue.Popup.html">Bogue.Popup</a>]</td>
 <td><div class="info">
 Add to the layout a modal popup with a text and a close button.
@@ -410,7 +442,10 @@ Initialize SDL audio.
 <td></td></tr>
 <tr><td align="left"><br>L</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALlabel">label</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Create a Label widget with a one-line text.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Draw.html#VALlabel_color">label_color</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALlayout">layout</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
@@ -479,9 +514,16 @@ This is only useful if you have your own graphics loop, and do <em>not</em> use
 <tr><td><a href="Bogue.Utils.html#VALmap_option">map_option</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALmouse_enter">mouse_enter</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
-<td></td></tr>
+<td><div class="info">
+The <code class="code">mouse_enter</code> event is triggered when the pointer (mouse motion, or
+     finger touch -- but not finger drag) enters a new layout.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALmouse_leave">mouse_leave</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Similar to <a href="Bogue.Trigger.html#VALmouse_enter"><code class="code"><span class="constructor">Trigger</span>.mouse_enter</code></a>, when the pointer leaves the layout.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALmouse_over">mouse_over</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>N</td></tr>
@@ -547,12 +589,19 @@ Play chunk on the desired track number.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALpointer_motion">pointer_motion</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
-<td></td></tr>
+<td><div class="info">
+A list of events containing the mouse_motion event, and the finger_motion
+     event.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Mouse.html#VALpointer_pos">pointer_pos</a> [<a href="Bogue.Mouse.html">Bogue.Mouse</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Return the pointer current position.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Mouse.html#VALpos">pos</a> [<a href="Bogue.Mouse.html">Bogue.Mouse</a>]</td>
 <td><div class="info">
-Get current mouse position
+Get current mouse position.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Utils.html#VALprintd">printd</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
@@ -565,7 +614,7 @@ For instance <code class="code">printd&nbsp;debug_warning&nbsp;<span class="stri
 <tr><td><a href="Bogue.Avar.html#VALprogress">progress</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
 <td><div class="info">
 <code class="code">progress&nbsp;v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
-     when the last v.value was computed.
+     when the last <code class="code">v.value</code> was computed.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Update.html#VALpush">push</a> [<a href="Bogue.Update.html">Bogue.Update</a>]</td>
@@ -575,8 +624,9 @@ Register a widget for being updated (at next frame) by the main loop.
 </td></tr>
 <tr><td><a href="Bogue.Sync.html#VALpush">push</a> [<a href="Bogue.Sync.html">Bogue.Sync</a>]</td>
 <td><div class="info">
-Register a action to be executed by the mainloop at next frame, or at a
-     subsequent frame if the queue is already large.
+<code class="code">push&nbsp;action</code> registers the <code class="code">action</code> to be executed by the mainloop at the
+   start of the next frame, or at a subsequent frame if the queue is already
+   large.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALpush_quit">push_quit</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
@@ -652,11 +702,15 @@ Set a new value.
 </td></tr>
 <tr><td><a href="Bogue.Label.html#VALset">set</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
 <td><div class="info">
-Modify the text of the label
+Modify the text of the label.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Var.html#VALset">set</a> [<a href="Bogue.Var.html">Bogue.Var</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">set&nbsp;v&nbsp;value</code> waits until no thread is accessing the Var <code class="code">v</code> 
+        and then sets its value to <code class="code">value</code>.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Select.html#VALset_action">set_action</a> [<a href="Bogue.Select.html">Bogue.Select</a>]</td>
 <td><div class="info">
 Modify the action.
@@ -668,7 +722,7 @@ Modify the action.
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALset_color">set_color</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
-Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>
+Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_cursor">set_cursor</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -677,7 +731,10 @@ Sets the cursor to the default value for this layout.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Label.html#VALset_fg_color">set_fg_color</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Modify the color of the text.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_height">set_height</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALset_index">set_index</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
@@ -700,7 +757,10 @@ Modify the layout content by replacing the former content by a new list of
 <tr><td><a href="Bogue.Layout.html#VALset_show">set_show</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALset_system_cursor">set_system_cursor</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Set the mouse cursor to be the standard system cursor.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALset_text">set_text</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 Change the text of a widget.
@@ -736,7 +796,7 @@ Does nothing if the layout is already fully displayed.
 <td></td></tr>
 <tr><td><a href="Bogue.Label.html#VALsize">size</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
 <td><div class="info">
-Logical size (w,h).
+Return the logical size (w,h).
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALslide_in">slide_in</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -756,7 +816,11 @@ Create a slider that executes an action each time the local value of the
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALstartup">startup</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
-<td></td></tr>
+<td><div class="info">
+The <code class="code">startup</code> event is sent to all Widgets when the Bogue mainloop is
+     started using <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Button.html#VALstate">state</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALstop_pos">stop_pos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -829,7 +893,7 @@ Since layouts can be modified by different threads, it might be useful to
 <tr><td><a href="Bogue.Draw.html#VALunscale_size">unscale_size</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
 Transform a size (W,H) in physical pixels into 'logical' pixels (w,h),
-      which are used for layouts.
+     which are used for layouts.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALupdate">update</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -859,8 +923,8 @@ Get current value.
 </td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALvar_changed">var_changed</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
-The var_changed event can be send to notify that some widget made a change
-      to a global variable.
+The <code class="code">var_changed</code> event can be sent to notify that some widget made a
+     change to a global variable.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Space.html#VALvcenter">vcenter</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>

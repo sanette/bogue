@@ -106,8 +106,18 @@ let of_event ev =
   E.(get ev typ);;
 
 let event_kind ev =
-  E.(enum (get ev typ));;
-
+  match E.(enum (get ev typ)) with
+  (* It would be nice that Tsdl puts the event enum type as refinable variant
+     type with [>...]. Then we could add our own variant tags. *)
+  (* | `Unknown x ->
+   *    print_endline (Printf.sprintf "UNKNOWN EVENT=%i" x);
+   *    begin
+   *      match x with
+   *      | i when i = stop -> `Bogue_stop
+   *      | i when i = mouse_enter -> `Bogue_mouse_enter
+   *      | _ -> `Unknown x
+   *    end *)
+  | e -> e
 
 (* some dumb code to duplicate an event. Probably much easier directly in C... *)
 type field =
@@ -500,7 +510,8 @@ let widget_id = E.user_code;;
    - new main loop iteration
    - the mouse_motion event is treated
    - the mouse leaves the widget and enters another one: we trigger a new mouse_enter
-   (it is easy to do this in case of animation, because then there is a "long" FPS wait in the loop... change this ?)
+   (it is easy to do this in case of animation, because then there is a "long" 
+   FPS wait in the loop... change this ?)
 
    - end of the loop. Now we have two mouse_enter events in the queue.
 
@@ -509,8 +520,8 @@ let widget_id = E.user_code;;
    1. only one event is treated per iteration
    2. there might be quite a long delay in the loop in case of animation
 
-   This behaviour has a drawback: during an animation, mouse_enter/leave events may
-   lag behing real time.
+   This behaviour has a drawback: during an animation, mouse_enter/leave events 
+   may lag behing real time.
 
    In fact, the design of 2 is questionable: one could design the main loop
    another way: the animation does not use a FPS delay, but instead would react

@@ -39,20 +39,20 @@ The main, all-purpose graphics container
 
  A layout is a "box" (a rectangle) whose purpose is to place onscreen the
    various elements composing the GUI. It can contain a single widget, or a list
-   of sub-layouts. We often use the housing metaphor: a layout is a house that
-   contains either a single resident, or several rooms. Each room can be seen as
-   a sub-house, and can contain a resident or sub-rooms. Houses and rooms have
-   the type <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>, while a resident has the type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>.
+   of sub-layouts. In Bogue, we use the housing metaphor: a layout is a <b>   house</b> that contains either a single <b>resident</b>, or several <b>rooms</b>. Each
+   room can be seen as a sub-house, and can contain a resident or
+   sub-rooms. Houses and rooms have the type <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>, while a resident has the type
+   <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>.
 <p>
 
      Technically, the usual metaphor in computer science is a <em>Tree</em>. A layout
    is a tree, each vertex (or node) has any number of branches (or children). A
    leaf (terminal node: without any child) is either empty or contains a
    widget. However, the tree is upside-down (as often): we think of the trunk
-   (or <em>top-layout</em>) to be a the top, and the leaves at the bottom. 
+   (or <em>top-layout</em>) to be a the top, and the leaves at the bottom.
 <p>
 
-<div align=right><a href="graph-b_layout.html">Dependency graph</a></div><br>
+<h5 id="5_graphblayouthtmlDependencygraph"><a href="graph-b_layout.html">Dependency graph</a></h5><br>
 </div>
 <hr width="100%">
 
@@ -118,23 +118,27 @@ Not implemented.<br>
 
 <pre><span id="TYPEbackground"><span class="keyword">type</span> <code class="type"></code>background</span> </pre>
 <div class="info ">
-Warning, there is also Style.background... Maybe this will change in the
+Warning, there is also <a href="Bogue.Style.html#TYPEbackground"><code class="code"><span class="constructor">Style</span>.background</code></a>... Maybe this will change in the
       future.<br>
 </div>
 
 
 <pre><span id="VALcolor_bg"><span class="keyword">val</span> color_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
 <pre><span id="VALbox_bg"><span class="keyword">val</span> box_bg</span> : <code class="type"><a href="Bogue.Box.html#TYPEt">Box.t</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALbg_color"><span class="keyword">val</span> bg_color</span> : <code class="type"><a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALbg_color"><span class="keyword">val</span> bg_color</span> : <code class="type"><a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
+This is the value of the current theme's BG_COLOR.<br>
+</div>
+
 <pre><span id="VALunload_background"><span class="keyword">val</span> unload_background</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
 Free the texture associated with the background (if any). This can be used
      to force recreating it.<br>
 </div>
 <br>
-<h2 id="2_Creationoflayouts">Creation of layouts</h2> 
+<h2 id="2_Creationoflayouts">Creation of layouts</h2>
 <p>
 
-      All layouts have a <code class="code">name</code> property, which is used only for debugging.<br>
+      Remark: all layouts have an optional <code class="code">name</code> property, which is used only
+     for debugging.<br>
 
 <pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">?name:string -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -><br>       w:int -> h:int -> unit -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 An empty layout can reserve some space without stealing focus.<br>
@@ -199,7 +203,7 @@ Return the last computed value for the relative x position of the
 <pre><span id="VALget_oldy"><span class="keyword">val</span> get_oldy</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> int</code></pre>
 <pre><span id="VALwidget"><span class="keyword">val</span> widget</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a></code></pre><div class="info ">
 Return the resident widget, or<br>
-<b>Raises</b> <code>Not_found</code> if the layout is not a <em>     leaf</em>.<br>
+<b>Raises</b> <code>Not_found</code> if the layout is not a <em>leaf</em>.<br>
 </div>
 
 <pre><span id="VALtop_house"><span class="keyword">val</span> top_house</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">

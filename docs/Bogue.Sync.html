@@ -22,18 +22,27 @@
 <h1>Module <a href="type_Bogue.Sync.html">Bogue.Sync</a></h1>
 
 <pre><span class="keyword">module</span> Sync: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Sync.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Synchronized execution queue FIFO queue of actions to be executed by the
-   main thread at each graphical frame. It is much easier to use this rather
-   than letting actions be executed by various threads and try to guess in which
-   order...
+Synchronized execution queue.
 <p>
 
-<div align=right><a href="graph-b_sync.html">Dependency graph</a></div><br>
+   Any action can be pushed to this FIFO queue, in order to be executed by
+   Bogue's main loop at the start of the next graphical frame.
+<p>
+
+   For any action that is not super urgent, it is a good idea to use this `Sync`
+   module, instead of launching the action directly from a thread that may be
+   difficult to control. In this way, we ensure that the action is not executed
+   in the middle of rendering the graphics, or between various modifications of
+   the board (events, keyboard focus, etc.).
+<p>
+
+<h5 id="5_graphbsynchtmlDependencygraph"><a href="graph-b_sync.html">Dependency graph</a></h5><br>
 </div>
 <hr width="100%">
 
 <pre><span id="VALpush"><span class="keyword">val</span> push</span> : <code class="type">(unit -> unit) -> unit</code></pre><div class="info ">
-Register a action to be executed by the mainloop at next frame, or at a
-     subsequent frame if the queue is already large.<br>
+<code class="code">push&nbsp;action</code> registers the <code class="code">action</code> to be executed by the mainloop at the
+   start of the next frame, or at a subsequent frame if the queue is already
+   large.<br>
 </div>
 </body></html>

@@ -248,12 +248,10 @@ h4, h4, h6 {
 
 /* line 211, ../sass/style.scss */
 h5 {
-  font-size: 20pt;
-  border: 1px solid #000000;
-  margin-top: 5px;
-  margin-bottom: 2px;
-  background-color: #90FDFF;
-  padding: 2px;
+  text-align: right;
+  font-size: inherit;
+  font-weight: normal;
+  margin: 0;
 }
 
 /* line 219, ../sass/style.scss */
@@ -288,27 +286,17 @@ div.h8 {
 }
 
 /* line 244, ../sass/style.scss */
-div.h9 {
-  font-size: 20pt;
-  border: 1px solid #000000;
-  margin-top: 5px;
-  margin-bottom: 2px;
-  background-color: #FFFFFF;
-  padding: 2px;
-}
-
-/* line 252, ../sass/style.scss */
 a {
   color: #7b6963;
   text-decoration: none;
 }
 
-/* line 256, ../sass/style.scss */
+/* line 248, ../sass/style.scss */
 a:hover {
   text-decoration: underline;
 }
 
-/* line 258, ../sass/style.scss */
+/* line 250, ../sass/style.scss */
 pre, .typetable {
   background-color: #f3eee68f;
   margin-bottom: 4px;
@@ -319,7 +307,7 @@ pre, .typetable {
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 265, ../sass/style.scss */
+/* line 257, ../sass/style.scss */
 pre {
   width: -moz-fit-content;
   width: -webkit-fit-content;
@@ -329,31 +317,36 @@ pre {
   margin-top: 0;
   white-space: pre-wrap;
 }
-/* line 273, ../sass/style.scss */
+/* line 265, ../sass/style.scss */
 pre a {
   color: black;
 }
 
-/* line 279, ../sass/style.scss */
+/* line 269, ../sass/style.scss */
+pre.verbatim, pre.codepre {
+  border: 1px solid darkgrey;
+}
+
+/* line 272, ../sass/style.scss */
 .indextable {
   border: 1px #ddd solid;
   border-collapse: collapse;
 }
 
-/* line 283, ../sass/style.scss */
+/* line 276, ../sass/style.scss */
 .indextable td, .indextable th {
   border: 1px #ddd solid;
   min-width: 80px;
 }
 
-/* line 287, ../sass/style.scss */
+/* line 280, ../sass/style.scss */
 .indextable td.module {
   background-color: rgba(74, 166, 157, 0.3);
   padding-left: 2px;
   padding-right: 2px;
 }
 
-/* line 292, ../sass/style.scss */
+/* line 285, ../sass/style.scss */
 .indextable td.module a {
   color: #4E6272;
   text-decoration: none;
@@ -361,31 +354,31 @@ pre a {
   width: 100%;
 }
 
-/* line 298, ../sass/style.scss */
+/* line 291, ../sass/style.scss */
 .indextable td.module a:hover {
   text-decoration: underline;
   background-color: transparent;
 }
 
-/* line 302, ../sass/style.scss */
+/* line 295, ../sass/style.scss */
 .deprecated {
   color: #888;
   font-style: italic;
 }
 
-/* line 306, ../sass/style.scss */
+/* line 299, ../sass/style.scss */
 .indextable tr td div.info {
   margin-left: 2px;
   margin-right: 2px;
 }
 
-/* line 310, ../sass/style.scss */
+/* line 303, ../sass/style.scss */
 ul.indexlist {
   margin-left: 0;
   padding-left: 0;
 }
 
-/* line 314, ../sass/style.scss */
+/* line 307, ../sass/style.scss */
 ul.indexlist li {
   list-style-type: none;
   margin-left: 0;
@@ -393,68 +386,68 @@ ul.indexlist li {
 }
 
 @media only screen and (max-width: 767px) {
-  /* line 321, ../sass/style.scss */
+  /* line 314, ../sass/style.scss */
   h1, h2, h3, h4, h5, h6, h7, h8, h9 {
     text-align: center;
   }
 }
 /* Graphes */
-/* line 328, ../sass/style.scss */
+/* line 321, ../sass/style.scss */
 #container, div.caption {
   width: 95%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 333, ../sass/style.scss */
+/* line 326, ../sass/style.scss */
 svg {
   background: #f3eee68f;
 }
-/* line 335, ../sass/style.scss */
+/* line 328, ../sass/style.scss */
 svg > g > polygon {
   fill: none;
 }
-/* line 338, ../sass/style.scss */
+/* line 331, ../sass/style.scss */
 svg ellipse {
   stroke: #4aa69d;
   fill: rgba(74, 166, 157, 0.3);
   transition: all 0.2s ease;
 }
-/* line 343, ../sass/style.scss */
+/* line 336, ../sass/style.scss */
 svg text {
   font: 12pt "Roboto Slab", sans-serif;
   fill: black;
 }
-/* line 348, ../sass/style.scss */
+/* line 341, ../sass/style.scss */
 svg g.edge path {
   stroke: #a24d25;
   transition: all 0.2s ease;
   stroke-width: 1px;
 }
-/* line 353, ../sass/style.scss */
+/* line 346, ../sass/style.scss */
 svg g.edge polygon {
   stroke: #d1371f;
   fill: #d1371f;
   transition: all 0.2s ease;
 }
-/* line 360, ../sass/style.scss */
+/* line 353, ../sass/style.scss */
 svg g.edge:hover path {
   stroke: #d1371f;
 }
-/* line 363, ../sass/style.scss */
+/* line 356, ../sass/style.scss */
 svg g.edge:hover path, svg g.edge:hover polygon {
   stroke-width: 5px;
 }
-/* line 369, ../sass/style.scss */
+/* line 362, ../sass/style.scss */
 svg g.edge.from path {
   stroke: #4aa69d;
 }
-/* line 372, ../sass/style.scss */
+/* line 365, ../sass/style.scss */
 svg g.edge.from polygon {
   stroke: #4aa69d;
   fill: #4aa69d;
 }
-/* line 378, ../sass/style.scss */
+/* line 371, ../sass/style.scss */
 svg g a:hover ellipse {
   stroke-width: 7px;
 }

@@ -15,7 +15,7 @@
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Initialization and shutdown" rel="Section" href="#2_Initializationandshutdown">
 <link title="Colors" rel="Section" href="#2_Colors">
 <link title="Layers" rel="Section" href="#2_Layers">
-<link title="SDL misc" rel="Section" href="#2_SDLmisc">
+<link title="Misc" rel="Section" href="#2_Misc">
 <link title="Predefined colors" rel="Subsection" href="#3_Predefinedcolors">
 <link title="Creating colors" rel="Subsection" href="#3_Creatingcolors">
 <link title="Using colors" rel="Subsection" href="#3_Usingcolors">
@@ -29,10 +29,16 @@
 <h1>Module <a href="type_Bogue.Draw.html">Bogue.Draw</a></h1>
 
 <pre><span class="keyword">module</span> Draw: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Draw.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Low-level graphics 
+Low-level graphics and colors
 <p>
 
-<div align=right><a href="graph-b_draw.html">Dependency graph</a></div><br>
+This module is internally used for low-level graphics and a thin layer over Tsdl.
+<p>
+
+The public API is mainly useful for Color management.
+<p>
+
+<h5 id="5_graphbdrawhtmlDependencygraph"><a href="graph-b_draw.html">Dependency graph</a></h5><br>
 </div>
 <hr width="100%">
 
@@ -43,31 +49,6 @@ Contains the hardware information for drawing (SDL renderer and window).<br>
 
 
 <pre><span id="TYPEtexture"><span class="keyword">type</span> <code class="type"></code>texture</span> = <code class="type">Tsdl.Sdl.texture</code> </pre>
-
-
-<pre><code><span id="TYPEalign"><span class="keyword">type</span> <code class="type"></code>align</span> = </code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTalign.Min"><span class="constructor">Min</span></span></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTalign.Center"><span class="constructor">Center</span></span></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTalign.Max"><span class="constructor">Max</span></span></code></td>
-
-</tr></table>
-
 
 <br>
 <h2 id="2_Initializationandshutdown">Initialization and shutdown</h2><br>
@@ -144,7 +125,7 @@ Convert a string of the form <code class="code"><span class="string">"grey"</spa
 <h3 id="3_Usingcolors">Using colors</h3><br>
 
 <pre><span id="VALset_color"><span class="keyword">val</span> set_color</span> : <code class="type">Tsdl.Sdl.renderer -> <a href="Bogue.Draw.html#TYPEcolor">color</a> -> unit</code></pre><div class="info ">
-Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code><br>
+Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>.<br>
 </div>
 <br>
 <h2 id="2_Layers">Layers</h2><br>
@@ -162,11 +143,41 @@ Use this when you want to switch to a completely different set of layers,
       typically when you want to draw on another window.<br>
 </div>
 <br>
-<h2 id="2_SDLmisc">SDL misc</h2><br>
+<h2 id="2_Misc">Misc</h2><br>
+
+<pre><code><span id="TYPEalign"><span class="keyword">type</span> <code class="type"></code>align</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTalign.Min"><span class="constructor">Min</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTalign.Center"><span class="constructor">Center</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTalign.Max"><span class="constructor">Max</span></span></code></td>
+
+</tr></table>
+
+
 
 <pre><span id="VALunscale_size"><span class="keyword">val</span> unscale_size</span> : <code class="type">int * int -> int * int</code></pre><div class="info ">
 Transform a size (W,H) in physical pixels into 'logical' pixels (w,h),
-      which are used for layouts.<br>
+     which are used for layouts. This is done by dividing by the <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a>
+     <code class="code"><span class="constructor">SCALE</span></code> variable.<br>
 </div>
 
-<pre><span id="VALset_system_cursor"><span class="keyword">val</span> set_system_cursor</span> : <code class="type">Tsdl.Sdl.System_cursor.t -> unit</code></pre></body></html>
+<pre><span id="VALset_system_cursor"><span class="keyword">val</span> set_system_cursor</span> : <code class="type">Tsdl.Sdl.System_cursor.t -> unit</code></pre><div class="info ">
+Set the mouse cursor to be the standard system cursor.  Internally, this
+      first creates a SDL system cursor (or use a previously created one).<br>
+</div>
+</body></html>

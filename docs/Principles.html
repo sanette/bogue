@@ -27,6 +27,7 @@
 <h2 id="disclaimer">Disclaimer</h2>
 <ul>
 <li><p><em>This is an alpha release. There are known bugs, and it has not been tested for large and complex applications. Use at your own risk!</em></p></li>
+<li><p>On the other hand, if you are not scared by this dislaimer, <em>please try BOGUE!</em> We need your feedback to make this library better!</p></li>
 <li><p>Distributed under <a href="https://en.wikipedia.org/wiki/ISC_license">ISC license</a>.</p></li>
 </ul>
 <h2 id="i-want-to-use-it-right-now">I want to use it right now</h2>
@@ -54,9 +55,9 @@
 <li>layout = container</li>
 </ul>
 <p>It's convenient to alias these modules in your program:</p>
-<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">module</span> W = Bogue.Widget
-<span class="kw">module</span> L = Bogue.Layout
-<span class="kw">module</span> Bogue = Bogue.Main</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span class="kw">open</span> Bogue
+<span class="kw">module</span> W = Widget
+<span class="kw">module</span> L = Layout</code></pre></div>
 <p>Widgets use directly the SDL2 library to draw themselves. Here is the <strong>list of implemented widgets:</strong></p>
 <ul>
 <li><strong>Empty</strong>: draws nothing but can react to an event</li>
@@ -144,4 +145,6 @@ Bogue.run ~before_display board</code></pre></div></li>
 <li><p>anytime you want to show the GUI, just call the <code>Bogue.one_step</code> function in your loop, in general after all other renderings and just before <code>Sdl.render_present</code>. When the GUI is displayed, be sure to disable all event handling functions that could interfere with BOGUE.</p></li>
 </ol>
 <p>See the file <a href="Embedded.html"><code>Embedded.md</code></a> for more details.</p>
+<h2 id="is-there-a-more-complete-documentation">Is there a more complete documentation?</h2>
+<p>Of course. It's <a href="Bogue.html">here</a>. It's not really complete yet (some functions that are used internally but might be useful enough to be made public are not shown there), please ask if a feature is missing.</p>
 </body></html>

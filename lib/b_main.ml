@@ -259,7 +259,6 @@ let button_down_widget board =
   map_option board.button_down Layout.widget;;
 
 (* which layout (ie window) has mouse focus ? *)
-(* NOT used ? see below *)
 let layout_focus board =
   match Sdl.get_mouse_focus () with
   | None -> None (* the mouse is outside of the SDL windows *)
@@ -282,7 +281,7 @@ let window_of_event board ev =
     printd debug_error "Search window for even %s caused an error" (Trigger.sprint_ev ev);
     None;;
   
-(* detect widget under mouse, with top layer (= largest "depth") *)
+(* detect layout under mouse, with top layer (= largest "depth") *)
 let check_mouse_focus board =
   let (x,y) = Mouse.pos () in
   printd debug_board "Mouse pos:(%u,%u)" x y;

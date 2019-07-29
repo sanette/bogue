@@ -12,7 +12,8 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Creation of Widgets" rel="Section" href="#widget_create">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Connections" rel="Section" href="#connections">
+<link title="Creation of Widgets" rel="Section" href="#widget_create">
 <link title="Generic functions on widgets" rel="Section" href="#2_Genericfunctionsonwidgets">
 <link title="Creation of combined widgets" rel="Section" href="#2_Creationofcombinedwidgets">
 <link title="Predefined connections" rel="Subsection" href="#3_Predefinedconnections">
@@ -38,22 +39,34 @@
 Creating and using widgets 
 <p>
 
-<div align=right><a href="graph-b_widget.html">Dependency graph</a></div><br>
+<h5 id="5_graphbwidgethtmlDependencygraph"><a href="graph-b_widget.html">Dependency graph</a></h5><br>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
-
-
-<pre><span id="TYPEconnection"><span class="keyword">type</span> <code class="type"></code>connection</span> </pre>
 <div class="info ">
+The type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> is a union of all kinds of widgets: Box, Button, Check box,
+     Image, Label, Slider, Text display, and Text input, plus the Empty
+     widget. 
+<p>
+
+For instance, in the following code:
+<pre class="codepre"><code class="code"><span class="keyword">let</span> w = label <span class="string">"Hello"</span> <span class="keyword">in</span>
+<span class="keyword">let</span> l = get_label w <span class="keyword">in</span>
+...
+</code></pre>
+<code class="code">w</code> has the generic <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> type, while <code class="code">l</code> has the specialized <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> type.<br>
+</div>
+
+<br>
 <h2 id="connections">Connections</h2>
 <p>
 
       A connection has a source widget and a target widget. When the source
       widget receives a specified event, the connection is activated, executing a
       specified function.<br>
-</div>
+
+<pre><span id="TYPEconnection"><span class="keyword">type</span> <code class="type"></code>connection</span> </pre>
 
 
 <pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">t</a> -> Tsdl.Sdl.event -> unit</code> </pre>
@@ -150,7 +163,12 @@ Ask for refresh at next frame. Use this in general in the action of a
 <br>
 <h3 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h3><br>
 
-<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?background:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?border:<a href="Bogue.Style.html#TYPEborder">Style.border</a> -><br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><br>
+<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?background:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?border:<a href="Bogue.Style.html#TYPEborder">Style.border</a> -><br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+Create a Box widget, which simply displays a rectangle, optionally with
+     rounded corners and drop shadow. It is often used for the background of a
+     group of widgets (i.e. a <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>).<br>
+</div>
+<br>
 <h3 id="3_Checkboxes">Check boxes</h3>
       The standard on/off check boxes.<br>
 
@@ -162,18 +180,28 @@ Ask for refresh at next frame. Use this in general in the action of a
 <pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -> ?h:int -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -><br>       ?w:int -> ?h:int -> <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><br>
-<h3 id="3_Labelsoricons">Labels or icons</h3> 
-      One-line text.<br>
+<h3 id="3_Labelsoricons">Labels or icons</h3><br>
 
-<pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+Create a Label widget with a one-line text.<br>
+</div>
+
 <pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -> ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-fontawesome icon<br>
+Create a Label widget with a
+     <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> icon.
+<p>
+
+     For instance <code class="code">icon&nbsp;~size:24&nbsp;<span class="string">"star"</span></code> creates a widget that displays the
+     "fa-star" fontawesome icon.<br>
 </div>
 <br>
-<h3 id="3_Empty">Empty</h3>
-      Does not display anything but still gets focus and reacts to events.<br>
+<h3 id="3_Empty">Empty</h3><br>
 
-<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">w:int -> h:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><br>
+<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">w:int -> h:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+Create a widget that does not display anything but still gets focus and
+     reacts to events.<br>
+</div>
+<br>
 <h2 id="2_Genericfunctionsonwidgets">Generic functions on widgets</h2><br>
 
 <pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool</code></pre><div class="info ">

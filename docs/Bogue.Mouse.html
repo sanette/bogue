@@ -22,15 +22,24 @@
 <h1>Module <a href="type_Bogue.Mouse.html">Bogue.Mouse</a></h1>
 
 <pre><span class="keyword">module</span> Mouse: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mouse.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Mouse information 
+Mouse and touchscreen information
 <p>
 
-<div align=right><a href="graph-b_mouse.html">Dependency graph</a></div><br>
+All positions are given in logical pixels, not hardware pixels (see the <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a>
+   <code class="code"><span class="constructor">SCALE</span></code> variable).
+<p>
+
+<h5 id="5_graphbmousehtmlDependencygraph"><a href="graph-b_mouse.html">Dependency graph</a></h5><br>
 </div>
 <hr width="100%">
 
+<pre><span id="VALpointer_pos"><span class="keyword">val</span> pointer_pos</span> : <code class="type">Tsdl.Sdl.event -> int * int</code></pre><div class="info ">
+Return the pointer current position. This works both for mouse and
+     touchscreen.<br>
+</div>
+
 <pre><span id="VALpos"><span class="keyword">val</span> pos</span> : <code class="type">unit -> int * int</code></pre><div class="info ">
-Get current mouse position<br>
+Get current mouse position.<br>
 </div>
 
 <pre><span id="VALwindow_pos"><span class="keyword">val</span> window_pos</span> : <code class="type">Tsdl.Sdl.window -> int * int</code></pre><div class="info ">
@@ -39,5 +48,4 @@ Return the mouse position with respect to the given window, using window
 </div>
 
 <pre><span id="VALbutton_pos"><span class="keyword">val</span> button_pos</span> : <code class="type">Tsdl.Sdl.event -> int * int</code></pre>
-<pre><span id="VALfinger_pos"><span class="keyword">val</span> finger_pos</span> : <code class="type">Tsdl.Sdl.event -> float * float</code></pre>
-<pre><span id="VALpointer_pos"><span class="keyword">val</span> pointer_pos</span> : <code class="type">Tsdl.Sdl.event -> int * int</code></pre></body></html>
+<pre><span id="VALfinger_pos"><span class="keyword">val</span> finger_pos</span> : <code class="type">Tsdl.Sdl.event -> float * float</code></pre></body></html>

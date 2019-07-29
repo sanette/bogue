@@ -25,7 +25,7 @@
 Delayed actions 
 <p>
 
-<div align=right><a href="graph-b_timeout.html">Dependency graph</a></div><br>
+<h5 id="5_graphbtimeouthtmlDependencygraph"><a href="graph-b_timeout.html">Dependency graph</a></h5><br>
 </div>
 <hr width="100%">
 
@@ -33,7 +33,17 @@ Delayed actions
 
 
 <pre><span id="VALadd"><span class="keyword">val</span> add</span> : <code class="type">int -> (unit -> unit) -> <a href="Bogue.Timeout.html#TYPEt">t</a></code></pre><div class="info ">
-Register a new timeout and return it. <code class="code">add&nbsp;delay&nbsp;action</code> will execute
+<code class="code">add&nbsp;delay&nbsp;action</code> will execute
      <code class="code">action&nbsp;()</code> after the delay of <code class="code">delay</code> ms.<br>
+<b>Returns</b> the Timeout element. 
+<p>
+
+     Warning: don't expect the delay to be 
+     exact at the ms. The precision cannot be better than what the 
+     framerate imposes, <em>i.e.</em> usually about 16ms.<br>
+</div>
+
+<pre><span id="VALcancel"><span class="keyword">val</span> cancel</span> : <code class="type"><a href="Bogue.Timeout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+Cancel the Timeout.<br>
 </div>
 </body></html>

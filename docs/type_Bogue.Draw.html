@@ -13,7 +13,6 @@
 <pre class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;canvas<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;texture&nbsp;=&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.texture<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;align&nbsp;=&nbsp;<span class="constructor">Min</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Center</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Max</span><br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;quit&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;rgb&nbsp;=&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;int<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;color&nbsp;=&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;int<br>
@@ -42,6 +41,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_color&nbsp;:&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.renderer&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;layer<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;use_new_layer&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;align&nbsp;=&nbsp;<span class="constructor">Min</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Center</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Max</span><br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unscale_size&nbsp;:&nbsp;int&nbsp;*&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_system_cursor&nbsp;:&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.<span class="constructor">System_cursor</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 <span class="keyword">end</span></pre></body></html>
