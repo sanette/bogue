@@ -25,6 +25,7 @@ type t = {
     var : (int Avar.t, int) Tvar.t; (* between 0 and max *)
     (* TODO: (int Avar.t) is here to make smoother transitions. not done yet *)
     cache : int Var.t; (* used to avoid computing too many times the same value *)
+    mutable pointer_motion : bool;
     clicked_value : (int option) Var.t;
     offset : int Var.t; (* if offset=0 the tick will place itself with the mouse
                            pointer exactly in its middle point. Offset is used
@@ -64,6 +65,7 @@ let create ?step ?(kind = Horizontal) ?(value = 0) ?(length = 200)
                            ~t_to:(Avar.var)) in
   { var;
     cache = Var.create (Tvar.get var);
+    pointer_motion = false;
     max = m;
     clicked_value = Var.create None;
     offset = Var.create 0;
@@ -204,6 +206,7 @@ let click s ev =
 (* this should be called on mouse_button_up: *)
 let release s =
   Var.set s.clicked_value None;
+  s.pointer_motion <- false;
   Var.set s.offset 0;;
   
 (* on mouse motion: *) 
@@ -211,6 +214,7 @@ let slide s ev =
   let v = compute_value s ev in
   let v = (max 0 (min v s.max)) in
   printd debug_board "Slider value : %d" v;
+  s.pointer_motion <- true;
   set s v;;
 
 (* use this to increase the step when using keyboard *)
@@ -320,7 +324,7 @@ let display canvas layer s g =
      let dy = scale oldy - y0 in
      let y = imin y0 (y0 + dy) in
      let h = imax tick_size (abs dy) in (* see example 34 .*)
-     let box = if dy = 0
+     let box = if dy = 0 || not s.pointer_motion
                then texture canvas.renderer ~color ~h ~w:thickness
                else let colors = [opaque Button.color_on;
                                   opaque Button.color_off] in

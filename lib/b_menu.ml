@@ -1,6 +1,8 @@
 (** a generic menu layout with submenus *)
 (* can be used with entries (layouts) at arbitrary locations *)
 
+(* TODO: I find the code quite complicated. Improvements welcome. *)
+
 open B_utils
 open Tsdl
 module Layout = B_layout
@@ -21,36 +23,38 @@ type action = Layout.t -> unit;;
 
 (* formatted entry *)
 type layout_entry = {
-  layout : Layout.t;
-  selected : bool Var.t; (* true if the mouse is over this entry *)
-  (* NOTE: in this code, we seem to allow several entries to be selected at the
+    layout : Layout.t;
+    selected : bool Var.t; (* true if the mouse is over this entry *)
+    (* NOTE: in this code, we seem to allow several entries to be selected at the
      same time, why ? See activate_subentry. *)
-  action : action;
-  (* the action will be executed when the mouse is clicked AND released on the
+    action : action;
+    (* the action will be executed when the mouse is clicked AND released on the
      entry (at mouse_button_up) *)
-  submenu : t option
-  (* The layouts of the submenu belong to the layout of this entry, hence the
-     position of the submenu should be calculated relative to the entry. *)
-}
-
-(* menu. It would be safer to make this a private type, but it is not completely
-   private, because some functions like drop_down (called by the Select module)
-   will generate layout_entry, which links to this type. *)
+    submenu : t option
+    (* The layouts of the submenu belong to the layout of this entry, hence the
+       position of the submenu should be calculated relative to the entry
+       menu. *)
+  }
+(* It would be safer to make this a private type, but it is not * completely
+   private, because some functions like drop_down (called by the * Select
+   module) will generate layout_entry, which links to this type. *)
 and t = {
-  entries : layout_entry array;
-  (* the menu items. Here we call them "entries". Recall that an entry can also
-     contain a submenu. *)
-  show : bool Var.t;
-  (* show = current state of the menu. More precisely, the "coming soon" state,
-     in case of animation. *)
-  depth : int;
-  (* depth = submenu depth. This is only used for dealing with the screen layer *)
-  mutable mouse_pressed : bool; (* was the mouse pressed on any of the entries ? *)
-  mutable room : Layout.t option;
-  (* The room field will contain the computed layout of this menu. *)
-  mutable stamp : int Var.t (* used to add a delay before closing the menu *)
-  (* TODO we don't want this anymore ? *)
-}
+    entries : layout_entry array;
+    (* the menu items. Here we call them "entries". Recall that an entry can
+       also contain a submenu. *)
+    show : bool Var.t;
+    (* show = current state of the menu. More precisely, the "coming soon"
+       state, in case of animation. *)
+    depth : int;
+    (* depth = submenu depth. This is only used for dealing with the screen
+       layer *)
+    mutable mouse_pressed : bool; (* was the mouse pressed on any of the entries
+                                     ? *)
+    mutable room : Layout.t option;
+    (* The room field will contain the computed layout of this menu. *)
+    mutable stamp : int Var.t (* used to add a delay before closing the menu *)
+                        (* TODO we don't want this anymore ? *)
+  }
 
 let create_menu ?(depth=0) entries show =
   { entries;
@@ -86,6 +90,7 @@ let rec try_close ?(force=false) screen t =
                  do_option e.submenu (try_close ~force screen)) t.entries
   end;;
 
+(* show the submenu [t] *)
 let show_submenu mouse_pressed screen t =
   (* print_endline "SHOW SUBMENU"; *)
   Var.set t.show true;
@@ -474,9 +479,10 @@ let rec drop_down ~x ~y ?canvas ?(depth=0) ?(hmargin=submenu_sep_margin) entries
   (* menu;; *)
 
 
-(* create a menu bar = horizontal labels with vertical submenus, attached to
-   dst *)
-(* This function returns the layout of the main menu = the horizontal menu bar. *)
+(* create a menu bar = horizontal labels with vertical submenus, attached to dst
+   *)
+(* This function returns the layout of the main menu = the horizontal menu
+   bar. *)
 (* all submenus are added as rooms inside dst *)
 (* The dst layout should be big enough to contain the submenus. Any item flowing
    out of dst will not get focus. The system will automatically try to shift the
@@ -485,29 +491,29 @@ let rec drop_down ~x ~y ?canvas ?(depth=0) ?(hmargin=submenu_sep_margin) entries
    with the menus, because the menu layouts are on a different layer. *)
 (* TODO use window_size *)
 let bar ?(background = Layout.Solid Draw.(set_alpha 175 menu_bg_color))
-    ?(name="menu_bar") dst entries =
+      ?(name="menu_bar") dst entries =
   let canvas = dst.Layout.canvas in
   let rec loop x entries formatted_entries =
     match entries with
     | [] -> formatted_entries
     | entry :: rest ->
-      let submenu_entries = map_option entry.submenu
-          (drop_down ~depth:1 ~x ~y:0 ?canvas) in
-      let submenu = map_option submenu_entries (fun entries ->
-          create_menu ~depth:1 entries false) in
-      let f_entry = create_action ?submenu ?canvas entry in
-      let layout = f_entry.layout in
-      Layout.setx layout x;
-      let w = Layout.width layout in
-      loop (x+w) rest (f_entry :: formatted_entries)
+       let submenu_entries = map_option entry.submenu
+                               (drop_down ~depth:1 ~x ~y:0 ?canvas) in
+       let submenu = map_option submenu_entries (fun entries ->
+                         create_menu ~depth:1 entries false) in
+       let f_entry = create_action ?submenu ?canvas entry in
+       let layout = f_entry.layout in
+       Layout.setx layout x;
+       let w = Layout.width layout in
+       loop (x+w) rest (f_entry :: formatted_entries)
   in
   (* not necessary to do a List.rev... *)
   (* print_endline "Now calling menu"; *)
   let formatted_entries = Array.of_list (loop (Layout.getx dst) entries []) in
   let menu = create ~name ~select_bg:(Layout.Solid Draw.(transp menu_hl_color)) 
-      ~background ~dst (create_menu formatted_entries true) in
+               ~background ~dst (create_menu formatted_entries true) in
   Layout.(set_width menu (width dst));
-  (*  Layout.(set_background menu (Some (Solid Draw.(transp red)))); *)
+  (* Layout.(set_background menu (Some (Solid Draw.(transp red)))); *)
 
   menu;;
 (* TODO Layout.tower ~sep:0 ? *)

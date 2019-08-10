@@ -497,6 +497,51 @@ let example25 () =
   let board = make [] [layout] in
   run board;;
 
+let desc25bis = "a menu bar"
+let example25bis () =
+  let border = Style.(border ~radius:25
+                        (line ~color:Draw.(opaque red) ~width:6 ~style:Solid ())) in
+  let box = W.box ~border ~background:(Style.color_bg Draw.(transp blue)) ~w:400 ~h:300 () in
+  let menu_placeholder = L.empty ~w:400 ~h:40 () in
+  let main = L.tower
+               [menu_placeholder;
+                L.superpose
+                  [L.tower [L.flat_of_w [W.label "   Hello there";
+                                         W.check_box ()];
+                            L.empty ~w:0 ~h:100 ();
+                            L.resident (W.check_box ())];
+                   L.flat_of_w [box]]] in
+  (* : recall that for the moment, the first item in the list of rooms gets
+     focus before the next ones (bug, we should change, this is not usual) *)
+  let menu = let open Menu2 in
+             let action1 () = print_endline "Action = Item 1" in
+             let action2 () = print_endline "Action = Item 2" in
+             let item1 =  { label = Text "Item 1";
+                            content = Action action1 } in
+             let label1c =  { label = Text "Copie action 1";
+                              content = Action action1 } in
+             let label2c = { label = Text "Entry with action 2";
+                             content = Action action2 } in
+             let submenu = [ label1c; label2c ] in
+             let submenu2 = (List.concat
+                               [submenu;
+                                [{ label = Text "submenu";
+                                   content = Tower submenu }]]
+                            ) in
+             let submenu3 = List.concat
+                              [submenu2; [separator];
+                               [{ label = Text "submenu2";
+                                  content = Tower submenu2 }]] in
+             let item2 = { label = Text "This a long item 2";
+                           content = Tower submenu3 } in
+             create ~dst:main (Flat [item1; item2])
+  in
+  print_endline (Print.layout_down menu);
+  let layout = L.tower ~margins:0
+                 ~background:(L.color_bg(Draw.(lighter (opaque pale_grey)))) [main] in
+  let board = make [] [layout] in
+  run board;;
+
 let desc26 = "the mouse enter/leave event"
 let example26 () =
   let box = W.box ~w:200 () in
@@ -522,8 +567,9 @@ let desc26bis = "the mouse enter/leave event + box shadow"
 let example26bis () =
   (* same as example26, here one uses l as a global variable, and no thread *)
   (* Which one is the best?? *)
+  let background = Style.color_bg Draw.(opaque grey) in
   let shadow = Style.shadow () in
-  let box = W.box ~w:200 ~shadow () in
+  let box = W.box ~w:200 ~shadow ~background () in
   let room = L.resident box in
   let l = W.label "Put the mouse over the box" in
   let enter _ = print_endline "action_enter";
@@ -660,8 +706,8 @@ let example34 () =
     W.on_click ~click b; (* we need to add connections dynamically *)
     let bl = L.resident ~w:20 ~h b in
     let l = L.resident ~w:(w-20) ~h (W.label (string_of_int i)) in
-    L.flat ~sep:0 ?background [bl;l] in
-  let height_fn _ = Some h in
+    L.flat ~sep:0 ~margins:10 ?background [bl;l] in
+  let height_fn _ = Some (h+20) in
   let long = Long_list.create ~w ~h:400 ~generate ~height_fn ~linear:false
       ~length ~max_memory:900000 () in
   (* this max_memory is not enough for 1000000 entries; the program will change
@@ -892,6 +938,21 @@ let example44 () =
   
   let board = make [] [layout] in
   run board;;
+
+let desc45 = "layout shadow" 
+let example45 () =
+  let shadow = Style.shadow () in
+  let background = Style.color_bg Draw.(transp blue) in
+  let b = W.box ~shadow ~background ~w:50 ~h:50 () in (* OK *)
+  let bg = L.color_bg Draw.(transp green) in
+  let l = L.flat ~margins:50 ~shadow ~background:bg [L.resident b] in(* BUG *)
+  let b2 = Box.create ~shadow ~background ~width:50 ~height:50 () in
+  let l2 = L.flat ~margins:50 ~shadow ~background:(L.box_bg b2)
+             [L.empty ~w:50 ~h:50 ()] in
+  let large = L.flat ~margins:60 [l; l2] in
+  let board = make [] [large] in
+  run board;;
+
   
 let _ =
   let examples = [  "0", (example0, desc0) ;
@@ -924,6 +985,7 @@ let _ =
                     "23bis", (example23bis, desc23bis) ;
                     "24", (example24, desc24) ;
                     "25", (example25, desc25) ;
+                    "25bis", (example25bis, desc25bis) ;
                     "26", (example26, desc26) ;
                     "26bis", (example26bis, desc26bis) ;
                     "27", (example27, desc27) ;
@@ -944,6 +1006,7 @@ let _ =
                     "42", (example42, desc42) ;
                     "43", (example43, desc43) ;
                     "44", (example44, desc44) ;
+                    "45", (example45, desc45) ;
 
                  ] in
   let all = List.map fst examples in

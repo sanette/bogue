@@ -57,7 +57,7 @@ let pointer_motion = E.[mouse_motion; finger_motion];;
    E.user_event *)
 
 let user_type = new_event_type "user";;
-assert (user_type = E.user_event);;
+assert (user_type = E.user_event);;  (* 32768 *)
 
 let stop = new_event_type "stop";;
 
@@ -105,19 +105,88 @@ let renew_my_event () =
 let of_event ev =
   E.(get ev typ);;
 
-let event_kind ev =
+type sdl_event =
+[ `App_did_enter_background
+| `App_did_enter_foreground
+| `App_low_memory
+| `App_terminating
+| `App_will_enter_background
+| `App_will_enter_foreground
+| `Clipboard_update
+| `Controller_axis_motion
+| `Controller_button_down
+| `Controller_button_up
+| `Controller_device_added
+| `Controller_device_remapped
+| `Controller_device_removed
+| `Dollar_gesture
+| `Dollar_record
+| `Drop_file
+| `Finger_down
+| `Finger_motion
+| `Finger_up
+| `Joy_axis_motion
+| `Joy_ball_motion
+| `Joy_button_down
+| `Joy_button_up
+| `Joy_device_added
+| `Joy_device_removed
+| `Joy_hat_motion
+| `Key_down
+| `Key_up
+| `Mouse_button_down
+| `Mouse_button_up
+| `Mouse_motion
+| `Mouse_wheel
+| `Multi_gesture
+| `Quit
+| `Sys_wm_event
+| `Text_editing
+| `Text_input
+| `Unknown of int
+| `User_event
+| `Window_event];;
+
+type bogue_event =
+  [ `Bogue_startup
+  | `Bogue_stop
+  | `Bogue_stopped
+  | `Bogue_mouse_at_rest
+  | `Bogue_full_click
+  | `Bogue_mouse_enter
+  | `Bogue_mouse_leave
+  | `Bogue_var_changed
+  | `Bogue_keyboard_focus
+  | `Bogue_update
+  | `Bogue_sync_action
+  | `Bogue_redraw ]
+                
+let generalize_sdl_event ev = (ev : sdl_event :> [> sdl_event | bogue_event])
+let generalize_bogue_event ev = (ev : bogue_event :> [> sdl_event | bogue_event])
+
+let event_kind ev : [> sdl_event | bogue_event] =
   match E.(enum (get ev typ)) with
   (* It would be nice that Tsdl puts the event enum type as refinable variant
      type with [>...]. Then we could add our own variant tags. *)
-  (* | `Unknown x ->
-   *    print_endline (Printf.sprintf "UNKNOWN EVENT=%i" x);
-   *    begin
-   *      match x with
-   *      | i when i = stop -> `Bogue_stop
-   *      | i when i = mouse_enter -> `Bogue_mouse_enter
-   *      | _ -> `Unknown x
-   *    end *)
-  | e -> e
+  | `Unknown x ->
+     begin
+       match x with (* TODO association list *)
+       | i when i = startup -> `Bogue_startup
+       | i when i = stop -> `Bogue_stop
+       | i when i = stopped -> `Bogue_stopped
+       | i when i = mouse_at_rest -> `Bogue_mouse_at_rest
+       | i when i = mouse_enter -> `Bogue_mouse_enter
+       | i when i = mouse_leave -> `Bogue_mouse_leave
+       | i when i = full_click -> `Bogue_full_click
+       | i when i = var_changed -> `Bogue_var_changed
+       | i when i = keyboard_focus -> `Bogue_keyboard_focus
+       | i when i = update -> `Bogue_update
+       | i when i = redraw -> `Bogue_redraw
+       | i when i = sync_action -> `Bogue_sync_action
+       | _ -> print_endline (Printf.sprintf "UNKNOWN EVENT=%i" x);
+              `Unknown x
+     end
+  | e -> generalize_sdl_event e
 
 (* some dumb code to duplicate an event. Probably much easier directly in C... *)
 type field =
@@ -841,3 +910,5 @@ let ctrl_shift_pressed () =
 let mouse_left_button_pressed () =
   let m, _ = Sdl.get_mouse_state () in
   Int32.logand m Sdl.Button.lmask = Sdl.Button.lmask
+
+                                      

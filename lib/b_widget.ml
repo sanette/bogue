@@ -200,6 +200,9 @@ let get_cursor w =
      | TextInput _ -> go (Draw.create_system_cursor Sdl.System_cursor.ibeam)
     );;
 
+let set_cursor w cursor =
+  w.cursor <- cursor
+
 let display canvas layer w geom =
   Var.set w.fresh true;
   let geom = Draw.scale_geom geom in

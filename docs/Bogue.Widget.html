@@ -14,8 +14,9 @@
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Connections" rel="Section" href="#connections">
 <link title="Creation of Widgets" rel="Section" href="#widget_create">
-<link title="Generic functions on widgets" rel="Section" href="#2_Genericfunctionsonwidgets">
 <link title="Creation of combined widgets" rel="Section" href="#2_Creationofcombinedwidgets">
+<link title="Generic functions on widgets" rel="Section" href="#2_Genericfunctionsonwidgets">
+<link title="Conversions from the generic Widget type to the specialized inner type" rel="Section" href="#2_ConversionsfromthegenericWidgettypetothespecializedinnertype">
 <link title="Predefined connections" rel="Subsection" href="#3_Predefinedconnections">
 <link title="Simple boxes (rectangles)" rel="Subsection" href="#3_Simpleboxesrectangles">
 <link title="Check boxes" rel="Subsection" href="#3_Checkboxes">
@@ -36,7 +37,12 @@
 <h1>Module <a href="type_Bogue.Widget.html">Bogue.Widget</a></h1>
 
 <pre><span class="keyword">module</span> Widget: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Widget.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Creating and using widgets 
+Creating widgets and giving life to them
+<p>
+
+Widgets are simple graphic elements that can react to user interaction. They are
+   the inhabitants of your GUI house. When a widget is woken up by some event,
+   it can talk to another widget by means of a <code class="code">connection</code>.
 <p>
 
 <h5 id="5_graphbwidgethtmlDependencygraph"><a href="graph-b_widget.html">Dependency graph</a></h5><br>
@@ -63,14 +69,25 @@ For instance, in the following code:
 <p>
 
       A connection has a source widget and a target widget. When the source
-      widget receives a specified event, the connection is activated, executing a
-      specified function.<br>
+     widget receives a specified event, the connection is activated, executing a
+     specified function, which is called <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a>.
+<p>
+
+     An action is always executed in a new Thread (and hence will not block the
+     GUI), unless the priority <code class="code"><span class="constructor">Main</span></code> is specified.<br>
 
 <pre><span id="TYPEconnection"><span class="keyword">type</span> <code class="type"></code>connection</span> </pre>
 
 
 <pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">t</a> -> Tsdl.Sdl.event -> unit</code> </pre>
+<div class="info ">
+An action is a function with three parameters <code class="code">w1&nbsp;w2&nbsp;ev</code>, where
+     <code class="code">w1</code> is the source widget, <code class="code">w2</code> the target widget, and <code class="code">ev</code> the event
+     (<a href="Bogue.Trigger.html#TYPEt"><code class="code"><span class="constructor">Trigger</span>.t</code></a>) that triggered the action.<br>
+</div>
 
+<br>
+What to do when the same action (= same connection id) is already running?<br>
 
 <pre><code><span id="TYPEaction_priority"><span class="keyword">type</span> <code class="type"></code>action_priority</span> = </code></pre><table class="typetable">
 <tr>
@@ -109,41 +126,53 @@ kill the first action (if possible) and execute the second one<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTaction_priority.Main"><span class="constructor">Main</span></span></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-run in the main program. So this is blocking for all subsequent actions<br>
+run in the main program. So this is blocking for all subsequent
+              actions<br>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr></table>
 
-<div class="info ">
-what to do when the same action (= same connection id) is already running ?<br>
-</div>
 
 
 <pre><span id="VALconnect"><span class="keyword">val</span> connect</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
 <code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
      <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
      may change in the future...</em>). Once it is registered (either by
-     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and has <em>focus</em>, then when an event
-     <code class="code">ev</code> matches one of the <code class="code">triggers</code> list, the <code class="code">action</code> is executed with
-     arguments <code class="code">source&nbsp;target&nbsp;ev</code>.<br>
+     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and assuming that the layout containing
+     the source widget has <em>focus</em>, then when an event <code class="code">ev</code> matches one of the
+     <code class="code">triggers</code> list, the <code class="code">action</code> is executed with arguments <code class="code">source&nbsp;target<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev</code>.<br>
 </div>
+<div class="param_info"><code class="code">priority</code> : indicates the desired priority policy. Default is <code class="code"><span class="constructor">Forget</span></code>.</div>
 
 <pre><span id="VALconnect_main"><span class="keyword">val</span> connect_main</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
-Alias to <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>. Should be used for very fast actions
+Alias for <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>. Should be used for very fast actions
      that can be run in the main thread.<br>
 </div>
 
 <pre><span id="VALadd_connection"><span class="keyword">val</span> add_connection</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEconnection">connection</a> -> unit</code></pre><div class="info ">
 Registers the connection with the widget. This should systematically be
-     done after each connection that is created <em>after</em>
-     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>. <em><code class="code">add_connection</code> is separated from <a href="Bogue.Widget.html#VALconnect"><code class="code"><span class="constructor">Widget</span>.connect</code></a> because it is
-     not pure: it mutates the widget. This might change in future versions.</em><br>
+     done after each connection creation, when the connection is created <em>     after</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.
+<p>
+
+     Connections that are created <em>before</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> should rather be
+     passed as argument to <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>, and <em>not</em> via
+     <code class="code">add_connection</code>. Although this is not striclty necessary, this indicates
+     that these connections are more 'pure' or at least more static, in the
+     sense that they will not be modified by Bogue. These are usually much
+     easier to debug.
+<p>
+
+     <em><code class="code">add_connection</code> is separated from <a href="Bogue.Widget.html#VALconnect"><code class="code"><span class="constructor">Widget</span>.connect</code></a> because it is not pure: it
+     mutates the widget. This might change in future versions.</em><br>
 </div>
 
 <pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-Ask for refresh at next frame. Use this in general in the action of a
-     connection in case the action modifies the visual state of the widget,
-     which then needs to be re-drawn.<br>
+<code class="code">update&nbsp;w</code> asks the widget <code class="code">w</code> to refresh at next frame. The most probable
+     use of <code class="code">update</code> is within the code of an <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a>. It can happen that the
+     action modifies the visual state of a widget that is neither the source or
+     the target, and then one needs to explicitly tell this widget to re-draw
+     itself.<br>
 </div>
 <br>
 <h3 id="3_Predefinedconnections">Predefined connections</h3><br>
@@ -202,22 +231,6 @@ Create a widget that does not display anything but still gets focus and
      reacts to events.<br>
 </div>
 <br>
-<h2 id="2_Genericfunctionsonwidgets">Generic functions on widgets</h2><br>
-
-<pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
-query a boolean state. Works for Button.t and Check.t<br>
-</div>
-
-<pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string</code></pre><div class="info ">
-Return the text of the widget. Works for Button.t, TextDisplay.t, Label.t,
-     and TextInput.t<br>
-</div>
-
-<pre><span id="VALset_text"><span class="keyword">val</span> set_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
-Change the text of a widget. Works for Button.t, TextDisplay.t, Label.t,
-     and TextInput.t<br>
-</div>
-<br>
 <h3 id="3_Image">Image</h3><br>
 
 <pre><span id="VALimage"><span class="keyword">val</span> image</span> : <code class="type">?w:int -><br>       ?h:int -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?noscale:bool -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
@@ -250,7 +263,23 @@ Create a slider that executes an action each time the local value of the
      check box.<br>
 </div>
 <br>
-Conversions from the generic Widget type to the specialized inner type<br>
+<h2 id="2_Genericfunctionsonwidgets">Generic functions on widgets</h2><br>
+
+<pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
+query a boolean state. Works for Button and Check.<br>
+</div>
+
+<pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string</code></pre><div class="info ">
+Return the text of the widget. Works for Button, TextDisplay, Label,
+     and TextInput.<br>
+</div>
+
+<pre><span id="VALset_text"><span class="keyword">val</span> set_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
+Change the text of a widget. Works for Button, TextDisplay, Label,
+     and TextInput.<br>
+</div>
+<br>
+<h2 id="2_ConversionsfromthegenericWidgettypetothespecializedinnertype">Conversions from the generic Widget type to the specialized inner type</h2><br>
 
 <pre><span id="VALget_box"><span class="keyword">val</span> get_box</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Box.html#TYPEt">Box.t</a></code></pre>
 <pre><span id="VALget_check"><span class="keyword">val</span> get_check</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Check.html#TYPEt">Check.t</a></code></pre>

@@ -216,7 +216,7 @@ let display canvas layer b g =
            "Shadow with rounded corner not implemented yet.";
          [] (* TODO *)
        ) else (
-         box_shadow canvas layer (* ~color:red *)
+         box_shadow ~voffset:g.voffset canvas layer ~color:black
            ~radius:(Theme.scale_int s.Style.width)
            ~size:(Theme.scale_int s.Style.size)
            ~offset:(Draw.scale_pos s.Style.offset) dst

@@ -140,7 +140,7 @@ Multiply sound intensity by a float factor
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALconnect_main">connect_main</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-Alias to <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>.
+Alias for <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Table.html#VALcreate">create</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
@@ -153,6 +153,8 @@ For instance <code class="code">create&nbsp;[|&nbsp;<span class="string">"A"</sp
      default choice <code class="code"><span class="string">"B"</span></code>.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Menu2.html#VALcreate">create</a> [<a href="Bogue.Menu2.html">Bogue.Menu2</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Menu.html#VALcreate">create</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td><div class="info">
 By default, <code class="code">hide=<span class="keyword">false</span></code>.
@@ -163,7 +165,7 @@ By default, <code class="code">hide=<span class="keyword">false</span></code>.
 <tr><td><a href="Bogue.Long_list.html#VALcreate">create</a> [<a href="Bogue.Long_list.html">Bogue.Long_list</a>]</td>
 <td><div class="info">
 Create a long list through the function <code class="code">generate</code> which maps any index
-      to the <em>ieth</em> element (layout) of the list.
+     <em>i</em> to the <em>ieth</em> element (layout) of the list.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Snapshot.html#VALcreate">create</a> [<a href="Bogue.Snapshot.html">Bogue.Snapshot</a>]</td>
@@ -695,6 +697,8 @@ Round float to nearest integer.
 The index (starting from 0) of the selected item.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Menu2.html#VALseparator">separator</a> [<a href="Bogue.Menu2.html">Bogue.Menu2</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Slider.html#VALset">set</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td><div class="info">
 Set a new value.
@@ -898,7 +902,7 @@ Transform a size (W,H) in physical pixels into 'logical' pixels (w,h),
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALupdate">update</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-Ask for refresh at next frame.
+<code class="code">update&nbsp;w</code> asks the widget <code class="code">w</code> to refresh at next frame.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALupdate">update</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>

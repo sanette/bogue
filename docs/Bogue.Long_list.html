@@ -28,7 +28,17 @@ Handle large lists by not displaying all elements at once
 Very quickly, displaying a list of layouts (for instance, listing files in a
    directory) can run the computer out of memory if it tries to keep in memory
    the textures of <b>all</b> entries of the list. In these cases you need to use a
-   <code class="code"><span class="constructor">Long_list</span></code>. 
+   <code class="code"><span class="constructor">Long_list</span></code>.
+<p>
+
+See for instance the example 34: `boguex 34` that displays a list of 1 million
+   entries.
+<p>
+
+Long_lists may contain any type of Layout. They don't need to be all of the same
+   dimension. Instead of providing the list of layouts, one must give a function
+   <code class="code">generate</code> such that the layout given by <code class="code">generate&nbsp;i</code> is the i-eth element of
+   the list.
 <p>
 
 <h5 id="5_graphblonglisthtmlDependencygraph"><a href="graph-b_long_list.html">Dependency graph</a></h5><br>
@@ -40,7 +50,7 @@ Very quickly, displaying a list of layouts (for instance, listing files in a
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">w:int -><br>       h:int -><br>       length:int -><br>       ?first:int -><br>       generate:(int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -><br>       ?height_fn:(int -> int option) -><br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit) -><br>       ?max_memory:int -><br>       ?linear:bool -> ?scrollbar_width:int -> unit -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 Create a long list through the function <code class="code">generate</code> which maps any index
-      to the <em>ieth</em> element (layout) of the list. If specified (which is
+     <em>i</em> to the <em>ieth</em> element (layout) of the list. If specified (which is
      not a good idea), the <code class="code">max_memory</code> should be at least twice the area (in
      physical pixels) of the visible part of the list. If the number of elements
      is large (typically 100000 or more, this depends on your CPU), its is

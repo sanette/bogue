@@ -1791,7 +1791,7 @@ let gradient_texture renderer ~w ~h ?angle ?(pop=true) colors =
 (* Warning: the 'radius' here corresponds to 'width' in Style module (+ theme
    scaling) *)
 let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
-      ?(size=Theme.scale_int 2) ?(offset=scale_pos (3,5)) dst  =
+      ?(size=Theme.scale_int 2) ?(offset=scale_pos (3,5)) ?voffset dst  =
   (* size = 0 means that the complete shadow has the same size as the box -- and
      hence cannot be seen if offset=(0,0). If size>0 then the shadow is larger
      than the box by 'size' pixels in each of the 4 directions. 'size' should be
@@ -1839,41 +1839,41 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
          doing this for each blit *)
       let bottom =
         let dst = Sdl.Rect.create ~x ~y:(y+h) ~w ~h:radius in
-        make_blit ~dst canvas layer horiz in
+        make_blit ?voffset ~dst canvas layer horiz in
       let top =
         let dst = Sdl.Rect.create ~x ~y:(y-radius) ~w ~h:radius in
         let transform = make_transform ~flip:Sdl.Flip.vertical () in
-        make_blit ~dst ~transform canvas layer horiz in
+        make_blit ?voffset ~dst ~transform canvas layer horiz in
       let left =
         let dst = Sdl.Rect.create ~x:(x-radius) ~y ~w:radius ~h in
-        make_blit ~dst canvas layer vert in
+        make_blit ?voffset ~dst canvas layer vert in
       let right =
         let dst = Sdl.Rect.create ~x:(x+w) ~y ~w:radius ~h in
         let transform = make_transform ~flip:Sdl.Flip.horizontal () in
-        make_blit ~dst ~transform canvas layer vert in
+        make_blit ?voffset ~dst ~transform canvas layer vert in
 
       let top_right =
         let dst = Sdl.Rect.create ~x:(x+w) ~y:(y-radius) ~w:radius ~h:radius in
-        make_blit ~dst canvas layer corner in
+        make_blit ?voffset ~dst canvas layer corner in
       let top_left =
         let dst = Sdl.Rect.create ~x:(x-radius) ~y:(y-radius)
                     ~w:radius ~h:radius in
         let transform = make_transform ~flip:Sdl.Flip.horizontal () in
-        make_blit ~dst ~transform canvas layer corner in
+        make_blit ?voffset ~dst ~transform canvas layer corner in
       let bottom_left =
         let dst = Sdl.Rect.create ~x:(x-radius) ~y:(y+h) ~w:radius ~h:radius in
         let transform = make_transform
                           ~flip:Sdl.Flip.(horizontal + vertical) () in
-        make_blit ~dst ~transform canvas layer corner in
+        make_blit ?voffset ~dst ~transform canvas layer corner in
       let bottom_right =
         let dst = Sdl.Rect.create ~x:(x+w) ~y:(y+h) ~w:radius ~h:radius in
         let transform = make_transform ~flip:Sdl.Flip.vertical () in
-        make_blit ~dst ~transform canvas layer corner in
+        make_blit ?voffset ~dst ~transform canvas layer corner in
 
       (* we fill also the inside rectangle, otherwise it looks bad if applied to
          a transparent box (but who wants to add shadow to a transparent box?),
          and also if the offset is larger than the radius.  *)
-      let inside = box_to_layer canvas layer ~bg:scolor x y w h in
+      let inside = box_to_layer ?voffset canvas layer ~bg:scolor x y w h in
 
       List.iter forget_texture [horiz; vert; corner];
       

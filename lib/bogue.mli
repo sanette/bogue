@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20190729
+@version 20190810
 
 @author Vu Ngoc San
 
@@ -339,47 +339,63 @@ module Trigger : sig
 
   (** {2 SDL events} *)
     
-  val event_kind : Tsdl.Sdl.event ->
-[ `App_did_enter_background
-| `App_did_enter_foreground
-| `App_low_memory
-| `App_terminating
-| `App_will_enter_background
-| `App_will_enter_foreground
-| `Clipboard_update
-| `Controller_axis_motion
-| `Controller_button_down
-| `Controller_button_up
-| `Controller_device_added
-| `Controller_device_remapped
-| `Controller_device_removed
-| `Dollar_gesture
-| `Dollar_record
-| `Drop_file
-| `Finger_down
-| `Finger_motion
-| `Finger_up
-| `Joy_axis_motion
-| `Joy_ball_motion
-| `Joy_button_down
-| `Joy_button_up
-| `Joy_device_added
-| `Joy_device_removed
-| `Joy_hat_motion
-| `Key_down
-| `Key_up
-| `Mouse_button_down
-| `Mouse_button_up
-| `Mouse_motion
-| `Mouse_wheel
-| `Multi_gesture
-| `Quit
-| `Sys_wm_event
-| `Text_editing
-| `Text_input
-| `Unknown of int
-| `User_event
-| `Window_event]
+  type sdl_event =
+    [ `App_did_enter_background
+    | `App_did_enter_foreground
+    | `App_low_memory
+    | `App_terminating
+    | `App_will_enter_background
+    | `App_will_enter_foreground
+    | `Clipboard_update
+    | `Controller_axis_motion
+    | `Controller_button_down
+    | `Controller_button_up
+    | `Controller_device_added
+    | `Controller_device_remapped
+    | `Controller_device_removed
+    | `Dollar_gesture
+    | `Dollar_record
+    | `Drop_file
+    | `Finger_down
+    | `Finger_motion
+    | `Finger_up
+    | `Joy_axis_motion
+    | `Joy_ball_motion
+    | `Joy_button_down
+    | `Joy_button_up
+    | `Joy_device_added
+    | `Joy_device_removed
+    | `Joy_hat_motion
+    | `Key_down
+    | `Key_up
+    | `Mouse_button_down
+    | `Mouse_button_up
+    | `Mouse_motion
+    | `Mouse_wheel
+    | `Multi_gesture
+    | `Quit
+    | `Sys_wm_event
+    | `Text_editing
+    | `Text_input
+    | `Unknown of int
+    | `User_event
+    | `Window_event]
+
+  type bogue_event =
+    [ `Bogue_startup
+    | `Bogue_stop
+    | `Bogue_stopped
+    | `Bogue_mouse_at_rest
+    | `Bogue_full_click
+    | `Bogue_mouse_enter
+    | `Bogue_mouse_leave
+    | `Bogue_var_changed
+    | `Bogue_keyboard_focus
+    | `Bogue_update
+    | `Bogue_sync_action
+    | `Bogue_redraw ]
+
+  val event_kind : Tsdl.Sdl.event -> [> sdl_event | bogue_event]
 
 end (* of Trigger *)
 
@@ -906,10 +922,13 @@ end (* of Box *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Creating and using widgets 
+(** Creating widgets and giving life to them
 
-{5 {{:graph-b_widget.html}Dependency graph}}
-*)
+Widgets are simple graphic elements that can react to user interaction. They are
+   the inhabitants of your GUI house. When a widget is woken up by some event,
+   it can talk to another widget by means of a [connection].
+
+{5 {{:graph-b_widget.html}Dependency graph}} *)
 module Widget : sig
   type t
   (** The type {!t} is a union of all kinds of widgets: Box, Button, Check box,
@@ -928,18 +947,28 @@ let l = get_label w in
   (** {2:connections Connections}
 
       A connection has a source widget and a target widget. When the source
-      widget receives a specified event, the connection is activated, executing a
-      specified function. *)
+     widget receives a specified event, the connection is activated, executing a
+     specified function, which is called {!action}.
+
+     An action is always executed in a new Thread (and hence will not block the
+     GUI), unless the priority [Main] is specified.  *)
      
   type connection
+     
   type action = t -> t -> Tsdl.Sdl.event -> unit
-
-  (** what to do when the same action (= same connection id) is already running ? *)
+  (** An action is a function with three parameters [w1 w2 ev], where
+     [w1] is the source widget, [w2] the target widget, and [ev] the event
+     ({!Trigger.t}) that triggered the action. *)
+              
+  (** What to do when the same action (= same connection id) is already running? *)
+              
   type action_priority = 
     | Forget (** discard the new action *)
     | Join (** execute the new after the first one has completed *)
-    | Replace (** kill the first action (if possible) and execute the second one *)
-    | Main (** run in the main program. So this is blocking for all subsequent actions *)  
+    | Replace (** kill the first action (if possible) and execute the second one
+                 *)
+    | Main (** run in the main program. So this is blocking for all subsequent
+              actions *)  
 
   val connect : t -> t -> action ->
     ?priority:action_priority ->
@@ -947,25 +976,41 @@ let l = get_label w in
   (** [connect source target action triggers] creates a connection from the
      [source] widget to the [target] widget, but does not register it ({e this
      may change in the future...}). Once it is registered (either by
-     {!Main.make} or {!add_connection}), and has {e focus}, then when an event
-     [ev] matches one of the [triggers] list, the [action] is executed with
-     arguments [source target ev]. *)
+     {!Main.make} or {!add_connection}), and assuming that the layout containing
+     the source widget has {e focus}, then when an event [ev] matches one of the
+     [triggers] list, the [action] is executed with arguments [source target
+     ev].
+
+     @param priority indicates the desired priority policy. Default is [Forget].
+
+*)
 
   val connect_main : t -> t -> action ->
     ?update_target:bool -> ?join:connection -> Trigger.t list -> connection
-  (** Alias to [connect ~priority:Main]. Should be used for very fast actions
+  (** Alias for [connect ~priority:Main]. Should be used for very fast actions
      that can be run in the main thread. *)
     
   val add_connection : t -> connection -> unit
   (** Registers the connection with the widget. This should systematically be
-     done after each connection that is created {e after}
-     {!Main.make}. {e [add_connection] is separated from {!connect} because it is
-     not pure: it mutates the widget. This might change in future versions.} *)
+     done after each connection creation, when the connection is created {e
+     after} {!Main.make}.
+
+     Connections that are created {e before} {!Main.make} should rather be
+     passed as argument to {!Main.make}, and {e not} via
+     [add_connection]. Although this is not striclty necessary, this indicates
+     that these connections are more 'pure' or at least more static, in the
+     sense that they will not be modified by Bogue. These are usually much
+     easier to debug.
+
+     {e [add_connection] is separated from {!connect} because it is not pure: it
+     mutates the widget. This might change in future versions.} *)
     
   val update : t -> unit
-  (** Ask for refresh at next frame. Use this in general in the action of a
-     connection in case the action modifies the visual state of the widget,
-     which then needs to be re-drawn. *)
+  (** [update w] asks the widget [w] to refresh at next frame. The most probable
+     use of [update] is within the code of an {!action}. It can happen that the
+     action modifies the visual state of a widget that is neither the source or
+     the target, and then one needs to explicitly tell this widget to re-draw
+     itself.  *)
 
   (** {3 Predefined connections} *)
 
@@ -1023,19 +1068,6 @@ let l = get_label w in
   (** Create a widget that does not display anything but still gets focus and
      reacts to events. *)
     
-  (** {2 Generic functions on widgets} *)
-    
-  val get_state : t -> bool
-  (** query a boolean state. Works for Button.t and Check.t *)
-
-  val get_text : t -> string
-  (** Return the text of the widget. Works for Button.t, TextDisplay.t, Label.t,
-     and TextInput.t *)
-  
-  val set_text : t -> string -> unit
-  (** Change the text of a widget. Works for Button.t, TextDisplay.t, Label.t,
-     and TextInput.t *)
-
   (** {3 Image} *)
 
   val image : ?w:int -> ?h:int -> ?bg:Draw.color ->
@@ -1079,8 +1111,22 @@ let l = get_label w in
   (** [let b,l = check_box_with_label text] creates a check box [b], a label
      [l], and connect them so that clicking on the text will also act on the
      check box. *)
+
+  (** {2 Generic functions on widgets} *)
+    
+  val get_state : t -> bool
+  (** query a boolean state. Works for Button and Check. *)
+
+  val get_text : t -> string
+  (** Return the text of the widget. Works for Button, TextDisplay, Label,
+     and TextInput. *)
   
-  (** Conversions from the generic Widget type to the specialized inner type *)
+  val set_text : t -> string -> unit
+  (** Change the text of a widget. Works for Button, TextDisplay, Label,
+     and TextInput. *)
+
+  (** {2 Conversions from the generic Widget type to the specialized inner type}
+     *)
 
   val get_box : t -> Box.t
   val get_check : t -> Check.t
@@ -1188,7 +1234,7 @@ module Layout : sig
   val tower_of_w :
     ?name:string -> ?sep:int ->
     ?align:Draw.align ->
-    ?background:background ->
+    ?background:background -> 
     ?widget_bg:background -> ?canvas:Draw.canvas -> Widget.t list -> t
 
   (** {3 Create layouts from other layouts} *)
@@ -1197,13 +1243,15 @@ module Layout : sig
     ?name:string -> ?sep:int ->
     ?adjust:adjust -> ?hmargin:int -> ?vmargin:int -> ?margins:int ->
     ?align:Draw.align ->
-    ?background:background -> ?canvas:Draw.canvas -> t list -> t
+    ?background:background -> ?shadow:Style.shadow ->
+    ?canvas:Draw.canvas -> t list -> t
   val tower :
     ?name:string -> ?sep:int ->
     ?margins:int -> ?hmargin:int -> ?vmargin:int ->
     ?align:Draw.align ->
     ?adjust:adjust ->
-    ?background:background -> ?canvas:Draw.canvas -> t list -> t
+    ?background:background -> ?shadow:Style.shadow ->
+    ?canvas:Draw.canvas -> t list -> t
   val superpose : ?w:int -> ?h:int -> ?name:string ->
     ?background:background -> ?canvas:Draw.canvas -> t list -> t
   (** Create a new layout by superposing a list of layouts without changing
@@ -1466,10 +1514,17 @@ end (* of Snapshot *)
 Very quickly, displaying a list of layouts (for instance, listing files in a
    directory) can run the computer out of memory if it tries to keep in memory
    the textures of {b all} entries of the list. In these cases you need to use a
-   [Long_list]. 
+   [Long_list].
 
-{5 {{:graph-b_long_list.html}Dependency graph}}
-*)
+See for instance the example 34: `boguex 34` that displays a list of 1 million
+   entries.
+
+Long_lists may contain any type of Layout. They don't need to be all of the same
+   dimension. Instead of providing the list of layouts, one must give a function
+   [generate] such that the layout given by [generate i] is the i-eth element of
+   the list.
+
+{5 {{:graph-b_long_list.html}Dependency graph}} *)
 module Long_list : sig
   type t
 
@@ -1481,7 +1536,7 @@ module Long_list : sig
     ?max_memory:int ->
     ?linear:bool -> ?scrollbar_width:int -> unit -> Layout.t
   (** Create a long list through the function [generate] which maps any index
-     {em i} to the {e ieth} element (layout) of the list. If specified (which is
+     {e i} to the {e ieth} element (layout) of the list. If specified (which is
      not a good idea), the [max_memory] should be at least twice the area (in
      physical pixels) of the visible part of the list. If the number of elements
      is large (typically 100000 or more, this depends on your CPU), its is
@@ -1629,6 +1684,34 @@ module Menu : sig
      will not get focus. The system will automatically try to shift the submenus
      if they are too wide, or add a scrollbar if they are too tall. *)
 end (* of Menu *)
+
+module Menu2 : sig
+
+  type action = unit -> unit
+              
+  type label =
+    | Text of string
+    | Layout of Layout.t
+              
+  type entry = {
+      label : label;
+      content : content }
+             
+  (* the content type mixes two different things: Actions and submenus. Not
+     clean from the point of view of the programmer, but (I think) simpler
+     from the public viewpoint. Thus, before working with this, we convert
+     into the Engine types. *)
+  and content =
+    | Action of action
+    | Flat of entry list
+    | Tower of entry list
+    | Custom of entry list
+    | Separator
+
+  val create : dst:Layout.t -> content -> Layout.t
+  val separator : entry
+    
+end
 
 (* ---------------------------------------------------------------------------- *)
 

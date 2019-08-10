@@ -41,6 +41,7 @@ module Long_list = B_long_list
 module Tabs = B_tabs
 module Popup = B_popup
 module Menu = B_menu
+module Menu2 = B_menu2
 module Select = B_select
 module Radiolist = B_radiolist
 module Table = B_table

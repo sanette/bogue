@@ -34,7 +34,7 @@ let global_top_layer layout : Draw.layer =
   Chain.last (Layout.get_layer layout);;
 
 (* create a box of the dimension of the layout *)
-let filter_screen ?color ?layer layout =
+let filter_screen ?color ?layer ?keyboard_focus layout =
   let w,h = Layout.(width layout, height layout) in
   printd debug_graphics "Create filter screen (%d,%d)" w h;
   let b = match color with
@@ -44,6 +44,7 @@ let filter_screen ?color ?layer layout =
     Layout.(resident ~name:"filter" ?canvas:layout.canvas b) in
   (* Layout.(screen.geometry <- {screen.geometry with w; h}); *)
   do_option layer (Layout.set_layer screen);
+  screen.Layout.keyboard_focus <- keyboard_focus;
   screen;;
 
 (** add a screen on top of the layout. This can be useful to make the whole

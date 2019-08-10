@@ -16,13 +16,17 @@
 <h1>Index of types</h1>
 <table>
 <tr><td align="left"><br>A</td></tr>
-<tr><td><a href="Bogue.Widget.html#TYPEaction">action</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<tr><td><a href="Bogue.Menu2.html#TYPEaction">action</a> [<a href="Bogue.Menu2.html">Bogue.Menu2</a>]</td>
 <td></td></tr>
-<tr><td><a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<tr><td><a href="Bogue.Widget.html#TYPEaction">action</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-what to do when the same action (= same connection id) is already running ?
+An action is a function with three parameters <code class="code">w1&nbsp;w2&nbsp;ev</code>, where
+     <code class="code">w1</code> is the source widget, <code class="code">w2</code> the target widget, and <code class="code">ev</code> the event
+     (<a href="Bogue.Trigger.html#TYPEt"><code class="code"><span class="constructor">Trigger</span>.t</code></a>) that triggered the action.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#TYPEadjust">adjust</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 Not implemented.
@@ -43,6 +47,8 @@ Warning, there is also <a href="Bogue.Style.html#TYPEbackground"><code class="co
 The board is the whole universe of your GUI.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Trigger.html#TYPEbogue_event">bogue_event</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Style.html#TYPEborder">border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>C</td></tr>
@@ -64,10 +70,14 @@ r,g,b,a
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#TYPEconnection">connection</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Menu2.html#TYPEcontent">content</a> [<a href="Bogue.Menu2.html">Bogue.Menu2</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>D</td></tr>
 <tr><td><a href="Bogue.Avar.html#TYPEdirection">direction</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>E</td></tr>
+<tr><td><a href="Bogue.Menu2.html#TYPEentry">entry</a> [<a href="Bogue.Menu2.html">Bogue.Menu2</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Menu.html#TYPEentry">entry</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>F</td></tr>
@@ -86,6 +96,8 @@ r,g,b,a
 <tr><td><a href="Bogue.Button.html#TYPEkind">kind</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>L</td></tr>
+<tr><td><a href="Bogue.Menu2.html#TYPElabel">label</a> [<a href="Bogue.Menu2.html">Bogue.Menu2</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Menu.html#TYPElabel">label</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#TYPElayer">layer</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
@@ -117,6 +129,8 @@ red, green and blue values are integers in the range <code class="code">0..255</
 <tr><td><a href="Bogue.Layout.html#TYPEroom_content">room_content</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>S</td></tr>
+<tr><td><a href="Bogue.Trigger.html#TYPEsdl_event">sdl_event</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Style.html#TYPEshadow">shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Menu.html#TYPEsimple_entry">simple_entry</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
