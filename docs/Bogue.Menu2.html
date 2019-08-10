@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Menu.html">
+<link rel="next" href="Bogue.Select.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Menu2</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Menu.html" title="Bogue.Menu">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Select.html" title="Bogue.Select">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Menu2.html">Bogue.Menu2</a></h1>
+
+<pre><span class="keyword">module</span> Menu2: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu2.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type">unit -> unit</code> </pre>
+
+
+<pre><code><span id="TYPElabel"><span class="keyword">type</span> <code class="type"></code>label</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTlabel.Text"><span class="constructor">Text</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTlabel.Layout"><span class="constructor">Layout</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEentry"><span class="keyword">type</span> <code class="type"></code>entry</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTentry.label">label</span>&nbsp;: <code class="type"><a href="Bogue.Menu2.html#TYPElabel">label</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTentry.content">content</span>&nbsp;: <code class="type"><a href="Bogue.Menu2.html#TYPEcontent">content</a></code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><code><span id="TYPEcontent"><span class="keyword">type</span> <code class="type"></code>content</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Action"><span class="constructor">Action</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu2.html#TYPEaction">action</a></code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Flat"><span class="constructor">Flat</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu2.html#TYPEentry">entry</a> list</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Tower"><span class="constructor">Tower</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu2.html#TYPEentry">entry</a> list</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Custom"><span class="constructor">Custom</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu2.html#TYPEentry">entry</a> list</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Separator"><span class="constructor">Separator</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu2.html#TYPEcontent">content</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre>
+<pre><span id="VALseparator"><span class="keyword">val</span> separator</span> : <code class="type"><a href="Bogue.Menu2.html#TYPEentry">entry</a></code></pre></body></html>

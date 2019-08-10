@@ -1,0 +1,25 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Menu2</title>
+</head>
+<body>
+<pre class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;action&nbsp;=&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;label&nbsp;=&nbsp;<span class="constructor">Text</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Layout</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;entry&nbsp;=&nbsp;{&nbsp;label&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.label;&nbsp;content&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.content;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;content&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Action</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.action<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Flat</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.entry&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Tower</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.entry&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Custom</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.entry&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Separator</span><br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:&nbsp;dst:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.content&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;separator&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu2</span>.entry<br>
+<span class="keyword">end</span></pre></body></html>
