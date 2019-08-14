@@ -1892,6 +1892,7 @@ let retower (*?(sep = Theme.room_margin / 2)*) ?align
     ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin) ?margins =
   relayout (fun rooms -> tower ~hmargin ~vmargin ?margins ?align rooms);;
 
+(* typically in a tower, enlarge all rooms to have the width of the house. *)
 let expand_width layout =
   let w = width layout in
   iter_rooms (fun room ->

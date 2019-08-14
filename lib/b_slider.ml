@@ -324,10 +324,13 @@ let display canvas layer s g =
      let dy = scale oldy - y0 in
      let y = imin y0 (y0 + dy) in
      let h = imax tick_size (abs dy) in (* see example 34 .*)
-     let box = if dy = 0 || not s.pointer_motion
+     let box = if abs dy <= 3 || not s.pointer_motion
+               (* the 3 is completely heuristic. See example 35. Ideally we want
+                  0. *)
                then texture canvas.renderer ~color ~h ~w:thickness
                else let colors = [opaque Button.color_on;
                                   opaque Button.color_off] in
+                    (* let _ = print_endline (Printf.sprintf "dy = %i" dy) in *)
                     let colors = if dy < 0 then colors else List.rev colors in
                     gradient_texture canvas.renderer ~h ~w:thickness colors in
      let dst = Sdl.Rect.create ~x:g.x ~y ~h ~w:thickness in
