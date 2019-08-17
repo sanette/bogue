@@ -100,7 +100,7 @@
 <p>Here is what we want to program:</p>
 <p>We let the user enter her/his name on top of the window, for instance &quot;Audrey&quot;, and simultaneously there is a large greeting message in the center of the window saying &quot;Hello Audrey!&quot;.</p>
 <h3 id="the-standard-method-events-and-callbacks">The standard method (events and callbacks)</h3>
-<p>[examples/input]</p>
+<p><a href="https://github.com/sanette/bogue/blob/master/examples/input/input.ml">examples/input</a></p>
 <p>It's not the most natural way of programming if one is not used to event-driven GUIs (like GTK+), but it's a powerful method (and also quite efficient, for large programs).</p>
 <p>The program will look like the following.</p>
 <ol style="list-style-type: decimal">
@@ -121,7 +121,7 @@ Bogue.run board</code></pre></div></li>
 </ol>
 <p>Note that the order 1. and 2. can be swapped. In more complex examples, you cannot always separate all these steps like this, you may need to mix them, for instance because you want a widget action to modify a layout on the fly...</p>
 <h3 id="the-immediate-method">The &quot;immediate&quot; method</h3>
-<p>[examples/input-immediate]</p>
+<p><a href="https://github.com/sanette/bogue/blob/master/examples/input-immediate/input.ml">examples/input-immediate</a></p>
 <p>For simple programs like our example, when the action is fast and will not block the interface, one can use the immediate mode, which is easier to program and debug (no event, no callback).</p>
 <ol style="list-style-type: decimal">
 <li><p>We define the two widgets and the layout as in steps 2 and 4 in the standard method above:</p>
@@ -137,7 +137,7 @@ Bogue.run board</code></pre></div></li>
 Bogue.run ~before_display board</code></pre></div></li>
 </ol>
 <h3 id="the-embedded-method">The &quot;embedded&quot; method</h3>
-<p>[examples/embed]</p>
+<p><a href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a></p>
 <p>This is only useful if you already have an application with an event/display loop (like a game) and you want to add some GUI on top of this.</p>
 <ol style="list-style-type: decimal">
 <li><p>use one of the methods above to create your board</p></li>
