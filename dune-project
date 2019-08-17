@@ -1,6 +1,6 @@
 (lang dune 1.10)
 (name bogue)
-(version "20190814")
+(version "20190817")
 (generate_opam_files true)
 (license GPL2)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")

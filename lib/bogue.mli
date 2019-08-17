@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20190814
+@version 20190817
 
 @author Vu Ngoc San
 
@@ -183,6 +183,10 @@ module Theme : sig
      can be useful to access their values. See above for their description. *)
   
   val room_margin : int
+    
+  val scale_int : int -> int
+(** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
+   obtained by multiplying by [SCALE]. *)
     
 end (* of Theme *)
 
@@ -1854,6 +1858,10 @@ module Main : sig
    @return [true] if the GUI currently handles an animation. In this case
    [fps()] was executed by [one_step]. If not, you should handle the frame rate
    yourself. *)
+
+  val quit : unit -> unit
+(** Use this to close SDL windows and cleanup memory, after {!run} has
+   returned. *)
     
 end (* of Main *)
 

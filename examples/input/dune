@@ -1,0 +1,3 @@
+(executable
+ (name input)
+ (libraries bogue))
