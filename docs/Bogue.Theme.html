@@ -5,8 +5,7 @@
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Bogue.Utils.html">
-<link rel="next" href="Bogue.Time.html">
+<link rel="next" href="Bogue.Utils.html">
 <link rel="Up" href="Bogue.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
@@ -16,9 +15,8 @@
 <title>Bogue.Theme</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Bogue.Utils.html" title="Bogue.Utils">Previous</a>
-&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
-&nbsp;<a class="post" href="Bogue.Time.html" title="Bogue.Time">Next</a>
+<div class="navbar">&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Utils.html" title="Bogue.Utils">Next</a>
 </div>
 <h1>Module <a href="type_Bogue.Theme.html">Bogue.Theme</a></h1>
 
@@ -37,7 +35,8 @@ A number of variables can be modified from a configuration file. They are called
 <li>The syntax of the config file is <code class="code"><span class="constructor">VARIABLE</span>&nbsp;=&nbsp;value</code>, one entry per line. 
   Notice the spaces surroundind <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are ignored. 
   For instance:
-<pre class="codepre"><code class="code"><span class="constructor">THEME</span> = dark
+<pre class="codepre"><code class="code"><span class="keywordsign">#</span> my bogue.conf
+<span class="constructor">THEME</span> = dark
 <span class="constructor">BACKGROUND</span> = color:azure
 </code></pre></li>
 </ul>
@@ -57,7 +56,7 @@ Here is the list of Theme variables:
 <li><code class="code"><span class="constructor">BUTTON_COLOR_ON</span></code>: the color of active buttons.</li>
 <li><code class="code"><span class="constructor">BUTTON_COLOR_OFF</span></code>: the color of inactive buttons.</li>
 <li><code class="code"><span class="constructor">CHECK_ON</span></code>: the image used for the 'checked' icon. It can be a file 
-  (eg. "myimage.png") or a font-awesome icon (eg. "fa:check-square-o").</li>
+  (eg. <code class="code">myimage.png</code>) or a font-awesome icon (eg. <code class="code">fa:check-square-o</code>).</li>
 <li><code class="code"><span class="constructor">CHECK_OFF</span></code>: the image used for the 'unchecked' icon. See <code class="code"><span class="constructor">CHECK_ON</span></code>.</li>
 <li><code class="code"><span class="constructor">CURSOR_COLOR</span></code></li>
 <li><code class="code"><span class="constructor">DIR</span></code>:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code></li>
@@ -70,18 +69,19 @@ Here is the list of Theme variables:
 <li><code class="code"><span class="constructor">MENU_HL_COLOR</span></code>: the color for highlighting selected menu entries.</li>
 <li><code class="code"><span class="constructor">MENU_BG_COLOR</span></code></li>
 <li><code class="code"><span class="constructor">MONO_FONT</span></code>: monospace font.</li>
-<li><code class="code"><span class="constructor">SCALE</span></code>: global scale (any positif float). For instance if <code class="code"><span class="constructor">SCALE</span>&nbsp;=&nbsp;2.</code>, 
+<li><code class="code"><span class="constructor">ROOM_MARGIN</span></code></li>
+<li><code class="code"><span class="constructor">SCALE</span></code>: global scale (any non-negative float). For instance if <code class="code"><span class="constructor">SCALE</span>&nbsp;=&nbsp;2.</code>, 
   all dimensions given to Bogue functions will be multiplied by 2 before 
   rendering to obtain 
   the hardware size in pixels. 
-  If set to <code class="code">0.</code> or not specified, it is autodetected to match your screen DPI. </li>
+  If set to <code class="code">0.</code> or not specified, it is autodetected to match your screen DPI
+  (using <code class="code">xdpyinfo</code>, if present). </li>
+<li><code class="code"><span class="constructor">SEL_BG_COLOR</span></code>: background color for selected items in lists.</li>
+<li><code class="code"><span class="constructor">SEL_FG_COLOR</span></code>: text color for selected items in lists.</li>
 <li><code class="code"><span class="constructor">SMALL_FONT_SIZE</span></code>: integer. Used for instance for tooltips popups.</li>
 <li><code class="code"><span class="constructor">TEXT_COLOR</span></code>: color of standard text displays.</li>
 <li><code class="code"><span class="constructor">TEXT_FONT</span></code></li>
 <li><code class="code"><span class="constructor">TEXT_FONT_SIZE</span></code></li>
-<li><code class="code"><span class="constructor">ROOM_MARGIN</span></code></li>
-<li><code class="code"><span class="constructor">SEL_BG_COLOR</span></code>: background color for selected items in lists.</li>
-<li><code class="code"><span class="constructor">SEL_FG_COLOR</span></code>: text color for selected items in lists.</li>
 </ul>
 
 All variables with "COLOR" in their name can be specified either with RGB hexadecimal like <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>, or with a standard html name like <code class="code">darkturquoise</code>, see <a href="https://www.rapidtables.com/web/color/html-color-codes.html">this color table</a>.

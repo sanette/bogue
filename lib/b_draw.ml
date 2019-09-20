@@ -170,19 +170,19 @@ let rec open_font file size =
       printd debug_io "Loading font %s (%u)" file size;
       match Tsdl_ttf.Ttf.open_font file size with
       | Result.Ok f ->
-	Var.protect_fn font_cache (fun () ->
-	    Hashtbl.add (Var.unsafe_get font_cache) (file,size) f;
+        Var.protect_fn font_cache (fun () ->
+            Hashtbl.add (Var.unsafe_get font_cache) (file,size) f;
             f); 
       | Result.Error _ ->  (* use default font if error *)
         if file = Theme.label_font
         then begin
           printd debug_error "(FATAL) default font %s (%u) cannot be loaded" file size;
           raise Not_found
-	end
+        end
         else begin
           printd debug_error "Font %s (%u) could not be loaded. Using default font instead" file size;
-	  open_font Theme.label_font size
-	end
+          open_font Theme.label_font size
+        end
     end;;
 
 let ttf_render font text color =
@@ -260,25 +260,27 @@ let forget_texture tex =
 (* prints some memory info *)
 let memory_info () =
   let open Printf in
-  print_endline "Memory info:";
-  print_endline (sprintf " Textures: %d" !textures_in_memory);
-  print_endline (sprintf " Surfaces: %d" !surfaces_in_memory);
-  print_endline (sprintf " Threads: %d" !threads_created);
-  print_endline (sprintf " System RAM: %u\t Allocated kbytes: %02f" 
-                   (Sdl.get_system_ram ()) (Gc.allocated_bytes () /. 1024.));
-  Gc.print_stat stdout;;
-
-
-
-
-let make_transform ?(angle = 0.) ?center ?(flip = Sdl.Flip.none) ?(alpha = 1.) () =
+  printf
+    "Memory info:\n Textures: %d\n Surfaces: %d \nThreads: %d\nSystem RAM: \
+     %u\t Allocated kbytes: %02f"
+    !textures_in_memory
+    !surfaces_in_memory
+    !threads_created
+    (Sdl.get_system_ram ())
+    (Gc.allocated_bytes () /. 1024.);
+  Gc.print_stat stdout;
+  flush_all ();;
+  
+let make_transform ?(angle = 0.) ?center ?(flip = Sdl.Flip.none)
+    ?(alpha = 1.) () =
   { angle; center; flip; alpha };;
 
 (** compute the transform corresponding to t2 *after* t1 *)
 (* TODO: of course this is not correct, need to check rotation center and
    translation *)
 let compose_transform t1 t2 =
-  if t2.angle = 0. && t2.alpha = 1. && t2.center = None && t2.flip = Sdl.Flip.none
+  if t2.angle = 0. && t2.alpha = 1. && t2.center = None &&
+     t2.flip = Sdl.Flip.none
   then t1 (* This test is not necessary; is it useful for speeding up ?  One
              could check t1 too. *)
   else
@@ -820,11 +822,13 @@ let svg_loader =
 (* maybe better (but slower) with inkscape: *)
 (* inkscape w3c-logo-white.svg -w 400 -e aaa.png *)
 (* w,h are logical (=scaled) sizes *)
-(* TODO check rsvg or rsvg-convert *)
+(* We check rsvg or rsvg-convert. On error, simply returns the original file
+   name.  *)
 let convert_svg ?w ?h file =
   let file = Theme.get_path file in
   printd debug_io "Rendering png file %s" file;
   let tmp = Filename.temp_file "bogue" ".png" in
+  at_exit (fun () -> Sys.remove tmp);
   let args = match w,h with
     | None, None -> ""
     | Some w, None -> (sprintf "-w %u -a " (Theme.scale_int w))
@@ -835,15 +839,18 @@ let convert_svg ?w ?h file =
     | "rsvg" -> Sys.command (sprintf "rsvg %s %s %s" args file tmp)
     | "rsvg-convert" ->
        Sys.command (sprintf "rsvg-convert %s %s > %s" args file tmp)
-    | _ -> failwith "You should install rsvg or rsvg-convert to be able to \
-                     load SVG images."
+    | _ -> printd (debug_error + debug_io)
+             "You should install rsvg or rsvg-convert to be able to load SVG \
+              images."; -1
   in
   if ret <> 0
-  then printd (debug_io+debug_error)
-         "converting %s to %s via rsvg failed with exit code %u" file tmp ret;
-  at_exit (fun () -> Sys.remove tmp);
-  tmp;;
-
+  then begin
+    printd (debug_io + debug_error)
+      "Converting %s to %s via rsvg failed with exit code %u." file tmp ret;
+    file
+  end
+  else tmp;;
+     
 (* true pixel size *)
 let image_size file =
   let file = Theme.get_path file in
@@ -1176,6 +1183,8 @@ let ring_tex_old renderer ?(bg = opaque grey) ~radius ~width x y =
 let circle renderer (r,g,b,a0) x0 y0 radius =
   (*go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);*)
   (* TODO use set_color instead ? *)
+  (* TODO store points in a BigArray before rendering. BUT this would only work
+     if all points are of the same color...*)
 
   if radius = 0 then begin
     go (Sdl.set_render_draw_color renderer r g b a0);
@@ -2326,3 +2335,7 @@ let blur_texture renderer tex scale =
   pop_target renderer p;
   forget_texture small;
   final;;
+
+(* More ideas:
+   https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms
+   *)

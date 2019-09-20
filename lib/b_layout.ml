@@ -135,7 +135,7 @@ and room = {
      animations. TODO replace this by a more flexible 'overflow'
      specification *)
   mutable background : background option;
-  shadow : Style.shadow option;
+  mutable shadow : Style.shadow option;
   mask : Sdl.surface option; 
   (* If there is a mask, a position (x,y) will be declared inside the layout
      if it corresponds to a mask pixel with alpha value <> 0. A mask will act
@@ -366,6 +366,11 @@ let of_id id : room =
   | Not_found -> (printd debug_warning "Cannot find room with id=%d" id;
                  raise Not_found);;
 
+let of_id_opt id : room option =
+  try Some (WHash.find rooms_wtable {dummy_room with id}) with
+  | Not_found -> (printd debug_warning "Cannot find room with id=%d" id;
+                  None);;
+
 (* find the room containing a widget given by the wid *)
 let of_wid wid =
   let w = Widget.of_id wid in
@@ -567,6 +572,10 @@ let set_background l b =
   l.background <- b;
   unlock l;;
 
+let set_shadow l s =
+  lock l;
+  l.shadow <- s;
+  unlock l;;
 
 (** get size of layout *)
 let get_size l =
@@ -604,18 +613,7 @@ let set_height l h =
 (** get voffset *)
 let get_voffset l = 
   (* l.current_geom.voffset;; *)
-  Avar.get (Var.get l.geometry.voffset);;
-
-(* sets l with the size of the top_house. In principle the (x,y) of the
-   top_house should be (0,0), we don't check this here. The (x,y) of l in
-   unchanged. Should be called dynamically after main loop starts. *)
-let maximize l =
-  lock l;
-  let w,h = get_size (top_house l) in
-  l.current_geom <- { l.current_geom with h; w };
-  Avar.set l.geometry.h h;
-  Avar.set l.geometry.w w;
-  unlock l;;
+  Avar.get (Var.get l.geometry.voffset);;  
 
 (** get current absolute x position (relative to the top-left corner of the
     window) *)
@@ -626,12 +624,12 @@ let xpos l =
 let ypos l =
   l.current_geom.y;;
 
-(* left absolute coordinate of the layout *)
- let x_origin l = match l.house with
+(* left absolute coordinate of the layout's house *)
+let x_origin l = match l.house with
     | None -> 0
     | Some h -> xpos h;;
 
-(* top absolute coordinate of the layout *)
+(* top absolute coordinate of the layout's house *)
  let y_origin l = match l.house with
     | None -> 0
     | Some h -> ypos h;;
@@ -699,13 +697,27 @@ let shift_voffset_generic vset l dv =
 let shift_voffset = shift_voffset_generic Var.set;;
 let shift_voffset_unsafe = shift_voffset_generic Var.unsafe_set;;
 
+(* sets l with the size of the top_house. In principle the (x,y) of the
+   top_house should be (0,0), we don't check this here. The (x,y) of l is set to
+   (0,0). Should be called dynamically after main loop starts. *)
+let maximize l =
+  lock l;
+  let w,h = get_size (top_house l) in
+  l.current_geom <- { l.current_geom with h; w };
+  Avar.set l.geometry.h h;
+  Avar.set l.geometry.w w;
+  unlock l;
+  setx l 0;
+  sety l 0;;
+
 (* not used... *)
 let reset_pos l =
   lock l;
   let w,h = get_size l in
   let g = geometry ~w ~h () in (* or modify l.geometry fields in-place ? *)
   l.geometry <- g;
-  l.current_geom <- to_current_geom g;;
+  l.current_geom <- to_current_geom g;
+  unlock l;;
   
 (* a special use of current_geom is to indicate the desired window position
    within the desktop at startup. It should be set *after* Bogue.make and
@@ -1097,6 +1109,16 @@ let rec remove_keyboard_focus r =
     | Rooms list -> List.iter remove_keyboard_focus list
     | Resident w -> Widget.remove_keyboard_focus w;;
 
+let claim_focus r =
+  if has_resident r then Trigger.push_mouse_focus r.id
+  else printd debug_error "Cannot claim focus on room %s without resident."
+      (sprint_id r)
+
+let claim_keyboard_focus r =
+  if has_resident r then Trigger.push_keyboard_focus r.id
+  else printd debug_error "Cannot claim keyboard_focus on room %s without \
+                           resident." (sprint_id r)
+      
 (* center vertically the rooms of the layout (first generation only) *)
 let v_center layout y0 h =
   match layout.content with
@@ -1137,7 +1159,8 @@ let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable ?canvas ?layer
 
 let of_widget = resident;;
 
-(* an empty layout can reserve some space without stealing focus *)
+(* An empty layout can reserve some space without stealing focus (and has no
+   keyboard_focus) *)
 (* WARNING TODO in the search functions, we have assumed rooms where never
    empty... *)
 let empty ?name ?background ~w ~h () =
@@ -1203,8 +1226,10 @@ let global_set_canvas ?(mustlock=true) room canvas =
 
 let check_layer_error room house =
   if not (Chain.same_component room.layer house.layer)
-  then printd debug_error "The replacement room %s belongs to a separate set of layers disjoint from the house %s. Beware that it will probably never been displayed" (sprint_id room) (sprint_id house);;
-
+  then printd debug_error
+         "The replacement room %s belongs to a separate set of layers disjoint \
+          from the house %s. Beware that it will probably never be displayed"
+         (sprint_id room) (sprint_id house);;
 
 (* use this only if you know what you are doing... *)
 (* remember that a room with no house will be considered a "top layout" *)
@@ -1285,12 +1310,12 @@ let copy ~src ~dst =
   unlock src;
   unlock dst;;
 
-(* add a room to the layout content (end of the list) *)
+(* add a room to the layout content (END of the list) *)
 (* --- NOT ANYMORE ---contrary to set_rooms, the size is not recalculated *)
 (* this is used to add a pop-up *)
 (* warning: if this room already belongs to some house, it will NOT be removed
    from that house... Make sure this never happens. *)
-(* TODO: write a "detach_room" function *)
+(* TODO: write a "remove_room" function *)
 let add_room ?valign ?halign ~dst room =
   (* check oversize. But this should not happen. The user should not rely on
      this. If the added room is too large, beware that nothing outside of the
@@ -1339,6 +1364,7 @@ let global_set_layer room layer =
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
 (* if margins is set, then sep, hmargin and vmargin are all set to this value *)
+(* WARNING: resulting layout has position (0,0). *)
 let flat ?name ?(sep = Theme.room_margin / 2) ?(adjust=Fit)
       ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin)
       ?margins ?align ?background ?shadow ?canvas rooms =
@@ -1400,6 +1426,7 @@ let tower_of_w ?name ?(sep = Theme.room_margin) ?align
 (* sep = vertical space between two rooms *)
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
+(* TODO set layer *)
 let tower ?name ?(sep = Theme.room_margin/2) ?margins
       ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin)
       ?align ?(adjust = Fit) ?background ?shadow ?canvas rooms =
@@ -1438,12 +1465,21 @@ let bounding_geometry = function
     loop max_int max_int 0 0 rooms;;
 
   
-(** superpose a list of rooms without changing their (x,y) position *)
+(* Superpose a list of rooms without changing their relative (x,y) positions.
+   Unless specified by ~w ~h, the resulting layout has the *size* of the total
+   bounding box of all rooms. Its (x,y) *position* is such that, when displayed
+   at this position, all rooms should be located at the positions they claimed.
+   The *layer* of the first room is selected. *)
 (* TODO it seems that only the first one gets focus... *)
 let superpose ?w ?h ?name ?background ?canvas rooms =
   let x,y,bw,bh = bounding_geometry rooms in
-  let geometry = geometry ~x ~y ~w:(default w bw) ~h:(default h bh) () in 
-  create ?name ?background ?canvas geometry (Rooms rooms);;
+  (* We translate the rooms: *)
+  List.iter (fun r -> setx r (getx r - x); sety r (gety r - y)) rooms;
+  let geometry = geometry ~x ~y ~w:(default w bw) ~h:(default h bh) () in
+  let layer = match rooms with
+    | [] -> Draw.get_current_layer ()
+    | r::_ -> get_layer r in
+  create ?name ~layer ?background ?canvas geometry (Rooms rooms);;
 
 (** save the layout_id in the user event *)
 (* not used anymore *)
@@ -1832,12 +1868,14 @@ let follow_mouse ?dx ?dy ?modifierx ?modifiery room =
 (* TODO: how to make the scrollbar appear/disappear when we change the size of
    the layout ? *)
 let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false)
-    ?(scrollbar_width = 10) 
-    ~h room =
+      ?(scrollbar_width = 10) 
+      ~h room =
   let name = (default room.name "") ^ ":clip" in
   if w <> None 
   then printd debug_error "Horizontal scrolling is not implemented yet";
   let w = default w (width room) in
+  let y0 = gety room in
+  sety room 0;
   let active_bg = Widget.empty ~w:(width room) ~h:(height room) () in
   (* we add an invisible box to make the whole area selectable by the mouse
      focus *)
@@ -1845,26 +1883,38 @@ let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false)
      the mouse wheel event. Of course, if the room was full of widgets, this is
      superfluous... *)
   let container = tower ~sep:0 ~hmargin:0 ~vmargin:0
-      [superpose [room; resident active_bg ]] in
+                    [superpose [room; resident active_bg ]] in
   (* the container should be a room with a unique subroom; the subroom can then
      be scrolled with respect to the container *)
   set_height container h;
   set_width container w;
   set_clip container;
-  if scrollbar && h < (height room)
-  then let var = Tvar.create container.geometry.voffset
-           ~t_from:(fun a -> height room - h + Avar.get a) 
-           ~t_to:(fun v -> Avar.var (h - (height room) + v)) in
-    let bar = resident ~background:(Solid Draw.(lighter scrollbar_color)) 
-        (Widget.slider ~kind:Slider.Vertical ~length:h ~thickness:scrollbar_width
-           ~tick_size:(h * h / (height room))
-           ~var (height room - h)) in
-    if scrollbar_inside
-    then (setx bar (width container - width bar);
-          set_layer bar (Chain.insert_after (Chain.last (get_layer container)) (Draw.new_layer ())); (* TODO: is this a bit too much ?? We just want to make sure the scrollbar gets mouse focus *)
-          superpose ~name [container; bar])
-    else flat ~name ~sep:0 ~hmargin:0 ~vmargin:0 [container; bar]
-  else container;;
+  let result =
+    if scrollbar && h < (height room)
+    then let var = Tvar.create container.geometry.voffset
+                     ~t_from:(fun a -> height room - h + Avar.get a) 
+                     ~t_to:(fun v -> Avar.var (h - (height room) + v)) in
+         let bar = resident ~background:(Solid Draw.(lighter scrollbar_color)) 
+                     (Widget.slider ~kind:Slider.Vertical ~length:h ~thickness:scrollbar_width
+                        ~tick_size:(h * h / (height room))
+                        ~var (height room - h)) in
+         if scrollbar_inside
+         then (setx bar (width container - width bar);
+               set_layer bar (Chain.insert_after (Chain.last (get_layer container)) (Draw.new_layer ())); (* TODO: is this a bit too much ?? We just want to make sure the scrollbar gets mouse focus *)
+               superpose ~name [container; bar])
+         else flat ~name ~sep:0 ~hmargin:0 ~vmargin:0 [container; bar]
+    else container in
+  sety result y0;
+  let x0 = getx room in
+  setx room 0;
+  setx result x0;
+  (* We copy the shadow.  TODO: this has no effect at the moment, because of the
+     'clip' flag, the layout is sharply clipped to its bounding box when
+     rendering, so the shadow is hidden. *)
+  let shadow = room.shadow in
+  result.shadow <- shadow;
+  room.shadow <- None;
+  result;;
 
 let relayout createfn ?(duration=200) layout =
   let rooms = get_rooms layout in
@@ -1892,13 +1942,14 @@ let retower (*?(sep = Theme.room_margin / 2)*) ?align
     ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin) ?margins =
   relayout (fun rooms -> tower ~hmargin ~vmargin ?margins ?align rooms);;
 
-(* typically in a tower, enlarge all rooms to have the width of the house. *)
-let expand_width layout =
-  let w = width layout in
+(* typically in a tower, enlarge all rooms to have the width of the house.  This
+   is not recursive: only rooms of depth 1. *)
+let expand_width house =
+  let w = width house in
   iter_rooms (fun room ->
       let x = getx room in
-      if w-x < 1 then printd debug_warning "Cannot expand_width because layout x position is larger than width.";
-      set_width room (w-x)) layout
+      if w-x < 1 then printd debug_warning "Cannot expand_width because house x position is larger than width.";
+      set_width room (w-x)) house
   
 (* replace "room" by "by" inside "house" in lieu and place of the intial
    room. No size adjustments are made. Of course this is dangerous, because it
@@ -1933,7 +1984,42 @@ let replace_room ?house ~by room =
       unlock by;
       unlock h
     end;;
-        
+
+(* move a room to a new house, trying to keep the same visual
+   position. Optionnally adding a scrollbar. *)
+(* This does not NOT change layer, canvas... *)
+(* WARNING this doesn't take voffset into account, so it won't work if a 'hide'
+   animation was used to the room. *)
+let relocate ~dst ?(scroll=true) room =
+  (* TODO check they have the same top_house *)
+  let house = room.house in
+  let x0,y0 = compute_pos dst in
+  let x1,y1 = compute_pos room in
+  (* 'pos_from' won't work here because this is called (by Select2) before rooms
+     positions are computed... *)
+  do_option house (* we remove the room from its house *)
+    (fun h ->
+       let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
+       h.content <- Rooms rooms
+    );
+
+  let room = if not scroll then room
+    else let y2 = y1-y0 + height room in
+      printd debug_board "Relocate room : y2=%i y1=%i y0=%i room=%i \
+                          dst=%i" y2 y1 y0 (height room) (height dst);
+      if y2 <= height dst then room
+      else begin
+        (* sety room 0; *)
+        make_clip ~h:(height dst - y1 + y0) ~scrollbar_inside:true
+          ~scrollbar_width:4 room
+      end in
+
+  (* and add it to the dst *)
+  add_room ~dst room;
+  setx room (x1-x0);
+  sety room (y1-y0);
+  room;;
+
 
   
 (** display section *)
@@ -2137,14 +2223,16 @@ let room_has_anim room =
    status of what was displayed (and not what was hidden...) *)
 let rec has_anim room =
   if !debug && (not room.show) && (room.hidden) && (room_has_anim room)
-  then printd debug_error "Room #%d has unfinished animation but it is not shown." room.id;
+  then printd debug_error "Room %s has unfinished animation but it is not shown."
+         (sprint_id room);
   room.show && (not room.hidden) && 
   (room_has_anim room ||
    match room.content with
    | Rooms list -> List.fold_left (fun b r -> b || (has_anim r)) false list
    | Resident _ -> false);;
 
-(** flip buffers. Here the layout SHOULD be the main layout (house) of the window *)
+(* Flip buffers. Here the layout SHOULD be the main layout (house) of the window
+   *)
 (* only one canvas/renderer is used, the one specified by the layout *)
 let flip ?(clear=false) ?(present=true) layout =
   if clear then Draw.clear_canvas (get_canvas layout);

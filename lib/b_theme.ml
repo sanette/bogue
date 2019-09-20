@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
     
 *)
 
-let this_version = "20190817"  (* see VERSION file *)
+let this_version = "20190920"  (* see VERSION file *)
   
 let default_vars = [
   (* Debug: *)
@@ -54,9 +54,9 @@ let default_vars = [
   (* The color for text labels: *)
   "LABEL_COLOR", "black"; (* idem *)
   (* The color for highlighting selected menu entries: *)
-  "MENU_HL_COLOR", "grey"; (* idem *)
+  "MENU_HL_COLOR", "#8099a2"; (* idem *)
   (* The background color for unselected menu entries: *)
-  "MENU_BG_COLOR", "pale_grey"; (* idem *)
+  "MENU_BG_COLOR", "#BEBEBE"; (* idem *)
   (* The font size for text labels: *)
   "LABEL_FONT_SIZE", "14";
   (* The font for text labels: *)

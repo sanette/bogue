@@ -12,37 +12,16 @@
 <body>
 <pre class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;simple_entry&nbsp;=&nbsp;{&nbsp;text&nbsp;:&nbsp;string;&nbsp;action&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit;&nbsp;}<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;mutable_text&nbsp;=&nbsp;{&nbsp;<span class="keyword">mutable</span>&nbsp;text&nbsp;:&nbsp;string;&nbsp;action&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit;&nbsp;}<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;check_entry&nbsp;=&nbsp;{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;state&nbsp;:&nbsp;bool;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;text&nbsp;:&nbsp;string;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;action&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit;<br>
-&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;layout_entry&nbsp;=&nbsp;{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;layout&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;selected&nbsp;:&nbsp;bool&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Var</span>.t;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;action&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;submenu&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.t&nbsp;option;<br>
-&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;label&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Label</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.simple_entry<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Dynamic</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.mutable_text<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Check</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.check_entry<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Layout</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.layout_entry<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;entry&nbsp;=&nbsp;{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;label&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.label;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;submenu&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry&nbsp;list&nbsp;option;<br>
-&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create_menu&nbsp;:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;?depth:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.layout_entry&nbsp;array&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;?hide:bool&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?name:string&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?background:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.background&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?select_bg:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.background&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;dst:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;bar&nbsp;:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;?background:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.background&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?name:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;action&nbsp;=&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;label&nbsp;=&nbsp;<span class="constructor">Text</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Layout</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;entry&nbsp;=&nbsp;{&nbsp;label&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.label;&nbsp;content&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.content;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;content&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Action</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.action<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Flat</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Tower</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Custom</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Separator</span><br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:&nbsp;dst:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.content&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;bar&nbsp;:&nbsp;dst:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;separator&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Menu</span>.entry<br>
 <span class="keyword">end</span></pre></body></html>

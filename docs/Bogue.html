@@ -33,7 +33,7 @@ General purpose GUI (Graphical user interface) library for Ocaml.
    Bogue is entirely written in <a href="https://ocaml.org/">ocaml</a> except for the
    hardware accelerated graphics library <a href="https://www.libsdl.org/">SDL2</a>.<br>
 <b>Author(s):</b> Vu Ngoc San<br>
-<b>Version:</b> 20190817<br>
+<b>Version:</b> 20190920<br>
 </div>
 <hr width="100%">
 <br>
@@ -57,12 +57,12 @@ The only thing that <code class="code"><span class="keyword">open</span>&nbsp;<s
 <pre class="codepre"><code class="code"><span class="keyword">module</span> <span class="constructor">W</span> = <span class="constructor">Bogue</span>.<span class="constructor">Widget</span> 
 <span class="keyword">module</span> <span class="constructor">L</span> = <span class="constructor">Bogue</span>.<span class="constructor">Layout</span></code></pre><br>
 
-<pre><span class="keyword">module</span> <a href="Bogue.Utils.html">Utils</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Utils.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-Utilities
-</div>
-
 <pre><span class="keyword">module</span> <a href="Bogue.Theme.html">Theme</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Theme.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 Theming variables
+</div>
+
+<pre><span class="keyword">module</span> <a href="Bogue.Utils.html">Utils</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Utils.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+Utilities
 </div>
 
 <pre><span class="keyword">module</span> <a href="Bogue.Time.html">Time</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Time.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
@@ -196,10 +196,9 @@ Put layouts on top of others
 </div>
 
 <pre><span class="keyword">module</span> <a href="Bogue.Menu.html">Menu</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-Various types of menus 
+Various types of menus
 </div>
 
-<pre><span class="keyword">module</span> <a href="Bogue.Menu2.html">Menu2</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu2.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="Bogue.Select.html">Select</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Select.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 Drop-down select list
 </div>

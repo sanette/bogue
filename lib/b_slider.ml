@@ -174,6 +174,8 @@ let compute_value s ev =
    offset. *)
 let click s ev =
   if !debug then assert (Var.get s.offset = 0);
+  (* in some fast mouse motion it can happen that button_up is lost, so this
+     assertion fails. *)
   let old = value s in
   let mouse_v = compute_value s ev in
   let v =

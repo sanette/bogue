@@ -1,4 +1,6 @@
 (** the queue of actions to be executed before everything in the main loop *)
+(* NOTE: if some actions take too much time, the remaining ones are postponed to
+   next iteration of the main loop. *)
 (* FIFO queue: order of actions is preserved *)
 
 open B_utils
@@ -27,16 +29,20 @@ let push action =
 let execute timeout =
   if is_empty () then false (* a quick test in order to avoid lock *)
   else let t = Time.now () in 
-    let () = Var.protect queue in
-    let q = Var.get queue in
-    let rec loop () =
-      if Queue.is_empty q || Time.(now () - t > timeout) then () 
-      else let action = Queue.pop q in
-        printd debug_thread "Popping one action from the Sync Queue";
-        action ();
-        loop ();
-    in
-    loop ();
-    Var.release queue;
-    true;;
+       let () = Var.protect queue in
+       let q = Var.get queue in
+       let rec loop () =
+         if Queue.is_empty q then () (* we exit *)
+         else if Time.(now () - t > timeout)
+         then (* we exit but also send a action event to finish the rest of the
+                 queue at next iteration. *)
+           Trigger.push_action ()
+         else let action = Queue.pop q in
+              printd debug_thread "Popping one action from the Sync Queue";
+              action ();
+              loop ();
+       in
+       loop ();
+       Var.release queue;
+       true;;
 

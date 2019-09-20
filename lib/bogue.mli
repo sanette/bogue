@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20190817
+@version 20190920
 
 @author Vu Ngoc San
 
@@ -40,6 +40,87 @@ module L = Bogue.Layout]}
 *)
 
 
+
+(** Theming variables
+
+A number of variables can be modified from a configuration file. They are called
+   Theme variables. 
+
+- Each theme has its own directory under
+   [$HOME/.config/bogue/themes], in which there is a [bogue.conf] file where the
+   Theme variables are defined.
+- The user config file [$HOME/.config/bogue.conf] overrides the theme files.
+- The syntax of the config file is [VARIABLE = value], one entry per line. 
+  Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored. 
+  For instance:
+{[
+# my bogue.conf
+THEME = dark
+BACKGROUND = color:azure
+]}
+
+Here is the list of Theme variables:
+
+- [BACKGROUND]: the default background for all windows. It can be a color 
+  (eg. [color:darkturquoise] or [color:#00CED1]), or an image file 
+  (eg. [file:myimage.png]).
+  In the latter case, the file is searched in the current theme's directory, 
+  unless the file string starts with [/], in which case it should be an 
+  absolute path (eg. [file:/home/alice/myimage.png]).
+- [BG_COLOR]: A background color (eg. [darkturquoise], or [#00CED1]) 
+  that is used by default by some widgets/layouts.
+  It should be clearly visible over the [BACKGROUND].
+- [BUTTON_COLOR_ON]: the color of active buttons.
+- [BUTTON_COLOR_OFF]: the color of inactive buttons.
+- [CHECK_ON]: the image used for the 'checked' icon. It can be a file 
+  (eg. [myimage.png]) or a font-awesome icon (eg. [fa:check-square-o]).
+- [CHECK_OFF]: the image used for the 'unchecked' icon. See [CHECK_ON].
+- [CURSOR_COLOR]
+- [DIR]:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
+- [FA_DIR]: The fontawesome directory inside [DIR/common/].
+- [FAINT_COLOR]: A non-obstrusive color for disabled options or 
+  text of little importance.
+- [LABEL_COLOR]: The color for text or icon labels.
+- [LABEL_FONT]: path of a TTF font for text labels. Eg: [Ubuntu-R.ttf].
+- [LABEL_FONT_SIZE]: integer, eg [14].
+- [MENU_HL_COLOR]: the color for highlighting selected menu entries.
+- [MENU_BG_COLOR]
+- [MONO_FONT]: monospace font.
+- [ROOM_MARGIN]
+- [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.], 
+  all dimensions given to Bogue functions will be multiplied by 2 before 
+  rendering to obtain 
+  the hardware size in pixels. 
+  If set to [0.] or not specified, it is autodetected to match your screen DPI
+  (using [xdpyinfo], if present). 
+- [SEL_BG_COLOR]: background color for selected items in lists.
+- [SEL_FG_COLOR]: text color for selected items in lists.
+- [SMALL_FONT_SIZE]: integer. Used for instance for tooltips popups.
+- [TEXT_COLOR]: color of standard text displays.
+- [TEXT_FONT]
+- [TEXT_FONT_SIZE]
+
+All variables with "COLOR" in their name can be specified either with RGB hexadecimal like [#00CED1], or with a standard html name like [darkturquoise], see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color table}.
+
+{5 {{:graph-b_theme.html}Dependency graph}} *)
+module Theme : sig
+
+  (** {2 Accessing Theme variables}
+
+     Theme variables are essentially for Bogue's internal use, but sometimes it
+     can be useful to access their values. See above for their description. *)
+  
+  val room_margin : int
+    
+  val scale_int : int -> int
+(** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
+   obtained by multiplying by [SCALE]. *)
+    
+end (* of Theme *)
+
+(* ---------------------------------------------------------------------------- *)
+
+     
 (** Utilities
 
     This module contains several utilities, in particular for debug logs.
@@ -115,82 +196,6 @@ end (* of Utils *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Theming variables
-
-A number of variables can be modified from a configuration file. They are called
-   Theme variables. 
-
-- Each theme has its own directory under
-   [$HOME/.config/bogue/themes], in which there is a [bogue.conf] file where the
-   Theme variables are defined.
-- The user config file [$HOME/.config/bogue.conf] overrides the theme files.
-- The syntax of the config file is [VARIABLE = value], one entry per line. 
-  Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored. 
-  For instance:
-{[
-THEME = dark
-BACKGROUND = color:azure
-]}
-
-Here is the list of Theme variables:
-
-- [BACKGROUND]: the default background for all windows. It can be a color 
-  (eg. [color:darkturquoise] or [color:#00CED1]), or an image file 
-  (eg. [file:myimage.png]).
-  In the latter case, the file is searched in the current theme's directory, 
-  unless the file string starts with [/], in which case it should be an 
-  absolute path (eg. [file:/home/alice/myimage.png]).
-- [BG_COLOR]: A background color (eg. [darkturquoise], or [#00CED1]) 
-  that is used by default by some widgets/layouts.
-  It should be clearly visible over the [BACKGROUND].
-- [BUTTON_COLOR_ON]: the color of active buttons.
-- [BUTTON_COLOR_OFF]: the color of inactive buttons.
-- [CHECK_ON]: the image used for the 'checked' icon. It can be a file 
-  (eg. "myimage.png") or a font-awesome icon (eg. "fa:check-square-o").
-- [CHECK_OFF]: the image used for the 'unchecked' icon. See [CHECK_ON].
-- [CURSOR_COLOR]
-- [DIR]:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
-- [FA_DIR]: The fontawesome directory inside [DIR/common/].
-- [FAINT_COLOR]: A non-obstrusive color for disabled options or 
-  text of little importance.
-- [LABEL_COLOR]: The color for text or icon labels.
-- [LABEL_FONT]: path of a TTF font for text labels. Eg: [Ubuntu-R.ttf].
-- [LABEL_FONT_SIZE]: integer, eg [14].
-- [MENU_HL_COLOR]: the color for highlighting selected menu entries.
-- [MENU_BG_COLOR]
-- [MONO_FONT]: monospace font.
-- [SCALE]: global scale (any positif float). For instance if [SCALE = 2.], 
-  all dimensions given to Bogue functions will be multiplied by 2 before 
-  rendering to obtain 
-  the hardware size in pixels. 
-  If set to [0.] or not specified, it is autodetected to match your screen DPI. 
-- [SMALL_FONT_SIZE]: integer. Used for instance for tooltips popups.
-- [TEXT_COLOR]: color of standard text displays.
-- [TEXT_FONT]
-- [TEXT_FONT_SIZE]
-- [ROOM_MARGIN]
-- [SEL_BG_COLOR]: background color for selected items in lists.
-- [SEL_FG_COLOR]: text color for selected items in lists.
-
-All variables with "COLOR" in their name can be specified either with RGB hexadecimal like [#00CED1], or with a standard html name like [darkturquoise], see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color table}.
-
-{5 {{:graph-b_theme.html}Dependency graph}} *)
-module Theme : sig
-
-  (** {2 Accessing Theme variables}
-
-     Theme variables are essentially for Bogue's internal use, but sometimes it
-     can be useful to access their values. See above for their description. *)
-  
-  val room_margin : int
-    
-  val scale_int : int -> int
-(** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
-   obtained by multiplying by [SCALE]. *)
-    
-end (* of Theme *)
-
-(* ---------------------------------------------------------------------------- *)
 
 (** Time in msec 
 
@@ -334,7 +339,7 @@ module Trigger : sig
 
   val nice_delay : Tsdl.Sdl.event -> float -> unit
   (** [nice_delay ev t] Wait during a delay ([t] seconds), but quit anyway when
-     [{!should_exit} ev] is true. *)
+     {!should_exit}[ ev] is true. *)
 
   val push_quit : unit -> unit
   (** Send the SDL_QUIT event, as if the user clicked on the close button of the
@@ -395,12 +400,14 @@ module Trigger : sig
     | `Bogue_mouse_leave
     | `Bogue_var_changed
     | `Bogue_keyboard_focus
+    | `Bogue_mouse_focus
     | `Bogue_update
     | `Bogue_sync_action
     | `Bogue_redraw ]
 
-  val event_kind : Tsdl.Sdl.event -> [> sdl_event | bogue_event]
-
+  val event_kind : Tsdl.Sdl.event -> [sdl_event | bogue_event]
+  (** Union of {!sdl_event} and {!bogue_event} *)
+    
 end (* of Trigger *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -442,9 +449,7 @@ module Mixer : sig
   (** Play chunk on the desired track number. If [track] is not specified, find
      an available track. By default [repeat = Repeat 1].
      @return chosen track number, or None *)
-      
-  val free_chunk : sound -> unit
-    
+  
   val change_volume : float -> sound -> unit
   (** Multiply sound intensity by a float factor *)
 
@@ -574,7 +579,7 @@ module Draw: sig
     
   val set_system_cursor : Tsdl.Sdl.System_cursor.t -> unit
   (** Set the mouse cursor to be the standard system cursor.  Internally, this
-      first creates a SDL system cursor (or use a previously created one). *)
+      first creates an SDL system cursor (or use a previously created one). *)
     
 end (* of Draw *)
 
@@ -1322,6 +1327,8 @@ module Layout : sig
   val sety : t -> int -> unit
   val set_show : t -> bool -> unit
 
+  val set_shadow : t -> Style.shadow option -> unit
+    
   val fit_content : ?sep:int -> t -> unit
   (** Adapt the size of the layout (and their houses) to the disposition of the
      contained rooms. *)
@@ -1622,75 +1629,23 @@ end (* of Popup *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Various types of menus 
+(** Various types of menus
 
-{5 {{:graph-b_menu.html}Dependency graph}}
+The generic {!create} function produces menus whose entries can be arbitrary
+   layouts located at arbitrary places. But for usual entries, it is enough to
+   provide a string for the entry label, and the layout will be constructed
+   automatically.
+
+The specialized {!bar} function will produce a familiar menu bar with drop-down
+   submenus.
+
+{5 {{:graph-b_menu.html}Dependency graph}} 
 *)
 module Menu : sig
 
   type t
-    
-  type simple_entry = {
-    text : string;
-    action : unit -> unit;
-  }
+  (* The type of generic menus. *)
   
-  type mutable_text = {
-    mutable text : string;
-    action : string -> unit; (** The text can be modified by the action *)
-  }
-
-  type check_entry = {
-    mutable state : bool; (** A check box before the label, and the text is modifiable *)
-    mutable text : string;
-    action : string -> bool -> unit
-  }
-
-  type layout_entry = {
-    layout : Layout.t;
-    selected : bool Var.t; (* true if the mouse is over this entry *)
-    action : Layout.t -> unit;
-    (* the action will be executed when the mouse is clicked AND released on the
-       entry (at {!Trigger.mouse_button_up}) *)
-    submenu : t option
-    (* The layouts of the submenu belong to the layout of this entry, hence the
-       position of the submenu should be calculated relative to the entry. *)
-  }
-    
-  type label =
-    | Label of simple_entry
-    | Dynamic of mutable_text
-    | Check of check_entry
-    | Layout of layout_entry;;
-
-  type entry = {
-    label : label;
-    submenu : (entry list) option;
-  }
-
-  val create_menu : ?depth:int -> layout_entry array -> bool -> t
-  (** The [depth] indicates the level of submenu. By default [depth=0]. The
-     [bool] parameter indicate whether the menu should be initially shown. *)
-
-  val create : ?hide:bool -> ?name:string ->
-    ?background:Layout.background ->
-    ?select_bg:Layout.background -> dst:Layout.t -> t -> Layout.t
-  (** By default, [hide=false]. The [dst] layout will contain the submenus.
-      @return the layout of the main menu. This is generic menu construction
-      function, it does {b not} compute the positions of the entries. See
-      [example41]. *)
-                                                              
-  val bar : ?background:Layout.background ->
-    ?name:string -> Layout.t -> entry list -> Layout.t
-  (** A menu bar, with drop-down submenus. [bar dst entries] creates a layout
-     which contains the menu bar on top of the [dst] layout. The [dst] layout
-     should be big enough to contain the submenus. Any item flowing out of [dst]
-     will not get focus. The system will automatically try to shift the submenus
-     if they are too wide, or add a scrollbar if they are too tall. *)
-end (* of Menu *)
-
-module Menu2 : sig
-
   type action = unit -> unit
               
   type label =
@@ -1701,18 +1656,28 @@ module Menu2 : sig
       label : label;
       content : content }
              
-  (* the content type mixes two different things: Actions and submenus. Not
-     clean from the point of view of the programmer, but (I think) simpler
-     from the public viewpoint. Thus, before working with this, we convert
-     into the Engine types. *)
   and content =
     | Action of action
     | Flat of entry list
+    (** A Flat content will produce a horizontal menu *)
     | Tower of entry list
+    (** A Tower content will produce a vertical menu *)
     | Custom of entry list
+    (** In a Custom content, only Layout labels should be used, and their
+       position should be defined before creating the menu. *)
     | Separator
+    (** Currently only used for inserting separator lines in Tower menus. *)
 
-  val create : dst:Layout.t -> content -> Layout.t
+  val create : dst:Layout.t -> content -> t
+(** Generic menu creation, inserted in the [dst] layout. *)
+  
+  val bar : dst:Layout.t -> entry list -> unit
+  (** Creation of a menu bar in the [dst] layout, with drop-down submenus. [bar
+     dst entries] inserts a layout which contains the menu bar into the top of
+     the [dst] layout (so, some room should be provided). The [dst] layout
+     should be big enough to contain the submenus. Any item flowing out of [dst]
+     will not get focus. *)
+  
   val separator : entry
     
 end
@@ -1722,38 +1687,28 @@ end
 (** Drop-down select list
 
 It's the usual select box which opens a drop-down list when clicked on, similar
-   to the [<select>] html tag. 
+   to the [<select>] html tag.
 
-{5 {{:graph-b_select.html}Dependency graph}}
-*)
+ Under the hood, a select list is a special type of menu with a single entry
+   having a submenu.
+
+{5 {{:graph-b_select.html}Dependency graph}} *)
 module Select : sig
-
-  type t
-  (** Under the hood, a [Select.t] is a special type of menu with a single entry
-      having a submenu. *)
 
   val create : ?dst:Layout.t ->
     ?name:string ->
     ?action:(int -> unit) ->
-    ?fg:Draw.color -> ?hmargin:int -> string array -> int -> t
-  (** For instance [create [| "A"; "B"; "C" |] 1] will create a select box with
-     default choice ["B"]. The [action] (if specified) takes as argument the
-     index of the selected item. *)
+    ?fg:Draw.color ->
+      string array -> int -> Layout.t
+  (** [create string_array i] creates a select box with preselected entry
+     [i]. For instance [create [| "A"; "B"; "C" |] 1] will create a select box
+     with default choice ["B"]. The [action] (if specified) is executed when an
+     item is selected, and takes as argument the index of the selected item.
 
-  val layout : t -> Layout.t
-  (** The layout to display the select list. *)
-
-  val selected : t -> int
-  (** The index (starting from 0) of the selected item. *)
-
-  val set_label : t -> string -> unit
-  (** Modify the label. *)
-    
-  val set_action : t -> (int -> unit) -> unit
-  (** Modify the action. *)
+        @return a layout showing the selected item. *)
 
 end (* of Select *)
-
+     
 (* ---------------------------------------------------------------------------- *)
 
 (** Check list with a single choice
@@ -1825,12 +1780,24 @@ module Main : sig
   
   exception Exit
   (** Raising the [Exit] exception will tell the GUI loop to terminate. *)
-    
-  val make : Widget.connection list -> Layout.t list -> board
+
+  val exit_on_escape : int * int * (board -> unit)
+  (** If the [exit_on_escape] shortcut is given to the {!make} function, then
+     the {!Exit} exception will be raised upon pressing the Escape key. *)
+  
+  val make : ?shortcuts:(int * int * (board -> unit)) list ->
+    Widget.connection list -> Layout.t list -> board
+  (** Create a [board] from a list of layouts and connections. The list of
+     connections can be empty, because connections can be added afterwards. Each
+     Layout in the list will open as a new window. The optional argument
+     [shortcuts] is a list of shortcut triples of the form [keycode, keymod,
+     action].  *)
+  
   val run :
     ?before_display:(unit -> unit) ->
     ?after_display:(unit -> unit) -> board -> unit
-
+  (** Launch the main loop. *)
+  
   (** {2 Using Bogue together with another graphics loop} 
 
       See the [embed] example. *)

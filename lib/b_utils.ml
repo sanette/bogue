@@ -19,7 +19,7 @@ let debug_board = 64;;
 let debug_event = 128;;
 let debug_custom = 256;;
 
-let debug_code = ref ((*debug_thread +*) debug_warning (* + debug_graphics *) + debug_error + debug_io + (* debug_board *) (* + debug_memory *) + (* debug_event *) + debug_custom);;
+let debug_code = ref ((*debug_thread +*) debug_warning (* + debug_graphics *) + debug_error + debug_io + debug_board (* + debug_memory *) + debug_event + debug_custom);;
 
 (* debug_code := !debug_code lor debug_thread;; *)
 
@@ -135,6 +135,14 @@ let rec list_check f l =
         | s -> s
     end;;
 
+(* Return the first element of the list satisfying p, and its index *)
+let list_findi p l =
+  let rec loop i = function
+    | [] -> None
+    | a::rest -> if p a then Some (a, i)
+      else loop (i+1) rest in
+  loop 0 l
+  
 (* idem where the function f returns true *)
 let list_check_ok f l =
   list_check (fun x -> if f x then Some x else None) l;;

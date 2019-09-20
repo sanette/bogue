@@ -48,7 +48,10 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
   screen;;
 
 (** add a screen on top of the layout. This can be useful to make the whole
-    layout clickable as a whole *)
+   layout clickable as a whole. To make sure this works as expected, it should
+   be called dynamically and not statically before running the board, because if
+   other layers are created afterwards, the screen might endup not being on top
+   of everything. *)
 let add_screen ?(color = Draw.(transp red) (* DEBUG *) ) layout =
   let base_layer = top_layer layout in
   let screen_layer = new_layer_above base_layer in
@@ -79,18 +82,24 @@ let attach ?bg ?(show=true) house layout =
   Layout.add_room ~halign:Draw.Center ~valign:Draw.Center ~dst:house layout;
   screen.Layout.show <- show;
   layout.Layout.show <- show;
+  Trigger.push_keyboard_focus (screen.Layout.id);
+  Trigger.push_mouse_focus (screen.Layout.id); (* redundant *)
+  (* When inserting new elements on the fly, one needs to ask to mouse to
+     refresh its focus, see b_main.ml. *)
   screen;;
 
 
 (* some predefined popup designs *)
 
 let slide_in ~dst content buttons =
-  let border = Style.(border (line ())) in
+  let border = Style.(border (line ~color:Draw.(opaque grey) ())) in
+  let shadow = Style.shadow () in
   let background = Layout.Box
-      (Box.create ~background:(Style.Solid Draw.(opaque (pale grey))) ~border ()) in
-  let popup = Layout.tower ~align:Draw.Center ~background [content; buttons] in
+      (Box.create ~shadow ~background:(Style.Solid Draw.(opaque (pale grey)))
+         ~border ()) in
+let popup = Layout.tower ~align:Draw.Center ~background [content; buttons] in
   let screen = attach ~bg:(Draw.(set_alpha 200 (pale grey))) dst popup in
-  Layout.slide_in ~dst popup;
+  (* Layout.slide_in ~dst popup; *)
   popup, screen;;
   
 let one_button ?w ?h ~button ~dst content =

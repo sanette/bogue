@@ -136,13 +136,14 @@ let example5 () =
   let board = make [] [layout] in
   run board;;
 
-let desc6 = "a button and a label"
+let desc6 = "a button and a colored label. Global shortcut (ESC)."
 let example6 () =
   let b = W.check_box () in
   let l = W.label ~fg:(Draw.(opaque (find_color "firebrick")))
       "Merry Christmas !" in
   let layout = L.flat_of_w ~align:Draw.Center [b;l] in
-  let board = make [] [layout] in
+  let shortcuts = [exit_on_escape] in
+  let board = make ~shortcuts [] [layout] in
   run board;;
 
 let desc7 = "click on the button to change the label"
@@ -180,7 +181,7 @@ let example9 () =
 
 (* BUG: the check box is active only after the window has focus (hence we have
    to click twice) *)
-let desc10 = "two independant windows should open"
+let desc10 = "two independent windows should open. ESC to quit."
 let example10 () =
   let b1 = W.check_box () in
   let b2 = W.check_box () in
@@ -188,7 +189,8 @@ let example10 () =
   Draw.use_new_layer (); (* we start a new window *)
   let l2 = L.flat_of_w ~name:"Window#2" [b2; W.label "Win 2"] in
 
-  let board = make [] [l1;l2] in
+  let shortcuts = [exit_on_escape] in
+  let board = make ~shortcuts [] [l1;l2] in
   (* window position can be set after "make" and before "run" *)
   L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,200);
   run board;;
@@ -204,7 +206,8 @@ let example11 () = (* attention ne marche pas avec DEBUG=false !! OK problème r
   let l1 = L.flat_of_w [b1; W.label "Window 1 = the master"] in
   Draw.use_new_layer ();
   let l2 = L.flat_of_w [b2; W.label "Window 2"] in
-  let board = make [c] [l1;l2] in
+  let shortcuts = [exit_on_escape] in
+  let board = make ~shortcuts [c] [l1;l2] in
   L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,200);
   run board;;
 
@@ -431,6 +434,8 @@ let example23bis () =
   let board = make [] [layout] in
   run board;;
 
+(* TODO this doesn't work anymore after modification of mouse_focus in main. Cf
+   check_mouse_motion not being called when animating? *)
 let desc24 = "two moving check buttons covered by a screen"
 let example24 () =
   let b1 = W.check_box () in
@@ -456,89 +461,62 @@ let example24 () =
 
 let desc25 = "a menu bar"
 let example25 () =
-  let border = Style.(border ~radius:25
-                        (line ~color:Draw.(opaque red) ~width:6 ~style:Solid ())) in
-  let box = W.box ~border ~background:(Style.color_bg Draw.(transp blue)) ~w:400 ~h:300 () in
-  let main = L.superpose
-      [L.tower [L.flat_of_w [W.label "   Hello there";
-                             W.check_box ()];
-                L.empty ~w:0 ~h:100 ();
-                L.resident (W.check_box ())];
-       L.flat_of_w [box]] in
-  (* : recall that for the moment, the first item in the list of rooms gets
-     focus before the next ones (bug, we should change, this is not usual) *)
-  let menu = let open Menu in
-    let action1 () = print_endline "Action = Item 1" in
-    let action2 () = print_endline "Action = Item 2" in
-    let label1 = Label { text = "Item 1";
-                         action = action1 } in
-    let label2 = Label { text = "This a long item 2";
-                         action = action2 } in
-    let label1c = Label { text = "Copie action 1";
-                          action = action1 } in
-    let label2c = Label { text = "Entry with action 2" ;
-                          action = action2 } in
-    let submenu = [ { label = label1c;
-                      submenu = None };
-                    { label = label2c;
-                      submenu = None } ] in
-    let submenu2 = List.concat [submenu; [ { label = label2c;
-                                             submenu = Some submenu } ] ] in
-    let submenu3 = List.concat [submenu2; [ { label = label2c;
-                                              submenu = Some submenu2 } ] ] in
-    let item1 = { label = label1;
-                  submenu = None } in
-    let item2 = { label = label2;
-                  submenu = Some submenu3
-                } in
-    bar main [item1; item2] in
-  let layout = L.tower ~margins:0
-      ~background:(L.color_bg(Draw.(lighter (opaque cyan)))) [menu; main] in
-  let board = make [] [layout] in
-  run board;;
 
-let desc25bis = "a menu bar"
-let example25bis () =
+  (* First we define a dummy layout, just to see how the menu will cover it.*)
   let border = Style.(border ~radius:25
                         (line ~color:Draw.(opaque red) ~width:6 ~style:Solid ())) in
   let box = W.box ~border ~background:(Style.color_bg Draw.(transp blue)) ~w:400 ~h:300 () in
   let menu_placeholder = L.empty ~w:400 ~h:40 () in
   let main = L.tower
-               [menu_placeholder;
-                L.superpose
-                  [L.tower [L.flat_of_w [W.label "   Hello there";
-                                         W.check_box ()];
-                            L.empty ~w:0 ~h:100 ();
-                            L.resident (W.check_box ())];
-                   L.flat_of_w [box]]] in
+      [menu_placeholder;
+       L.superpose
+         [L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
+                   L.empty ~w:0 ~h:100 ();
+                   L.resident (W.check_box ())];
+          L.flat_of_w [box]]] in
   (* : recall that for the moment, the first item in the list of rooms gets
      focus before the next ones (bug, we should change, this is not usual) *)
-  let menu = let open Menu2 in
-             let action1 () = print_endline "Action = Item 1" in
-             let action2 () = print_endline "Action = Item 2" in
-             let item1 =  { label = Text "Item 1";
-                            content = Action action1 } in
-             let label1c =  { label = Text "Copie action 1";
-                              content = Action action1 } in
-             let label2c = { label = Text "Entry with action 2";
-                             content = Action action2 } in
-             let submenu = [ label1c; label2c ] in
-             let submenu2 = (List.concat
-                               [submenu;
-                                [{ label = Text "submenu";
-                                   content = Tower submenu }]]
-                            ) in
-             let submenu3 = List.concat
-                              [submenu2; [separator];
-                               [{ label = Text "submenu2";
-                                  content = Tower submenu2 }]] in
-             let item2 = { label = Text "This a long item 2";
-                           content = Tower submenu3 } in
-             create ~dst:main (Flat [item1; item2])
+
+  (* Now we construct the menu... *)
+  let () = let open Menu in
+    let action1 () = print_endline "Action = Item 1" in
+    let action2 () = print_endline "Action = Item 2" in
+
+    (* We define the About entry: *)
+    let about () = Popup.info "This is Bogue example 25:\n\nA menu bar.." main in
+    let about =  { label = Text "About..."; content = Action about } in
+
+    (* We define the File menu: *)
+    let save () = print_endline "Saving..." in
+    let save = { label = Text "Save"; content = Action save } in
+    let quit () = print_endline "Quitting."; raise Bogue.Exit in
+    let quit = { label = Text "Quit"; content = Action quit } in
+    let file_menu = [save; quit] in
+    let file = { label = Text "File";
+                 content = Tower file_menu} in
+
+    (* We define another menu with two submenus: *)
+    (* It is ok to re-use an entry or an action because everything is immutable
+       here. *)
+    let label1 = { label = Text "Copy of action 1";
+                   content = Action action1 } in
+    let label2 = { label = Text "Entry with action 2";
+                   content = Action action2 } in
+    let submenu = [ label1; label2 ] in
+    let submenu2 = (List.concat [submenu;
+                                 [{ label = Text "submenu";
+                                    content = Tower submenu }]]) in
+    let submenu3 = List.concat [submenu2; [separator];
+                                [{ label = Text "submenu2";
+                                   content = Tower submenu2 }]] in
+    let menu2 = { label = Text "This a long menu title";
+                  content = Tower submenu3 } in
+
+    (* Now we define the complete menu bar: *)
+    bar ~dst:main [file; menu2; about]
   in
-  print_endline (Print.layout_down menu);
   let layout = L.tower ~margins:0
-                 ~background:(L.color_bg(Draw.(lighter (opaque pale_grey)))) [main] in
+      ~background:(L.color_bg(Draw.(lighter (opaque pale_grey)))) [main] in
   let board = make [] [layout] in
   run board;;
 
@@ -604,21 +582,18 @@ let example27 () =
 
   run board;;
 
-(* BUG ex28: when you click on the first menu and quickly move to the second
-   one, the mouse_over event does not work. *)
 let desc28 = "select list + Timeout"
 let example28 () =
   let l = L.resident (W.label "Please select your country") in
   let fruits =[| "apple"; "orange"; "banana"; "strawberry" |] in
-  let select_fruit = Select.create fruits 2 in
   let box = L.flat_of_w ~sep:0 [W.box ~w:500 ~h:100 ()] in
   let select = Select.create europe 0 in
-  let layout = L.tower [L.flat [l; Select.layout select;
-                                Select.layout select_fruit]; box] in
+  let select_fruit = Select.create fruits 2 in
+  let layout = L.tower [L.flat [l; select; select_fruit]; box] in
   let board = make [] [layout] in
   let _ = Timeout.add 5000 (fun () -> print_endline "HELLO!---------------------") in
   run board;;
-
+              
 let desc29 = "radiolist"
 let example29 () =
   let radio = Radiolist.vertical [|"only one can be selected"; "AAA"; "BBB"; "CCC"|] in
@@ -771,9 +746,9 @@ let example37 () =
   let board = make [] [layout] in
   Mixer.unpause mixer;
   run board;
-  Mixer.close mixer;
-  Mixer.free_chunk check_sound;
-  Mixer.free_chunk uncheck_sound;;
+  Mixer.close mixer;;
+  (* Mixer.free_chunk check_sound;
+   * Mixer.free_chunk uncheck_sound *)
 
 let desc38 = "load SVG at different sizes"
 let example38 () =
@@ -854,33 +829,29 @@ let example41 () =
   let title = W.label ~size:32 ~fg:(Draw.(opaque (find_color "firebrick")))
       "The Black Hole Game"
               |> L.resident in
-  let border = Style.(border ~radius:7
-                        (line ~color:Draw.(opaque grey) ~width:3 ~style:Solid ())) in
+  let border = Style.(border (line ~color:Draw.(opaque grey) ~width:3 ~style:Solid ())) in
   let bg = Box.create ~border () in
   let fg = Draw.(opaque white) in
   let make_btn x y text =
     let l = W.label ~fg text in
     (* alternative: *)
     (*let b = W.button ~border_radius:7 ~bg_off:Draw.(transp grey) ~fg text in *)
-    let r = L.tower ~margins:0
+    let r = L.tower ~name:"game button" ~margins:0
         [L.resident ~w:100 ~h:40 ~background:(L.box_bg bg)
-        (*b*) l] in
+           (*b*) l] in
     L.setx r x; L.sety r y; r in
   let start_btn = make_btn 800 500 "Start" in
   let quit_btn = make_btn 800 600 "Quit" in
+  print_endline(Printf.sprintf "quit_btn pos = (%i,%i)"
+                  (Layout.getx quit_btn) (Layout.gety quit_btn));
   let entries = let open Menu in
-    [| {layout = start_btn;
-        selected = (Var.create false);
-        action = (fun _ -> print_endline "START!");
-        submenu = None};
-       {layout = quit_btn;
-        selected = (Var.create false);
-        action = (fun _ -> print_endline "QUIT!";
-                   Trigger.push_quit ());
-        submenu = None} |] in
-  let menu = Menu.create_menu entries true in
-  let menu_layout = Menu.create ~dst:image menu in
-  let layout = L.superpose [image; title; menu_layout] in
+    [ { label = Layout start_btn;
+        content = Action (fun () -> print_endline "START!") };
+      { label = Layout quit_btn;
+        content = Action (fun () -> print_endline "QUIT!";
+                           Trigger.push_quit ()) } ] in
+  let _ = Menu.create ~dst:image (Menu.Custom entries) in
+  let layout = L.superpose [image; title] in
   L.setx title 35; L.sety title 150;
   L.rotate ~duration:1000 ~angle:360. title;
   let board = make [] [layout] in
@@ -985,7 +956,6 @@ let _ =
                     "23bis", (example23bis, desc23bis) ;
                     "24", (example24, desc24) ;
                     "25", (example25, desc25) ;
-                    "25bis", (example25bis, desc25bis) ;
                     "26", (example26, desc26) ;
                     "26bis", (example26bis, desc26bis) ;
                     "27", (example27, desc27) ;
@@ -1019,8 +989,7 @@ let _ =
             with Not_found -> failwith "Cannot find requested example"
   in
   List.iter (fun (key, (ex,de)) ->
-      if help then print_string (key ^ " = ");
-      print_endline de;
+      print_endline (key ^ " = " ^ de);
       if not help then ex ()) exs;
 
   Draw.quit ();

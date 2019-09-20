@@ -1,7 +1,7 @@
 (** a generic menu layout with submenus *)
 (* can be used with entries (layouts) at arbitrary locations *)
+(* VERSION2 *)
 
-(* TODO: I find the code quite complicated. Improvements welcome. *)
 
 open B_utils
 open Tsdl
@@ -9,511 +9,822 @@ module Layout = B_layout
 module Widget = B_widget
 module Avar = B_avar
 module Chain = B_chain
-module Time = B_time
-module Var = B_var
 module Timeout = B_timeout
 module Trigger =  B_trigger
 module Draw = B_draw
-module Mouse = B_mouse
 module Label = B_label
 module Button = B_button
 module Popup = B_popup
+module Style = B_style
+
+let pre = if !debug
+  then fun s -> print_endline ("[Menu2] " ^ s) (* for local debugging *)
+  else nop
+
+module Engine = struct
+
+  (* A menu is a usual birectional tree, where each node is either terminal (a
+     leaf) and corresponds to a menu item with a action, or a submenu. However,
+     we don't really have to optimize functions for arbitrary trees, because it
+     will always be a very small tree (not deep).
+
+     The top of this tree is of type 'menu' and is the only one with a 'None'
+     parent_entry. *)
   
-type action = Layout.t -> unit;;
+  type action = unit -> unit
 
-(* formatted entry *)
-type layout_entry = {
-    layout : Layout.t;
-    selected : bool Var.t; (* true if the mouse is over this entry *)
-    (* NOTE: in this code, we seem to allow several entries to be selected at the
-     same time, why ? See activate_subentry. *)
-    action : action;
-    (* the action will be executed when the mouse is clicked AND released on the
-     entry (at mouse_button_up) *)
-    submenu : t option
-    (* The layouts of the submenu belong to the layout of this entry, hence the
-       position of the submenu should be calculated relative to the entry
-       menu. *)
-  }
-(* It would be safer to make this a private type, but it is not * completely
-   private, because some functions like drop_down (called by the * Select
-   module) will generate layout_entry, which links to this type. *)
-and t = {
-    entries : layout_entry array;
-    (* the menu items. Here we call them "entries". Recall that an entry can
-       also contain a submenu. *)
-    show : bool Var.t;
-    (* show = current state of the menu. More precisely, the "coming soon"
-       state, in case of animation. *)
-    depth : int;
-    (* depth = submenu depth. This is only used for dealing with the screen
-       layer *)
-    mutable mouse_pressed : bool; (* was the mouse pressed on any of the entries
-                                     ? *)
-    mutable room : Layout.t option;
-    (* The room field will contain the computed layout of this menu. *)
-    mutable stamp : int Var.t (* used to add a delay before closing the menu *)
-                        (* TODO we don't want this anymore ? *)
-  }
+  and entry_type =
+    | Menu of menu
+    | Action of action
 
-let create_menu ?(depth=0) entries show =
-  { entries;
-    show = Var.create show;
-    depth;
-    room = None;
-    mouse_pressed = false;
-    stamp = Var.create 0 };;
+  and entry = {
+      kind : entry_type;
+      enabled: bool;
+      mutable selected: bool; (* equivalent to highlighted *)
+      layout : Layout.t; (* how to display the entry label *)
+      (* Note: a Separator should be an empty Layout *)
+      parent_menu : menu 
+    }
 
-let rec is_selected t =
-  let list = Array.to_list t.entries in
-  List.exists (fun e ->
-      Var.get e.selected || default (map_option e.submenu is_selected) false) list;;
+  and menu = {
+      pos :  (int * int) option;
+      (* Relative position wrt the parent_entry *)
+      mutable active : bool;
+      (* 'active' implies that the menu is shown. But a menu can be shown
+         without being active. Active implies that submenu will open on
+         mouse_over, and keyboard is active. *)
+      mutable always_shown : bool;
+      (* If a menu is shown, it must be either 'active', or 'always_shown'. *)
+      (* some menus (typically a menu bar, for instance) are always shown, but
+       not necessary always 'active' in the sense above. *)
+      mutable entries : entry list;
+      mutable room : Layout.t; (* the layout that contains all menu entries *)
+      mutable parent_entry : entry option
+      (* the entry to which this menu is attached, or None if this is the top
+         menu. *)
+    }
 
-(* Layout creation *)
+  let separator = Action (fun () ->
+                      pre "This action should not be launched.")
 
-(** close the menu unless it is selected *)
-let rec try_close ?(force=false) screen t =
-  (* Sdl.log "TRY_CLOSE depth=%d" t.depth; *)
-  if (force || (not (is_selected t))) && (Var.get t.show)
-  then begin
-    (* print_endline "OK CLOSE"; *)
-    let layout = remove_option t.room in
-    if t.depth = 1 then screen.Layout.show <- false;
-    Layout.hide ~towards:Avar.Top layout;
-    Layout.fade_out ~duration:250 layout;
-    (* this fade_out animation maybe will not be finished if show/hide is
-           very quick => will print an error. Cf WARNING in Layout.hide. *)
-    printd debug_thread "Hiding menu #%u" layout.Layout.id;
-    Var.set t.show false;
-    (* now we close submenus *)
-    Array.iter (fun e -> if force then Var.set e.selected false;
-                 do_option e.submenu (try_close ~force screen)) t.entries
-  end;;
+  (* 1. Functions for gearing menus interaction *)
+  (* ------------------------------------------ *)
 
-(* show the submenu [t] *)
-let show_submenu mouse_pressed screen t =
-  (* print_endline "SHOW SUBMENU"; *)
-  Var.set t.show true;
-  (* We propagate the mouse_pressed *)
-  t.mouse_pressed <- mouse_pressed;
-  let layout = remove_option t.room in
-  (* show_submenu is only called for submenus, not for the main menu. Hence we
-     know that the layout.house is precisely the dst layout given as argument of
-     create. Of course the user has to possibility to mess this up, because she
-     has access to dst. We could instead pass dst as a parameter. *)
-  let dst = remove_option layout.Layout.house in
-  (*print_endline (Print.layout_down dst);*) (* DEbuG *)
-  screen.Layout.show <- true;
-  Layout.show ~duration:200 layout;
-  Layout.fade_in ~duration:200 layout; 
-  if Layout.(getx layout + width layout > width dst) ||
-     Layout.(gety layout + height layout > height dst)
-  then begin
-    printd debug_warning "Destination layout too small for displaying menu.";
-    let dx = imax 0 (Layout.(getx layout + width layout - width dst)) in
-    (*let dy = imax 0 (Layout.(gety layout + height layout - height dst)) in*)
-    Layout.(slide_to layout (getx layout - dx, gety layout (*- dy*) ));
-    if Layout.(gety layout + height layout > height dst)
-    then begin
-      let clipped = Layout.(make_clip ~h:(height dst - gety layout)
-                              ~scrollbar_inside:true
-                              ~scrollbar_width:4 layout) in
-      Layout.replace_room ~by:clipped ~house:dst layout;
-      t.room <- Some clipped
-      (* TODO sub-submenus of "layout" should be relocated to the house
-         "clipped" ?... *)
-    end
-  end;;
+  let duration = 200
+  (* Duration of animations in ms. *)
 
-(* return index and menu of the first activated entry *)
-let rec get_selected_entry t =
-  let rec loop i =
-    if i = Array.length t.entries then None
-    else if Var.get t.entries.(i).selected then Some (t,i)
-    else match t.entries.(i).submenu with
-      | None -> loop (i+1)
-      | Some t' -> (match get_selected_entry t' with
-          | None -> loop (i+1)
-          | a -> a) in
-  loop 0;;
+  (* The 'screen' layout is used for grabbing mouse even outside of the menus
+     themselves. Used for closing menus when clicking outside. *)
+  let screen_enable screen =
+    pre "ENABLE";
+    Layout.set_show screen true
+    
+  let screen_disable screen =
+    pre "DISABLE";
+    Layout.set_show screen false
 
-let select ?bg entry =
-  Layout.set_background entry.layout bg;
-  Var.set entry.selected true;;
-(* TODO make sure the entry is fully visible (show menu if hidden, scroll if
-   necessary) *)
+  let entry_is_open entry =
+    match entry.kind with
+    | Action _ -> false
+    | Menu menu -> menu.active || menu.always_shown
 
-let unselect ?bg entry =
-  Layout.set_background entry.layout bg;
-  Var.set entry.selected false;;
+  (* TODO don't change bg in case of custom layout?*)
+  let set_entry_bg ?bg entry =
+    if entry.enabled then Layout.set_background entry.layout bg
 
-(* run the action of the selected entries of the menu or submenus *)
-(* typically before closing the menu after mouse_button_up *)
-let rec activate_subentry t =
-  let list = Array.to_list t.entries in
-  List.iter (fun e ->
-      if Var.get e.selected
-      then e.action e.layout;
-      do_option e.submenu activate_subentry) list;;
+  (* the entry below mouse should always be highlighted. But we also highlight
+     the parent of each open menu. *)
+  let highlight_entry ?(bg=Layout.Solid Draw.(opaque menu_hl_color)) entry =
+    set_entry_bg ~bg entry;
+    entry.selected <- true
 
+  let reset_entry ?(bg=Layout.Solid Draw.(opaque menu_bg_color)) entry =
+    set_entry_bg ~bg entry;
+    entry.selected <- false
+    
+  (* Iter menu downwards *)
+  let rec iter f menu =
+    f menu;
+    List.iter (fun entry -> match entry.kind with
+                            | Action _ -> ()
+                            | Menu submenu -> iter f submenu) menu.entries
 
-(** create a layout for the given menu attached to the given house="dst" *)
-(* NO positions are calculated here, only the connections *)
-(* hide = true if we want the menu to disappear after click *)
-(* we make a layout, add the entries, add connections to the entries, and to
-   the filter layer (click the filter = quit the menu  TODO) *)
-(* select_bg = background for selected entries *)
-(* This function is recursive because it is used also to create submenus *)
-(* The function returns the layout of the main menu, it also sets the room entry
-   of t with it. WARNING: the submenus are not included in this layout. Instead,
-   they are added to the ~dst layout, and start in a hidden state. That's
-   because you usually want the submenus to appear somewhere else. *)
-let rec create_loop ?(hide = false) ?name ?background ?select_bg
-    ~screen ~layers ~dst t =
+  (* not used *)
+  let add_submenus_to_dst_old ~dst menu =
+    let f menu =
+      Layout.add_room ~dst menu.room;
+      if not menu.active && not menu.always_shown
+      then Layout.set_show menu.room false
 
-  assert (t.room = None); (* it is the role of this function to create t.room *)
+    in
+    List.iter (fun entry -> match entry.kind with
+                            | Action _ -> ()
+                            | Menu submenu -> iter f submenu) menu.entries
 
-  let entry_layer, coating_layer = layers in
-  let menu = t.entries in
-  let l = Array.length menu in
-  if l = 0 then failwith "Menu should not be empty"; (* or return an empty box ? *)
-  let rooms = Array.to_list menu
-              |> List.map (fun e -> e.layout) in
-  (* We create the menu layout and store it in the room field. Note that the
-     positions of all elements should be already indicated in the geometry. *)
-  let canvas = dst.Layout.canvas in
-  let layout = Layout.superpose ?name ?canvas rooms in
-  t.room <- Some layout;
-  (*Layout.set_layer layout dst_layer;*) (* useful ? *)
-  Layout.set_background layout background;
-  if hide then ((*Layout.hide ~towards:Avar.Top ~duration:0 layout;*)
-    layout.Layout.show <- false;
-    Var.set t.show false);
+  (* Inserts all layouts inside 'dst' at the proper position.  Should be done
+     only once, otherwise the 'repeated widgets' error will appear. *)
+  let add_menu_to_dst ~dst menu =
+    let f menu =
+      Layout.add_room ~dst menu.room;
+      do_option menu.pos (fun (dx, dy) ->
+          let x, y = match menu.parent_entry with
+            | None -> 0, 0
+            | Some entry ->
+              let m = entry.parent_menu.room in
+              let x0, y0 = Layout.(getx m, gety m) in
+              let dx0, dy0 = Layout.(getx entry.layout, gety entry.layout) in
+              x0+dx0, y0+dy0 in
+          Layout.setx menu.room (x+dx);
+          Layout.sety menu.room (y+dy));
 
-  (* We create the connections: *)
-  for i = 0 to l-1 do
-    let room = menu.(i).layout in
-    let bg = Layout.get_background room in
-    Layout.global_set_layer room entry_layer; (* TODO translate (shift) layers instead *)
-    (* We translate back all the entries to the origin of the container
-       layout: *)
-    Layout.(setx room (getx room - getx layout));
-    Layout.(sety room (gety room - gety layout));
-    (* We need a coat to get mouse focus on the whole length of the menu entry,
-       not only on the area of the text itself (label): *)
-    let coat = Popup.filter_screen ~layer:coating_layer room in
-    coat.Layout.keyboard_focus <- Some false;
-    Layout.add_room ~dst:room coat;
-    (* we don't use Popup.add_screen to avoid creating too many layers. *)
-    let wg = Layout.widget coat in
-    wg.Widget.cursor <- Some (go (Draw.create_system_cursor Sdl.System_cursor.hand));
-    let action_button_up () =
-      (* REMARK: one could have implemented the mechanism with a W.button
-         ~kind:Button.Switch. Cf Example 16 *)
-      (* let no_submenu = menu.(i).submenu = None in *)
-      (* if hide then try_close ~force:no_submenu t; *)
-      (* TODO close parents too *)
-      t.mouse_pressed <- false;
-      if not !Trigger.too_fast then begin
-        match menu.(i).submenu with
-        | None -> (* mouse focus is on a standard entry *)
-          (* the user is allowed to select an entry which has mouse_over but not
-             mouse_focus, because one can click on an item (which gets then
-             mouse_focus), and then let the button pressed and move to another
-             item: *)
-          activate_subentry t;
-          if hide then try_close ~force:true screen t;
-          (*printd debug_thread "Selecting menu action #%d" (i+1);
-            menu.(i).action room; *)
-        | Some sub -> begin
-            (* Recall than an action is attached to the widget that has mouse
-               focus. Here the focus widget has a submenu, which means that
-               (probably) some subentry was selected with mouse button kept
-               down. We activate it. *)
-            activate_subentry sub;
-            (* we assume that if this is a single click it means the mouse_up
-               was on the same entry as the mouse_down (of course, we could
-               check this rigorously, but this more complicated and maybe not
-               worth). In this case, the menu was shown on mouse_down, so we
-               don't hide it now! On the contrary if it is not a single click,
-               then the mouse button was kept down to select another entry, and
-               hence we close the submenu. *)
-            (* TODO sometimes scrolling with the touch pad generates
-               Mouse_up... we should filter this out! *)
-            if not (Trigger.was_single_click ()) then try_close ~force:true
-                screen sub
+      if not menu.active && not menu.always_shown
+      then Layout.set_show menu.room false
+    in
+    iter f menu
+
+  let add_menu_to_layer menu layer =
+    let f menu =
+      Layout.global_set_layer menu.room layer in
+    iter f menu
+
+  (* Return the top menu *)
+  let rec top menu =
+    pre "TOP";
+    match menu.parent_entry with
+    | None -> menu
+    | Some entry -> top entry.parent_menu
+
+  let is_top menu =
+    menu.parent_entry = None
+
+  (* Search menu entries for selected entry *)
+  let selected_entry menu =
+    list_findi (fun a -> a.selected) menu.entries 
+      
+  (* Search the top tree for the first (which should be unique) entry of Action
+     kind which is 'selected'. Is there a simpler way to loop? *)
+  let selected_action_entry menu =
+    let rec menuloop menu =
+      let check entry =
+        if entry.selected then
+          match entry.kind with
+          | Action _ -> Some entry
+          | Menu menu -> menuloop menu
+        else None in
+      let rec entriesloop = function
+        | [] -> None
+        | e::rest -> match check e with
+                     | Some e' -> Some e'
+                     | None -> entriesloop rest in
+      entriesloop menu.entries in
+    menuloop (top menu)
+
+  (* use this for opening menus, not for closing *)
+  let new_timeout, clear_timeout =
+    let t = ref None in
+    (* there is only one global timeout variable because we assume only one user
+       can use only one menu at a time... *)
+    (function action ->
+       do_option !t Timeout.cancel;
+       t := Some (Timeout.add 150 action)),
+    
+    (function () ->
+       do_option !t Timeout.cancel)
+    
+  let show screen menu =
+    screen_enable screen;
+    Layout.show ~duration menu.room;
+    (* Layout.rec_set_show true menu.room; *)
+    Layout.fade_in ~duration menu.room
+    
+  let activate ?(timeout = false) screen menu =
+    if menu.active then ()
+    else begin
+        if not menu.always_shown
+        then if timeout
+             then new_timeout (fun () -> show screen menu)
+             else show screen menu;
+        menu.active <- true
+      end
+
+  let close ?(timeout = false) screen menu =
+    pre "CLOSE";
+    (* If the parent of this menu is the top menu, this should mean that we have
+       no other open menus. We can disable the screen. *)
+    do_option menu.parent_entry
+      (fun e ->
+        if is_top e.parent_menu then screen_disable screen;
+        reset_entry e
+      );
+    if not menu.always_shown && menu.active then
+      begin
+        menu.active <- false;
+        clear_timeout ();
+        let action () = 
+          Layout.hide ~duration ~towards:Avar.Top menu.room;
+          (* il y peut y avoir des bugs qd on ouvre/ferme vite. *)
+          Layout.fade_out ~duration menu.room in
+        if timeout
+        then ignore (Timeout.add 150 action) (* put 1000 for easy debugging *)
+        else action ()
+      end
+
+  (* We could make it more efficient and stop going down a branch as soon as a
+     node is aleady closed. But a Menu tree is never very long, it's probably
+     not worth. *)
+  let rec close_children ?(timeout = false) screen menu =
+    pre (Printf.sprintf "CLOSE_CHILDREN with %i ENTRIES"
+                     (List.length menu.entries));
+    List.iter (fun entry ->
+        match entry.kind with
+        | Action _ -> ()
+        | Menu m -> begin
+            close_children ~timeout screen m;
+            close ~timeout screen m
           end
-      end
-    in
-    (* TODO merge this with button_up: *)
-    let action_activate _ _ ev =
-      match Trigger.event_kind ev with
-      | `Mouse_button_up
-      | `Finger_up -> action_button_up (); 
-      | `Key_down -> let c = Sdl.Event.(get ev keyboard_keycode) in
-        if c = Sdl.K.return || c = Sdl.K.return2 || c = Sdl.K.kp_enter
+      ) menu.entries
+
+  (* Close all closable menus, and un-activate the top menu *)
+  let close_tree screen menu =
+    pre "CLOSE_TREE";
+    let t = top menu in
+    close_children screen t;
+    t.active <- false
+
+  let close_entry ~timeout screen entry =
+    match entry.kind with
+    | Action _ -> ()
+    | Menu m ->
+       close ~timeout screen m;
+       close_children ~timeout screen m
+    
+  (* Close the other menus at the same level *)
+  let close_others ?(timeout = false) screen entry =
+    let menu = entry.parent_menu in
+    let other_entries = List.filter
+                          (fun e -> not Layout.(e.layout == entry.layout))
+                          menu.entries in
+    pre (Printf.sprintf "OTHER ENTRIES = %i" (List.length other_entries));
+    List.iter (close_entry ~timeout screen) other_entries
+
+  let run_action screen entry =
+    match entry.kind with
+    | Menu _ -> printd debug_error "Cannot run action on a Menu entry"
+    | Action action ->
+      let bg = Layout.Solid Draw.(opaque Button.color_on) in
+      reset_entry ~bg entry;
+      action ();
+      (* We use a Timeout to make the colored entry visible longer. Warning: it
+         is possible that the menu state be scrambled if the user is fast enough
+         to do things in the Timeout delay...*)
+      ignore (Timeout.add 100 (fun () ->
+          reset_entry entry; (* reset usual background *)
+          close_tree screen entry.parent_menu))
+    
+  (* Ask the board to set keyboard (and hence mouse) focus on the entry. *)
+  let set_keyboard_focus entry_layout =
+    let filter = Layout.get_rooms entry_layout
+                 |> List.rev
+                 |> List.hd in
+    if !debug then assert (filter.Layout.name = Some "filter");
+    Layout.claim_keyboard_focus filter
+    
+  (* 2. Functions for reacting to events *)
+  (* ----------------------------------- *)
+    
+  (* The behaviour we code here is more or less the same as QT/KDE apps. It's
+     not exactly the same as GTK apps. *)
+      
+  (* button_down can open/close menus. It also toggles the 'active' state of the
+     parent menu, which is reponsible for opening submenus on mouse over or not,
+     and works only if the parent menu is 'always_shown'. *)
+  let button_down screen entry =
+    pre "BUTTON_DOWN";
+    if entry.enabled then begin
+      match entry.kind with
+      | Menu menu -> if menu.active
         then begin
-          action_button_up ();
-          if hide then try_close ~force:true screen t;
-          do_option menu.(i).submenu (fun sub -> try_close ~force:true screen sub)
+          close_children screen entry.parent_menu;
+          highlight_entry entry;
+          (* because closing menu will also reset the parent
+             entry. We don't want this here since the mouse is
+             over. *)
+          if entry.parent_menu.always_shown
+          then entry.parent_menu.active <- false
+        end else begin
+          pre (B_print.layout_down entry.layout);
+          set_keyboard_focus entry.layout;
+          activate screen menu;
+          activate screen entry.parent_menu
         end
-      | _ -> () in
+      | Action _ -> () (* actions are executed on button_up *)
+    end
 
-    let c = Widget.connect wg wg action_activate
-        Sdl.Event.[mouse_button_up; key_down; finger_up] in
-    Widget.add_connection wg c;
+  let button_up screen entry =
+    pre "BUTTON_UP";
+    (* the entry here is maybe the wrong one, because it is the one that has
+       'focus' in the sense of main.ml, not necessarily the highlighted entry,
+       due to 'drag' mechanism: if the user clicked on some entry, and then
+       moved to another without letting the button up.  So we switch:*)
+    let entry = default (selected_action_entry entry.parent_menu) entry in
+    if entry.enabled then begin
+      match entry.kind with
+      | Menu _ -> () (* menus are open/closed on button_down or mouse_over *)
+      | Action _ -> run_action screen entry 
+    end
+              
+  (* mouse_enter (and mouse_motion?). mouse_motion will be useful only when we
+     add keyboard support. WARNING: when touching a new entry, both mouse_enter
+     and button_down are triggered... so the menu opens and then quickly
+     closes...(not anymore, why?) *)
+  let mouse_over screen entry =
+    pre "MOUSE_OVER";
+    if entry.enabled && not entry.selected then begin
+      highlight_entry entry;
+      close_others ~timeout:true screen entry;
+      set_keyboard_focus entry.layout; (* mettre dans le timeout *)
+      match entry.kind with
+      | Menu menu ->
+        if (not menu.active) && entry.parent_menu.active
+        then begin
+          activate ~timeout:true screen menu;
+        end
+      | Action _ -> ()
+    end
+    
+  let mouse_leave entry =
+    pre "MOUSE_LEAVE";
+    if entry.enabled then begin
+      if not (entry_is_open entry) then reset_entry entry;
+      if entry.parent_menu.active
+      then match entry.kind with
+        | Menu _ -> ()
+        (* if menu.active then close screen menu *)
+        | Action _ -> ()
+    end
 
-    let enter _ (* w *) =
-      (* print_endline ("ENTER " ^ (string_of_int w.Widget.wid)); *) (* DEBUG *)
-      select ?bg:select_bg menu.(i);
-      (*Sdl.set_cursor
-        (Some (Utils.go (Draw.create_system_cursor Sdl.System_cursor.hand))); *)
-      (* We push the keyboard_focus event, so that the main loop can update its
-         status. But this is quite slow at the moment. The only use of this (?) is
-         to treat the TAB key... because I don't know how to do it better. *)
-      (*Trigger.push_keyboard_focus coat.Layout.id *)
-    in
-    let leave _ (* w *) =
-      (* print_endline ("LEAVE " ^ (string_of_int w.Widget.wid)); *) (* DEBUG *)
-      unselect ?bg menu.(i);
-      (* if hide && not (Trigger.wait_value ~timeout:0.5 ev t.active true) *)
-      (* which means t.active remained false for 0.5sec *)
+  (* Keyboard navigation. The main entry keeps keyboard_focus while navigating
+     its submenus. *)
+  (* TODO here we use up/down as if the menu were vertical. What about if the
+     menu is horizontal, or even custom?? *)
+  let key_down screen entry keycode =
+    pre "KEY_DOWN";
+    if keycode = Sdl.K.escape then close_tree screen entry.parent_menu
+    else if entry.enabled then 
+      if keycode = Sdl.K.return then begin
+        match entry.kind with
+        | Menu menu -> 
+          (* 1/ouvrir 2/selectionner premier *)
+          if menu.active
+          then set_keyboard_focus (List.hd menu.entries).layout
+          (* vérifier liste non vide ? *)
+          else activate screen menu          
+        | Action _ -> run_action screen entry
+      end else
+      if keycode = Sdl.K.up || keycode = Sdl.K.down then
+        match selected_entry entry.parent_menu with
+        | None -> printd debug_error "Cannot find selected entry in menu!"
+        | Some (_,i0) ->
+          pre (string_of_int i0);
+          let n = List.length entry.parent_menu.entries in
+          let rec loop i (* search enabled entry upwards *) =
+            let i = (if keycode = Sdl.K.up
+                     then (i-1+n)
+                     else i+1) mod n  in
+            let new_entry = List.nth entry.parent_menu.entries i in
+            if new_entry.enabled then new_entry
+            else if i = i0 then entry
+            else loop i in
+          let new_entry = loop i0 in
+          set_keyboard_focus new_entry.layout
 
-      if Trigger.mouse_left_button_pressed () then begin
-        let stamp = Time.now () in
-        Var.set t.stamp stamp; (* TODO save timeout instead in order to kill previous timeouts... *)
-        let _ = Timeout.add 300 (fun () ->
-            (*Trigger.nice_delay ev 0.5;*)
-            (* the problem is that we may leave one entry and enter another
-               simultaneously. We check that the stamp has not been modified by
-               another thread. *)
-            if hide && (Var.get t.stamp = stamp) then begin
-              try_close screen t;
-              do_option menu.(i).submenu (try_close screen); (* TODO verify that submenu is of "hide" type... *)
-              Trigger.push_action (); (* or push_redraw ? *)
-            end) in ()
-      end
-    in
-    Widget.mouse_over ~enter ~leave wg;
-    let action_keyboard w _ ev = (* TODO: this doesn't work well because multiple selections are made with keyboard + mouse *)
-      match Sdl.Event.(get ev keyboard_keycode) with
-      | c when c = Sdl.K.up || c = Sdl.K.down ->
-        do_option (get_selected_entry t) (fun (t',j) ->
-            let j' = (if c = Sdl.K.up then j+1 else j-1 + (Array.length t'.entries)) mod (Array.length t'.entries) in
-            unselect ?bg t'.entries.(j);
-            select ?bg:select_bg t'.entries.(j')
-          )
-      | c when c = Sdl.K.tab ->
-        do_option (get_selected_entry t) (fun (t',j) ->
-            unselect ?bg t'.entries.(j));
-        enter w
-      | _ -> () in
-    let c = Widget.connect_main wg wg action_keyboard [Sdl.Event.key_down] in
-    Widget.add_connection wg c;
+  (* 3. Creation of widgets and connections. *)
+  (* --------------------------------------- *)
+    
+  (* First we must coat all entry layouts using the Popup module, in order to
+     get the correct mouse focus. This means that menus will be drawn on a
+     separate layer. The coat has a widget (either Empty of Box) that will
+     handle the connections. *)
 
-    (* we treat submenus *)
-    do_option menu.(i).submenu (fun t' ->
-        let name = map_option name (fun s -> s ^ ":sub") in
-        let submenu = create_loop ?name ~hide:true ?background ?select_bg
-            ~layers ~screen ~dst t' in
-        (*Layout.(submenu.background <- Some (Solid Draw.(transp green)));*)
-        (* =DEBUG *)
+  let connect_entry screen layer entry =
+    (* 'layer' is the coating layer *)
+    let coat = Popup.filter_screen ~keyboard_focus:false ~layer entry.layout in
+    (* We need a coat to get mouse focus on the whole length of the menu entry,
+       not only on the area of the text itself (label). *)
+    Layout.add_room ~dst:entry.layout coat;
+    (* we don't use Popup.add_screen to avoid creating too many layers. *)
+    let widget = Layout.widget coat in
+    Widget.set_cursor widget
+      (Some (go (Draw.create_system_cursor Sdl.System_cursor.hand)));
 
-        (* The submenus are added to the dst layout: *)
-        (* Popup.attach_on_top dst submenu; ?? *)
-        Layout.add_room ~dst submenu;
-        let action_show _ _ ev =
-          if (Trigger.mouse_left_button_pressed () &&
-              (Trigger.event_kind ev = `Mouse_button_down || t.mouse_pressed))
-          || Trigger.event_kind ev = `Finger_down
-          || (Trigger.event_kind ev = `Key_down &&
-              let c = Sdl.Event.(get ev keyboard_keycode) in
-              c = Sdl.K.return || c = Sdl.K.return2 || c = Sdl.K.kp_enter)
-          then if Var.get t'.show
-            then try_close screen t'
-            else begin
-              if Trigger.event_kind ev = `Mouse_button_down &&
-                 Trigger.mouse_left_button_pressed ()
-              then t.mouse_pressed <- true;
-              show_submenu t.mouse_pressed screen t'
-            end in
+    let action _ _ _ = button_down screen entry in
+    let c = Widget.connect_main widget widget action Trigger.buttons_down in
+    Widget.add_connection widget c;
 
-        let c = Widget.connect_main wg wg action_show
-            Sdl.Event.[Trigger.mouse_enter; mouse_button_down;
-                       finger_down; key_down] in
-        Widget.add_connection wg c
-      )
-  done;
-  layout;;
+    let action _ _ _ = button_up screen entry in
+    let c = Widget.connect_main widget widget action Trigger.buttons_up in
+    Widget.add_connection widget c;
 
-let close_all_submenus screen t =
-  Array.iter (fun e ->
-      do_option e.submenu (try_close ~force:true screen))
-    t.entries;;
+    let action _ _ _ = mouse_over screen entry in
+    let c = Widget.connect_main widget widget action
+        [(* Trigger.E.mouse_motion; *) Trigger.mouse_enter] in
+    (* Warning do NOT add finger_motion, it will interfere with finger_down.
+       TODO finger doesn't work well yet. *)
+    Widget.add_connection widget c;
 
-let create ?(hide = false) ?name ?background ?select_bg ~dst t =
+    let action _ _ _ = mouse_leave entry in
+    let c = Widget.connect_main widget widget action [Trigger.mouse_leave] in
+    Widget.add_connection widget c;
+
+    let action _ _ ev = key_down screen entry
+        Sdl.Event.(get ev keyboard_keycode) in
+    let c = Widget.connect_main widget widget action [Trigger.E.key_down] in
+    Widget.add_connection widget c
+    
+  let rec connect_loop screen layer menu =
+    List.iter (fun entry ->
+        if Layout.get_rooms entry.layout <> []
+        then connect_entry screen layer entry;
+        (* :we don't connect the separators *)
+        match entry.kind with
+        | Menu submenu -> connect_loop screen layer submenu
+        | Action _ -> ()
+      ) menu.entries
+
+  (* Init, attach the menu to a destination layout. *)
+
+  let init ~dst t =
   let dst_layer = Chain.last (Layout.get_layer dst) in
   let entry_layer = Popup.new_layer_above dst_layer in
+  add_menu_to_layer t entry_layer;
   let coating_layer = Popup.new_layer_above entry_layer in
-  let layers = entry_layer, coating_layer in
-  (* the screen is used to grab all mouse focus while the submenus are open *)
+  
+  (* the screen is used to grab all mouse focus outside of the submenus while
+     they are open *)
   let screen = Popup.filter_screen ~layer:entry_layer
-                 (*~color:Draw.(more_transp (transp green))*) (* DEBUG*) dst in
-  screen.Layout.show <- false;
+      (* ~color:Draw.(more_transp (transp green)) *) (* DEBUG*) dst in
+  (* Le screen couvre tout ce qui est actuellement tracé, y compris le menu,
+     mais les connexions pour les entrées de menu sont sur le coating_layer, qui
+     est encore au dessus, donc ça fonctionne. TODO ça serait plus logique que
+     le screen soit entre dst_layer et entry_layer. Ou alors le mettre AVANT les
+     entries pour qu'il soit recouvert par elles (c'est le contraire
+     actuellement). ATTENTION si un deuxième menu est construit après, il sera
+     affiché AU DESSUS de ce screen... *)
+  (* TODO one could reserve a special layer for some usual menu types, like menu
+     bar on the main layout, and make sure this layer is always above anything
+     else. OU ALORS: définir le screen de façon dynamique quand on clique. *)
+  connect_loop screen coating_layer t;
+  add_menu_to_dst ~dst t;
+  
+  screen_disable screen;
   Layout.add_room ~dst screen;
-
+  
   let w = Layout.widget screen in
-  Widget.on_click ~click:(fun _ -> (* print_endline "CLICK SCREEN"; *)
-      close_all_submenus screen t) w;
+  Widget.on_click ~click:(fun _ -> pre "CLICK SCREEN";
+      close_tree screen t
+      (* screen_disable screen *)) w;
 
-  create_loop ?name ~hide ~layers ~screen ?background ?select_bg ~dst t;;
+end
 
+(* Now we can make a friendly API for creating elements of the menu type. *)
+(* ---------------------------------------------------------------------- *)
+              
+(* example:
+   let file = Tower [{label = (Text "open"); content = (Action open_in)};
+   etc...] in
+   let edit = ... in
+   Flat [     
+   {label = (Text "File"); content = (Menu file)}; 
+   {label = (Text "Edit"); content = (Menu edit)};
+   etc... ]
+*)
 
-(* Now we create the geometries (not the connections) *)
-
-(* Some types for standard menu types, from the simplest to the most
-   elaborate *)
-
-(* Just text *)
-type simple_entry = {
-  text : string;
-  action : unit -> unit;
-};;
-
-(* The text can be modified by the action *)
-type mutable_text = {
-  mutable text : string;
-  action : string -> unit;
-};;
-
-(* A check box before the label, and the text is modifiable *)
-type check_entry = {
-  mutable state : bool;
-  mutable text : string;
-  action : string -> bool -> unit
-};;
-
-
+type t = Engine.menu
+          
+type action = unit -> unit
+            
 type label =
-  | Label of simple_entry
-  | Dynamic of mutable_text
-  | Check of check_entry
-  | Layout of layout_entry;;
-
+  | Text of string
+  | Layout of Layout.t
+(* The user (programmer) can either define the menu entry by a text -- like
+   'File', etc. or directly by an arbitrary layout -- useful for game menus, for
+   instance. In the latter case, the layout content is not altered to ensure
+   that its features, whether it is part of a menu or not, are not
+   altered. However, we cannot preserve its house, because usually the menu is
+   relocated into the main window-layout. One can 'kind-of' preserve the house
+   by letting it be the 'dst' parameter. But warning, in all cases, the layout
+   will be encapsulated into a screen, so the 'dst' will not remain its "direct
+   house". *)
+            
 type entry = {
-    label : label;
-    submenu : (entry list) option;
-  };;
+  label : label;
+  content : content }
+(* TODO: add "hover" field to execute an action on hovering the entry (useful
+   for games). Mieux: ajouter "connection" field? *)
 
-(** create an entry layout and action suitable for the menu type *)
-let create_action ?submenu ?canvas ?(margin=3) entry =
-  match entry.label with
-  | Label l ->
-    let res = Layout.resident ?canvas (Widget.label l.text) in
+(* the content type mixes two different things: Actions and submenus. Not clean
+   from the point of view of the library programmer (me), but (I think) simpler
+   from the 'public' viewpoint. Thus, before working with this, we convert into
+   the Engine types. *)
+and content =
+  | Action of action
+  | Flat of entry list
+  | Tower of entry list
+  | Custom of entry list
+  | Separator
+
+let separator = { label = Text "Dummy separator label"; content = Separator }
+
+let text_margin = 5
+                
+(* Text to Layout. w and h are only used for text. maybe remove *)
+let format_label ?w ?h = function
+  | Text s ->
+    let res = Layout.resident ?w ?h (Widget.label s) in
     (* : here we cannot use a resident as is because we will need to add another
        room later. we need to wrap it: *)
-    let layout = Layout.flat ?canvas ~hmargin:margin ~vmargin:margin [res] in
-    let action = fun _ -> l.action () in
-    { layout; action; submenu; selected = Var.create false }
-  | Dynamic _ -> (* TODO *) failwith "Not_implemented"
-  | Check _ -> (* TODO *) failwith "Not_implemented"
-  | Layout l -> l
+    let background = Layout.Solid Draw.(opaque menu_bg_color) in
+    Layout.flat ~name:"menu entry label"
+      ~margins:text_margin ~background [res]
+  | Layout l ->
+    let name = "formatted label" in
+    if !debug then assert (l.Layout.name <> Some name);
+    (* this function should be applied only ONCE to the label *)
+    Layout.superpose ~name [l] (* We preserve the (x,y) position. *)
+     
 
-let submenu_sep_margin = 4;;
+(* Warning, does not check whether there is already an icon... *)
+let add_icon_suffix ?(icon = "caret-right") layout =
+  (* the icon used to indicate submenus *)
+  let submenu_indicator = Layout.resident ~name:icon (Widget.icon icon) in
+  Layout.add_room ~dst:layout ~valign:Draw.Center ~halign:Draw.Max
+    submenu_indicator
 
-(** create a vertical menu with simple entries *)
-let rec drop_down ~x ~y ?canvas ?(depth=0) ?(hmargin=submenu_sep_margin) entries =
-  let submenu_icon = "caret-right" in (* the icon used to indicate submenus *)
-  (* first pass: we need to render all the entries to find the max width *)
-  let rec loop0 wmax hmax has_submenu entries formatted_entries =
-    match entries with
-    | [] -> wmax, hmax, has_submenu, formatted_entries
-    | entry :: rest ->
-      let f_entry = create_action ?canvas entry in
-      let has_submenu = has_submenu || (entry.submenu <> None) in
-      let r = f_entry.layout in
-      loop0 (max wmax Layout.(getx r + width r)) 
-        Layout.(max hmax (gety r + height r))
-        has_submenu rest (f_entry :: formatted_entries)
-  in
-  let wmax, _, has_submenu, formatted_entries = loop0 0 0 false entries [] in
-  (* hmax is not used for this version... *)
-  let wmax = if has_submenu
-    then let si = Label.icon submenu_icon in
-      let (si_size,_) = Label.size si in
-      wmax + si_size + 2*hmargin
-    else wmax + 2*hmargin in
+(* really private, hackish, function...to call only after connections/filters
+   have been added.  It relies on the fact that the icon should be the 2nd-to
+   last room of the list (the last one being the filter). Does not raise
+   anything in case of error. *)
+let remove_icon_suffix ?(icon = "caret-right") layout =
+  try begin
+    Layout.iter_rooms (fun l -> pre (Layout.sprint_id l)) layout;
+    match List.rev (Layout.get_rooms layout) with
+    | []
+    | [_] -> ()
+    | filter::(this::others) -> assert (default this.Layout.name "" = icon);
+      Layout.set_rooms layout (List.rev (filter::others))
+  end with
+  | e -> printd debug_error "Menu: Cannot remove icon suffix";
+    raise e
 
-  (* second (and final) pass: now we adjust size and add submenus *)
-  let rec loop y' entries old_f_entries formatted_entries =
-    match entries, old_f_entries with
-    | [], _ -> formatted_entries
-    | entry :: rest, f_entry :: f_rest ->
-      (* let f_entry = create_action canvas entry in *)
-      let layout = f_entry.layout in
-      Layout.setx layout x;
-      Layout.sety layout y';
-      Layout.set_width layout wmax;
-      let submenu = map_option entry.submenu (fun list ->
-          let f_entries = drop_down ~x:(x+wmax) ~y:y' ~depth:(depth+1)
-              ?canvas list in
-          let submenu_indicator = Layout.resident ?canvas
-              (Widget.icon submenu_icon) in
-          Layout.add_room ~dst:layout ~valign:Draw.Center ~halign:Draw.Max
-            submenu_indicator;
-          (* let w = Layout.width layout in *)
-          create_menu ~depth:(depth+1) f_entries false)
-      in
-      let f_entry = { f_entry with submenu } in
-      let h = Layout.height layout in
-      loop (y' + h) rest f_rest (f_entry :: formatted_entries)
-    | _ -> failwith "Menu.drop_down loop: This case should not happen because old_f_entries and formatted_entries should have same length."
-  in
-  Array.of_list (loop y entries (List.rev formatted_entries) []);;
-(* = formatted_entries *)
+let suffix_width = 10 (* TODO compute this *)
+                          
+module Tmp = struct
+  (* We temporarily convert to a more programmer-friendly type, before
+     converting to Engine.menu.  This type also carry more information
+     (eg. suffix)that can be modified for a customizable menu. *)
+
+  (* position of the submenu wrt the parent label *)
+  type position =
+    | Below
+    | RightOf
+
+  type menukind =
+    | Flat
+    | Tower
+    | Custom
+    
+  type menu =
+    { entries : tentry list;
+      kind : menukind
+    }
+
+  and tcontent =
+    | Action of action
+    | Menu of menu
+    | Separator
+
+  and tentry = {
+    label : label; (* ignored in case of Separator *)
+    content : tcontent;
+    mutable formatted : bool;
+    mutable suffix : position option } (* TODO add keyboard shortcuts *)
+             
+  let get_layout entry =
+    if !debug then assert entry.formatted;
+    match entry.label with
+    | Text _ -> failwith "get_layout should be called only when the Layout is \
+                          generated. BUG."
+    | Layout l -> l
+
+  let compute_suffix entry =
+    do_option entry.suffix (fun p ->
+        let icon = match p with
+          | Below -> "caret-down"
+          | RightOf -> "caret-right" 
+        in
+        match entry.content with
+        | Menu _ -> add_icon_suffix ~icon (get_layout entry)
+        | _ -> ()
+      )
+
+  let next_submenu_position_old = function
+    | Flat -> pre "BELOW"; Some Below
+    | Tower -> pre "RIGHTOF"; Some RightOf
+    | Custom -> pre "NONE"; None
+
+  (* Return a copy of the tree with all Text labels replaced by Layouts *)
+  let rec compute_layouts entry =
+    let layout =
+      if entry.formatted
+      then get_layout entry
+      else match entry.content with
+        | Separator->
+          let background = Layout.Solid Draw.(opaque grey) in
+          Layout.empty ~background ~w:10 ~h:1 ()
+        | Menu _ 
+        | Action _ ->  format_label entry.label
+    in
+    if not entry.formatted && entry.suffix <> None
+    then Layout.(set_width layout (width layout + suffix_width));
+    (* we make some room for adding the suffix later *)
+
+    let content = match entry.content with
+      | Action _ -> entry.content
+      | Menu menu -> let entries =
+                       List.map compute_layouts menu.entries in
+        Menu {menu with entries}
+      | Separator -> Separator
+    in
+    { label = Layout layout;
+      content;
+      formatted = true;
+      suffix = entry.suffix}
+
+                
+  let menu_formatter = function 
+    | Flat -> (fun list ->
+        let background = Layout.Solid Draw.(opaque menu_bg_color) in
+        let shadow = Style.shadow ~offset:(1,1) ~size:1 () in
+        Layout.flat ~margins:0 ~background ~shadow list)
+    | Tower -> (fun list ->
+        let shadow = Style.shadow ~offset:(1,1) ~size:1 () in
+        let background = Layout.Solid Draw.(opaque menu_bg_color) in
+        let l = Layout.tower ~margins:0 ~sep:0 ~background ~shadow list in
+        Layout.expand_width l; l)
+    | Custom  -> (fun list -> Layout.superpose list)
+                 
+  (* Return (x,y) option, the coordinates where the submenu should be placed
+     when positioned in the same layout as the parent layout. *)
+  let submenu_pos parent position = 
+    let w, h = Layout.get_size parent in 
+    map_option position
+      (function | Below -> (0, h)
+                | RightOf -> (w, 0))
+    
+  let get_entries = function
+    | Menu menu -> menu.entries
+    | _ -> pre "get_entries should be called only with Menu."; []
+
+  (* Compute the room containing the menu. *)
+  let compute_room menu =
+    let layouts = List.map get_layout menu.entries in
+    let room = menu_formatter menu.kind layouts in
+    room
+
+  (* Convert an entry to an Engine.entry. Warning, this is not an obvious
+     function, because Engine.entry is bidirectional, and hence cannot be
+     created by a simple recursive loop. We need to use mutability: some fields
+     are filled in later. *)
+  (* This should be called on a well prepared entry tree where all labels are
+     layouts. *)
+  (* 'position' indicates where to put the submenu in case entry has a
+     submenu. *)
+  let rec entry_to_engine parent_menu entry =
+    let layout = get_layout entry in
+      (* We add the suffixes, except for the first entry, which is dummy, see
+         create_engine below.  *)
+      if not (Engine.is_top parent_menu) then compute_suffix entry;
+    let kind = match entry.content with
+      | Action a -> Engine.Action a
+      | Separator -> Engine.separator
+      | Menu menu ->
+        let room = compute_room menu in
+        let pos = submenu_pos layout entry.suffix in
+        let engine_menu = Engine.{
+            pos;
+            active = false;
+            always_shown = false;
+            entries = []; (* will be inserted later *)
+            room;
+            parent_entry = None} in
+        Engine.Menu engine_menu in
+    let engine_entry = Engine.{kind;
+                               enabled = entry.content <> Separator;
+                               selected = false;
+                               layout;
+                               parent_menu} in
+    (* second pass to recursively insert the entries field *)
+    let _ = match engine_entry.Engine.kind with
+      | Engine.Action _ -> ()
+      | Engine.Menu menu ->
+        menu.Engine.parent_entry <- Some engine_entry;
+        let entries = List.map (entry_to_engine menu)
+            (get_entries entry.content) in
+        menu.Engine.entries <- entries;
+    in
+    engine_entry
+    
+  (* Create an Engine.menu from a content *)
+  let create_engine = function
+    | Action _ -> failwith "Cannot create a menu from an Action content."
+    | content ->
+       let dummy_parent = Layout.empty ~name:"dummy parent" ~w:0 ~h:0 () in
+       let entry = compute_layouts {label = Layout dummy_parent;
+                                    content;
+                                    formatted = true;
+                                    suffix = None} in
+       let parent_menu = Engine.{pos = None; active = true; always_shown = true;
+                                 entries = []; room = dummy_parent;
+                                 parent_entry = None} in
+       let eentry = entry_to_engine parent_menu entry in
+       let open Engine in
+       let menu = match eentry.kind with
+         | Action _ -> failwith "An Action should not show up here. BUG."
+         | Menu menu -> menu in
+       menu.Engine.always_shown <- true;
+       menu.Engine.parent_entry <- None; (* remove the dummy parent *)
+       menu
+
+         (* TO BE CONTINUED... *)
+
+       
+end
 
 
-  (* let menu = create ~background:(Layout.Solid Draw.none) *)
-  (*     { entries = formatted_entries; show = true } in *)
-  (* Layout.(menu.background <- Some (Solid Draw.(transp pale_grey))); *)
-  (* menu;; *)
+let next_entry_position = function
+  | Custom _
+  | Separator
+  | Action _ -> None
+  | Tower _ -> Some Tmp.RightOf
+  | Flat _ -> Some Tmp.Below
+              
+(* Convert to the Tmp type, guessing a standard suffix *)
+let rec content_to_tmp position = function
+  | Action a -> Tmp.Action a
+  | Flat list ->
+    let entries = List.map (entry_to_tmp position) list in
+    Tmp.(Menu {entries; kind = Flat})
+  | Tower list ->
+    let entries = List.map (entry_to_tmp position) list in
+    Tmp.(Menu {entries; kind = Tower})
+  | Custom list ->
+    let entries = List.map (entry_to_tmp position) list in
+    Tmp.(Menu {entries; kind = Custom})
+  | Separator -> Tmp.Separator
 
+and entry_to_tmp position entry =
+  let next_position = next_entry_position entry.content in
+  { Tmp.label = entry.label;
+    Tmp.content = content_to_tmp next_position entry.content;
+    Tmp.formatted = false;
+    Tmp.suffix = position
+  }
+                       
+let layout_of_menu menu : Layout.t =
+  menu.Engine.room    
 
-(* create a menu bar = horizontal labels with vertical submenus, attached to dst
-   *)
-(* This function returns the layout of the main menu = the horizontal menu
-   bar. *)
-(* all submenus are added as rooms inside dst *)
-(* The dst layout should be big enough to contain the submenus. Any item flowing
-   out of dst will not get focus. The system will automatically try to shift the
-   submenus if they are too wide, or add a scrollbar if they are too tall. *)
-(* the dst can contain other widgets. In principle they should not interfere
-   with the menus, because the menu layouts are on a different layer. *)
-(* TODO use window_size *)
-let bar ?(background = Layout.Solid Draw.(set_alpha 175 menu_bg_color))
-      ?(name="menu_bar") dst entries =
-  let canvas = dst.Layout.canvas in
-  let rec loop x entries formatted_entries =
-    match entries with
-    | [] -> formatted_entries
-    | entry :: rest ->
-       let submenu_entries = map_option entry.submenu
-                               (drop_down ~depth:1 ~x ~y:0 ?canvas) in
-       let submenu = map_option submenu_entries (fun entries ->
-                         create_menu ~depth:1 entries false) in
-       let f_entry = create_action ?submenu ?canvas entry in
-       let layout = f_entry.layout in
-       Layout.setx layout x;
-       let w = Layout.width layout in
-       loop (x+w) rest (f_entry :: formatted_entries)
-  in
-  (* not necessary to do a List.rev... *)
-  (* print_endline "Now calling menu"; *)
-  let formatted_entries = Array.of_list (loop (Layout.getx dst) entries []) in
-  let menu = create ~name ~select_bg:(Layout.Solid Draw.(transp menu_hl_color)) 
-               ~background ~dst (create_menu formatted_entries true) in
-  Layout.(set_width menu (width dst));
-  (* Layout.(set_background menu (Some (Solid Draw.(transp red)))); *)
+let set_layout menu room =
+  menu.Engine.room <- room
+  
+let raw_engine content =
+  let position = next_entry_position content in
+  let tcontent = content_to_tmp position content in
+  Tmp.create_engine tcontent
 
-  menu;;
-(* TODO Layout.tower ~sep:0 ? *)
+let make_engine ~dst content =  
+  let t = raw_engine content in
+  Engine.init ~dst t;
+  t
+  
+(* Create a generic menu layout and insert it into the dst layout. *)
+(* let create ~dst content =
+ *   let t = make_engine ~dst content in
+ *   layout_of_menu t *)
+let create = make_engine
+
+(* Specific "menu bar" creation *)
+let bar ~dst entries =
+  let content = Flat entries in
+  let t = make_engine ~dst content in
+  let room = layout_of_menu t in
+  Layout.(set_width room (width dst));
+  (* expand first entry (menu bar) to the whole dst width. *)
+  Layout.set_shadow room None;
+  (* for a menu bar, we usually don't want indicator icons *)
+  List.iter (fun entry ->
+      let open Engine in
+      match entry.kind with
+      | Menu _ -> remove_icon_suffix ~icon:"caret-down" entry.layout
+      | Action _ -> ())
+    t.Engine.entries
+

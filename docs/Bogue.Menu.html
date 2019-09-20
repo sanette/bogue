@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Popup.html">
-<link rel="next" href="Bogue.Menu2.html">
+<link rel="next" href="Bogue.Select.html">
 <link rel="Up" href="Bogue.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
@@ -17,12 +17,22 @@
 <body>
 <div class="navbar"><a class="pre" href="Bogue.Popup.html" title="Bogue.Popup">Previous</a>
 &nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
-&nbsp;<a class="post" href="Bogue.Menu2.html" title="Bogue.Menu2">Next</a>
+&nbsp;<a class="post" href="Bogue.Select.html" title="Bogue.Select">Next</a>
 </div>
 <h1>Module <a href="type_Bogue.Menu.html">Bogue.Menu</a></h1>
 
 <pre><span class="keyword">module</span> Menu: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Various types of menus 
+Various types of menus
+<p>
+
+The generic <a href="Bogue.Menu.html#VALcreate"><code class="code"><span class="constructor">Menu</span>.create</code></a> function produces menus whose entries can be arbitrary
+   layouts located at arbitrary places. But for usual entries, it is enough to
+   provide a string for the entry label, and the layout will be constructed
+   automatically.
+<p>
+
+The specialized <a href="Bogue.Menu.html#VALbar"><code class="code"><span class="constructor">Menu</span>.bar</code></a> function will produce a familiar menu bar with drop-down
+   submenus.
 <p>
 
 <h5 id="5_graphbmenuhtmlDependencygraph"><a href="graph-b_menu.html">Dependency graph</a></h5><br>
@@ -32,107 +42,7 @@ Various types of menus
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><code><span id="TYPEsimple_entry"><span class="keyword">type</span> <code class="type"></code>simple_entry</span> = {</code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTsimple_entry.text">text</span>&nbsp;: <code class="type">string</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTsimple_entry.action">action</span>&nbsp;: <code class="type">unit -> unit</code>;</code></td>
-
-</tr></table>
-}
-
-
-
-<pre><code><span id="TYPEmutable_text"><span class="keyword">type</span> <code class="type"></code>mutable_text</span> = {</code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span class="keyword">mutable&nbsp;</span><span id="TYPEELTmutable_text.text">text</span>&nbsp;: <code class="type">string</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTmutable_text.action">action</span>&nbsp;: <code class="type">string -> unit</code>;</code></td>
-<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-The text can be modified by the action<br>
-</div>
-</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
-</tr></table>
-}
-
-
-
-<pre><code><span id="TYPEcheck_entry"><span class="keyword">type</span> <code class="type"></code>check_entry</span> = {</code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span class="keyword">mutable&nbsp;</span><span id="TYPEELTcheck_entry.state">state</span>&nbsp;: <code class="type">bool</code>;</code></td>
-<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-A check box before the label, and the text is modifiable<br>
-</div>
-</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span class="keyword">mutable&nbsp;</span><span id="TYPEELTcheck_entry.text">text</span>&nbsp;: <code class="type">string</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTcheck_entry.action">action</span>&nbsp;: <code class="type">string -> bool -> unit</code>;</code></td>
-
-</tr></table>
-}
-
-
-
-<pre><code><span id="TYPElayout_entry"><span class="keyword">type</span> <code class="type"></code>layout_entry</span> = {</code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTlayout_entry.layout">layout</span>&nbsp;: <code class="type"><a href="Bogue.Layout.html#TYPEt">Layout.t</a></code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTlayout_entry.selected">selected</span>&nbsp;: <code class="type">bool <a href="Bogue.Var.html#TYPEt">Var.t</a></code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTlayout_entry.action">action</span>&nbsp;: <code class="type"><a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTlayout_entry.submenu">submenu</span>&nbsp;: <code class="type"><a href="Bogue.Menu.html#TYPEt">t</a> option</code>;</code></td>
-
-</tr></table>
-}
-
+<pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type">unit -> unit</code> </pre>
 
 
 <pre><code><span id="TYPElabel"><span class="keyword">type</span> <code class="type"></code>label</span> = </code></pre><table class="typetable">
@@ -140,28 +50,14 @@ A check box before the label, and the text is modifiable<br>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTlabel.Label"><span class="constructor">Label</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEsimple_entry">simple_entry</a></code></code></td>
+<code><span id="TYPEELTlabel.Text"><span class="constructor">Text</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
 
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTlabel.Dynamic"><span class="constructor">Dynamic</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEmutable_text">mutable_text</a></code></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTlabel.Check"><span class="constructor">Check</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEcheck_entry">check_entry</a></code></code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTlabel.Layout"><span class="constructor">Layout</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPElayout_entry">layout_entry</a></code></code></td>
+<code><span id="TYPEELTlabel.Layout"><span class="constructor">Layout</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></code></td>
 
 </tr></table>
 
@@ -179,30 +75,75 @@ A check box before the label, and the text is modifiable<br>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTentry.submenu">submenu</span>&nbsp;: <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list option</code>;</code></td>
+<code><span id="TYPEELTentry.content">content</span>&nbsp;: <code class="type"><a href="Bogue.Menu.html#TYPEcontent">content</a></code>;</code></td>
 
 </tr></table>
 }
 
 
 
-<pre><span id="VALcreate_menu"><span class="keyword">val</span> create_menu</span> : <code class="type">?depth:int -> <a href="Bogue.Menu.html#TYPElayout_entry">layout_entry</a> array -> bool -> <a href="Bogue.Menu.html#TYPEt">t</a></code></pre><div class="info ">
-The <code class="code">depth</code> indicates the level of submenu. By default <code class="code">depth=0</code>. The
-     <code class="code">bool</code> parameter indicate whether the menu should be initially shown.<br>
+<pre><code><span id="TYPEcontent"><span class="keyword">type</span> <code class="type"></code>content</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Action"><span class="constructor">Action</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEaction">action</a></code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Flat"><span class="constructor">Flat</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+A Flat content will produce a horizontal menu<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Tower"><span class="constructor">Tower</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+A Tower content will produce a vertical menu<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Custom"><span class="constructor">Custom</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+In a Custom content, only Layout labels should be used, and their
+       position should be defined before creating the menu.<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.Separator"><span class="constructor">Separator</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Currently only used for inserting separator lines in Tower menus.<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEcontent">content</a> -> <a href="Bogue.Menu.html#TYPEt">t</a></code></pre><div class="info ">
+Generic menu creation, inserted in the <code class="code">dst</code> layout.<br>
 </div>
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?hide:bool -><br>       ?name:string -><br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       ?select_bg:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
-By default, <code class="code">hide=<span class="keyword">false</span></code>. The <code class="code">dst</code> layout will contain the submenus.<br>
-<b>Returns</b> the layout of the main menu. This is generic menu construction
-      function, it does <b>not</b> compute the positions of the entries. See
-      <code class="code">example41</code>.<br>
-</div>
-
-<pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type">?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       ?name:string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
-A menu bar, with drop-down submenus. <code class="code">bar&nbsp;dst&nbsp;entries</code> creates a layout
-     which contains the menu bar on top of the <code class="code">dst</code> layout. The <code class="code">dst</code> layout
+<pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> unit</code></pre><div class="info ">
+Creation of a menu bar in the <code class="code">dst</code> layout, with drop-down submenus. <code class="code">bar<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst&nbsp;entries</code> inserts a layout which contains the menu bar into the top of
+     the <code class="code">dst</code> layout (so, some room should be provided). The <code class="code">dst</code> layout
      should be big enough to contain the submenus. Any item flowing out of <code class="code">dst</code>
-     will not get focus. The system will automatically try to shift the submenus
-     if they are too wide, or add a scrollbar if they are too tall.<br>
+     will not get focus.<br>
 </div>
-</body></html>
+
+<pre><span id="VALseparator"><span class="keyword">val</span> separator</span> : <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a></code></pre></body></html>

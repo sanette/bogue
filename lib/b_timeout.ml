@@ -75,7 +75,9 @@ let insert_sublist sublist list =
   loop sublist [] list
   end;;
 
-(** registers a new timeout and returns it *)
+(* Immediately registers a new timeout and returns it. In general it's better to
+   use push in order to get a correct starting time, unless we know this is done
+   dynamically during the main loop. *)
 let add timeout action =
   let timeout = Time.now () + timeout in
   let t = create timeout action in
@@ -84,6 +86,11 @@ let add timeout action =
       Var.unsafe_set stack (insert t list));
   t;;
 
+(* Push a timeout to be registered at the next iteration of the main loop. *)
+let push timeout action =
+  (fun () -> add timeout action)
+  |> Stack.push
+       
 let not_equal t1 t2 =
   t1.id <> t2.id;;
 

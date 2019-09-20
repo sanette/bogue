@@ -33,9 +33,9 @@ type t = {
   tracks : (track option) array (* this array is manipulated by the callback thread. Any other manipulation thus requires locking= TODO *)
 }
 
+(* Currently this always returns None. *)
 let init  () =
   go (Sdl.(init_sub_system Init.audio));
-  go (Sdl.audio_init None); (* useful ? *)
   begin
     match Sdl.get_current_audio_driver () with
     | None -> printd debug_error "mixer.ml: cannot find audio driver."
@@ -94,7 +94,7 @@ let blit_or_sum first last volume chunk output =
                          (* saturation should be clipped only for last sum,
                          because the idea is than when you sum many sounds, in
                          general values cancel each others and saturation is
-                         less common than when only 2 sounds... *)
+                         less common than with only 2 sounds... *)
                          if value' > 32767 (* signed 16 bits *)
                          then (incr clipping; 32767)
                          else if value' < -32768
@@ -112,21 +112,22 @@ let blit_or_sum first last volume chunk output =
    Bogue, there is no need to create an additional new thread: use
    Widget.connect_main, not widget.connect *)
 let callback mixer =
-  let no_sound = ref true in
+  let no_sound = ref true in  (* inutilisé *)
   fun output ->
-  let chunk_length =  Array1.dim output in
-  let first = ref true in
-  
-  (* last non-empty track (or 0) *)
-  let last = let rec loop i = if i=0 || mixer.tracks.(i) <> None then i
-                              else loop (i-1) in
-             loop (Array.length mixer.tracks - 1) in
-  let filled = ref 0 in
-  for i = 0 to Array.length mixer.tracks - 1 do
-    do_option mixer.tracks.(i) (fun track ->
-        if track.soundpos = track.soundlen
-        then printd (debug_io + debug_error) "Trying to play a finished sound. This should not happen"
-        else begin
+    let chunk_length =  Array1.dim output in
+    let first = ref true in
+
+    (* last non-empty track (or 0) *)
+    let last = let rec loop i = if i=0 || mixer.tracks.(i) <> None then i
+                 else loop (i-1) in
+      loop (Array.length mixer.tracks - 1) in
+    let filled = ref 0 in
+    for i = 0 to Array.length mixer.tracks - 1 do
+      do_option mixer.tracks.(i) (fun track ->
+          if track.soundpos = track.soundlen
+          then printd (debug_io + debug_error)
+              "Trying to play a finished sound. This should not happen"
+          else begin
             printd debug_io "Track #%d playing %u/%u."
               i track.soundpos track.soundlen;
             let waveleft = track.soundlen - track.soundpos in
@@ -141,33 +142,34 @@ let callback mixer =
             first := false;
             if track.soundpos = track.soundlen (* sound is finished *)
             then (match track.repeat with
-                  | Repeat n ->
-                     track.repeat <- Repeat (n-1);
-                     if n <= 1 then begin
-                         printd debug_io "Track #%u is available for playing." i;
-                         mixer.tracks.(i) <- None
-                                              (* this makes the track available again *)
-                       end
-                     else begin
-                         track.soundpos <- 0;
-                         printd debug_io "%u repeat%s remaining for sample in track #%u."
-                           (n-1) (if n>2 then "s" else "") i
-                       end
-                  | Forever -> printd debug_io "Repeat sample forever in track #%u." i)
+                | Repeat n ->
+                  track.repeat <- Repeat (n-1);
+                  if n <= 1 then begin
+                    printd debug_io "Track #%u is available for playing." i;
+                    mixer.tracks.(i) <- None
+                    (* this makes the track available again *)
+                  end
+                  else begin
+                    track.soundpos <- 0;
+                    printd debug_io "%u repeat%s remaining for sample in track #%u."
+                      (n-1) (if n>2 then "s" else "") i
+                  end
+                | Forever -> printd debug_io "Repeat sample forever in track #%u." i)
           end)
-  done;
-  if !filled <> chunk_length
-  then Array1.fill
-         (Array1.sub output !filled (chunk_length - !filled))
-         0 (*mixer.have.Sdl.as_silence*);
-  if !first (* no sound played *)
-  then begin
+    done;
+    if !filled <> chunk_length
+    then Array1.fill
+        (Array1.sub output !filled (chunk_length - !filled))
+        0 (*mixer.have.Sdl.as_silence*);
+    if !first (* no sound played *)
+    then begin
       if not !no_sound
       then printd debug_io "No sound to play. Disabling further messages.";
       no_sound := true;
       (* do_option mixer.dev_id (fun d -> *)
       (* Sdl.pause_audio_device d true) *)
-    end else no_sound := false
+    end
+    else no_sound := false
 
 (* change volume in-place *)
 (* warning, volume is here just a linear factor (from 0 to 1 in principle) *)
@@ -508,9 +510,12 @@ let close mixer =
     mixer.tracks.(i) <- None
   done;;
   
-let free_chunk = Sdl.free_wav
+(* let free_chunk = Sdl.free_wav *)
+(* DONT USE THIS, the chunks will be free (hopefully) by Ocaml's GC. *)
                    
 let test () =
+  print_endline "MIXER TEST";
+  Gc.compact ();
   let devname = init () in
   let mixer = create_mixer devname in
   let chunk2 = load_chunk mixer "../tests/audio/sia.wav" in
@@ -520,8 +525,8 @@ let test () =
 
   let chunk1 = load_chunk mixer "../tests/audio/chunk.wav" in
   (* 16000 Hz, stretched in < 6ms *)
-  
-  (* Gc.compact (); *) (* this makes it crash with original tsdl 0.9.1 *)
+
+  Gc.compact (); (* this makes it crash with original tsdl 0.9.1 *)
   unpause mixer;
   let sia = play_chunk ~volume:0.8 mixer chunk2 in
   Sdl.delay 1000l;
@@ -536,10 +541,13 @@ let test () =
   Sdl.delay 3000l;
 
   close mixer;
-  
-  free_chunk chunk1;
-  free_chunk chunk2;
-  free_chunk chunk3;
-  
-  Sdl.quit()
 
+  (* DON'T FREE, it causes double free segfault next time you run 
+     test () and Gc.compact.
+
+   * free_chunk chunk1;
+   * free_chunk chunk2;
+   * free_chunk chunk3; *)
+
+  Sdl.quit()
+    

@@ -57,7 +57,8 @@ let create ?width ?height ?(noscale = false)
   };;
 
 (* NOTE once we have a more recent version (>= 2.0.2) of SDL_image, we should be
-   able to directly load SVG *)
+   able to directly load SVG. HOWEVER, it currently it doesn't scale the image,
+   so it's not recommended. *)
 let create_from_svg ?width ?height ?(bg = Draw.(opaque black)) file =
   create ?width ?height ~bg (Draw.convert_svg ?w:width ?h:height file);;
 

@@ -1,182 +1,149 @@
-(** Select list *)
-(* based on the Menu module *)
+(* Select list *)
+(* based on the Menu2 module *)
 (* This is a simple select list with no submenus *)
 
-(* TODO: handle keyboard *)
+(* TODO highlight the selected entry on OPENING the menu. (standard behaviour,
+   cf: https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_select ).
+
+   But with the current implementation, this is not so obvious. We probably have
+   to modify Menu. *)
+
+(* TODO: scroll when navigating with keyboard *)
 
 open B_utils
 module Layout = B_layout
 module Widget = B_widget
-module Avar = B_avar
-module Theme = B_theme
-module Var = B_var
-module Tvar = B_tvar
-module Trigger =  B_trigger
-module Draw = B_draw
+module Var = B_var            
 module Label = B_label
-module Update = B_update
 module Menu = B_menu
-  
-type t =  {
-  selected : int Var.t;
-  action : (int -> unit) Var.t;
-  (* action i is executed each time entry #i is selected *)
-  layout : Layout.t;
-  widget : Widget.t (* the label widget of the selected entry *)
-}
+module Theme = B_theme
+module Draw = B_draw
+module Sync = B_sync
+module Print = B_print
 
-let layout t =
-  t.layout;;
+let pre = if !debug
+  then fun s -> print_endline ("[Select2] " ^ s) (* for local debugging *)
+  else nop
 
-(* we create a menu with a single entry having a submenu. The submenu is the
-   select-list, and the main entry is the selected item. The destination layout
-   is the layout over which the list will be drawn. Typically it is just an
-   "empty" layout of the form Layout.empty ~w ~h (). (A Layout.resident will not
-   work because we need a list of rooms inside). Il will be placed just below
-   the selected entry. (Hence it should not be added a second time!). It should
-   be large enough...It not specified, we take the top layout of the room that
-   will contain the menu. *)
-(* a special case, for convenience: if dst is not provided, the submenu will be
-   attached to the top_layout. This works well (and actually more economical) in
-   most cases, but is static: if you move the menu, the submenu will not move
-   accordingly... *)
-(* action : int -> () can be used to do something each time a new entry is
-   selected. It is also possible to "connect to" the selected_label, as a target
-   widget (not source, because this widget doesn't get focus) *)
-(* TODO ?? replace action by a "selected" Tvar ?? *)
+(* We will create a menu with a unique entry, being a submenu. This function
+   returns the submenu. *)
+let get_submenu menu =
+  let open Menu.Engine in
+  pre
+    (Printf.sprintf "#entries=%u" (List.length menu.entries));
+  match menu.entries with
+  | [entry] -> begin
+      match entry.kind with
+      | Menu sub -> Some sub
+      | Action _ -> None end
+  | _ -> None
+
+(* We construct a simple Menu2 with a custom Layout for the main entry, and
+   automatically generated labels for the menu entries. Using a custom layout
+   makes it easier to modify its text, but in principle we could also use the
+   automatically generated layout and recover its widget resident. *)
+
 let create ?dst ?(name = "select") ?(action = fun _ -> ()) ?fg
-    ?(hmargin = Theme.room_margin/2) entries selected =
+    entries selected =
+
   let selected = Var.create selected in
   let action = Var.create action in
-  (* let select_bg = Layout.Solid Draw.(lighter (transp menu_hl_color)) in *)
 
-  (* We define the main entry: *)
-  let selected_label = Widget.label ?fg entries.(Var.get selected) in
-  let selected_layout = Layout.flat_of_w ~sep:0
-      [selected_label] in
+  (* let background = Layout.Solid(Draw.(transp white)) in *)
+  let selected_widget = Widget.label ?fg entries.(Var.get selected) in
+  let selected_layout = Layout.flat_of_w ~name (* ~background *)
+      ~sep:0 [selected_widget] in
+  let selected_label = Widget.get_label selected_widget in
 
-  (* We transform the list of strings into a suitable list of Menu.entry *)
-  let open Menu in
-  let rec loop i menu_entries =
-    if i < 0  then menu_entries
-    else 
-      let text = entries.(i) in
-      let action () = 
-        Label.set (Widget.get_label selected_label) text;
-        Var.set selected i;
-        Var.get action i
-        (* Widget.update selected_label *) in
-      let label = Label ({ text; action }) in
-      let entry = { label; submenu = None } in
+  let entries = Array.to_list entries |>
+                List.mapi (fun i s ->
+                    let action () =
+                      Label.set selected_label entries.(i);
+                      Var.set selected i;
+                      Var.get action i in
+                    Menu.{ label = Text s;
+                           content = Action action }) in
 
-      loop (i-1) (entry :: menu_entries) in
+  let entry = Menu.{ label = Layout selected_layout;
+                     content = Tower entries } in
 
-  (* Now we create the drop-down menu: *)
-  let submenu_entries = loop (Array.length entries - 1) [] in
-  let submenu_fentries = drop_down ~x:0 ~y:0 ~hmargin submenu_entries in
-  (* Var.set submenu_fentries.(Array.length entries - 1 - selected).selected
-     true; *)
-  (* Layout.set_background submenu_fentries.(Array.length entries - 1 - selected).layout (Some select_bg); *)
+  (* First pass just to obtain the menu width. This could probably be done more
+     economically, but well... *)
+  let menu = Menu.(raw_engine (Flat [entry])) in
+  let submenu = match get_submenu menu with
+    | Some s -> s
+    | None -> failwith "Menu should have a unique submenu" in
 
-  (* We set the width of the Select layout (and its children: the label and the
-     screen) to the max of all entries *)
-  let w = List.fold_left (fun m e -> imax m (Layout.width e.layout))
-      0 (Array.to_list submenu_fentries) in
-  Layout.set_width selected_layout w;
-  List.iter (fun l -> Layout.set_width l w) (Layout.get_rooms selected_layout);
+  (* The main entry should have the width of the menu *)
+  let w = Layout.width (Menu.layout_of_menu submenu) in
+  let menu_layout = Menu.layout_of_menu menu in
+  (* Here the structure of menu_layout is
+     [ menu_layout =
+      [ formatted_label =
+        [ selected_layout = [label "banana"]] [ caret-down ]; 
+      ]
+     ]
+  *)
+  pre (Print.layout_down menu_layout);
+  List.iter (fun l -> Layout.set_width l (w - Menu.suffix_width))
+    [menu_layout;
+     Layout.get_rooms menu_layout |> List.hd;
+     selected_layout;
+     Layout.get_rooms selected_layout |> List.hd;
+    ];
 
-  let submenu = Menu.create_menu ~depth:1 submenu_fentries false in
+  (* Now the principal pass with the corrected entry. *)
+  let menu = Menu.(raw_engine (Flat [entry])) in
+  let menu_layout = Menu.layout_of_menu menu in
+  let submenu = match get_submenu menu with
+    | Some s -> s
+    | None -> failwith "Menu should have a unique submenu" in
 
-  (* We can complete the main entry: *)
-  let main_entry = {
-    layout = selected_layout;
-    selected = Var.create false;
-    action = (fun _ -> ());
-    submenu = Some submenu
-  } in
+  let tmp_dst = default dst
+      (* Just a horizontal line *)
+      (let line = Widget.empty ~w ~h:1 () in
+       (* let background = Layout.Solid(Draw.(transp grey)) in *)
+       (* DEBUG *)
+       Layout.flat_of_w ~sep:0 (* ~background *) [line]) in
 
-  (* We set the main entry's layout's width (and its children: the label and the
-     screen) to the largest width: *)
-  (* let w = Layout.width (submenu.entries.(0).layout) in *)
-  (* Layout.set_width selected_layout w; *)
-  (* let w = Layout.width selected_layout in *)
-  (* List.iter (fun l -> Layout.set_width l w) (Layout.get_rooms selected_layout); *)
+  Menu.Engine.init ~dst:tmp_dst menu;
+  Layout.set_height tmp_dst (Layout.height menu_layout);
 
-  (* Just a horizontal line *)
-  let line = Widget.empty ~w ~h:1 () in
-  let background = Layout.Solid(Draw.(transp grey)) in (* DEBUG *)
-  let tmp_dst = default dst (Layout.flat_of_w ~sep:0 ~background [line]) in
+  if dst = None then begin
+    (* We need to relocate to the top layout *)    
+    (fun () ->
+       pre "RELOCATE!";
+       let room = Menu.layout_of_menu submenu in
+       let screen = Layout.get_rooms tmp_dst |>
+                    List.rev |>
+                    List.hd in
+       (* We move the menu layout to the top layout; if the menu is too
+          big, we add a scrollbar. Note that, currently, this has the
+          effect of hiding the shadow. TODO: correct this...*)
+       let new_room = Layout.relocate ~scroll:true
+           ~dst:(Layout.top_house tmp_dst) room in
+       (* We expand the screen to full size: *)
+       let screen = Layout.relocate ~scroll:false
+           ~dst:(Layout.top_house tmp_dst) screen in
+       Layout.maximize screen;
+       if not Layout.(new_room == room)
+       then begin
+         Menu.set_layout submenu new_room;
+         Layout.hide ~duration:0 new_room
+       end;
+       (* pre (Print.layout_down screen);
+        * pre (Print.layout_down new_room); *)
+       (* pre (Print.layout_down (Layout.top_house screen)); *)
 
-  (* The callback to be executed at startup. See why below. *)
-  (* TODO: this won't work if the Select List is created dynamically after
-     startup... *)
-  let relocate _ _ _ =
-    match dst with
-    | Some _ -> () (* we do nothing if the dst was provided *)
-    (* TODO: clip here too, as below *)
-    | None -> begin
-        let open Layout in
-        let rooms = Layout.get_rooms tmp_dst in
-        if !debug then assert (List.length rooms = 3);
-        let layout = List.hd (List.rev rooms) in 
-        (* the content of tmp_dst should contain only three layouts = the line
-           +its filter and the submenu. We remove the submenu and keep only the
-           line. *)
-        let dst = top_house layout in
-        (* we need to force computation of layout, because it might very well
-           never have been rendered before: *)
-        let x1,y1 = Layout.compute_pos layout in
-        tmp_dst.content <- Rooms [List.hd rooms];
-        let x = x1 - xpos dst in
-        let y = y1 - ypos dst in
-        let layout = if y + height layout <= height dst
-          then layout
-          else begin
-            (* We clip and add a scrollbar if the dst is too small *)
-            let clipped = make_clip ~h:(height dst - y)
-                ~scrollbar_inside:true ~scrollbar_width:4 layout in
-            hide ~towards:Avar.Top ~duration:0 clipped;
-            Layout.show ~duration:0 layout;
-            do_option main_entry.submenu
-              (fun sbm -> sbm.room <- Some clipped);
-            clipped 
-          end in
-        add_room ~dst layout; (* the submenu is added to the top layout *)
-        setx layout x;
-        sety layout y;
-      end
-  in
-  let c = Widget.connect_main line line relocate [Trigger.startup] in
-  Widget.add_connection line c;
+       (* TODO si on créé plusieurs select dans la même page, le deuxième
+            va être tracé sur un layer + élevé que celui du screen du
+            premier select... et donc il va PAS être caché correctement par
+            ce screen: bref le premier menu ne va pas se fermer quuand on
+            clique sur le deuxième... *)
+    )
+    |> Sync.push;
+  end;
 
-  (* We finally create the whole thing, and we also return the selected_label,
-     which can be used to add connections. *)
-  let menu = Menu.create ~name:"select_menu" (* TODO name ok ? *) 
-      ~select_bg:(Layout.Solid Draw.(transp menu_hl_color)) 
-      ~background:(Layout.Solid Draw.(lighter (transp menu_bg_color))) 
-      ~dst:tmp_dst
-      (Menu.create_menu [| main_entry |] true) in
-  let layout = if dst = None
-    then Layout.tower ~name ~sep:0 ~vmargin:0 ~hmargin [menu; tmp_dst]
-    else menu in
-  { layout;
-    action;
-    selected;
-    widget = selected_label
-  };;
-(* Note: first the list is attached to the line (tmp_dst). This will trigger a
-   Warning: "room too tall". And indeed if it stays here, it will never have
-   mouse focus because it belongs to a small layout. We need to relocate the
-   submenu to the top_house. The problem: we don't know the top_house at this
-   point... it has to be done dynamically after startup... This is why we added
-   a connection to the line widget that reacts to the Startup Event.*)
+  tmp_dst;;
 
-let selected t =
-  Var.get t.selected;;
-
-let set_label t text =
-  Label.set (Widget.get_label t.widget) text;
-  Update.push t.widget;;
-
-let set_action t action =
-  Var.set t.action action;;
+(* TODO faire un clip si trop grand *)
