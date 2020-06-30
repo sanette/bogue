@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
     
 *)
 
-let this_version = "20190920"  (* see VERSION file *)
+let this_version = "20200630"  (* see VERSION file *)
   
 let default_vars = [
   (* Debug: *)
@@ -202,6 +202,7 @@ let dir =
   let dir = get_var "DIR" in
   if Sys.file_exists dir && Sys.is_directory dir
   then dir
+    (* TODO maintenant aller chercher dans  `opam config var prefix`/bogue/themes *)
   else let config = sub_file conf "bogue/themes" in
     if Sys.file_exists config && Sys.is_directory config
     then if dir = ""

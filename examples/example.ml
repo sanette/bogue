@@ -924,6 +924,17 @@ let example45 () =
   let board = make [] [large] in
   run board;;
 
+let desc46 = "Do things without any window! (tic every second)"
+let example46 () =
+  let rec tic () =
+    print_endline "tic";
+    Timeout.add 1000 tic
+    |> ignore in
+  tic ();
+  let board = make [] [] in
+  run board;;
+    
+
   
 let _ =
   let examples = [  "0", (example0, desc0) ;
@@ -977,6 +988,8 @@ let _ =
                     "43", (example43, desc43) ;
                     "44", (example44, desc44) ;
                     "45", (example45, desc45) ;
+                    "46", (example46, desc46) ;
+                    
 
                  ] in
   let all = List.map fst examples in

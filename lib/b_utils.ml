@@ -213,6 +213,8 @@ let check_option o f = match o with
   | Some x -> f x
   | None -> None;;
 
+(* Warning the "d" is always evaluated, so it's not always a good idea to use
+   this... *)
 let default o d = match o with
   | Some x -> x
   | None -> d;;

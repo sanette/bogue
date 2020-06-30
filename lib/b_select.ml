@@ -6,7 +6,10 @@
    cf: https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_select ).
 
    But with the current implementation, this is not so obvious. We probably have
-   to modify Menu. *)
+   to modify Menu. 
+
+   Example: 28
+*)
 
 (* TODO: scroll when navigating with keyboard *)
 
@@ -29,8 +32,7 @@ let pre = if !debug
    returns the submenu. *)
 let get_submenu menu =
   let open Menu.Engine in
-  pre
-    (Printf.sprintf "#entries=%u" (List.length menu.entries));
+  pre (Printf.sprintf "#entries=%u" (List.length menu.entries));
   match menu.entries with
   | [entry] -> begin
       match entry.kind with

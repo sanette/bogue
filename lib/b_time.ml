@@ -12,7 +12,7 @@ let add t1 t2 = t1 + t2;;
 let length t1 t2 = t2 - t1;;
 
 let compare (t1 : t) (t2 : t) =
-  Pervasives.compare t1 t2;;
+  Stdlib.compare t1 t2;;
 
 let (>>) (t1 : t) (t2 : t) =
   t1 > t2;;

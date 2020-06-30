@@ -88,7 +88,7 @@ let same_component t1 t2 =
   | Some _ , None -> true
   | Some x1, Some x2 -> x1.id = x2.id;;
 
-let comp (x:int) (y:int) = Pervasives.compare x y;;
+let comp (x:int) (y:int) = Stdlib.compare x y;;
 
 let compare t1 t2 =
   match t1, t2 with
