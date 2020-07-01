@@ -3,8 +3,6 @@
  (public_name bogue)
  (libraries stdlib-shims str tsdl tsdl_image tsdl_ttf))
 
-(data_only_dirs share)
-
 (install
  (section share)
 ; to be completed

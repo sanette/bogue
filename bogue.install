@@ -1,0 +1,266 @@
+lib: [
+  "_build/install/default/lib/bogue/META"
+  "_build/install/default/lib/bogue/b_avar.ml"
+  "_build/install/default/lib/bogue/b_border.ml"
+  "_build/install/default/lib/bogue/b_box.ml"
+  "_build/install/default/lib/bogue/b_button.ml"
+  "_build/install/default/lib/bogue/b_chain.ml"
+  "_build/install/default/lib/bogue/b_check.ml"
+  "_build/install/default/lib/bogue/b_debug_window.ml"
+  "_build/install/default/lib/bogue/b_draw.ml"
+  "_build/install/default/lib/bogue/b_dynvar.ml"
+  "_build/install/default/lib/bogue/b_empty.ml"
+  "_build/install/default/lib/bogue/b_image.ml"
+  "_build/install/default/lib/bogue/b_label.ml"
+  "_build/install/default/lib/bogue/b_layout.ml"
+  "_build/install/default/lib/bogue/b_long_list.ml"
+  "_build/install/default/lib/bogue/b_main.ml"
+  "_build/install/default/lib/bogue/b_makes.ml"
+  "_build/install/default/lib/bogue/b_menu.ml"
+  "_build/install/default/lib/bogue/b_menu2.ml"
+  "_build/install/default/lib/bogue/b_mixer.ml"
+  "_build/install/default/lib/bogue/b_mouse.ml"
+  "_build/install/default/lib/bogue/b_popup.ml"
+  "_build/install/default/lib/bogue/b_print.ml"
+  "_build/install/default/lib/bogue/b_radiolist.ml"
+  "_build/install/default/lib/bogue/b_select.ml"
+  "_build/install/default/lib/bogue/b_selection.ml"
+  "_build/install/default/lib/bogue/b_shortcut.ml"
+  "_build/install/default/lib/bogue/b_slider.ml"
+  "_build/install/default/lib/bogue/b_snapshot.ml"
+  "_build/install/default/lib/bogue/b_space.ml"
+  "_build/install/default/lib/bogue/b_style.ml"
+  "_build/install/default/lib/bogue/b_sync.ml"
+  "_build/install/default/lib/bogue/b_table.ml"
+  "_build/install/default/lib/bogue/b_tabs.ml"
+  "_build/install/default/lib/bogue/b_text_display.ml"
+  "_build/install/default/lib/bogue/b_text_input.ml"
+  "_build/install/default/lib/bogue/b_theme.ml"
+  "_build/install/default/lib/bogue/b_time.ml"
+  "_build/install/default/lib/bogue/b_timeout.ml"
+  "_build/install/default/lib/bogue/b_trigger.ml"
+  "_build/install/default/lib/bogue/b_tvar.ml"
+  "_build/install/default/lib/bogue/b_update.ml"
+  "_build/install/default/lib/bogue/b_utf8.ml"
+  "_build/install/default/lib/bogue/b_utils.ml"
+  "_build/install/default/lib/bogue/b_var.ml"
+  "_build/install/default/lib/bogue/b_widget.ml"
+  "_build/install/default/lib/bogue/b_window.ml"
+  "_build/install/default/lib/bogue/bogue.a"
+  "_build/install/default/lib/bogue/bogue.cma"
+  "_build/install/default/lib/bogue/bogue.cmi"
+  "_build/install/default/lib/bogue/bogue.cmt"
+  "_build/install/default/lib/bogue/bogue.cmti"
+  "_build/install/default/lib/bogue/bogue.cmx"
+  "_build/install/default/lib/bogue/bogue.cmxa"
+  "_build/install/default/lib/bogue/bogue.cmxs"
+  "_build/install/default/lib/bogue/bogue.ml"
+  "_build/install/default/lib/bogue/bogue.mli"
+  "_build/install/default/lib/bogue/bogue__.cmi"
+  "_build/install/default/lib/bogue/bogue__.cmt"
+  "_build/install/default/lib/bogue/bogue__.cmx"
+  "_build/install/default/lib/bogue/bogue__.ml"
+  "_build/install/default/lib/bogue/bogue__B_avar.cmi"
+  "_build/install/default/lib/bogue/bogue__B_avar.cmt"
+  "_build/install/default/lib/bogue/bogue__B_avar.cmx"
+  "_build/install/default/lib/bogue/bogue__B_border.cmi"
+  "_build/install/default/lib/bogue/bogue__B_border.cmt"
+  "_build/install/default/lib/bogue/bogue__B_border.cmx"
+  "_build/install/default/lib/bogue/bogue__B_box.cmi"
+  "_build/install/default/lib/bogue/bogue__B_box.cmt"
+  "_build/install/default/lib/bogue/bogue__B_box.cmx"
+  "_build/install/default/lib/bogue/bogue__B_button.cmi"
+  "_build/install/default/lib/bogue/bogue__B_button.cmt"
+  "_build/install/default/lib/bogue/bogue__B_button.cmx"
+  "_build/install/default/lib/bogue/bogue__B_chain.cmi"
+  "_build/install/default/lib/bogue/bogue__B_chain.cmt"
+  "_build/install/default/lib/bogue/bogue__B_chain.cmx"
+  "_build/install/default/lib/bogue/bogue__B_check.cmi"
+  "_build/install/default/lib/bogue/bogue__B_check.cmt"
+  "_build/install/default/lib/bogue/bogue__B_check.cmx"
+  "_build/install/default/lib/bogue/bogue__B_debug_window.cmi"
+  "_build/install/default/lib/bogue/bogue__B_debug_window.cmt"
+  "_build/install/default/lib/bogue/bogue__B_debug_window.cmx"
+  "_build/install/default/lib/bogue/bogue__B_draw.cmi"
+  "_build/install/default/lib/bogue/bogue__B_draw.cmt"
+  "_build/install/default/lib/bogue/bogue__B_draw.cmx"
+  "_build/install/default/lib/bogue/bogue__B_dynvar.cmi"
+  "_build/install/default/lib/bogue/bogue__B_dynvar.cmt"
+  "_build/install/default/lib/bogue/bogue__B_dynvar.cmx"
+  "_build/install/default/lib/bogue/bogue__B_empty.cmi"
+  "_build/install/default/lib/bogue/bogue__B_empty.cmt"
+  "_build/install/default/lib/bogue/bogue__B_empty.cmx"
+  "_build/install/default/lib/bogue/bogue__B_image.cmi"
+  "_build/install/default/lib/bogue/bogue__B_image.cmt"
+  "_build/install/default/lib/bogue/bogue__B_image.cmx"
+  "_build/install/default/lib/bogue/bogue__B_label.cmi"
+  "_build/install/default/lib/bogue/bogue__B_label.cmt"
+  "_build/install/default/lib/bogue/bogue__B_label.cmx"
+  "_build/install/default/lib/bogue/bogue__B_layout.cmi"
+  "_build/install/default/lib/bogue/bogue__B_layout.cmt"
+  "_build/install/default/lib/bogue/bogue__B_layout.cmx"
+  "_build/install/default/lib/bogue/bogue__B_long_list.cmi"
+  "_build/install/default/lib/bogue/bogue__B_long_list.cmt"
+  "_build/install/default/lib/bogue/bogue__B_long_list.cmx"
+  "_build/install/default/lib/bogue/bogue__B_main.cmi"
+  "_build/install/default/lib/bogue/bogue__B_main.cmt"
+  "_build/install/default/lib/bogue/bogue__B_main.cmx"
+  "_build/install/default/lib/bogue/bogue__B_makes.cmi"
+  "_build/install/default/lib/bogue/bogue__B_makes.cmt"
+  "_build/install/default/lib/bogue/bogue__B_makes.cmx"
+  "_build/install/default/lib/bogue/bogue__B_menu.cmi"
+  "_build/install/default/lib/bogue/bogue__B_menu.cmt"
+  "_build/install/default/lib/bogue/bogue__B_menu.cmx"
+  "_build/install/default/lib/bogue/bogue__B_menu2.cmi"
+  "_build/install/default/lib/bogue/bogue__B_menu2.cmt"
+  "_build/install/default/lib/bogue/bogue__B_menu2.cmx"
+  "_build/install/default/lib/bogue/bogue__B_mixer.cmi"
+  "_build/install/default/lib/bogue/bogue__B_mixer.cmt"
+  "_build/install/default/lib/bogue/bogue__B_mixer.cmx"
+  "_build/install/default/lib/bogue/bogue__B_mouse.cmi"
+  "_build/install/default/lib/bogue/bogue__B_mouse.cmt"
+  "_build/install/default/lib/bogue/bogue__B_mouse.cmx"
+  "_build/install/default/lib/bogue/bogue__B_popup.cmi"
+  "_build/install/default/lib/bogue/bogue__B_popup.cmt"
+  "_build/install/default/lib/bogue/bogue__B_popup.cmx"
+  "_build/install/default/lib/bogue/bogue__B_print.cmi"
+  "_build/install/default/lib/bogue/bogue__B_print.cmt"
+  "_build/install/default/lib/bogue/bogue__B_print.cmx"
+  "_build/install/default/lib/bogue/bogue__B_radiolist.cmi"
+  "_build/install/default/lib/bogue/bogue__B_radiolist.cmt"
+  "_build/install/default/lib/bogue/bogue__B_radiolist.cmx"
+  "_build/install/default/lib/bogue/bogue__B_select.cmi"
+  "_build/install/default/lib/bogue/bogue__B_select.cmt"
+  "_build/install/default/lib/bogue/bogue__B_select.cmx"
+  "_build/install/default/lib/bogue/bogue__B_selection.cmi"
+  "_build/install/default/lib/bogue/bogue__B_selection.cmt"
+  "_build/install/default/lib/bogue/bogue__B_selection.cmx"
+  "_build/install/default/lib/bogue/bogue__B_shortcut.cmi"
+  "_build/install/default/lib/bogue/bogue__B_shortcut.cmt"
+  "_build/install/default/lib/bogue/bogue__B_shortcut.cmx"
+  "_build/install/default/lib/bogue/bogue__B_slider.cmi"
+  "_build/install/default/lib/bogue/bogue__B_slider.cmt"
+  "_build/install/default/lib/bogue/bogue__B_slider.cmx"
+  "_build/install/default/lib/bogue/bogue__B_snapshot.cmi"
+  "_build/install/default/lib/bogue/bogue__B_snapshot.cmt"
+  "_build/install/default/lib/bogue/bogue__B_snapshot.cmx"
+  "_build/install/default/lib/bogue/bogue__B_space.cmi"
+  "_build/install/default/lib/bogue/bogue__B_space.cmt"
+  "_build/install/default/lib/bogue/bogue__B_space.cmx"
+  "_build/install/default/lib/bogue/bogue__B_style.cmi"
+  "_build/install/default/lib/bogue/bogue__B_style.cmt"
+  "_build/install/default/lib/bogue/bogue__B_style.cmx"
+  "_build/install/default/lib/bogue/bogue__B_sync.cmi"
+  "_build/install/default/lib/bogue/bogue__B_sync.cmt"
+  "_build/install/default/lib/bogue/bogue__B_sync.cmx"
+  "_build/install/default/lib/bogue/bogue__B_table.cmi"
+  "_build/install/default/lib/bogue/bogue__B_table.cmt"
+  "_build/install/default/lib/bogue/bogue__B_table.cmx"
+  "_build/install/default/lib/bogue/bogue__B_tabs.cmi"
+  "_build/install/default/lib/bogue/bogue__B_tabs.cmt"
+  "_build/install/default/lib/bogue/bogue__B_tabs.cmx"
+  "_build/install/default/lib/bogue/bogue__B_text_display.cmi"
+  "_build/install/default/lib/bogue/bogue__B_text_display.cmt"
+  "_build/install/default/lib/bogue/bogue__B_text_display.cmx"
+  "_build/install/default/lib/bogue/bogue__B_text_input.cmi"
+  "_build/install/default/lib/bogue/bogue__B_text_input.cmt"
+  "_build/install/default/lib/bogue/bogue__B_text_input.cmx"
+  "_build/install/default/lib/bogue/bogue__B_theme.cmi"
+  "_build/install/default/lib/bogue/bogue__B_theme.cmt"
+  "_build/install/default/lib/bogue/bogue__B_theme.cmx"
+  "_build/install/default/lib/bogue/bogue__B_time.cmi"
+  "_build/install/default/lib/bogue/bogue__B_time.cmt"
+  "_build/install/default/lib/bogue/bogue__B_time.cmx"
+  "_build/install/default/lib/bogue/bogue__B_timeout.cmi"
+  "_build/install/default/lib/bogue/bogue__B_timeout.cmt"
+  "_build/install/default/lib/bogue/bogue__B_timeout.cmx"
+  "_build/install/default/lib/bogue/bogue__B_trigger.cmi"
+  "_build/install/default/lib/bogue/bogue__B_trigger.cmt"
+  "_build/install/default/lib/bogue/bogue__B_trigger.cmx"
+  "_build/install/default/lib/bogue/bogue__B_tvar.cmi"
+  "_build/install/default/lib/bogue/bogue__B_tvar.cmt"
+  "_build/install/default/lib/bogue/bogue__B_tvar.cmx"
+  "_build/install/default/lib/bogue/bogue__B_update.cmi"
+  "_build/install/default/lib/bogue/bogue__B_update.cmt"
+  "_build/install/default/lib/bogue/bogue__B_update.cmx"
+  "_build/install/default/lib/bogue/bogue__B_utf8.cmi"
+  "_build/install/default/lib/bogue/bogue__B_utf8.cmt"
+  "_build/install/default/lib/bogue/bogue__B_utf8.cmx"
+  "_build/install/default/lib/bogue/bogue__B_utils.cmi"
+  "_build/install/default/lib/bogue/bogue__B_utils.cmt"
+  "_build/install/default/lib/bogue/bogue__B_utils.cmx"
+  "_build/install/default/lib/bogue/bogue__B_var.cmi"
+  "_build/install/default/lib/bogue/bogue__B_var.cmt"
+  "_build/install/default/lib/bogue/bogue__B_var.cmx"
+  "_build/install/default/lib/bogue/bogue__B_widget.cmi"
+  "_build/install/default/lib/bogue/bogue__B_widget.cmt"
+  "_build/install/default/lib/bogue/bogue__B_widget.cmx"
+  "_build/install/default/lib/bogue/bogue__B_window.cmi"
+  "_build/install/default/lib/bogue/bogue__B_window.cmt"
+  "_build/install/default/lib/bogue/bogue__B_window.cmx"
+  "_build/install/default/lib/bogue/dune-package"
+  "_build/install/default/lib/bogue/opam"
+]
+bin: [
+  "_build/install/default/bin/boguex"
+]
+share: [
+  "_build/install/default/share/bogue/themes/common/ACKNOWLEDGEMENTS" {"themes/common/ACKNOWLEDGEMENTS"}
+  "_build/install/default/share/bogue/themes/common/colors/color_list.ods" {"themes/common/colors/color_list.ods"}
+  "_build/install/default/share/bogue/themes/common/colors/html-color-codes.htm" {"themes/common/colors/html-color-codes.htm"}
+  "_build/install/default/share/bogue/themes/common/colors/liste.txt" {"themes/common/colors/liste.txt"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/Font Awesome 4.6.3 Class Explorer.html" {"themes/common/font-awesome-4.6.3/Font Awesome 4.6.3 Class Explorer.html"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/HELP-US-OUT.txt" {"themes/common/font-awesome-4.6.3/HELP-US-OUT.txt"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/css/font-awesome.css" {"themes/common/font-awesome-4.6.3/css/font-awesome.css"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/css/font-awesome.min.css" {"themes/common/font-awesome-4.6.3/css/font-awesome.min.css"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/fonts/FontAwesome.otf" {"themes/common/font-awesome-4.6.3/fonts/FontAwesome.otf"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.eot" {"themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.eot"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.svg" {"themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.svg"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.ttf" {"themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.ttf"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.woff" {"themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.woff"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.woff2" {"themes/common/font-awesome-4.6.3/fonts/fontawesome-webfont.woff2"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/animated.less" {"themes/common/font-awesome-4.6.3/less/animated.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/bordered-pulled.less" {"themes/common/font-awesome-4.6.3/less/bordered-pulled.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/core.less" {"themes/common/font-awesome-4.6.3/less/core.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/fixed-width.less" {"themes/common/font-awesome-4.6.3/less/fixed-width.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/font-awesome.less" {"themes/common/font-awesome-4.6.3/less/font-awesome.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/icons.less" {"themes/common/font-awesome-4.6.3/less/icons.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/larger.less" {"themes/common/font-awesome-4.6.3/less/larger.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/list.less" {"themes/common/font-awesome-4.6.3/less/list.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/mixins.less" {"themes/common/font-awesome-4.6.3/less/mixins.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/path.less" {"themes/common/font-awesome-4.6.3/less/path.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/rotated-flipped.less" {"themes/common/font-awesome-4.6.3/less/rotated-flipped.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/screen-reader.less" {"themes/common/font-awesome-4.6.3/less/screen-reader.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/stacked.less" {"themes/common/font-awesome-4.6.3/less/stacked.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/less/variables.less" {"themes/common/font-awesome-4.6.3/less/variables.less"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_animated.scss" {"themes/common/font-awesome-4.6.3/scss/_animated.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_bordered-pulled.scss" {"themes/common/font-awesome-4.6.3/scss/_bordered-pulled.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_core.scss" {"themes/common/font-awesome-4.6.3/scss/_core.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_fixed-width.scss" {"themes/common/font-awesome-4.6.3/scss/_fixed-width.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_icons.scss" {"themes/common/font-awesome-4.6.3/scss/_icons.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_larger.scss" {"themes/common/font-awesome-4.6.3/scss/_larger.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_list.scss" {"themes/common/font-awesome-4.6.3/scss/_list.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_mixins.scss" {"themes/common/font-awesome-4.6.3/scss/_mixins.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_path.scss" {"themes/common/font-awesome-4.6.3/scss/_path.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_rotated-flipped.scss" {"themes/common/font-awesome-4.6.3/scss/_rotated-flipped.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_screen-reader.scss" {"themes/common/font-awesome-4.6.3/scss/_screen-reader.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_stacked.scss" {"themes/common/font-awesome-4.6.3/scss/_stacked.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/_variables.scss" {"themes/common/font-awesome-4.6.3/scss/_variables.scss"}
+  "_build/install/default/share/bogue/themes/common/font-awesome-4.6.3/scss/font-awesome.scss" {"themes/common/font-awesome-4.6.3/scss/font-awesome.scss"}
+  "_build/install/default/share/bogue/themes/common/fonts/81e5605d-ubuntu-font-licence-1.0.txt" {"themes/common/fonts/81e5605d-ubuntu-font-licence-1.0.txt"}
+  "_build/install/default/share/bogue/themes/common/fonts/Ubuntu-R.ttf" {"themes/common/fonts/Ubuntu-R.ttf"}
+  "_build/install/default/share/bogue/themes/common/fonts/UbuntuMono-R.ttf" {"themes/common/fonts/UbuntuMono-R.ttf"}
+  "_build/install/default/share/bogue/themes/default/.directory" {"themes/default/.directory"}
+  "_build/install/default/share/bogue/themes/default/background.png" {"themes/default/background.png"}
+  "_build/install/default/share/bogue/themes/default/bogue-icon.png" {"themes/default/bogue-icon.png"}
+  "_build/install/default/share/bogue/themes/default/bogue.conf" {"themes/default/bogue.conf"}
+  "_build/install/default/share/bogue/themes/default/images/.directory" {"themes/default/images/.directory"}
+  "_build/install/default/share/bogue/themes/default/images/chl.png" {"themes/default/images/chl.png"}
+  "_build/install/default/share/bogue/themes/default/images/koala.svg" {"themes/default/images/koala.svg"}
+  "_build/install/default/share/bogue/themes/default/images/nasa_black_hole_cygx1_ill.jpg" {"themes/default/images/nasa_black_hole_cygx1_ill.jpg"}
+  "_build/install/default/share/bogue/themes/default/images/w3c-logo-white.svg" {"themes/default/images/w3c-logo-white.svg"}
+]
+doc: [
+  "_build/install/default/doc/bogue/LICENSE"
+  "_build/install/default/doc/bogue/README.md"
+]

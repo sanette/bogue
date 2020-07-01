@@ -1,0 +1,26 @@
+# This file is part of BOGUE
+# San Vu Ngoc, 2019
+
+This directory contains material that I have downloaded from the
+internet and it is my understanding that I may pack them in the bogue
+distribution. However, if it happens that a legal reason should
+prevent me from doing so, please inform me and I will withdraw them.
+
+* font-awesome-4.6.3:
+
+The great font-awesome icons from https://fontawesome.com/
+
+Many Thanks to Font Awesome!
+
+* fonts:
+
+Currently contains a couple of the nicely legible Ubuntu fonts.  This
+is not strictly necessary since a theme can decide to use any other
+font from the user's system.
+
+* colors:
+
+HTML color codes from
+https://www.rapidtables.com/web/color/html-color-codes.html
+
+Thanks a lot to Rapidtables!
