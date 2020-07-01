@@ -250,11 +250,9 @@ share: [
   "_build/install/default/share/bogue/themes/common/fonts/81e5605d-ubuntu-font-licence-1.0.txt" {"themes/common/fonts/81e5605d-ubuntu-font-licence-1.0.txt"}
   "_build/install/default/share/bogue/themes/common/fonts/Ubuntu-R.ttf" {"themes/common/fonts/Ubuntu-R.ttf"}
   "_build/install/default/share/bogue/themes/common/fonts/UbuntuMono-R.ttf" {"themes/common/fonts/UbuntuMono-R.ttf"}
-  "_build/install/default/share/bogue/themes/default/.directory" {"themes/default/.directory"}
   "_build/install/default/share/bogue/themes/default/background.png" {"themes/default/background.png"}
   "_build/install/default/share/bogue/themes/default/bogue-icon.png" {"themes/default/bogue-icon.png"}
   "_build/install/default/share/bogue/themes/default/bogue.conf" {"themes/default/bogue.conf"}
-  "_build/install/default/share/bogue/themes/default/images/.directory" {"themes/default/images/.directory"}
   "_build/install/default/share/bogue/themes/default/images/chl.png" {"themes/default/images/chl.png"}
   "_build/install/default/share/bogue/themes/default/images/koala.svg" {"themes/default/images/koala.svg"}
   "_build/install/default/share/bogue/themes/default/images/nasa_black_hole_cygx1_ill.jpg" {"themes/default/images/nasa_black_hole_cygx1_ill.jpg"}
