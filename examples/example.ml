@@ -1016,7 +1016,7 @@ let _ =
                    the demo.";
     print_newline ()
   );
-  Pervasives.exit 0;;
+  Stdlib.exit 0;;
 
 (* Attention le 16 ne marche pas après le 15: on reste bloqué sur 
    Thread: Waiting for locked variable to unlock...==> corrigé *)
