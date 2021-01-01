@@ -21,11 +21,11 @@
 </div>
 <h1>Module <a href="type_Bogue.Timeout.html">Bogue.Timeout</a></h1>
 
-<pre><span class="keyword">module</span> Timeout: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Timeout.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Delayed actions 
-<p>
+<pre><span id="MODULETimeout"><span class="keyword">module</span> Timeout</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Timeout.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Delayed actions</p>
 
-<h5 id="5_graphbtimeouthtmlDependencygraph"><a href="graph-b_timeout.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbtimeouthtmlDependencygraph"><a href="graph-b_timeout.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
@@ -33,17 +33,22 @@ Delayed actions
 
 
 <pre><span id="VALadd"><span class="keyword">val</span> add</span> : <code class="type">int -> (unit -> unit) -> <a href="Bogue.Timeout.html#TYPEt">t</a></code></pre><div class="info ">
-<code class="code">add&nbsp;delay&nbsp;action</code> will execute
-     <code class="code">action&nbsp;()</code> after the delay of <code class="code">delay</code> ms.<br>
-<b>Returns</b> the Timeout element. 
-<p>
+<div class="info-desc">
+<p><code class="code">add&nbsp;delay&nbsp;action</code> will execute
+     <code class="code">action&nbsp;()</code> after the delay of <code class="code">delay</code> ms.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> the Timeout element.
 
-     Warning: don't expect the delay to be 
-     exact at the ms. The precision cannot be better than what the 
-     framerate imposes, <em>i.e.</em> usually about 16ms.<br>
+     Warning: don't expect the delay to be
+     exact at the ms. The precision cannot be better than what the
+     framerate imposes, <em>i.e.</em> usually about 16ms.</li>
+</ul>
 </div>
 
 <pre><span id="VALcancel"><span class="keyword">val</span> cancel</span> : <code class="type"><a href="Bogue.Timeout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-Cancel the Timeout.<br>
+<div class="info-desc">
+<p>Cancel the Timeout.</p>
+</div>
 </div>
 </body></html>

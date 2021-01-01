@@ -20,72 +20,91 @@
 &nbsp;</div>
 <h1>Module <a href="type_Bogue.Bogue.html">Bogue.Bogue</a></h1>
 
-<pre><span class="keyword">module</span> Bogue: <code class="type"><a href="Bogue.Main.html">Main</a></code></pre><div class="info module top">
-Alias for <a href="Bogue.Main.html"><code class="code"><span class="constructor">Main</span></code></a><br>
+<pre><span id="MODULEBogue"><span class="keyword">module</span> Bogue</span>: <code class="type"><a href="Bogue.Main.html">Main</a></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Alias for <a href="Bogue.Main.html"><code class="code"><span class="constructor">Main</span></code></a></p>
+</div>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEboard"><span class="keyword">type</span> <code class="type"></code>board</span> </pre>
 <div class="info ">
-The board is the whole universe of your GUI. It contains everything.<br>
+<div class="info-desc">
+<p>The board is the whole universe of your GUI. It contains everything.</p>
+</div>
 </div>
 
 
 <pre><span id="EXCEPTIONExit"><span class="keyword">exception</span> Exit</span></pre>
 <div class="info ">
-Raising the <code class="code"><span class="constructor">Exit</span></code> exception will tell the GUI loop to terminate.<br>
+<div class="info-desc">
+<p>Raising the <code class="code"><span class="constructor">Exit</span></code> exception will tell the GUI loop to terminate.</p>
+</div>
 </div>
 
 <pre><span id="VALexit_on_escape"><span class="keyword">val</span> exit_on_escape</span> : <code class="type">int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -> unit)</code></pre><div class="info ">
-If the <code class="code">exit_on_escape</code> shortcut is given to the <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> function, then
-     the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a> exception will be raised upon pressing the Escape key.<br>
+<div class="info-desc">
+<p>If the <code class="code">exit_on_escape</code> shortcut is given to the <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> function, then
+     the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a> exception will be raised upon pressing the Escape key.</p>
+</div>
 </div>
 
 <pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -> unit)) list -><br>       <a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -> <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
-Create a <code class="code">board</code> from a list of layouts and connections. The list of
+<div class="info-desc">
+<p>Create a <code class="code">board</code> from a list of layouts and connections. The list of
      connections can be empty, because connections can be added afterwards. Each
      Layout in the list will open as a new window. The optional argument
      <code class="code">shortcuts</code> is a list of shortcut triples of the form <code class="code">keycode,&nbsp;keymod,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;action</code>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;action</code>.</p>
+</div>
 </div>
 
 <pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">?before_display:(unit -> unit) -><br>       ?after_display:(unit -> unit) -> <a href="Bogue.Main.html#TYPEboard">board</a> -> unit</code></pre><div class="info ">
-Launch the main loop.<br>
+<div class="info-desc">
+<p>Launch the main loop.</p>
 </div>
-<br>
-<h2 id="2_UsingBoguetogetherwithanothergraphicsloop">Using Bogue together with another graphics loop</h2> 
-<p>
-
-      See the <code class="code">embed</code> example.<br>
+</div>
+<h3 id="2_UsingBoguetogetherwithanothergraphicsloop">Using Bogue together with another graphics loop</h3>
+<p>See the <code class="code">embed</code> example.</p>
 
 <pre><span id="VALmake_sdl_windows"><span class="keyword">val</span> make_sdl_windows</span> : <code class="type">?windows:Tsdl.Sdl.window list -> <a href="Bogue.Main.html#TYPEboard">board</a> -> unit</code></pre><div class="info ">
-This is only useful if you have your own graphics loop, and do <em>not</em> use
+<div class="info-desc">
+<p>This is only useful if you have your own graphics loop, and do <em>not</em> use
      <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. This function creates an SDL window for each top layout in the
      board. One can use predefined windows with the optional argument
      <code class="code">windows</code>. They will be used by the layouts in the order they appear in the
      list. If there are fewer windows than layouts, new windows are created. If
-      there are more, the excess is disregarded.<br>
+      there are more, the excess is disregarded.</p>
+</div>
 </div>
 
 <pre><span id="VALrefresh_custom_windows"><span class="keyword">val</span> refresh_custom_windows</span> : <code class="type"><a href="Bogue.Main.html#TYPEboard">board</a> -> unit</code></pre><div class="info ">
-Ask the GUI to refresh (ie. repaint) the custom windows (those that were
-     not created by Bogue itself).<br>
+<div class="info-desc">
+<p>Ask the GUI to refresh (ie. repaint) the custom windows (those that were
+     not created by Bogue itself).</p>
+</div>
 </div>
 
 <pre><span id="VALone_step"><span class="keyword">val</span> one_step</span> : <code class="type">?before_display:(unit -> unit) -><br>       bool -><br>       (unit -> unit) * (unit -> unit) -> ?clear:bool -> <a href="Bogue.Main.html#TYPEboard">board</a> -> bool</code></pre><div class="info ">
-This is only useful if you have your own graphics loop, and do <em>not</em> use
+<div class="info-desc">
+<p>This is only useful if you have your own graphics loop, and do <em>not</em> use
    <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. Calling <code class="code">one_step&nbsp;~before_display&nbsp;anim&nbsp;(start_fps,&nbsp;fps)&nbsp;~clear&nbsp;board</code>
    is what is executed at each step of the Bogue mainloop. If <code class="code">anim=<span class="keyword">true</span></code> this
    step is <em>non blocking</em>; this is what you want if either Bogue or your loop
    has an animation running. If <code class="code">anim=<span class="keyword">false</span></code> then the function will wait until
-   an event is received.<br>
-<b>Returns</b> <code class="code"><span class="keyword">true</span></code> if the GUI currently handles an animation. In this case
+   an event is received.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> <code class="code"><span class="keyword">true</span></code> if the GUI currently handles an animation. In this case
    <code class="code">fps()</code> was executed by <code class="code">one_step</code>. If not, you should handle the frame rate
-   yourself.<br>
+   yourself.</li>
+</ul>
 </div>
 
 <pre><span id="VALquit"><span class="keyword">val</span> quit</span> : <code class="type">unit -> unit</code></pre><div class="info ">
-Use this to close SDL windows and cleanup memory, after <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a> has
-   returned.<br>
+<div class="info-desc">
+<p>Use this to close SDL windows and cleanup memory, after <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a> has
+   returned.</p>
+</div>
 </div>
 </body></html>

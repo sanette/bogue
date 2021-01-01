@@ -24,94 +24,110 @@
 </div>
 <h1>Module <a href="type_Bogue.Trigger.html">Bogue.Trigger</a></h1>
 
-<pre><span class="keyword">module</span> Trigger: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Trigger.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Dealing with events
-<p>
+<pre><span id="MODULETrigger"><span class="keyword">module</span> Trigger</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Trigger.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Dealing with events</p>
 
-Events are simply SDL events, plus a few additional events. They are also used
-   for primitive communication between threads.
-<p>
+<p>Events are simply SDL events, plus a few additional events. They are also used
+   for primitive communication between threads.</p>
 
-Events are detected by Layouts, and then sent to the resident Widget. Finally,
+<p>Events are detected by Layouts, and then sent to the resident Widget. Finally,
    the Widget decides what to do with the events. There is one exception: the
-   <a href="Bogue.Trigger.html#VALstartup"><code class="code"><span class="constructor">Trigger</span>.startup</code></a> event is directly sent to all Widgets.
-<p>
+   <a href="Bogue.Trigger.html#VALstartup"><code class="code"><span class="constructor">Trigger</span>.startup</code></a> event is directly sent to all Widgets.</p>
 
-<h5 id="5_graphbtriggerhtmlDependencygraph"><a href="graph-b_trigger.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbtriggerhtmlDependencygraph"><a href="graph-b_trigger.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">Tsdl.Sdl.event_type</code> </pre>
 
-<br>
-<h2 id="2_SpecialBogueevents">Special Bogue events</h2><br>
-
+<h3 id="2_SpecialBogueevents">Special Bogue events</h3>
 <pre><span id="VALstartup"><span class="keyword">val</span> startup</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a></code></pre><div class="info ">
-The <code class="code">startup</code> event is sent to all Widgets when the Bogue mainloop is
-     started using <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.<br>
+<div class="info-desc">
+<p>The <code class="code">startup</code> event is sent to all Widgets when the Bogue mainloop is
+     started using <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.</p>
+</div>
 </div>
 
 <pre><span id="VALmouse_enter"><span class="keyword">val</span> mouse_enter</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a></code></pre><div class="info ">
-The <code class="code">mouse_enter</code> event is triggered when the pointer (mouse motion, or
-     finger touch -- but not finger drag) enters a new layout.<br>
+<div class="info-desc">
+<p>The <code class="code">mouse_enter</code> event is triggered when the pointer (mouse motion, or
+     finger touch -- but not finger drag) enters a new layout.</p>
+</div>
 </div>
 
 <pre><span id="VALmouse_leave"><span class="keyword">val</span> mouse_leave</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a></code></pre><div class="info ">
-Similar to <a href="Bogue.Trigger.html#VALmouse_enter"><code class="code"><span class="constructor">Trigger</span>.mouse_enter</code></a>, when the pointer leaves the layout.<br>
+<div class="info-desc">
+<p>Similar to <a href="Bogue.Trigger.html#VALmouse_enter"><code class="code"><span class="constructor">Trigger</span>.mouse_enter</code></a>, when the pointer leaves the layout.</p>
+</div>
 </div>
 
 <pre><span id="VALvar_changed"><span class="keyword">val</span> var_changed</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a></code></pre><div class="info ">
-The <code class="code">var_changed</code> event can be sent to notify that some widget made a
-     change to a global variable.<br>
+<div class="info-desc">
+<p>The <code class="code">var_changed</code> event can be sent to notify that some widget made a
+     change to a global variable.</p>
+</div>
 </div>
 
 <pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a></code></pre><div class="info ">
-Currently the <code class="code">update</code> event is more or less equivalent to
-     <code class="code">var_changed</code>. This might change in future versions.<br>
+<div class="info-desc">
+<p>Currently the <code class="code">update</code> event is more or less equivalent to
+     <code class="code">var_changed</code>. This might change in future versions.</p>
+</div>
 </div>
 
 <pre><span id="VALbuttons_down"><span class="keyword">val</span> buttons_down</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a> list</code></pre><div class="info ">
-A list of events containing the mouse_button_down event, and the
-     finger_down event.<br>
+<div class="info-desc">
+<p>A list of events containing the mouse_button_down event, and the
+     finger_down event.</p>
+</div>
 </div>
 
 <pre><span id="VALbuttons_up"><span class="keyword">val</span> buttons_up</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a> list</code></pre><div class="info ">
-A list of events containing the mouse_button_up event, and the
-     finger_up event.<br>
+<div class="info-desc">
+<p>A list of events containing the mouse_button_up event, and the
+     finger_up event.</p>
+</div>
 </div>
 
 <pre><span id="VALpointer_motion"><span class="keyword">val</span> pointer_motion</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">t</a> list</code></pre><div class="info ">
-A list of events containing the mouse_motion event, and the finger_motion
-     event.<br>
+<div class="info-desc">
+<p>A list of events containing the mouse_motion event, and the finger_motion
+     event.</p>
 </div>
-<br>
-<h2 id="2_Usingeventsforterminatingthreads">Using events for terminating threads</h2><br>
-
+</div>
+<h3 id="2_Usingeventsforterminatingthreads">Using events for terminating threads</h3>
 <pre><span id="VALshould_exit"><span class="keyword">val</span> should_exit</span> : <code class="type">Tsdl.Sdl.event -> bool</code></pre><div class="info ">
-Tell if the current thread should exit. This should only be called within
+<div class="info-desc">
+<p>Tell if the current thread should exit. This should only be called within
      a widget action. The event should be the event passed to the action
      function. A well programmed action should check this event to decide if it
-     should exit.<br>
+     should exit.</p>
+</div>
 </div>
 
 <pre><span id="VALwill_exit"><span class="keyword">val</span> will_exit</span> : <code class="type">Tsdl.Sdl.event -> unit</code></pre><div class="info ">
-A nice thread should do this just before terminating. May be suppressed in
-      future versions.<br>
+<div class="info-desc">
+<p>A nice thread should do this just before terminating. May be suppressed in
+      future versions.</p>
+</div>
 </div>
 
 <pre><span id="VALnice_delay"><span class="keyword">val</span> nice_delay</span> : <code class="type">Tsdl.Sdl.event -> float -> unit</code></pre><div class="info ">
-<code class="code">nice_delay&nbsp;ev&nbsp;t</code> Wait during a delay (<code class="code">t</code> seconds), but quit anyway when
-     <a href="Bogue.Trigger.html#VALshould_exit"><code class="code"><span class="constructor">Trigger</span>.should_exit</code></a><code class="code">&nbsp;ev</code> is true.<br>
+<div class="info-desc">
+<p><code class="code">nice_delay&nbsp;ev&nbsp;t</code> Wait during a delay (<code class="code">t</code> seconds), but quit anyway when
+     <a href="Bogue.Trigger.html#VALshould_exit"><code class="code"><span class="constructor">Trigger</span>.should_exit</code></a><code class="code">&nbsp;ev</code> is true.</p>
+</div>
 </div>
 
 <pre><span id="VALpush_quit"><span class="keyword">val</span> push_quit</span> : <code class="type">unit -> unit</code></pre><div class="info ">
-Send the SDL_QUIT event, as if the user clicked on the close button of the
+<div class="info-desc">
+<p>Send the SDL_QUIT event, as if the user clicked on the close button of the
      last existing window. It will in principle raise the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a>
-     exception and hence exit the mainloop.<br>
+     exception and hence exit the mainloop.</p>
 </div>
-<br>
-<h2 id="2_SDLevents">SDL events</h2><br>
-
+</div>
+<h3 id="2_SDLevents">SDL events</h3>
 <pre><span id="TYPEsdl_event"><span class="keyword">type</span> <code class="type"></code>sdl_event</span> = <code class="type">[ `App_did_enter_background<br>       | `App_did_enter_foreground<br>       | `App_low_memory<br>       | `App_terminating<br>       | `App_will_enter_background<br>       | `App_will_enter_foreground<br>       | `Clipboard_update<br>       | `Controller_axis_motion<br>       | `Controller_button_down<br>       | `Controller_button_up<br>       | `Controller_device_added<br>       | `Controller_device_remapped<br>       | `Controller_device_removed<br>       | `Dollar_gesture<br>       | `Dollar_record<br>       | `Drop_file<br>       | `Finger_down<br>       | `Finger_motion<br>       | `Finger_up<br>       | `Joy_axis_motion<br>       | `Joy_ball_motion<br>       | `Joy_button_down<br>       | `Joy_button_up<br>       | `Joy_device_added<br>       | `Joy_device_removed<br>       | `Joy_hat_motion<br>       | `Key_down<br>       | `Key_up<br>       | `Mouse_button_down<br>       | `Mouse_button_up<br>       | `Mouse_motion<br>       | `Mouse_wheel<br>       | `Multi_gesture<br>       | `Quit<br>       | `Sys_wm_event<br>       | `Text_editing<br>       | `Text_input<br>       | `Unknown of int<br>       | `User_event<br>       | `Window_event ]</code> </pre>
 
 
@@ -119,6 +135,8 @@ Send the SDL_QUIT event, as if the user clicked on the close button of the
 
 
 <pre><span id="VALevent_kind"><span class="keyword">val</span> event_kind</span> : <code class="type">Tsdl.Sdl.event -><br>       [ `App_did_enter_background<br>       | `App_did_enter_foreground<br>       | `App_low_memory<br>       | `App_terminating<br>       | `App_will_enter_background<br>       | `App_will_enter_foreground<br>       | `Bogue_full_click<br>       | `Bogue_keyboard_focus<br>       | `Bogue_mouse_at_rest<br>       | `Bogue_mouse_enter<br>       | `Bogue_mouse_focus<br>       | `Bogue_mouse_leave<br>       | `Bogue_redraw<br>       | `Bogue_startup<br>       | `Bogue_stop<br>       | `Bogue_stopped<br>       | `Bogue_sync_action<br>       | `Bogue_update<br>       | `Bogue_var_changed<br>       | `Clipboard_update<br>       | `Controller_axis_motion<br>       | `Controller_button_down<br>       | `Controller_button_up<br>       | `Controller_device_added<br>       | `Controller_device_remapped<br>       | `Controller_device_removed<br>       | `Dollar_gesture<br>       | `Dollar_record<br>       | `Drop_file<br>       | `Finger_down<br>       | `Finger_motion<br>       | `Finger_up<br>       | `Joy_axis_motion<br>       | `Joy_ball_motion<br>       | `Joy_button_down<br>       | `Joy_button_up<br>       | `Joy_device_added<br>       | `Joy_device_removed<br>       | `Joy_hat_motion<br>       | `Key_down<br>       | `Key_up<br>       | `Mouse_button_down<br>       | `Mouse_button_up<br>       | `Mouse_motion<br>       | `Mouse_wheel<br>       | `Multi_gesture<br>       | `Quit<br>       | `Sys_wm_event<br>       | `Text_editing<br>       | `Text_input<br>       | `Unknown of int<br>       | `User_event<br>       | `Window_event ]</code></pre><div class="info ">
-Union of <a href="Bogue.Trigger.html#TYPEsdl_event"><code class="code"><span class="constructor">Trigger</span>.sdl_event</code></a> and <a href="Bogue.Trigger.html#TYPEbogue_event"><code class="code"><span class="constructor">Trigger</span>.bogue_event</code></a><br>
+<div class="info-desc">
+<p>Union of <a href="Bogue.Trigger.html#TYPEsdl_event"><code class="code"><span class="constructor">Trigger</span>.sdl_event</code></a> and <a href="Bogue.Trigger.html#TYPEbogue_event"><code class="code"><span class="constructor">Trigger</span>.bogue_event</code></a></p>
+</div>
 </div>
 </body></html>

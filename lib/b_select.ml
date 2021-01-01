@@ -6,7 +6,7 @@
    cf: https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_select ).
 
    But with the current implementation, this is not so obvious. We probably have
-   to modify Menu. 
+   to modify Menu.
 
    Example: 28
 *)
@@ -16,7 +16,7 @@
 open B_utils
 module Layout = B_layout
 module Widget = B_widget
-module Var = B_var            
+module Var = B_var
 module Label = B_label
 module Menu = B_menu
 module Theme = B_theme
@@ -43,11 +43,18 @@ let get_submenu menu =
 (* We construct a simple Menu2 with a custom Layout for the main entry, and
    automatically generated labels for the menu entries. Using a custom layout
    makes it easier to modify its text, but in principle we could also use the
-   automatically generated layout and recover its widget resident. *)
+   automatically generated layout and recover its resident widget. *)
 
-let create ?dst ?(name = "select") ?(action = fun _ -> ()) ?fg
+let new_id = fresh_int ()
+
+(* Return [dst] (created if necessary). [name] will be the name of the selected
+   entry, not the name of the whole [dst] layout. *)
+let create ?dst ?name ?(action = fun _ -> ()) ?fg
     entries selected =
 
+  let name = match name with
+    | Some name -> name
+    | None -> "selected_" ^ (string_of_int (new_id ())) in
   let selected = Var.create selected in
   let action = Var.create action in
 
@@ -82,7 +89,7 @@ let create ?dst ?(name = "select") ?(action = fun _ -> ()) ?fg
   (* Here the structure of menu_layout is
      [ menu_layout =
       [ formatted_label =
-        [ selected_layout = [label "banana"]] [ caret-down ]; 
+        [ selected_layout = [label "banana"]] [ caret-down ];
       ]
      ]
   *)
@@ -109,10 +116,10 @@ let create ?dst ?(name = "select") ?(action = fun _ -> ()) ?fg
        Layout.flat_of_w ~sep:0 (* ~background *) [line]) in
 
   Menu.Engine.init ~dst:tmp_dst menu;
-  Layout.set_height tmp_dst (Layout.height menu_layout);
-
+  
   if dst = None then begin
-    (* We need to relocate to the top layout *)    
+    Layout.set_height tmp_dst (Layout.height menu_layout);
+    (* We need to relocate to the top layout *)
     (fun () ->
        pre "RELOCATE!";
        let room = Menu.layout_of_menu submenu in
@@ -144,6 +151,15 @@ let create ?dst ?(name = "select") ?(action = fun _ -> ()) ?fg
             clique sur le deuxième... *)
     )
     |> Sync.push;
+  end else
+  if true then begin (* TODO parameter adjust = true*)
+    let w,h = Layout.get_size (Menu.layout_of_menu submenu) in
+    Layout.set_height tmp_dst (Layout.height menu_layout + h);
+    Layout.set_width tmp_dst w
+    (* TODO ou plutôt faire un relocate, comme au-dessus, mais dans le dst *)
+    (* on peut aussi fournir en sortir la fonction qui fait le relocate dans un
+       layout de son choix, qu'on n'est pas obligé de construire exrpès --cf
+       examples/displays *)
   end;
 
   tmp_dst;;

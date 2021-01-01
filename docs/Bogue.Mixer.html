@@ -21,30 +21,27 @@
 </div>
 <h1>Module <a href="type_Bogue.Mixer.html">Bogue.Mixer</a></h1>
 
-<pre><span class="keyword">module</span> Mixer: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mixer.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Basic audio mixer for sound effects
-<p>
+<pre><span id="MODULEMixer"><span class="keyword">module</span> Mixer</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mixer.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Basic audio mixer for sound effects</p>
 
-This simple audio mixer makes it possible to play quick sounds, for instance
-   when clicking on buttons, or for game sounds effects.
-<p>
+<p>This simple audio mixer makes it possible to play quick sounds, for instance
+   when clicking on buttons, or for game sounds effects.</p>
 
-Only WAV files are supported. For playing MP3 music, and for more options, it is
-   advisable to use the SDL_Mixer library.
-<p>
+<p>Only WAV files are supported. For playing MP3 music, and for more options, it is
+   advisable to use the SDL_Mixer library.</p>
 
-<em>Remark:</em> This module is essentially independent of the rest of Bogue, so its
-   source can, with very few modifications, be used for any SDL application.
-<p>
+<p><em>Remark:</em> This module is essentially independent of the rest of Bogue, so its
+   source can, with very few modifications, be used for any SDL application.</p>
 
-<h5 id="5_graphbmixerhtmlDependencygraph"><a href="graph-b_mixer.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbmixerhtmlDependencygraph"><a href="graph-b_mixer.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="TYPEsound"><span class="keyword">type</span> <code class="type"></code>sound</span> = <code class="type">(int, Bigarray.int16_signed_elt) Tsdl.Sdl.bigarray</code> </pre>
+<pre><span id="TYPEsound"><span class="keyword">type</span> <code class="type"></code>sound</span> = <code class="type">(int, Stdlib.Bigarray.int16_signed_elt) Tsdl.Sdl.bigarray</code> </pre>
 
 
 <pre><code><span id="TYPErepeat"><span class="keyword">type</span> <code class="type"></code>repeat</span> = </code></pre><table class="typetable">
@@ -67,27 +64,41 @@ Only WAV files are supported. For playing MP3 music, and for more options, it is
 
 <pre><span id="VALtest"><span class="keyword">val</span> test</span> : <code class="type">unit -> unit</code></pre>
 <pre><span id="VALinit"><span class="keyword">val</span> init</span> : <code class="type">unit -> string option</code></pre><div class="info ">
-Initialize SDL audio.<br>
-<b>Returns</b> the name of the audio driver.<br>
+<div class="info-desc">
+<p>Initialize SDL audio.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> the name of the audio driver.</li>
+</ul>
 </div>
 
 <pre><span id="VALcreate_mixer"><span class="keyword">val</span> create_mixer</span> : <code class="type">?tracks:int -> ?freq:int -> string option -> <a href="Bogue.Mixer.html#TYPEt">t</a></code></pre><div class="info ">
-Create the mixer an open sound device. Only <code class="code">s16le</code> format is supported by
-      the callback at this time.<br>
+<div class="info-desc">
+<p>Create the mixer an open sound device. Only <code class="code">s16le</code> format is supported by
+      the callback at this time.</p>
+</div>
 </div>
 
 <pre><span id="VALload_chunk"><span class="keyword">val</span> load_chunk</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> string -> <a href="Bogue.Mixer.html#TYPEsound">sound</a></code></pre><div class="info ">
-Load a WAV file.<br>
+<div class="info-desc">
+<p>Load a WAV file.</p>
+</div>
 </div>
 
 <pre><span id="VALplay_chunk"><span class="keyword">val</span> play_chunk</span> : <code class="type">?track:int -><br>       ?effects:(<a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit) list -><br>       ?volume:float -><br>       ?repeat:<a href="Bogue.Mixer.html#TYPErepeat">repeat</a> -><br>       <a href="Bogue.Mixer.html#TYPEt">t</a> -> <a href="Bogue.Mixer.html#TYPEsound">sound</a> -> int option</code></pre><div class="info ">
-Play chunk on the desired track number. If <code class="code">track</code> is not specified, find
-     an available track. By default <code class="code">repeat&nbsp;=&nbsp;<span class="constructor">Repeat</span>&nbsp;1</code>.<br>
-<b>Returns</b> chosen track number, or None<br>
+<div class="info-desc">
+<p>Play chunk on the desired track number. If <code class="code">track</code> is not specified, find
+     an available track. By default <code class="code">repeat&nbsp;=&nbsp;<span class="constructor">Repeat</span>&nbsp;1</code>.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> chosen track number, or None</li>
+</ul>
 </div>
 
 <pre><span id="VALchange_volume"><span class="keyword">val</span> change_volume</span> : <code class="type">float -> <a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit</code></pre><div class="info ">
-Multiply sound intensity by a float factor<br>
+<div class="info-desc">
+<p>Multiply sound intensity by a float factor</p>
+</div>
 </div>
 
 <pre><span id="VALpause"><span class="keyword">val</span> pause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre>

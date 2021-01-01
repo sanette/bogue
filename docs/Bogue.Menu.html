@@ -21,21 +21,19 @@
 </div>
 <h1>Module <a href="type_Bogue.Menu.html">Bogue.Menu</a></h1>
 
-<pre><span class="keyword">module</span> Menu: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Various types of menus
-<p>
+<pre><span id="MODULEMenu"><span class="keyword">module</span> Menu</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Various types of menus</p>
 
-The generic <a href="Bogue.Menu.html#VALcreate"><code class="code"><span class="constructor">Menu</span>.create</code></a> function produces menus whose entries can be arbitrary
+<p>The generic <a href="Bogue.Menu.html#VALcreate"><code class="code"><span class="constructor">Menu</span>.create</code></a> function produces menus whose entries can be arbitrary
    layouts located at arbitrary places. But for usual entries, it is enough to
    provide a string for the entry label, and the layout will be constructed
-   automatically.
-<p>
+   automatically.</p>
 
-The specialized <a href="Bogue.Menu.html#VALbar"><code class="code"><span class="constructor">Menu</span>.bar</code></a> function will produce a familiar menu bar with drop-down
-   submenus.
-<p>
+<p>The specialized <a href="Bogue.Menu.html#VALbar"><code class="code"><span class="constructor">Menu</span>.bar</code></a> function will produce a familiar menu bar with drop-down
+   submenus.</p>
 
-<h5 id="5_graphbmenuhtmlDependencygraph"><a href="graph-b_menu.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbmenuhtmlDependencygraph"><a href="graph-b_menu.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
@@ -96,7 +94,9 @@ The specialized <a href="Bogue.Menu.html#VALbar"><code class="code"><span class=
 <td align="left" valign="top" >
 <code><span id="TYPEELTcontent.Flat"><span class="constructor">Flat</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list</code></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-A Flat content will produce a horizontal menu<br>
+<div class="info-desc">
+<p>A Flat content will produce a horizontal menu</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
@@ -106,7 +106,9 @@ A Flat content will produce a horizontal menu<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTcontent.Tower"><span class="constructor">Tower</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list</code></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-A Tower content will produce a vertical menu<br>
+<div class="info-desc">
+<p>A Tower content will produce a vertical menu</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
@@ -116,8 +118,10 @@ A Tower content will produce a vertical menu<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTcontent.Custom"><span class="constructor">Custom</span></span> <span class="keyword">of</span> <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list</code></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-In a Custom content, only Layout labels should be used, and their
-       position should be defined before creating the menu.<br>
+<div class="info-desc">
+<p>In a Custom content, only Layout labels should be used, and their
+       position should be defined before creating the menu.</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
@@ -127,7 +131,9 @@ In a Custom content, only Layout labels should be used, and their
 <td align="left" valign="top" >
 <code><span id="TYPEELTcontent.Separator"><span class="constructor">Separator</span></span></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-Currently only used for inserting separator lines in Tower menus.<br>
+<div class="info-desc">
+<p>Currently only used for inserting separator lines in Tower menus.</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr></table>
@@ -135,15 +141,19 @@ Currently only used for inserting separator lines in Tower menus.<br>
 
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEcontent">content</a> -> <a href="Bogue.Menu.html#TYPEt">t</a></code></pre><div class="info ">
-Generic menu creation, inserted in the <code class="code">dst</code> layout.<br>
+<div class="info-desc">
+<p>Generic menu creation, inserted in the <code class="code">dst</code> layout.</p>
+</div>
 </div>
 
 <pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> unit</code></pre><div class="info ">
-Creation of a menu bar in the <code class="code">dst</code> layout, with drop-down submenus. <code class="code">bar<br>
+<div class="info-desc">
+<p>Creation of a menu bar in the <code class="code">dst</code> layout, with drop-down submenus. <code class="code">bar<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst&nbsp;entries</code> inserts a layout which contains the menu bar into the top of
      the <code class="code">dst</code> layout (so, some room should be provided). The <code class="code">dst</code> layout
      should be big enough to contain the submenus. Any item flowing out of <code class="code">dst</code>
-     will not get focus.<br>
+     will not get focus.</p>
+</div>
 </div>
 
 <pre><span id="VALseparator"><span class="keyword">val</span> separator</span> : <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a></code></pre></body></html>

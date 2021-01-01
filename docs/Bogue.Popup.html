@@ -21,36 +21,48 @@
 </div>
 <h1>Module <a href="type_Bogue.Popup.html">Bogue.Popup</a></h1>
 
-<pre><span class="keyword">module</span> Popup: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Put layouts on top of others 
-<p>
+<pre><span id="MODULEPopup"><span class="keyword">module</span> Popup</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Put layouts on top of others</p>
 
-<h5 id="5_graphbpopuphtmlDependencygraph"><a href="graph-b_popup.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbpopuphtmlDependencygraph"><a href="graph-b_popup.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="VALadd_screen"><span class="keyword">val</span> add_screen</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
-Add a screen on top of the layout. This can be useful to make the whole
-     layout clickable as a whole.<br>
-<b>Returns</b> the screen.<br>
+<div class="info-desc">
+<p>Add a screen on top of the layout. This can be useful to make the whole
+     layout clickable as a whole.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> the screen.</li>
+</ul>
 </div>
 
 <pre><span id="VALattach"><span class="keyword">val</span> attach</span> : <code class="type">?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?show:bool -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
-Generic modal type popup
-<p>
-<code class="code">attach&nbsp;house&nbsp;layout</code> adds two layers on top of the house: one for the
-     screen to hide the house, one for the layout on top of the screen.<br>
-<b>Returns</b> the screen.<br>
+<div class="info-desc">
+<p>Generic modal type popup</p>
+
+<p><code class="code">attach&nbsp;house&nbsp;layout</code> adds two layers on top of the house: one for the
+     screen to hide the house, one for the layout on top of the screen.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> the screen.</li>
+</ul>
 </div>
 
 <pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -> ?h:int -> ?button:string -> string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
-Add to the layout a modal popup with a text and a close button. By
-     default, <code class="code">button=<span class="string">"Close"</span></code>.<br>
+<div class="info-desc">
+<p>Add to the layout a modal popup with a text and a close button. By
+     default, <code class="code">button=<span class="string">"Close"</span></code>.</p>
+</div>
 </div>
 
 <pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?yes:string -><br>       ?no:string -><br>       yes_action:(unit -> unit) -><br>       no_action:(unit -> unit) -> string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
-Add to the layout a modal popup with two yes/no buttons. By default,
-      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>.<br>
+<div class="info-desc">
+<p>Add to the layout a modal popup with two yes/no buttons. By default,
+      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>.</p>
+</div>
 </div>
 
 <pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?w:int -><br>       ?h:int -><br>       label1:string -><br>       label2:string -><br>       action1:(unit -> unit) -><br>       action2:(unit -> unit) -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
@@ -94,10 +106,12 @@ Add to the layout a modal popup with two yes/no buttons. By default,
 
 
 <pre><span id="VALtooltip"><span class="keyword">val</span> tooltip</span> : <code class="type">?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       ?position:<a href="Bogue.Popup.html#TYPEposition">position</a> -><br>       string -> target:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
-<code class="code">tooltip&nbsp;text&nbsp;~target&nbsp;widget&nbsp;layout</code> adds a tooltip which will appear on
+<div class="info-desc">
+<p><code class="code">tooltip&nbsp;text&nbsp;~target&nbsp;widget&nbsp;layout</code> adds a tooltip which will appear on
      <code class="code">layout</code>, next to <code class="code">target</code> (which should be a sublayout of <code class="code">layout</code>), when
      the <code class="code">widget</code> gets mouse focus and mouse is idle for some time on it. A
      tooltip it not a modal popup, it does not prevent from interacting with the
-     rest of the layout.<br>
+     rest of the layout.</p>
+</div>
 </div>
 </body></html>

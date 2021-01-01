@@ -21,41 +21,39 @@
 </div>
 <h1>Module <a href="type_Bogue.Tvar.html">Bogue.Tvar</a></h1>
 
-<pre><span class="keyword">module</span> Tvar: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Tvar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Transform variables
-<p>
+<pre><span id="MODULETvar"><span class="keyword">module</span> Tvar</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Tvar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Transform variables</p>
 
-    Transform variables are a way to share a common data between two widgets,
+<p>Transform variables are a way to share a common data between two widgets,
    when the data has a different meaning (or even a different type) for each
    widget. One widget holds the original value, and the other widget needs to
-   apply a <em>transformation</em> each time it wants to read or modify the value.
-<p>
+   apply a <em>transformation</em> each time it wants to read or modify the value.</p>
 
-    For instance you want to share a bank account <code class="code">b</code> between Alice in France
+<p>For instance you want to share a bank account <code class="code">b</code> between Alice in France
    and Bob in the USA. The value is stored by Alice in EUR, and when Bob does
    <code class="code">get&nbsp;b</code>, he gets the value in USD. Similarly, if he does <code class="code">set&nbsp;b&nbsp;50</code> to put
    50USD on the account, then Alice's value will automatically have the amount
-   in EUR.
-<p>
+   in EUR.</p>
 
-    What is interesting is that the transformation functions can also have <em>   side-effects</em>. For instance, send an email each time Bob or Alice modifies
-   the amount.
-<p>
+<p>What is interesting is that the transformation functions can also have <em>   side-effects</em>. For instance, send an email each time Bob or Alice modifies
+   the amount.</p>
 
-    A more prosaic example would be a slider which shares its value as an
+<p>A more prosaic example would be a slider which shares its value as an
    integer between 0 and 100, and another widget which needs to read/save this
    value as a float between 0 and 1, and each one of them gets notified when the
-   other changes the value.
-<p>
+   other changes the value.</p>
 
-<h5 id="5_graphbtvarhtmlDependencygraph"><a href="graph-b_tvar.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbtvarhtmlDependencygraph"><a href="graph-b_tvar.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">('a, 'b)</code> t</span> </pre>
 <div class="info ">
-a transform variable of type <code class="code">(<span class="keywordsign">'</span>a,<span class="keywordsign">'</span>b)</code> is a variable of type <code class="code"><span class="keywordsign">'</span>b</code> attached to
-     a variable of type <code class="code"><span class="keywordsign">'</span>a&nbsp;<span class="constructor">Var</span>.t</code> by a bi-directional transformation.<br>
+<div class="info-desc">
+<p>a transform variable of type <code class="code">(<span class="keywordsign">'</span>a,<span class="keywordsign">'</span>b)</code> is a variable of type <code class="code"><span class="keywordsign">'</span>b</code> attached to
+     a variable of type <code class="code"><span class="keywordsign">'</span>a&nbsp;<span class="constructor">Var</span>.t</code> by a bi-directional transformation.</p>
+</div>
 </div>
 
 </body></html>

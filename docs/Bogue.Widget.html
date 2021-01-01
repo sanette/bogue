@@ -36,58 +36,54 @@
 </div>
 <h1>Module <a href="type_Bogue.Widget.html">Bogue.Widget</a></h1>
 
-<pre><span class="keyword">module</span> Widget: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Widget.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Creating widgets and giving life to them
-<p>
+<pre><span id="MODULEWidget"><span class="keyword">module</span> Widget</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Widget.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Creating widgets and giving life to them</p>
 
-Widgets are simple graphic elements that can react to user interaction. They are
+<p>Widgets are simple graphic elements that can react to user interaction. They are
    the inhabitants of your GUI house. When a widget is woken up by some event,
-   it can talk to another widget by means of a <code class="code">connection</code>.
-<p>
+   it can talk to another widget by means of a <code class="code">connection</code>.</p>
 
-<h5 id="5_graphbwidgethtmlDependencygraph"><a href="graph-b_widget.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbwidgethtmlDependencygraph"><a href="graph-b_widget.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 <div class="info ">
-The type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> is a union of all kinds of widgets: Box, Button, Check box,
+<div class="info-desc">
+<p>The type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> is a union of all kinds of widgets: Box, Button, Check box,
      Image, Label, Slider, Text display, and Text input, plus the Empty
-     widget. 
-<p>
+     widget.</p>
 
-For instance, in the following code:
+<p>For instance, in the following code:</p>
 <pre class="codepre"><code class="code"><span class="keyword">let</span> w = label <span class="string">"Hello"</span> <span class="keyword">in</span>
 <span class="keyword">let</span> l = get_label w <span class="keyword">in</span>
 ...
-</code></pre>
-<code class="code">w</code> has the generic <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> type, while <code class="code">l</code> has the specialized <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> type.<br>
+</code></pre><p><code class="code">w</code> has the generic <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> type, while <code class="code">l</code> has the specialized <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> type.</p>
+</div>
 </div>
 
-<br>
-<h2 id="connections">Connections</h2>
-<p>
-
-      A connection has a source widget and a target widget. When the source
+<h3 id="connections">Connections</h3>
+<p>A connection has a source widget and a target widget. When the source
      widget receives a specified event, the connection is activated, executing a
-     specified function, which is called <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a>.
-<p>
+     specified function, which is called <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a>.</p>
 
-     An action is always executed in a new Thread (and hence will not block the
-     GUI), unless the priority <code class="code"><span class="constructor">Main</span></code> is specified.<br>
+<p>An action is always executed in a new Thread (and hence will not block the
+     GUI), unless the priority <code class="code"><span class="constructor">Main</span></code> is specified.</p>
 
 <pre><span id="TYPEconnection"><span class="keyword">type</span> <code class="type"></code>connection</span> </pre>
 
 
 <pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">t</a> -> Tsdl.Sdl.event -> unit</code> </pre>
 <div class="info ">
-An action is a function with three parameters <code class="code">w1&nbsp;w2&nbsp;ev</code>, where
+<div class="info-desc">
+<p>An action is a function with three parameters <code class="code">w1&nbsp;w2&nbsp;ev</code>, where
      <code class="code">w1</code> is the source widget, <code class="code">w2</code> the target widget, and <code class="code">ev</code> the event
-     (<a href="Bogue.Trigger.html#TYPEt"><code class="code"><span class="constructor">Trigger</span>.t</code></a>) that triggered the action.<br>
+     (<a href="Bogue.Trigger.html#TYPEt"><code class="code"><span class="constructor">Trigger</span>.t</code></a>) that triggered the action.</p>
+</div>
 </div>
 
-<br>
-What to do when the same action (= same connection id) is already running?<br>
+<p>What to do when the same action (= same connection id) is already running?</p>
 
 <pre><code><span id="TYPEaction_priority"><span class="keyword">type</span> <code class="type"></code>action_priority</span> = </code></pre><table class="typetable">
 <tr>
@@ -96,7 +92,9 @@ What to do when the same action (= same connection id) is already running?<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTaction_priority.Forget"><span class="constructor">Forget</span></span></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-discard the new action<br>
+<div class="info-desc">
+<p>discard the new action</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
@@ -106,7 +104,9 @@ discard the new action<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTaction_priority.Join"><span class="constructor">Join</span></span></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-execute the new after the first one has completed<br>
+<div class="info-desc">
+<p>execute the new after the first one has completed</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
@@ -116,7 +116,9 @@ execute the new after the first one has completed<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTaction_priority.Replace"><span class="constructor">Replace</span></span></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-kill the first action (if possible) and execute the second one<br>
+<div class="info-desc">
+<p>kill the first action (if possible) and execute the second one</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
@@ -126,8 +128,10 @@ kill the first action (if possible) and execute the second one<br>
 <td align="left" valign="top" >
 <code><span id="TYPEELTaction_priority.Main"><span class="constructor">Main</span></span></code></td>
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
-run in the main program. So this is blocking for all subsequent
-              actions<br>
+<div class="info-desc">
+<p>run in the main program. So this is blocking for all subsequent
+              actions</p>
+</div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr></table>
@@ -135,152 +139,155 @@ run in the main program. So this is blocking for all subsequent
 
 
 <pre><span id="VALconnect"><span class="keyword">val</span> connect</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
-<code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
+<div class="info-desc">
+<p><code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
      <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
      may change in the future...</em>). Once it is registered (either by
      <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and assuming that the layout containing
      the source widget has <em>focus</em>, then when an event <code class="code">ev</code> matches one of the
      <code class="code">triggers</code> list, the <code class="code">action</code> is executed with arguments <code class="code">source&nbsp;target<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev</code>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev</code>.</p>
+</div>
 </div>
 <div class="param_info"><code class="code">priority</code> : indicates the desired priority policy. Default is <code class="code"><span class="constructor">Forget</span></code>.</div>
 
 <pre><span id="VALconnect_main"><span class="keyword">val</span> connect_main</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
-Alias for <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>. Should be used for very fast actions
-     that can be run in the main thread.<br>
+<div class="info-desc">
+<p>Alias for <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>. Should be used for very fast actions
+     that can be run in the main thread.</p>
+</div>
 </div>
 
 <pre><span id="VALadd_connection"><span class="keyword">val</span> add_connection</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEconnection">connection</a> -> unit</code></pre><div class="info ">
-Registers the connection with the widget. This should systematically be
-     done after each connection creation, when the connection is created <em>     after</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.
-<p>
+<div class="info-desc">
+<p>Registers the connection with the widget. This should systematically be
+     done after each connection creation, when the connection is created <em>     after</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
 
-     Connections that are created <em>before</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> should rather be
+<p>Connections that are created <em>before</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> should rather be
      passed as argument to <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>, and <em>not</em> via
      <code class="code">add_connection</code>. Although this is not striclty necessary, this indicates
      that these connections are more 'pure' or at least more static, in the
      sense that they will not be modified by Bogue. These are usually much
-     easier to debug.
-<p>
+     easier to debug.</p>
 
-     <em><code class="code">add_connection</code> is separated from <a href="Bogue.Widget.html#VALconnect"><code class="code"><span class="constructor">Widget</span>.connect</code></a> because it is not pure: it
-     mutates the widget. This might change in future versions.</em><br>
+<p><em><code class="code">add_connection</code> is separated from <a href="Bogue.Widget.html#VALconnect"><code class="code"><span class="constructor">Widget</span>.connect</code></a> because it is not pure: it
+     mutates the widget. This might change in future versions.</em></p>
+</div>
 </div>
 
 <pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-<code class="code">update&nbsp;w</code> asks the widget <code class="code">w</code> to refresh at next frame. The most probable
+<div class="info-desc">
+<p><code class="code">update&nbsp;w</code> asks the widget <code class="code">w</code> to refresh at next frame. The most probable
      use of <code class="code">update</code> is within the code of an <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a>. It can happen that the
      action modifies the visual state of a widget that is neither the source or
      the target, and then one needs to explicitly tell this widget to re-draw
-     itself.<br>
+     itself.</p>
 </div>
-<br>
-<h3 id="3_Predefinedconnections">Predefined connections</h3><br>
-
+</div>
+<h4 id="3_Predefinedconnections">Predefined connections</h4>
 <pre><span id="VALon_release"><span class="keyword">val</span> on_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-<code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
-     which will be executed when the mouse button is released on this widget. 
-      <em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em><br>
+<div class="info-desc">
+<p><code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
+     which will be executed when the mouse button is released on this widget.
+      <em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em></p>
+</div>
 </div>
 
 <pre><span id="VALon_click"><span class="keyword">val</span> on_click</span> : <code class="type">click:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-<em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em><br>
+<div class="info-desc">
+<p><em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em></p>
+</div>
 </div>
 
-<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -><br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><br>
-<h2 id="widget_create">Creation of Widgets</h2><br>
-<br>
-<h3 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h3><br>
-
+<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -><br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><h3 id="widget_create">Creation of Widgets</h3><h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
 <pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?background:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?border:<a href="Bogue.Style.html#TYPEborder">Style.border</a> -><br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Create a Box widget, which simply displays a rectangle, optionally with
+<div class="info-desc">
+<p>Create a Box widget, which simply displays a rectangle, optionally with
      rounded corners and drop shadow. It is often used for the background of a
-     group of widgets (i.e. a <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>).<br>
+     group of widgets (i.e. a <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>).</p>
 </div>
-<br>
-<h3 id="3_Checkboxes">Check boxes</h3>
-      The standard on/off check boxes.<br>
+</div>
+<h4 id="3_Checkboxes">Check boxes</h4><p>The standard on/off check boxes.</p>
 
 <pre><span id="VALcheck_box"><span class="keyword">val</span> check_box</span> : <code class="type">?state:bool -> ?style:<a href="Bogue.Check.html#TYPEstyle">Check.style</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALset_check_state"><span class="keyword">val</span> set_check_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool -> unit</code></pre><br>
-<h3 id="3_Textdisplay">Text display</h3>
-      Use this for multi-line text.<br>
+<pre><span id="VALset_check_state"><span class="keyword">val</span> set_check_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool -> unit</code></pre><h4 id="3_Textdisplay">Text display</h4><p>Use this for multi-line text.</p>
 
 <pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -> ?h:int -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -><br>       ?w:int -> ?h:int -> <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><br>
-<h3 id="3_Labelsoricons">Labels or icons</h3><br>
-
+<pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Labelsoricons">Labels or icons</h4>
 <pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Create a Label widget with a one-line text.<br>
+<div class="info-desc">
+<p>Create a Label widget with a one-line text.</p>
+</div>
 </div>
 
 <pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -> ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Create a Label widget with a
-     <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> icon.
-<p>
+<div class="info-desc">
+<p>Create a Label widget with a
+     <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> icon.</p>
 
-     For instance <code class="code">icon&nbsp;~size:24&nbsp;<span class="string">"star"</span></code> creates a widget that displays the
-     "fa-star" fontawesome icon.<br>
+<p>For instance <code class="code">icon&nbsp;~size:24&nbsp;<span class="string">"star"</span></code> creates a widget that displays the
+     "fa-star" fontawesome icon.</p>
 </div>
-<br>
-<h3 id="3_Empty">Empty</h3><br>
-
+</div>
+<h4 id="3_Empty">Empty</h4>
 <pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">w:int -> h:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Create a widget that does not display anything but still gets focus and
-     reacts to events.<br>
+<div class="info-desc">
+<p>Create a widget that does not display anything but still gets focus and
+     reacts to events.</p>
 </div>
-<br>
-<h3 id="3_Image">Image</h3><br>
-
+</div>
+<h4 id="3_Image">Image</h4>
 <pre><span id="VALimage"><span class="keyword">val</span> image</span> : <code class="type">?w:int -><br>       ?h:int -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?noscale:bool -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Load image file.<br>
+<div class="info-desc">
+<p>Load image file.</p>
+</div>
 </div>
 
 <pre><span id="VALimage_from_svg"><span class="keyword">val</span> image_from_svg</span> : <code class="type">?w:int -> ?h:int -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Requires <code class="code">rsvg</code>.<br>
+<div class="info-desc">
+<p>Requires <code class="code">rsvg</code>.</p>
 </div>
-<br>
-<h3 id="3_Textinput">Text input</h3><br>
-
-<pre><span id="VALtext_input"><span class="keyword">val</span> text_input</span> : <code class="type">?text:string -><br>       ?prompt:string -><br>       ?size:int -><br>       ?filter:<a href="Bogue.Text_input.html#TYPEfilter">Text_input.filter</a> -> ?max_size:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><br>
-<h3 id="3_Buttons">Buttons</h3><br>
-
-<pre><span id="VALbutton"><span class="keyword">val</span> button</span> : <code class="type">?kind:<a href="Bogue.Button.html#TYPEkind">Button.kind</a> -><br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?state:bool -><br>       ?border_radius:int -><br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><br>
-<h3 id="3_Sliders">Sliders</h3><br>
-
+</div>
+<h4 id="3_Textinput">Text input</h4>
+<pre><span id="VALtext_input"><span class="keyword">val</span> text_input</span> : <code class="type">?text:string -><br>       ?prompt:string -><br>       ?size:int -><br>       ?filter:<a href="Bogue.Text_input.html#TYPEfilter">Text_input.filter</a> -> ?max_size:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Buttons">Buttons</h4>
+<pre><span id="VALbutton"><span class="keyword">val</span> button</span> : <code class="type">?kind:<a href="Bogue.Button.html#TYPEkind">Button.kind</a> -><br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?state:bool -><br>       ?border_radius:int -><br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Sliders">Sliders</h4>
 <pre><span id="VALslider"><span class="keyword">val</span> slider</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?step:int -><br>       ?value:int -><br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -><br>       ?var:(int <a href="Bogue.Avar.html#TYPEt">Avar.t</a>, int) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a> -><br>       ?length:int -><br>       ?thickness:int -> ?tick_size:int -> ?lock:bool -> int -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALslider_with_action"><span class="keyword">val</span> slider_with_action</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?step:int -><br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -><br>       value:int -><br>       ?length:int -><br>       ?thickness:int -><br>       ?tick_size:int -> action:(int -> unit) -> int -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-Create a slider that executes an action each time the local value of the
-     slider is modified by the user.<br>
+<div class="info-desc">
+<p>Create a slider that executes an action each time the local value of the
+     slider is modified by the user.</p>
 </div>
-<br>
-<h2 id="2_Creationofcombinedwidgets">Creation of combined widgets</h2><br>
-
+</div>
+<h3 id="2_Creationofcombinedwidgets">Creation of combined widgets</h3>
 <pre><span id="VALcheck_box_with_label"><span class="keyword">val</span> check_box_with_label</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a> * <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
-<code class="code"><span class="keyword">let</span>&nbsp;b,l&nbsp;=&nbsp;check_box_with_label&nbsp;text</code> creates a check box <code class="code">b</code>, a label
+<div class="info-desc">
+<p><code class="code"><span class="keyword">let</span>&nbsp;b,l&nbsp;=&nbsp;check_box_with_label&nbsp;text</code> creates a check box <code class="code">b</code>, a label
      <code class="code">l</code>, and connect them so that clicking on the text will also act on the
-     check box.<br>
+     check box.</p>
 </div>
-<br>
-<h2 id="2_Genericfunctionsonwidgets">Generic functions on widgets</h2><br>
-
+</div>
+<h3 id="2_Genericfunctionsonwidgets">Generic functions on widgets</h3>
 <pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
-query a boolean state. Works for Button and Check.<br>
+<div class="info-desc">
+<p>query a boolean state. Works for Button and Check.</p>
+</div>
 </div>
 
 <pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string</code></pre><div class="info ">
-Return the text of the widget. Works for Button, TextDisplay, Label,
-     and TextInput.<br>
+<div class="info-desc">
+<p>Return the text of the widget. Works for Button, TextDisplay, Label,
+     and TextInput.</p>
+</div>
 </div>
 
 <pre><span id="VALset_text"><span class="keyword">val</span> set_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
-Change the text of a widget. Works for Button, TextDisplay, Label,
-     and TextInput.<br>
+<div class="info-desc">
+<p>Change the text of a widget. Works for Button, TextDisplay, Label,
+     and TextInput.</p>
 </div>
-<br>
-<h2 id="2_ConversionsfromthegenericWidgettypetothespecializedinnertype">Conversions from the generic Widget type to the specialized inner type</h2><br>
-
+</div>
+<h3 id="2_ConversionsfromthegenericWidgettypetothespecializedinnertype">Conversions from the generic Widget type to the specialized inner type</h3>
 <pre><span id="VALget_box"><span class="keyword">val</span> get_box</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Box.html#TYPEt">Box.t</a></code></pre>
 <pre><span id="VALget_check"><span class="keyword">val</span> get_check</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Check.html#TYPEt">Check.t</a></code></pre>
 <pre><span id="VALget_label"><span class="keyword">val</span> get_label</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Label.html#TYPEt">Label.t</a></code></pre>

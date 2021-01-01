@@ -28,46 +28,48 @@
 </div>
 <h1>Module <a href="type_Bogue.Draw.html">Bogue.Draw</a></h1>
 
-<pre><span class="keyword">module</span> Draw: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Draw.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Low-level graphics and colors
-<p>
+<pre><span id="MODULEDraw"><span class="keyword">module</span> Draw</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Draw.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Low-level graphics and colors</p>
 
-This module is internally used for low-level graphics and a thin layer over Tsdl.
-<p>
+<p>This module is internally used for low-level graphics and a thin layer over Tsdl.</p>
 
-The public API is mainly useful for Color management.
-<p>
+<p>The public API is mainly useful for Color management.</p>
 
-<h5 id="5_graphbdrawhtmlDependencygraph"><a href="graph-b_draw.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbdrawhtmlDependencygraph"><a href="graph-b_draw.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEcanvas"><span class="keyword">type</span> <code class="type"></code>canvas</span> </pre>
 <div class="info ">
-Contains the hardware information for drawing (SDL renderer and window).<br>
+<div class="info-desc">
+<p>Contains the hardware information for drawing (SDL renderer and window).</p>
+</div>
 </div>
 
 
 <pre><span id="TYPEtexture"><span class="keyword">type</span> <code class="type"></code>texture</span> = <code class="type">Tsdl.Sdl.texture</code> </pre>
 
-<br>
-<h2 id="2_Initializationandshutdown">Initialization and shutdown</h2><br>
-
+<h3 id="2_Initializationandshutdown">Initialization and shutdown</h3>
 <pre><span id="VALquit"><span class="keyword">val</span> quit</span> : <code class="type">unit -> unit</code></pre><div class="info ">
-Cleanup and quit SDL.<br>
+<div class="info-desc">
+<p>Cleanup and quit SDL.</p>
 </div>
-<br>
-<h2 id="2_Colors">Colors</h2><br>
-
+</div>
+<h3 id="2_Colors">Colors</h3>
 <pre><span id="TYPErgb"><span class="keyword">type</span> <code class="type"></code>rgb</span> = <code class="type">int * int * int</code> </pre>
 <div class="info ">
-red, green and blue values are integers in the range <code class="code">0..255</code><br>
+<div class="info-desc">
+<p>red, green and blue values are integers in the range <code class="code">0..255</code></p>
+</div>
 </div>
 
 
 <pre><span id="TYPEcolor"><span class="keyword">type</span> <code class="type"></code>color</span> = <code class="type">int * int * int * int</code> </pre>
 <div class="info ">
-r,g,b,a<br>
+<div class="info-desc">
+<p>r,g,b,a</p>
+</div>
 </div>
 
 
@@ -88,9 +90,7 @@ r,g,b,a<br>
 </tr></table>
 
 
-<br>
-<h3 id="3_Predefinedcolors">Predefined colors</h3><br>
-
+<h4 id="3_Predefinedcolors">Predefined colors</h4>
 <pre><span id="VALblack"><span class="keyword">val</span> black</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
 <pre><span id="VALgrey"><span class="keyword">val</span> grey</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
 <pre><span id="VALpale_grey"><span class="keyword">val</span> pale_grey</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
@@ -105,46 +105,48 @@ r,g,b,a<br>
 <pre><span id="VALsienna"><span class="keyword">val</span> sienna</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
 <pre><span id="VALlabel_color"><span class="keyword">val</span> label_color</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
 <pre><span id="VALnone"><span class="keyword">val</span> none</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre><div class="info ">
-<code class="code">none&nbsp;=&nbsp;(0,0,0,0)</code> is completely transparent black.<br>
+<div class="info-desc">
+<p><code class="code">none&nbsp;=&nbsp;(0,0,0,0)</code> is completely transparent black.</p>
 </div>
-<br>
-<h3 id="3_Creatingcolors">Creating colors</h3><br>
-
+</div>
+<h4 id="3_Creatingcolors">Creating colors</h4>
 <pre><span id="VALopaque"><span class="keyword">val</span> opaque</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -> <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALtransp"><span class="keyword">val</span> transp</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -> <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALlighter"><span class="keyword">val</span> lighter</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">color</a> -> <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALdarker"><span class="keyword">val</span> darker</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">color</a> -> <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALset_alpha"><span class="keyword">val</span> set_alpha</span> : <code class="type">int -> <a href="Bogue.Draw.html#TYPErgb">rgb</a> -> <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALfind_color"><span class="keyword">val</span> find_color</span> : <code class="type">string -> <a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre><div class="info ">
-Convert a string of the form <code class="code"><span class="string">"grey"</span></code> or <code class="code"><span class="string">"#FE01BC"</span></code> to a rgb code
+<div class="info-desc">
+<p>Convert a string of the form <code class="code"><span class="string">"grey"</span></code> or <code class="code"><span class="string">"#FE01BC"</span></code> to a rgb code
      <code class="code">(r,g,b)</code>. Color names are taken from
-     <a href="https://www.rapidtables.com/web/color/html-color-codes.html">here</a>.<br>
+     <a href="https://www.rapidtables.com/web/color/html-color-codes.html">here</a>.</p>
+</div>
 </div>
 
-<pre><span id="VALpale"><span class="keyword">val</span> pale</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -> <a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre><br>
-<h3 id="3_Usingcolors">Using colors</h3><br>
-
+<pre><span id="VALpale"><span class="keyword">val</span> pale</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -> <a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre><h4 id="3_Usingcolors">Using colors</h4>
 <pre><span id="VALset_color"><span class="keyword">val</span> set_color</span> : <code class="type">Tsdl.Sdl.renderer -> <a href="Bogue.Draw.html#TYPEcolor">color</a> -> unit</code></pre><div class="info ">
-Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>.<br>
+<div class="info-desc">
+<p>Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>.</p>
 </div>
-<br>
-<h2 id="2_Layers">Layers</h2><br>
-
+</div>
+<h3 id="2_Layers">Layers</h3>
 <pre><span id="TYPElayer"><span class="keyword">type</span> <code class="type"></code>layer</span> </pre>
 <div class="info ">
-Layers are used to decide the order of drawing: which graphical elements
+<div class="info-desc">
+<p>Layers are used to decide the order of drawing: which graphical elements
      (layouts) should be below, which should be above. For the most part, you
-     don't have to access them directly.<br>
+     don't have to access them directly.</p>
+</div>
 </div>
 
 
 <pre><span id="VALuse_new_layer"><span class="keyword">val</span> use_new_layer</span> : <code class="type">unit -> unit</code></pre><div class="info ">
-Use this when you want to switch to a completely different set of layers,
-      typically when you want to draw on another window.<br>
+<div class="info-desc">
+<p>Use this when you want to switch to a completely different set of layers,
+      typically when you want to draw on another window.</p>
 </div>
-<br>
-<h2 id="2_Misc">Misc</h2><br>
-
+</div>
+<h3 id="2_Misc">Misc</h3>
 <pre><code><span id="TYPEalign"><span class="keyword">type</span> <code class="type"></code>align</span> = </code></pre><table class="typetable">
 <tr>
 <td align="left" valign="top" >
@@ -171,13 +173,17 @@ Use this when you want to switch to a completely different set of layers,
 
 
 <pre><span id="VALunscale_size"><span class="keyword">val</span> unscale_size</span> : <code class="type">int * int -> int * int</code></pre><div class="info ">
-Transform a size (W,H) in physical pixels into 'logical' pixels (w,h),
+<div class="info-desc">
+<p>Transform a size (W,H) in physical pixels into 'logical' pixels (w,h),
      which are used for layouts. This is done by dividing by the <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a>
-     <code class="code"><span class="constructor">SCALE</span></code> variable.<br>
+     <code class="code"><span class="constructor">SCALE</span></code> variable.</p>
+</div>
 </div>
 
 <pre><span id="VALset_system_cursor"><span class="keyword">val</span> set_system_cursor</span> : <code class="type">Tsdl.Sdl.System_cursor.t -> unit</code></pre><div class="info ">
-Set the mouse cursor to be the standard system cursor.  Internally, this
-      first creates an SDL system cursor (or use a previously created one).<br>
+<div class="info-desc">
+<p>Set the mouse cursor to be the standard system cursor.  Internally, this
+      first creates an SDL system cursor (or use a previously created one).</p>
+</div>
 </div>
 </body></html>

@@ -30,7 +30,7 @@ module Engine = struct
 
      The top of this tree is of type 'menu' and is the only one with a 'None'
      parent_entry. *)
-  
+
   type action = unit -> unit
 
   and entry_type =
@@ -43,7 +43,7 @@ module Engine = struct
       mutable selected: bool; (* equivalent to highlighted *)
       layout : Layout.t; (* how to display the entry label *)
       (* Note: a Separator should be an empty Layout *)
-      parent_menu : menu 
+      parent_menu : menu
     }
 
   and menu = {
@@ -78,7 +78,7 @@ module Engine = struct
   let screen_enable screen =
     pre "ENABLE";
     Layout.set_show screen true
-    
+
   let screen_disable screen =
     pre "DISABLE";
     Layout.set_show screen false
@@ -101,7 +101,7 @@ module Engine = struct
   let reset_entry ?(bg=Layout.Solid Draw.(opaque menu_bg_color)) entry =
     set_entry_bg ~bg entry;
     entry.selected <- false
-    
+
   (* Iter menu downwards *)
   let rec iter f menu =
     f menu;
@@ -159,8 +159,8 @@ module Engine = struct
 
   (* Search menu entries for selected entry *)
   let selected_entry menu =
-    list_findi (fun a -> a.selected) menu.entries 
-      
+    list_findi (fun a -> a.selected) menu.entries
+
   (* Search the top tree for the first (which should be unique) entry of Action
      kind which is 'selected'. Is there a simpler way to loop? *)
   let selected_action_entry menu =
@@ -187,16 +187,16 @@ module Engine = struct
     (function action ->
        do_option !t Timeout.cancel;
        t := Some (Timeout.add 150 action)),
-    
+
     (function () ->
        do_option !t Timeout.cancel)
-    
+
   let show screen menu =
     screen_enable screen;
     Layout.show ~duration menu.room;
     (* Layout.rec_set_show true menu.room; *)
     Layout.fade_in ~duration menu.room
-    
+
   let activate ?(timeout = false) screen menu =
     if menu.active then ()
     else begin
@@ -220,7 +220,7 @@ module Engine = struct
       begin
         menu.active <- false;
         clear_timeout ();
-        let action () = 
+        let action () =
           Layout.hide ~duration ~towards:Avar.Top menu.room;
           (* il y peut y avoir des bugs qd on ouvre/ferme vite. *)
           Layout.fade_out ~duration menu.room in
@@ -257,7 +257,7 @@ module Engine = struct
     | Menu m ->
        close ~timeout screen m;
        close_children ~timeout screen m
-    
+
   (* Close the other menus at the same level *)
   let close_others ?(timeout = false) screen entry =
     let menu = entry.parent_menu in
@@ -280,7 +280,7 @@ module Engine = struct
       ignore (Timeout.add 100 (fun () ->
           reset_entry entry; (* reset usual background *)
           close_tree screen entry.parent_menu))
-    
+
   (* Ask the board to set keyboard (and hence mouse) focus on the entry. *)
   let set_keyboard_focus entry_layout =
     let filter = Layout.get_rooms entry_layout
@@ -288,13 +288,13 @@ module Engine = struct
                  |> List.hd in
     if !debug then assert (filter.Layout.name = Some "filter");
     Layout.claim_keyboard_focus filter
-    
+
   (* 2. Functions for reacting to events *)
   (* ----------------------------------- *)
-    
+
   (* The behaviour we code here is more or less the same as QT/KDE apps. It's
      not exactly the same as GTK apps. *)
-      
+
   (* button_down can open/close menus. It also toggles the 'active' state of the
      parent menu, which is reponsible for opening submenus on mouse over or not,
      and works only if the parent menu is 'always_shown'. *)
@@ -330,9 +330,9 @@ module Engine = struct
     if entry.enabled then begin
       match entry.kind with
       | Menu _ -> () (* menus are open/closed on button_down or mouse_over *)
-      | Action _ -> run_action screen entry 
+      | Action _ -> run_action screen entry
     end
-              
+
   (* mouse_enter (and mouse_motion?). mouse_motion will be useful only when we
      add keyboard support. WARNING: when touching a new entry, both mouse_enter
      and button_down are triggered... so the menu opens and then quickly
@@ -351,7 +351,7 @@ module Engine = struct
         end
       | Action _ -> ()
     end
-    
+
   let mouse_leave entry =
     pre "MOUSE_LEAVE";
     if entry.enabled then begin
@@ -370,15 +370,15 @@ module Engine = struct
   let key_down screen entry keycode =
     pre "KEY_DOWN";
     if keycode = Sdl.K.escape then close_tree screen entry.parent_menu
-    else if entry.enabled then 
+    else if entry.enabled then
       if keycode = Sdl.K.return then begin
         match entry.kind with
-        | Menu menu -> 
+        | Menu menu ->
           (* 1/ouvrir 2/selectionner premier *)
           if menu.active
           then set_keyboard_focus (List.hd menu.entries).layout
           (* vérifier liste non vide ? *)
-          else activate screen menu          
+          else activate screen menu
         | Action _ -> run_action screen entry
       end else
       if keycode = Sdl.K.up || keycode = Sdl.K.down then
@@ -400,7 +400,7 @@ module Engine = struct
 
   (* 3. Creation of widgets and connections. *)
   (* --------------------------------------- *)
-    
+
   (* First we must coat all entry layouts using the Popup module, in order to
      get the correct mouse focus. This means that menus will be drawn on a
      separate layer. The coat has a widget (either Empty of Box) that will
@@ -440,7 +440,7 @@ module Engine = struct
         Sdl.Event.(get ev keyboard_keycode) in
     let c = Widget.connect_main widget widget action [Trigger.E.key_down] in
     Widget.add_connection widget c
-    
+
   let rec connect_loop screen layer menu =
     List.iter (fun entry ->
         if Layout.get_rooms entry.layout <> []
@@ -458,7 +458,7 @@ module Engine = struct
   let entry_layer = Popup.new_layer_above dst_layer in
   add_menu_to_layer t entry_layer;
   let coating_layer = Popup.new_layer_above entry_layer in
-  
+
   (* the screen is used to grab all mouse focus outside of the submenus while
      they are open *)
   let screen = Popup.filter_screen ~layer:entry_layer
@@ -475,10 +475,10 @@ module Engine = struct
      else. OU ALORS: définir le screen de façon dynamique quand on clique. *)
   connect_loop screen coating_layer t;
   add_menu_to_dst ~dst t;
-  
+
   screen_disable screen;
   Layout.add_room ~dst screen;
-  
+
   let w = Layout.widget screen in
   Widget.on_click ~click:(fun _ -> pre "CLICK SCREEN";
       close_tree screen t
@@ -488,21 +488,21 @@ end
 
 (* Now we can make a friendly API for creating elements of the menu type. *)
 (* ---------------------------------------------------------------------- *)
-              
+
 (* example:
    let file = Tower [{label = (Text "open"); content = (Action open_in)};
    etc...] in
    let edit = ... in
-   Flat [     
-   {label = (Text "File"); content = (Menu file)}; 
+   Flat [
+   {label = (Text "File"); content = (Menu file)};
    {label = (Text "Edit"); content = (Menu edit)};
    etc... ]
 *)
 
 type t = Engine.menu
-          
+
 type action = unit -> unit
-            
+
 type label =
   | Text of string
   | Layout of Layout.t
@@ -515,7 +515,7 @@ type label =
    by letting it be the 'dst' parameter. But warning, in all cases, the layout
    will be encapsulated into a screen, so the 'dst' will not remain its "direct
    house". *)
-            
+
 type entry = {
   label : label;
   content : content }
@@ -536,7 +536,7 @@ and content =
 let separator = { label = Text "Dummy separator label"; content = Separator }
 
 let text_margin = 5
-                
+
 (* Text to Layout. w and h are only used for text. maybe remove *)
 let format_label ?w ?h = function
   | Text s ->
@@ -551,7 +551,7 @@ let format_label ?w ?h = function
     if !debug then assert (l.Layout.name <> Some name);
     (* this function should be applied only ONCE to the label *)
     Layout.superpose ~name [l] (* We preserve the (x,y) position. *)
-     
+
 
 (* Warning, does not check whether there is already an icon... *)
 let add_icon_suffix ?(icon = "caret-right") layout =
@@ -577,7 +577,7 @@ let remove_icon_suffix ?(icon = "caret-right") layout =
     raise e
 
 let suffix_width = 10 (* TODO compute this *)
-                          
+
 module Tmp = struct
   (* We temporarily convert to a more programmer-friendly type, before
      converting to Engine.menu.  This type also carry more information
@@ -592,7 +592,7 @@ module Tmp = struct
     | Flat
     | Tower
     | Custom
-    
+
   type menu =
     { entries : tentry list;
       kind : menukind
@@ -608,7 +608,7 @@ module Tmp = struct
     content : tcontent;
     mutable formatted : bool;
     mutable suffix : position option } (* TODO add keyboard shortcuts *)
-             
+
   let get_layout entry =
     if !debug then assert entry.formatted;
     match entry.label with
@@ -620,7 +620,7 @@ module Tmp = struct
     do_option entry.suffix (fun p ->
         let icon = match p with
           | Below -> "caret-down"
-          | RightOf -> "caret-right" 
+          | RightOf -> "caret-right"
         in
         match entry.content with
         | Menu _ -> add_icon_suffix ~icon (get_layout entry)
@@ -641,7 +641,7 @@ module Tmp = struct
         | Separator->
           let background = Layout.Solid Draw.(opaque grey) in
           Layout.empty ~background ~w:10 ~h:1 ()
-        | Menu _ 
+        | Menu _
         | Action _ ->  format_label entry.label
     in
     if not entry.formatted && entry.suffix <> None
@@ -660,8 +660,8 @@ module Tmp = struct
       formatted = true;
       suffix = entry.suffix}
 
-                
-  let menu_formatter = function 
+
+  let menu_formatter = function
     | Flat -> (fun list ->
         let background = Layout.Solid Draw.(opaque menu_bg_color) in
         let shadow = Style.shadow ~offset:(1,1) ~size:1 () in
@@ -672,15 +672,15 @@ module Tmp = struct
         let l = Layout.tower ~margins:0 ~sep:0 ~background ~shadow list in
         Layout.expand_width l; l)
     | Custom  -> (fun list -> Layout.superpose list)
-                 
+
   (* Return (x,y) option, the coordinates where the submenu should be placed
      when positioned in the same layout as the parent layout. *)
-  let submenu_pos parent position = 
-    let w, h = Layout.get_size parent in 
+  let submenu_pos parent position =
+    let w, h = Layout.get_size parent in
     map_option position
       (function | Below -> (0, h)
                 | RightOf -> (w, 0))
-    
+
   let get_entries = function
     | Menu menu -> menu.entries
     | _ -> pre "get_entries should be called only with Menu."; []
@@ -733,7 +733,7 @@ module Tmp = struct
         menu.Engine.entries <- entries;
     in
     engine_entry
-    
+
   (* Create an Engine.menu from a content *)
   let create_engine = function
     | Action _ -> failwith "Cannot create a menu from an Action content."
@@ -757,7 +757,7 @@ module Tmp = struct
 
          (* TO BE CONTINUED... *)
 
-       
+
 end
 
 
@@ -767,7 +767,7 @@ let next_entry_position = function
   | Action _ -> None
   | Tower _ -> Some Tmp.RightOf
   | Flat _ -> Some Tmp.Below
-              
+
 (* Convert to the Tmp type, guessing a standard suffix *)
 let rec content_to_tmp position = function
   | Action a -> Tmp.Action a
@@ -789,23 +789,23 @@ and entry_to_tmp position entry =
     Tmp.formatted = false;
     Tmp.suffix = position
   }
-                       
+
 let layout_of_menu menu : Layout.t =
-  menu.Engine.room    
+  menu.Engine.room
 
 let set_layout menu room =
   menu.Engine.room <- room
-  
+
 let raw_engine content =
   let position = next_entry_position content in
   let tcontent = content_to_tmp position content in
   Tmp.create_engine tcontent
 
-let make_engine ~dst content =  
+let make_engine ~dst content =
   let t = raw_engine content in
   Engine.init ~dst t;
   t
-  
+
 (* Create a generic menu layout and insert it into the dst layout. *)
 (* let create ~dst content =
  *   let t = make_engine ~dst content in
@@ -827,4 +827,3 @@ let bar ~dst entries =
       | Menu _ -> remove_icon_suffix ~icon:"caret-down" entry.layout
       | Action _ -> ())
     t.Engine.entries
-

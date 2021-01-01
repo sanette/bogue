@@ -21,27 +21,29 @@
 </div>
 <h1>Module <a href="type_Bogue.Select.html">Bogue.Select</a></h1>
 
-<pre><span class="keyword">module</span> Select: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Select.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Drop-down select list
-<p>
+<pre><span id="MODULESelect"><span class="keyword">module</span> Select</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Select.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Drop-down select list</p>
 
-It's the usual select box which opens a drop-down list when clicked on, similar
-   to the <code class="code">&lt;select&gt;</code> html tag.
-<p>
+<p>It's the usual select box which opens a drop-down list when clicked on, similar
+   to the <code class="code">&lt;select&gt;</code> html tag.</p>
 
- Under the hood, a select list is a special type of menu with a single entry
-   having a submenu.
-<p>
+<p>Under the hood, a select list is a special type of menu with a single entry
+   having a submenu.</p>
 
-<h5 id="5_graphbselecthtmlDependencygraph"><a href="graph-b_select.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbselecthtmlDependencygraph"><a href="graph-b_select.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -><br>       ?name:string -><br>       ?action:(int -> unit) -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string array -> int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
-<code class="code">create&nbsp;string_array&nbsp;i</code> creates a select box with preselected entry
+<div class="info-desc">
+<p><code class="code">create&nbsp;string_array&nbsp;i</code> creates a select box with preselected entry
      <code class="code">i</code>. For instance <code class="code">create&nbsp;[|&nbsp;<span class="string">"A"</span>;&nbsp;<span class="string">"B"</span>;&nbsp;<span class="string">"C"</span>&nbsp;|]&nbsp;1</code> will create a select box
      with default choice <code class="code"><span class="string">"B"</span></code>. The <code class="code">action</code> (if specified) is executed when an
-     item is selected, and takes as argument the index of the selected item.<br>
-<b>Returns</b> a layout showing the selected item.<br>
+     item is selected, and takes as argument the index of the selected item.</p>
+</div>
+<ul class="info-attributes">
+<li><b>Returns</b> a layout showing the selected item.</li>
+</ul>
 </div>
 </body></html>

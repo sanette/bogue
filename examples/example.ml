@@ -6,12 +6,12 @@ module W = Widget
 module L = Layout
 module T = Trigger
 open Printf
-    
+
 let lorem = "Sed ut perspiciatis,
 unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt, explicabo.
 Nemo enim ipsam voluptatem, quia voluptas sit, aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum, quia dolor sit, amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt, ut labore et dolore magnam aliquam quaerat voluptatem.";;
 
-let europe = [| 
+let europe = [|
   "Austria";
   "Belgium";
   "Bulgaria";
@@ -74,12 +74,12 @@ let example1v () =
   let h = 50 in
   let title = W.rich_text ~size:20 ~h:30 Text_display.(page [para "Text samples"]) in
   let td = W.rich_text ~h Text_display.(page [underline (para "Original:"); example]) in
-  let td_normal = W.rich_text ~h 
-      (let open Text_display in 
+  let td_normal = W.rich_text ~h
+      (let open Text_display in
        [underline (para "Force normal style:"); normal example]) in
-  let td_bold = W.rich_text ~h 
+  let td_bold = W.rich_text ~h
       Text_display.(page [underline (raw "Force bold:"); bold example]) in
-  let td_italic = W.rich_text ~h 
+  let td_italic = W.rich_text ~h
       Text_display.(page [underline (para "Force italic:"); italic example]) in
   let box = W.box () in
   let layout = L.tower_of_w [b;title;td;td_normal;td_bold;td_italic;box] in
@@ -367,7 +367,7 @@ let example21 () =
     Button.reset (W.get_button b);
     release b  in
   let c = W.connect_main close_btn button (fun _ b _ -> close b) T.buttons_up in
-  
+
   let global = L.tower [L.resident button; layout] in
   let board = make [c] [global] in
   run board;;
@@ -426,7 +426,7 @@ let example23 () =
   run board;;
 
 let desc23bis = "fade-out"
-let example23bis () = 
+let example23bis () =
   let td = W.text_display lorem in
   let layout = L.tower_of_w [td] in
   L.fade_out ~duration:2000 layout;
@@ -532,7 +532,7 @@ let example26 () =
   let action_leave _ w2 _ = print_endline "action_leave";
     L.animate_w room (Avar.fromto ~duration:100 (L.width room) 200);
     Label.set (W.get_label w2) "Mouse left";
-    W.update w2; 
+    W.update w2;
     (* after leaving, the box is not active, so it is possible that no event get
        triggered, therefore we manually update the target. *)
   in
@@ -556,7 +556,7 @@ let example26bis () =
   let leave _ = print_endline "action_leave";
     L.animate_w room (Avar.fromto ~duration:100 (L.width room) 200);
     Label.set (W.get_label l) "Mouse left";
-    W.update l; 
+    W.update l;
     (* after leaving, the box is not active, so it is possible that no event get
        triggered, therefore we manually update the target. *)
   in
@@ -593,7 +593,7 @@ let example28 () =
   let board = make [] [layout] in
   let _ = Timeout.add 5000 (fun () -> print_endline "HELLO!---------------------") in
   run board;;
-              
+
 let desc29 = "radiolist"
 let example29 () =
   let radio = Radiolist.vertical [|"only one can be selected"; "AAA"; "BBB"; "CCC"|] in
@@ -615,7 +615,7 @@ let example30 () =
   (* Here it would also work with T.buttons_down instead of [T.update], but the
      latter is preferable in case the radio buttons are modified directly
      without clicking, cf Timeout below. (or via TAB, not implemented yet) *)
-  
+
   let layout = L.flat ~align:Draw.Center [Radiolist.layout radio; L.resident label] in
   let board = make cs [layout] in
   let _ = Timeout.add 5000 (fun () ->
@@ -724,7 +724,7 @@ let desc36 = "playing sound"
 let example36 () =
   Mixer.test ();;
 
-let desc37 = "playing sound when clicking"               
+let desc37 = "playing sound when clicking"
 let example37 () =
   let devname = Mixer.init () in
   let mixer = Mixer.create_mixer devname in
@@ -732,8 +732,8 @@ let example37 () =
   let uncheck_sound = Mixer.load_chunk mixer "../tests/audio/swoosh.wav" in
   Mixer.change_volume 0.1 uncheck_sound;
   let b = W.check_box () in
-  let click b = 
-    let sound = if W.get_state b then check_sound else uncheck_sound in 
+  let click b =
+    let sound = if W.get_state b then check_sound else uncheck_sound in
     ignore (Mixer.play_chunk mixer sound) in
   W.on_click ~click b;
   let td = W.text_display lorem in
@@ -754,7 +754,7 @@ let desc38 = "load SVG at different sizes"
 let example38 () =
   (* SVGs are loaded at optimal resolution, which means that the Theme.scale is
      taken into account *)
-  
+
   (* one can load an svg image as a background; it will be repeated as a pattern
      to fill the box: *)
   let bg = Image.create_from_svg ~width:300 ~height:100 "images/w3c-logo-white.svg" in
@@ -776,11 +776,11 @@ let example39 () =
   let label2 = W.label "right" in
   let line1 = L.flat ~background
       [L.resident label1; Space.hfill (); L.resident label2] in
-  (* We set initial width to 500: *) 
+  (* We set initial width to 500: *)
   L.set_width line1 500;
   (* But then the width will follow the width of the container (here, the
      window): *)
-  Space.full_width ~margin:0 line1; 
+  Space.full_width ~margin:0 line1;
   let label3 = W.label "Bottom" in
   let room3 = L.resident label3 in
   let line2 = L.flat ~background
@@ -901,16 +901,16 @@ let example44 () =
   let target = L.resident b in
   let target' = L.resident b' in
   let layout = L.tower [L.flat [target; target']; L.resident td] in
-  
+
   Popup.tooltip "I'm a tooltip located near the mouse pointer"
     ~position:Popup.Mouse ~target b layout;
   Popup.tooltip "Tooltip below the button"
     ~position:Popup.Below ~target:target' b' layout;
-  
+
   let board = make [] [layout] in
   run board;;
 
-let desc45 = "layout shadow" 
+let desc45 = "layout shadow"
 let example45 () =
   let shadow = Style.shadow () in
   let background = Style.color_bg Draw.(transp blue) in
@@ -933,9 +933,9 @@ let example46 () =
   tic ();
   let board = make [] [] in
   run board;;
-    
 
-  
+
+
 let _ =
   let examples = [  "0", (example0, desc0) ;
                     "1h", (example1h, desc1h) ;
@@ -989,15 +989,15 @@ let _ =
                     "44", (example44, desc44) ;
                     "45", (example45, desc45) ;
                     "46", (example46, desc46) ;
-                    
+
 
                  ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)
                |> List.filter (fun s -> s <> "-h") in
   let help = List.length to_run <> Array.length (Sys.argv) - 1 in
-  let to_run = if to_run == [] then all else to_run  in              
-  (* for instance to_run = [ "23"; "23bis" ] *) 
+  let to_run = if to_run == [] then all else to_run  in
+  (* for instance to_run = [ "23"; "23bis" ] *)
   let exs = try (List.map (fun key -> key, List.assoc key examples) to_run)
             with Not_found -> failwith "Cannot find requested example"
   in
@@ -1018,5 +1018,5 @@ let _ =
   );
   Stdlib.exit 0;;
 
-(* Attention le 16 ne marche pas après le 15: on reste bloqué sur 
+(* Attention le 16 ne marche pas après le 15: on reste bloqué sur
    Thread: Waiting for locked variable to unlock...==> corrigé *)

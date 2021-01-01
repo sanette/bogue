@@ -27,33 +27,32 @@
 </div>
 <h1>Module <a href="type_Bogue.Utils.html">Bogue.Utils</a></h1>
 
-<pre><span class="keyword">module</span> Utils: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Utils.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Utilities
-<p>
+<pre><span id="MODULEUtils"><span class="keyword">module</span> Utils</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Utils.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Utilities</p>
 
-    This module contains several utilities, in particular for debug logs.
-<p>
+<p>This module contains several utilities, in particular for debug logs.</p>
 
-<h5 id="5_graphbutilshtmlDependencygraph"><a href="graph-b_utils.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbutilshtmlDependencygraph"><a href="graph-b_utils.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
-<br>
-<h2 id="2_Debugging">Debugging</h2><br>
-
-<pre><span id="VALprintd"><span class="keyword">val</span> printd</span> : <code class="type">int -> ('a, unit, string, unit) Pervasives.format4 -> 'a</code></pre><div class="info ">
-For instance <code class="code">printd&nbsp;debug_warning&nbsp;<span class="string">"The&nbsp;value&nbsp;x=%u&nbsp;is&nbsp;too&nbsp;big"</span>&nbsp;x</code> will
+<h3 id="2_Debugging">Debugging</h3>
+<pre><span id="VALprintd"><span class="keyword">val</span> printd</span> : <code class="type">int -> ('a, unit, string, unit) Stdlib.format4 -> 'a</code></pre><div class="info ">
+<div class="info-desc">
+<p>For instance <code class="code">printd&nbsp;debug_warning&nbsp;<span class="string">"The&nbsp;value&nbsp;x=%u&nbsp;is&nbsp;too&nbsp;big"</span>&nbsp;x</code> will
      print a message in the console only if the <a href="Bogue.Utils.html#VALdebug"><code class="code"><span class="constructor">Utils</span>.debug</code></a> variable contains the
-     <code class="code">debug_warning</code> flag.<br>
+     <code class="code">debug_warning</code> flag.</p>
+</div>
 </div>
 
-<pre><span id="VALdebug"><span class="keyword">val</span> debug</span> : <code class="type">bool Pervasives.ref</code></pre>
-<pre><span id="VALdebug_code"><span class="keyword">val</span> debug_code</span> : <code class="type">int Pervasives.ref</code></pre><div class="info ">
-Logical <em>ored</em> of <code class="code">!debug</code> with debug flags (below) controls the amount
-     of debuging.<br>
+<pre><span id="VALdebug"><span class="keyword">val</span> debug</span> : <code class="type">bool Stdlib.ref</code></pre>
+<pre><span id="VALdebug_code"><span class="keyword">val</span> debug_code</span> : <code class="type">int Stdlib.ref</code></pre><div class="info ">
+<div class="info-desc">
+<p>Logical <em>ored</em> of <code class="code">!debug</code> with debug flags (below) controls the amount
+     of debuging.</p>
 </div>
-<br>
-<h3 id="3_Binarymasksflagsfordebuggingmessages">Binary masks (=flags) for debugging messages.</h3><br>
-
+</div>
+<h4 id="3_Binarymasksflagsfordebuggingmessages">Binary masks (=flags) for debugging messages.</h4>
 <pre><span id="VALdebug_thread"><span class="keyword">val</span> debug_thread</span> : <code class="type">int</code></pre>
 <pre><span id="VALdebug_warning"><span class="keyword">val</span> debug_warning</span> : <code class="type">int</code></pre>
 <pre><span id="VALdebug_graphics"><span class="keyword">val</span> debug_graphics</span> : <code class="type">int</code></pre>
@@ -62,33 +61,34 @@ Logical <em>ored</em> of <code class="code">!debug</code> with debug flags (belo
 <pre><span id="VALdebug_memory"><span class="keyword">val</span> debug_memory</span> : <code class="type">int</code></pre>
 <pre><span id="VALdebug_board"><span class="keyword">val</span> debug_board</span> : <code class="type">int</code></pre>
 <pre><span id="VALdebug_event"><span class="keyword">val</span> debug_event</span> : <code class="type">int</code></pre>
-<pre><span id="VALdebug_custom"><span class="keyword">val</span> debug_custom</span> : <code class="type">int</code></pre><br>
-<h2 id="2_Maths">Maths</h2><br>
-
+<pre><span id="VALdebug_custom"><span class="keyword">val</span> debug_custom</span> : <code class="type">int</code></pre><h3 id="2_Maths">Maths</h3>
 <pre><span id="VALpi"><span class="keyword">val</span> pi</span> : <code class="type">float</code></pre>
 <pre><span id="VALround"><span class="keyword">val</span> round</span> : <code class="type">float -> int</code></pre><div class="info ">
-Round float to nearest integer.<br>
+<div class="info-desc">
+<p>Round float to nearest integer.</p>
+</div>
 </div>
 
 <pre><span id="VALimax"><span class="keyword">val</span> imax</span> : <code class="type">int -> int -> int</code></pre><div class="info ">
-<code class="code">imax&nbsp;a&nbsp;b</code> returns max(<code class="code">a</code>, <code class="code">b</code>).<br>
+<div class="info-desc">
+<p><code class="code">imax&nbsp;a&nbsp;b</code> returns max(<code class="code">a</code>, <code class="code">b</code>).</p>
+</div>
 </div>
 
 <pre><span id="VALimin"><span class="keyword">val</span> imin</span> : <code class="type">int -> int -> int</code></pre><div class="info ">
-<code class="code">imin&nbsp;a&nbsp;b</code> returns min(<code class="code">a</code>, <code class="code">b</code>).<br>
+<div class="info-desc">
+<p><code class="code">imin&nbsp;a&nbsp;b</code> returns min(<code class="code">a</code>, <code class="code">b</code>).</p>
 </div>
-<br>
-<h2 id="2_TsdlResult">Tsdl Result</h2><br>
-
-<pre><span id="VALgo"><span class="keyword">val</span> go</span> : <code class="type">('a, 'b) Pervasives.result -> 'a</code></pre><div class="info ">
-Transform a <code class="code">result</code> into a standard value, or fail with an error. Used
-      only for SDL functions.<br>
 </div>
-<br>
-<h2 id="2_Options">Options</h2>
-<p>
-
-      Monadic style operations on optional variables.<br>
+<h3 id="2_TsdlResult">Tsdl Result</h3>
+<pre><span id="VALgo"><span class="keyword">val</span> go</span> : <code class="type">('a, 'b) Result.result -> 'a</code></pre><div class="info ">
+<div class="info-desc">
+<p>Transform a <code class="code">result</code> into a standard value, or fail with an error. Used
+      only for SDL functions.</p>
+</div>
+</div>
+<h3 id="2_Options">Options</h3>
+<p>Monadic style operations on optional variables.</p>
 
 <pre><span id="VALmap_option"><span class="keyword">val</span> map_option</span> : <code class="type">'a option -> ('a -> 'b) -> 'b option</code></pre>
 <pre><span id="VALdo_option"><span class="keyword">val</span> do_option</span> : <code class="type">'a option -> ('a -> unit) -> unit</code></pre>
@@ -96,12 +96,14 @@ Transform a <code class="code">result</code> into a standard value, or fail with
 <pre><span id="EXCEPTIONNone_option"><span class="keyword">exception</span> None_option</span></pre>
 
 <pre><span id="VALremove_option"><span class="keyword">val</span> remove_option</span> : <code class="type">'a option -> 'a</code></pre><div class="info ">
-Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.<br>
+<div class="info-desc">
+<p>Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.</p>
 </div>
-<br>
-<h2 id="2_Others">Others</h2><br>
-
+</div>
+<h3 id="2_Others">Others</h3>
 <pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">(unit -> 'a) -> 'a</code></pre><div class="info ">
-<code class="code">run&nbsp;f</code> is equivalent to <code class="code">f&nbsp;()</code>.<br>
+<div class="info-desc">
+<p><code class="code">run&nbsp;f</code> is equivalent to <code class="code">f&nbsp;()</code>.</p>
+</div>
 </div>
 </body></html>

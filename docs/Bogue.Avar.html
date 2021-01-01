@@ -24,15 +24,14 @@
 </div>
 <h1>Module <a href="type_Bogue.Avar.html">Bogue.Avar</a></h1>
 
-<pre><span class="keyword">module</span> Avar: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Avar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Animated variables
-<p>
+<pre><span id="MODULEAvar"><span class="keyword">module</span> Avar</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Avar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Animated variables</p>
 
-    An Avar.t is a variable that evolves in time. It is updated at every frame
-   (<em>i.e.</em> every iteration of the main loop). Bogue uses Avars for animations.
-<p>
+<p>An Avar.t is a variable that evolves in time. It is updated at every frame
+   (<em>i.e.</em> every iteration of the main loop). Bogue uses Avars for animations.</p>
 
-<h5 id="5_graphbavarhtmlDependencygraph"><a href="graph-b_avar.html">Dependency graph</a></h5><br>
+<h6 id="5_graphbavarhtmlDependencygraph"><a href="graph-b_avar.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
@@ -41,33 +40,33 @@ Animated variables
 
 <pre><span id="TYPEcallback"><span class="keyword">type</span> <code class="type"></code>callback</span> = <code class="type">unit -> unit</code> </pre>
 
-<br>
-<h2 id="2_Avarcreation">Avar creation</h2><br>
-
+<h3 id="2_Avarcreation">Avar creation</h3>
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?duration:<a href="Bogue.Time.html#TYPEt">Time.t</a> -><br>       ?init:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -><br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -><br>       ?finished:bool -><br>       ?update:('a <a href="Bogue.Avar.html#TYPEt">t</a> -> float -> 'a) -> 'a -> 'a <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
-Generic Avar creation. If <code class="code">finished&nbsp;=&nbsp;<span class="keyword">true</span></code>, the var never gets further
+<div class="info-desc">
+<p>Generic Avar creation. If <code class="code">finished&nbsp;=&nbsp;<span class="keyword">true</span></code>, the var never gets further
      updated, <em>ie</em> behaves like a normal variable. Otherwise, the <code class="code">update</code>
-     parameter is compulsory.<br>
+     parameter is compulsory.</p>
+</div>
 </div>
 <div class="param_info"><code class="code">update</code> : is a function such that <code class="code">update&nbsp;v&nbsp;s&nbsp;:&nbsp;<span class="keywordsign">'</span>a</code> should give the
      value of the Avar <code class="code">v</code> at the time <code class="code">s</code>. The meaning of the time <code class="code">s</code> is
      described in <a href="Bogue.Avar.html#VALprogress"><code class="code"><span class="constructor">Avar</span>.progress</code></a>.</div>
 
 <pre><span id="VALfromto"><span class="keyword">val</span> fromto</span> : <code class="type">?duration:int -><br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -> int -> int -> int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
-<code class="code">fromto&nbsp;x1&nbsp;x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
-      time elapses, moves continuously to <code class="code">x2</code>, with a final slowdown.<br>
+<div class="info-desc">
+<p><code class="code">fromto&nbsp;x1&nbsp;x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
+      time elapses, moves continuously to <code class="code">x2</code>, with a final slowdown.</p>
 </div>
-<br>
-<h2 id="2_Avarinformation">Avar information</h2><br>
-
+</div>
+<h3 id="2_Avarinformation">Avar information</h3>
 <pre><span id="VALprogress"><span class="keyword">val</span> progress</span> : <code class="type">'a <a href="Bogue.Avar.html#TYPEt">t</a> -> float</code></pre><div class="info ">
-<code class="code">progress&nbsp;v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
+<div class="info-desc">
+<p><code class="code">progress&nbsp;v</code> is a float in <code class="code">0,1</code> giving the percentage of the animation
      when the last <code class="code">v.value</code> was computed. In case of infinite animation, this
-     is just the elapsed Time (in ms).<br>
+     is just the elapsed Time (in ms).</p>
 </div>
-<br>
-<h2 id="2_Misc">Misc</h2><br>
-
+</div>
+<h3 id="2_Misc">Misc</h3>
 <pre><code><span id="TYPEdirection"><span class="keyword">type</span> <code class="type"></code>direction</span> = </code></pre><table class="typetable">
 <tr>
 <td align="left" valign="top" >

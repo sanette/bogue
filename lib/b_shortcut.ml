@@ -11,18 +11,18 @@ struct
 end
 
 module PairsMap = Map.Make(IntPairs)
-    
+
 type 'a action = 'a -> unit
-  
+
 type 'a t = ('a action) PairsMap.t
-    
+
 (* Bind a new action to the keycode. If the keycode was already present, the
    previous action is disregarded. *)
 let add_map map (keycode, keymod, action) =
   PairsMap.add (keycode, keymod) action map
 
 let remove map pair = PairsMap.remove pair map
-    
+
 (* Return the action bound to the keycode, or None. *)
 let find map pair =
   PairsMap.find_opt pair map
@@ -38,7 +38,7 @@ let create alist : 'a t =
 (* add a binding to a keycode without modifier *)
 let add (keycode, action) map =
   add_map map (keycode, Sdl.Kmod.none, action)
-  
+
 let add_ctrl (keycode, action) map =
   let alist = [keycode, Sdl.Kmod.lctrl, action;
                keycode, Sdl.Kmod.rctrl, action] in

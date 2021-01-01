@@ -7,7 +7,7 @@ open Result
 exception Sdl2_error of string
 
 let nop _ = ();;
-             
+
 let debug = ref false;; (* set to false for production *)
 let debug_thread = 1;;
 let debug_warning = 2;;
@@ -88,7 +88,7 @@ let startswith s sub =
     String.length s >= String.length sub &&
     String.sub s 0 (String.length sub) = sub
   end;;
-     
+
 (* create function for generating integers, starting from 1 *)
 let fresh_int () =
   let id = ref 0 in
@@ -96,7 +96,7 @@ let fresh_int () =
     else failwith "Too many ids created!";;
 
 (* round float to nearest integer: *)
-let round x = if x >= 0. 
+let round x = if x >= 0.
   then int_of_float (x +. 0.5)
   else int_of_float (x -. 0.5)
 
@@ -142,7 +142,7 @@ let list_findi p l =
     | a::rest -> if p a then Some (a, i)
       else loop (i+1) rest in
   loop 0 l
-  
+
 (* idem where the function f returns true *)
 let list_check_ok f l =
   list_check (fun x -> if f x then Some x else None) l;;
@@ -214,7 +214,7 @@ let check_option o f = match o with
   | None -> None;;
 
 (* Warning the "d" is always evaluated, so it's not always a good idea to use
-   this... *)
+   this...TODO use lazy  *)
 let default o d = match o with
   | Some x -> x
   | None -> d;;
@@ -278,7 +278,7 @@ let which command =
    https://opam.ocaml.org/packages/fileutils/ *)
   try
     let s = Unix.open_process_in ("which " ^ command) in
-    let res = try 
+    let res = try
         Some (input_line s)
       with
       | _ -> None in begin

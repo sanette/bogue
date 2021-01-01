@@ -21,14 +21,13 @@
 </div>
 <h1>Module <a href="type_Bogue.Label.html">Bogue.Label</a></h1>
 
-<pre><span class="keyword">module</span> Label: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Label.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-One-line text widget
-<p>
+<pre><span id="MODULELabel"><span class="keyword">module</span> Label</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Label.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>One-line text widget</p>
 
-A <code class="code"><span class="constructor">Label</span></code> is a widget for displaying a single line of text.
-<p>
+<p>A <code class="code"><span class="constructor">Label</span></code> is a widget for displaying a single line of text.</p>
 
-<h5 id="5_graphblabelhtmlDependencygraph"><a href="graph-b_label.html">Dependency graph</a></h5><br>
+<h6 id="5_graphblabelhtmlDependencygraph"><a href="graph-b_label.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
@@ -39,27 +38,37 @@ A <code class="code"><span class="constructor">Label</span></code> is a widget f
 
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -><br>       ?font:<a href="Bogue.Label.html#TYPEfont">font</a> -><br>       ?style:Tsdl_ttf.Ttf.Style.t -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
-Create a new <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a>. Most of the time, you'd rather want to create a
-     <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> by using <a href="Bogue.Widget.html#VALlabel"><code class="code"><span class="constructor">Widget</span>.label</code></a>.<br>
+<div class="info-desc">
+<p>Create a new <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a>. Most of the time, you'd rather want to create a
+     <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> by using <a href="Bogue.Widget.html#VALlabel"><code class="code"><span class="constructor">Widget</span>.label</code></a>.</p>
+</div>
 </div>
 
 <pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -> ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
-Create a <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> using the name of a
+<div class="info-desc">
+<p>Create a <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> using the name of a
      <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> symbol.  Most
      of the time, you'd rather want to create a <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> by using
-     <a href="Bogue.Widget.html#VALicon"><code class="code"><span class="constructor">Widget</span>.icon</code></a>.<br>
+     <a href="Bogue.Widget.html#VALicon"><code class="code"><span class="constructor">Widget</span>.icon</code></a>.</p>
+</div>
 </div>
 
 <pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
-Modify the text of the label.<br>
+<div class="info-desc">
+<p>Modify the text of the label.</p>
+</div>
 </div>
 
 <pre><span id="VALset_fg_color"><span class="keyword">val</span> set_fg_color</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> <a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> unit</code></pre><div class="info ">
-Modify the color of the text.<br>
+<div class="info-desc">
+<p>Modify the color of the text.</p>
+</div>
 </div>
 
 <pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
-Return the logical size (w,h). 
-      Warning, a +/- 1 error can be observed due to rounding.<br>
+<div class="info-desc">
+<p>Return the logical size (w,h).
+      Warning, a +/- 1 error can be observed due to rounding.</p>
+</div>
 </div>
 </body></html>

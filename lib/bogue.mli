@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20200630
+@version 20210101
 
 @author Vu Ngoc San
 
@@ -35,8 +35,8 @@ The only thing that [open Bogue] does is to bring these modules into your
    modules are probably the ones that you will find yourself using the most, so
    it's a good idea to alias them:
 
-{[module W = Bogue.Widget 
-module L = Bogue.Layout]} 
+{[module W = Bogue.Widget
+module L = Bogue.Layout]}
 *)
 
 
@@ -44,14 +44,14 @@ module L = Bogue.Layout]}
 (** Theming variables
 
 A number of variables can be modified from a configuration file. They are called
-   Theme variables. 
+   Theme variables.
 
 - Each theme has its own directory under
    [$HOME/.config/bogue/themes], in which there is a [bogue.conf] file where the
    Theme variables are defined.
 - The user config file [$HOME/.config/bogue.conf] overrides the theme files.
-- The syntax of the config file is [VARIABLE = value], one entry per line. 
-  Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored. 
+- The syntax of the config file is [VARIABLE = value], one entry per line.
+  Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored.
   For instance:
 {[
 # my bogue.conf
@@ -61,24 +61,24 @@ BACKGROUND = color:azure
 
 Here is the list of Theme variables:
 
-- [BACKGROUND]: the default background for all windows. It can be a color 
-  (eg. [color:darkturquoise] or [color:#00CED1]), or an image file 
+- [BACKGROUND]: the default background for all windows. It can be a color
+  (eg. [color:darkturquoise] or [color:#00CED1]), or an image file
   (eg. [file:myimage.png]).
-  In the latter case, the file is searched in the current theme's directory, 
-  unless the file string starts with [/], in which case it should be an 
+  In the latter case, the file is searched in the current theme's directory,
+  unless the file string starts with [/], in which case it should be an
   absolute path (eg. [file:/home/alice/myimage.png]).
-- [BG_COLOR]: A background color (eg. [darkturquoise], or [#00CED1]) 
+- [BG_COLOR]: A background color (eg. [darkturquoise], or [#00CED1])
   that is used by default by some widgets/layouts.
   It should be clearly visible over the [BACKGROUND].
 - [BUTTON_COLOR_ON]: the color of active buttons.
 - [BUTTON_COLOR_OFF]: the color of inactive buttons.
-- [CHECK_ON]: the image used for the 'checked' icon. It can be a file 
+- [CHECK_ON]: the image used for the 'checked' icon. It can be a file
   (eg. [myimage.png]) or a font-awesome icon (eg. [fa:check-square-o]).
 - [CHECK_OFF]: the image used for the 'unchecked' icon. See [CHECK_ON].
 - [CURSOR_COLOR]
 - [DIR]:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
 - [FA_DIR]: The fontawesome directory inside [DIR/common/].
-- [FAINT_COLOR]: A non-obstrusive color for disabled options or 
+- [FAINT_COLOR]: A non-obstrusive color for disabled options or
   text of little importance.
 - [LABEL_COLOR]: The color for text or icon labels.
 - [LABEL_FONT]: path of a TTF font for text labels. Eg: [Ubuntu-R.ttf].
@@ -87,12 +87,12 @@ Here is the list of Theme variables:
 - [MENU_BG_COLOR]
 - [MONO_FONT]: monospace font.
 - [ROOM_MARGIN]
-- [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.], 
-  all dimensions given to Bogue functions will be multiplied by 2 before 
-  rendering to obtain 
-  the hardware size in pixels. 
+- [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.],
+  all dimensions given to Bogue functions will be multiplied by 2 before
+  rendering to obtain
+  the hardware size in pixels.
   If set to [0.] or not specified, it is autodetected to match your screen DPI
-  (using [xdpyinfo], if present). 
+  (using [xdpyinfo], if present).
 - [SEL_BG_COLOR]: background color for selected items in lists.
 - [SEL_FG_COLOR]: text color for selected items in lists.
 - [SMALL_FONT_SIZE]: integer. Used for instance for tooltips popups.
@@ -109,22 +109,22 @@ module Theme : sig
 
      Theme variables are essentially for Bogue's internal use, but sometimes it
      can be useful to access their values. See above for their description. *)
-  
+
   val room_margin : int
-    
+
   val scale_int : int -> int
 (** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
    obtained by multiplying by [SCALE]. *)
-    
+
 end (* of Theme *)
 
 (* ---------------------------------------------------------------------------- *)
 
-     
+
 (** Utilities
 
     This module contains several utilities, in particular for debug logs.
-    
+
 {5 {{:graph-b_utils.html}Dependency graph}}
 *)
 module Utils : sig
@@ -152,11 +152,11 @@ module Utils : sig
   val debug_board : int
   val debug_event : int
   val debug_custom : int
-    
+
   (** {2 Maths} *)
 
   val pi : float
-    
+
   val round : float -> int
   (** Round float to nearest integer. *)
 
@@ -165,10 +165,10 @@ module Utils : sig
 
   val imin : int -> int -> int
   (** [imin a b] returns min([a], [b]). *)
-    
+
   (** {2 Tsdl Result} *)
-    
-  val go : ('a, 'b) result -> 'a
+
+  val go : ('a, 'b) Result.result -> 'a
   (** Transform a [result] into a standard value, or fail with an error. Used
       only for SDL functions. *)
 
@@ -183,7 +183,7 @@ module Utils : sig
   val default : 'a option -> 'a -> 'a
 
   exception None_option
-    
+
   val remove_option : 'a option -> 'a
   (** Warning: [remove_option None] will raise the {!None_option} exception. *)
 
@@ -191,13 +191,13 @@ module Utils : sig
 
   val run : (unit -> 'a) -> 'a
   (**  [run f] is equivalent to [f ()]. *)
-    
+
 end (* of Utils *)
 
 (* ---------------------------------------------------------------------------- *)
 
 
-(** Time in msec 
+(** Time in msec
 
 {5 {{:graph-b_time.html}Dependency graph}}
 *)
@@ -207,7 +207,7 @@ module Time : sig
   val now : unit -> t
   (** Time elapsed from the initialization of SDL (roughly, since the start of
       your program). *)
-    
+
   val adaptive_fps : int -> (unit -> unit) * (unit -> unit)
   (** Create helper functions to help controlling the frame rate of the graphics
      loop. This is only useful if you have your own graphics loop, and do not
@@ -220,7 +220,7 @@ module Time : sig
      next frame to keep up. However, it tries to be nice to the CPU: even if one
      is really too slow, it will guarantee a 5ms sleep to the CPU and {e not}
      try to keep up. *)
-                                             
+
 end (* of Time *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -244,18 +244,18 @@ module Var : sig
 
   val create : 'a -> 'a t
   (** [create v] returns a Var with initial value [v]. *)
-    
+
   val get :  'a t ->  'a
-    
+
   val set : 'a t ->  'a -> unit
-    (** [set v value] waits until no thread is accessing the Var [v] 
+    (** [set v value] waits until no thread is accessing the Var [v]
         and then sets its value to [value]. *)
-  
+
 end (* of Var *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Delayed actions 
+(** Delayed actions
 
 {5 {{:graph-b_timeout.html}Dependency graph}}
 *)
@@ -265,10 +265,10 @@ module Timeout : sig
   val add : int -> (unit -> unit) -> t
   (** [add delay action] will execute
      [action ()] after the delay of [delay] ms.
-     @return the Timeout element. 
+     @return the Timeout element.
 
-     Warning: don't expect the delay to be 
-     exact at the ms. The precision cannot be better than what the 
+     Warning: don't expect the delay to be
+     exact at the ms. The precision cannot be better than what the
      framerate imposes, {e i.e.} usually about 16ms. *)
 
   val cancel : t -> unit
@@ -292,7 +292,7 @@ module Trigger : sig
   type t = Tsdl.Sdl.event_type
 
   (** {2 Special Bogue events} *)
-         
+
   val startup : t
   (** The [startup] event is sent to all Widgets when the Bogue mainloop is
      started using {!Main.run}. *)
@@ -325,7 +325,7 @@ module Trigger : sig
      event. *)
 
   (** {2 Using events for terminating threads} *)
-    
+
   val should_exit : Tsdl.Sdl.event -> bool
   (** Tell if the current thread should exit. This should only be called within
      a widget action. The event should be the event passed to the action
@@ -347,7 +347,7 @@ module Trigger : sig
      exception and hence exit the mainloop. *)
 
   (** {2 SDL events} *)
-    
+
   type sdl_event =
     [ `App_did_enter_background
     | `App_did_enter_foreground
@@ -407,7 +407,7 @@ module Trigger : sig
 
   val event_kind : Tsdl.Sdl.event -> [sdl_event | bogue_event]
   (** Union of {!sdl_event} and {!bogue_event} *)
-    
+
 end (* of Trigger *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -429,11 +429,11 @@ module Mixer : sig
   type sound =  (int, Bigarray.int16_signed_elt) Tsdl.Sdl.bigarray
   type repeat = Repeat of int | Forever
   (* How many times we should repeat the sound. *)
-  
+
   val test : unit -> unit
 
   val init : unit -> string option
-  (** Initialize SDL audio. 
+  (** Initialize SDL audio.
       @return the name of the audio driver. *)
 
   val create_mixer : ?tracks:int -> ?freq:int -> string option -> t
@@ -449,7 +449,7 @@ module Mixer : sig
   (** Play chunk on the desired track number. If [track] is not specified, find
      an available track. By default [repeat = Repeat 1].
      @return chosen track number, or None *)
-  
+
   val change_volume : float -> sound -> unit
   (** Multiply sound intensity by a float factor *)
 
@@ -479,7 +479,7 @@ module Sync : sig
 (** [push action] registers the [action] to be executed by the mainloop at the
    start of the next frame, or at a subsequent frame if the queue is already
    large. *)
-    
+
 end (* of Sync *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -495,14 +495,14 @@ The public API is mainly useful for Color management.
 module Draw: sig
   type canvas
   (** Contains the hardware information for drawing (SDL renderer and window). *)
-     
+
   type texture = Tsdl.Sdl.texture
 
   (** {2 Initialization and shutdown} *)
 
   val quit : unit -> unit
   (** Cleanup and quit SDL. *)
-    
+
   (** {2 Colors} *)
 
   type rgb = int * int * int
@@ -516,7 +516,7 @@ module Draw: sig
     | Solid of color
 
   (** {3 Predefined colors} *)
-             
+
   val black : rgb
   val grey : rgb
   val pale_grey : rgb
@@ -531,12 +531,12 @@ module Draw: sig
   val sienna : rgb
 
   val label_color : rgb
-    
+
   val none : color
   (** [none = (0,0,0,0)] is completely transparent black. *)
 
   (** {3 Creating colors} *)
-    
+
   val opaque : rgb -> color
   val transp : rgb -> color
   val lighter : color -> color
@@ -553,7 +553,7 @@ module Draw: sig
 
   val set_color : Tsdl.Sdl.renderer -> color -> unit
   (** Equivalent to [Sdl.set_render_draw_color]. *)
-    
+
   (** {2 Layers} *)
 
   (** Layers are used to decide the order of drawing: which graphical elements
@@ -566,21 +566,21 @@ module Draw: sig
       typically when you want to draw on another window. *)
 
   (** {2 Misc} *)
-    
+
   type align =
     | Min
     | Center
     | Max
-    
+
   val unscale_size : int * int -> int * int
   (** Transform a size (W,H) in physical pixels into 'logical' pixels (w,h),
      which are used for layouts. This is done by dividing by the {!Theme}
-     [SCALE] variable. *)     
-    
+     [SCALE] variable. *)
+
   val set_system_cursor : Tsdl.Sdl.System_cursor.t -> unit
   (** Set the mouse cursor to be the standard system cursor.  Internally, this
       first creates an SDL system cursor (or use a previously created one). *)
-    
+
 end (* of Draw *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -608,12 +608,12 @@ module Mouse : sig
 
   val finger_pos : Tsdl.Sdl.event -> float * float
 
-    
+
 end (* of Mouse *)
 
 (* ---------------------------------------------------------------------------- *)
 
-  
+
 (** Transform variables
 
     Transform variables are a way to share a common data between two widgets,
@@ -641,7 +641,7 @@ module Tvar : sig
   type ('a, 'b) t
   (** a transform variable of type [('a,'b)] is a variable of type ['b] attached to
      a variable of type ['a Var.t] by a bi-directional transformation. *)
-      
+
 end (* of Tvar *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -656,7 +656,7 @@ module Avar : sig
   type 'a t
 
   type callback = unit -> unit
-  
+
   (** {2 Avar creation} *)
 
   val create : ?duration:Time.t ->
@@ -670,13 +670,13 @@ module Avar : sig
      @param update is a function such that [update v s : 'a] should give the
      value of the Avar [v] at the time [s]. The meaning of the time [s] is
      described in {!progress}. *)
-      
+
   val fromto : ?duration:int -> ?ending:callback -> int -> int -> int t
   (** [fromto x1 x2] creates a integer Avar.t with initial value [x1] and, as
       time elapses, moves continuously to [x2], with a final slowdown. *)
 
   (** {2 Avar information} *)
-    
+
   val progress : 'a t -> float
   (** [progress v] is a float in [0,1] giving the percentage of the animation
      when the last [v.value] was computed. In case of infinite animation, this
@@ -705,7 +705,7 @@ end (* of Avar *)
  *)
 module Selection : sig
   type t
-    
+
 end (* of Selection *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -747,7 +747,7 @@ module Image : sig
    accuracy).
 
    *)
-    
+
 end (* of Image *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -783,7 +783,7 @@ end (* of Style *)
 (** One-line text widget
 
 A [Label] is a widget for displaying a single line of text.
- 
+
 {5 {{:graph-b_label.html}Dependency graph}}
  *)
 module Label : sig
@@ -800,22 +800,22 @@ module Label : sig
      {{:https://lab.artlung.com/font-awesome-sample/}FontAwesome} symbol.  Most
      of the time, you'd rather want to create a {!Widget.t} by using
      {!Widget.icon}. *)
-    
+
   val set : t -> string -> unit
   (** Modify the text of the label. *)
 
   val set_fg_color : t -> Draw.color -> unit
   (** Modify the color of the text. *)
-    
+
   val size : t -> int * int
-  (** Return the logical size (w,h). 
+  (** Return the logical size (w,h).
       Warning, a +/- 1 error can be observed due to rounding. *)
-    
+
 end (* of Label *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Button widget with text or icon 
+(** Button widget with text or icon
 
 {5 {{:graph-b_button.html}Dependency graph}}
 *)
@@ -843,16 +843,16 @@ module Slider : sig
     | Horizontal (* horizontal bar with a small slider; NO background *)
     | HBar (* horizontal bar filled up to the value *)
     | Vertical
-    | Circular 
+    | Circular
 
   val size : t -> int * int
-             
+
   val value : t -> int
   (** Get current value. *)
 
   val set : t -> int -> unit
   (** Set a new value. *)
-    
+
 end (* of Slider *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -879,7 +879,7 @@ module Text_display : sig
   type words
 
   (** {2 Preparing the text} *)
-    
+
   val example : words
   val raw : string -> words
   val bold : words -> words
@@ -890,13 +890,13 @@ module Text_display : sig
   val page : words list -> words list
   val para : string -> words
   val paragraphs_of_string : string -> words list
-    
+
   (** {2 Creating the widgets} *)
 
   (** {2 Modifying the widgets} *)
-    
+
   val update_verbatim : t -> string -> unit
-    
+
 end (* Text_display *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -911,12 +911,12 @@ module Text_input : sig
 
   val uint_filter : filter
   val text : t -> string
-    
+
 end (* of Text_input *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Box widget 
+(** Box widget
 
 {5 {{:graph-b_box.html}Dependency graph}}
 *)
@@ -926,7 +926,7 @@ module Box : sig
   val create : ?width:int -> ?height:int ->
                ?background:Style.background -> ?border:Style.border ->
                ?shadow:Style.shadow -> unit -> t
-    
+
 end (* of Box *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -942,7 +942,7 @@ module Widget : sig
   type t
   (** The type {!t} is a union of all kinds of widgets: Box, Button, Check box,
      Image, Label, Slider, Text display, and Text input, plus the Empty
-     widget. 
+     widget.
 
 For instance, in the following code:
 {[
@@ -952,7 +952,7 @@ let l = get_label w in
 ]}
 [w] has the generic {!t} type, while [l] has the specialized {!Label.t} type.
 *)
-     
+
   (** {2:connections Connections}
 
       A connection has a source widget and a target widget. When the source
@@ -961,23 +961,23 @@ let l = get_label w in
 
      An action is always executed in a new Thread (and hence will not block the
      GUI), unless the priority [Main] is specified.  *)
-     
+
   type connection
-     
+
   type action = t -> t -> Tsdl.Sdl.event -> unit
   (** An action is a function with three parameters [w1 w2 ev], where
      [w1] is the source widget, [w2] the target widget, and [ev] the event
      ({!Trigger.t}) that triggered the action. *)
-              
+
   (** What to do when the same action (= same connection id) is already running? *)
-              
-  type action_priority = 
+
+  type action_priority =
     | Forget (** discard the new action *)
     | Join (** execute the new after the first one has completed *)
     | Replace (** kill the first action (if possible) and execute the second one
                  *)
     | Main (** run in the main program. So this is blocking for all subsequent
-              actions *)  
+              actions *)
 
   val connect : t -> t -> action ->
     ?priority:action_priority ->
@@ -998,7 +998,7 @@ let l = get_label w in
     ?update_target:bool -> ?join:connection -> Trigger.t list -> connection
   (** Alias for [connect ~priority:Main]. Should be used for very fast actions
      that can be run in the main thread. *)
-    
+
   val add_connection : t -> connection -> unit
   (** Registers the connection with the widget. This should systematically be
      done after each connection creation, when the connection is created {e
@@ -1013,7 +1013,7 @@ let l = get_label w in
 
      {e [add_connection] is separated from {!connect} because it is not pure: it
      mutates the widget. This might change in future versions.} *)
-    
+
   val update : t -> unit
   (** [update w] asks the widget [w] to refresh at next frame. The most probable
      use of [update] is within the code of an {!action}. It can happen that the
@@ -1025,7 +1025,7 @@ let l = get_label w in
 
   val on_release : release:(t -> unit) -> t -> unit
   (** [on_release ~release:f w] registers on the widget [w] the action [f],
-     which will be executed when the mouse button is released on this widget. 
+     which will be executed when the mouse button is released on this widget.
       {e Uses [priority=Main]} *)
 
   val on_click : click:(t -> unit) -> t -> unit
@@ -1033,11 +1033,11 @@ let l = get_label w in
 
   val mouse_over : ?enter:(t -> unit) -> ?leave:(t -> unit) -> t -> unit
 
-  
+
   (** {2:widget_create Creation of Widgets} *)
-    
+
   (** {3 Simple boxes (rectangles)} *)
-    
+
   val box :
     ?w:int -> ?h:int ->
     ?background:Style.background -> ?border:Style.border ->
@@ -1048,7 +1048,7 @@ let l = get_label w in
 
   (** {3 Check boxes}
       The standard on/off check boxes. *)
-    
+
   val check_box : ?state:bool -> ?style:Check.style -> unit -> t
   val set_check_state : t -> bool -> unit
 
@@ -1058,36 +1058,36 @@ let l = get_label w in
   val text_display :  ?w:int -> ?h:int -> string -> t
   val rich_text : ?size:int -> ?w:int -> ?h:int -> Text_display.words list -> t
   val verbatim : string -> t
-    
+
   (** {3 Labels or icons} *)
 
   val label : ?size:int -> ?fg:Draw.color -> ?font:Label.font -> string -> t
   (** Create a Label widget with a one-line text. *)
-    
+
   val icon : ?size:int -> ?fg:Draw.color -> string -> t
   (** Create a Label widget with a
      {{:https://lab.artlung.com/font-awesome-sample/}FontAwesome} icon.
 
      For instance [icon ~size:24 "star"] creates a widget that displays the
-     "fa-star" fontawesome icon. *)                                         
-  
+     "fa-star" fontawesome icon. *)
+
   (** {3 Empty} *)
 
   val empty : w:int -> h:int -> unit -> t
   (** Create a widget that does not display anything but still gets focus and
      reacts to events. *)
-    
+
   (** {3 Image} *)
 
   val image : ?w:int -> ?h:int -> ?bg:Draw.color ->
     ?noscale:bool -> string -> t
   (** Load image file. *)
-    
+
   val image_from_svg : ?w:int -> ?h:int -> ?bg:Draw.color -> string -> t
   (** Requires [rsvg]. *)
-    
+
   (** {3 Text input} *)
-    
+
   val text_input : ?text:string -> ?prompt:string ->
     ?size:int -> ?filter:Text_input.filter -> ?max_size:int -> unit -> t
 
@@ -1100,7 +1100,7 @@ let l = get_label w in
     ?bg_over:Style.background ->
     ?state:bool ->
     ?border_radius:int -> ?border_color:Draw.color -> string -> t
-    
+
   (** {3 Sliders} *)
 
   val slider : ?priority:action_priority -> ?step:int -> ?value:int ->
@@ -1113,7 +1113,7 @@ let l = get_label w in
     ?thickness:int -> ?tick_size:int -> action:(int -> unit) -> int -> t
   (** Create a slider that executes an action each time the local value of the
      slider is modified by the user. *)
-  
+
   (** {2 Creation of combined widgets} *)
 
   val check_box_with_label : string -> t * t
@@ -1122,14 +1122,14 @@ let l = get_label w in
      check box. *)
 
   (** {2 Generic functions on widgets} *)
-    
+
   val get_state : t -> bool
   (** query a boolean state. Works for Button and Check. *)
 
   val get_text : t -> string
   (** Return the text of the widget. Works for Button, TextDisplay, Label,
      and TextInput. *)
-  
+
   val set_text : t -> string -> unit
   (** Change the text of a widget. Works for Button, TextDisplay, Label,
      and TextInput. *)
@@ -1156,7 +1156,7 @@ module Update : sig
 
   val push : Widget.t -> unit
   (** Register a widget for being updated (at next frame) by the main loop. *)
-    
+
 end (* of Update *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1190,11 +1190,11 @@ module Layout : sig
   type t
 
   exception Fatal_error of (t * string)
-    
+
   type room_content =
     | Rooms of t list
     | Resident of Widget.t
-                    
+
   (** Not implemented. *)
   type adjust   =
   | Fit
@@ -1218,7 +1218,7 @@ module Layout : sig
   val unload_background : t -> unit
   (** Free the texture associated with the background (if any). This can be used
      to force recreating it. *)
-  
+
   (** {2 Creation of layouts}
 
       Remark: all layouts have an optional [name] property, which is used only
@@ -1226,9 +1226,9 @@ module Layout : sig
 
   val empty : ?name:string -> ?background:background -> w:int -> h:int -> unit -> t
   (** An empty layout can reserve some space without stealing focus. *)
-     
+
   (** {3 Create layouts from widgets} *)
-    
+
   val resident :
     ?name:string -> ?x:int -> ?y:int -> ?w:int -> ?h:int ->
     ?background:background ->
@@ -1243,11 +1243,11 @@ module Layout : sig
   val tower_of_w :
     ?name:string -> ?sep:int ->
     ?align:Draw.align ->
-    ?background:background -> 
+    ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> Widget.t list -> t
 
   (** {3 Create layouts from other layouts} *)
-    
+
   val flat :
     ?name:string -> ?sep:int ->
     ?adjust:adjust -> ?hmargin:int -> ?vmargin:int -> ?margins:int ->
@@ -1267,13 +1267,13 @@ module Layout : sig
       their (x,y) position. *)
 
   (** {2 Some useful layout combinations} *)
-    
+
   val make_clip : ?w:int ->
     ?scrollbar:bool ->
     ?scrollbar_inside:bool -> ?scrollbar_width:int -> h:int -> t -> t
   (** Clip a layout inside a smaller container and make it scrollable, and
       optionally add a scrollbar widget. *)
-  
+
   (** {2 Get layout attributes} *)
 
   val xpos : t -> int
@@ -1304,9 +1304,9 @@ module Layout : sig
 
   val gety : t -> int
   val get_oldy : t -> int
-    
+
   val widget : t -> Widget.t
-  (** Return the resident widget, or 
+  (** Return the resident widget, or
       @raise Not_found if the layout is not a {e leaf}. *)
 
   val top_house : t -> t
@@ -1315,7 +1315,7 @@ module Layout : sig
      that is directly attached to a "physical" (SDL) window. *)
 
   val get_content : t -> room_content
-  
+
   (** {2 Modify existing layouts}
 
       These functions will not work if there is an animation running acting of the
@@ -1328,7 +1328,7 @@ module Layout : sig
   val set_show : t -> bool -> unit
 
   val set_shadow : t -> Style.shadow option -> unit
-    
+
   val fit_content : ?sep:int -> t -> unit
   (** Adapt the size of the layout (and their houses) to the disposition of the
      contained rooms. *)
@@ -1343,15 +1343,15 @@ module Layout : sig
   (** Use this to free the textures stored by the layout (and its children) for
      reducing memory. The layout can still be used without any impact, the
      textures will be recreated on the fly.  *)
-    
+
   val lock : t -> unit
   val unlock : t -> unit
   (** Since layouts can be modified by different threads, it might be useful to
      lock it with a mutex. This does *not* always prevent from modifying it, but
      another [lock] statement will wait for the previous lock to be removed by
      {!unlock}. *)
-    
-  
+
+
   (** {2 Animations}
 
       Position, size, alpha channel, and rotation of Layouts use [Avar]
@@ -1362,7 +1362,7 @@ module Layout : sig
 
       These functions assign an animated variable if type {!Avar.t} to one
      of the properties of the layout (position, width, etc.)  *)
-    
+
   val animate_x : t -> int Avar.t -> unit
   (** Assign an Avar to the layout x position. *)
 
@@ -1374,9 +1374,9 @@ module Layout : sig
   val animate_h : t -> int Avar.t -> unit
   val animate_alpha : t -> float Avar.t -> unit
   val animate_angle : t -> float Avar.t -> unit
-    
+
   (** {3 Predefined animations} *)
-    
+
   val hide : ?duration:int -> ?towards:Avar.direction -> t -> unit
   (** See {!show}. *)
 
@@ -1405,7 +1405,7 @@ module Layout : sig
   val rotate : ?duration:int -> ?from_angle:float -> angle:float -> t -> unit
   (** Rotate all widgets inside the layout around their respective centers. For
       a global rotation, use a {!Snapshot}. *)
-    
+
   val slide_in : ?from:Avar.direction -> dst:t -> t -> unit
   val slide_to : ?duration:int -> t -> int * int -> unit
   (** [slide_to room (x0,y0)] will translate the [room] to the position
@@ -1423,7 +1423,7 @@ module Layout : sig
 
   val retower : ?align:Draw.align ->
     ?hmargin:int -> ?vmargin:int -> ?margins:int -> ?duration:int -> t -> unit
-    
+
   (** {2 Windows}
 
       A very special use of layout is to represent the 'window' on which
@@ -1432,7 +1432,7 @@ module Layout : sig
      layout. *)
 
   val window : t -> Tsdl.Sdl.window
-                         
+
   val set_window_pos : t -> int * int -> unit
   (** It should be set {b after} {!Main.make} and {b before}
      {!Main.run}. Otherwise it has possibly no effect, or perhaps causes some
@@ -1442,7 +1442,7 @@ module Layout : sig
 
   val set_cursor : t option -> unit
   (** Sets the cursor to the default value for this layout. *)
-    
+
 end (* of Layout *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1451,13 +1451,13 @@ end (* of Layout *)
 
 These functions {e do not take effect immediately!} They will be executed, in
    the order of their invocation, at the next graphics frame (or at startup if
-   they are invoked before the start of the mainloop).  
+   they are invoked before the start of the mainloop).
 
 {5 {{:graph-b_space.html}Dependency graph}}
 *)
 module Space : sig
 
-  
+
   val hfill : ?margin:int -> unit -> Layout.t
   (** When used in a {!Layout.flat} structure, this special empty layout will
      automatically expand in order to fill the available width in the parent
@@ -1477,14 +1477,14 @@ module Space : sig
       empty one. *)
 
   val make_vfill : ?margin:int -> Layout.t -> unit
-    
+
   val vcenter : Layout.t -> unit
   (** Will vertically center the layout in its house. *)
 end (* of Space *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Convert Bogue objects to strings for debugging 
+(** Convert Bogue objects to strings for debugging
 
 {5 {{:graph-b_print.html}Dependency graph}}
 *)
@@ -1500,12 +1500,12 @@ module Print : sig
   val layout_error : Layout.t -> string -> unit
   (** Print a message to stderr and dump the top_house structure to a temporary
      file. *)
-    
+
 end (* of Print *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Create an image from a Layout 
+(** Create an image from a Layout
 
 {5 {{:graph-b_snapshot.html}Dependency graph}}
 *)
@@ -1513,9 +1513,9 @@ module Snapshot : sig
 
   val create : ?border:Style.border -> Layout.t -> Widget.t
   (** Should be called from the main thread only. There are some issues with
-     transparency. 
+     transparency.
      @return a Box widget. *)
-                                                                   
+
 end (* of Snapshot *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1557,18 +1557,18 @@ module Long_list : sig
      entries have the same height, say 30 pixels, one can define
 
       {[ let height_fn _ = Some 30 ]} *)
-                                                      
+
 end (* of Long_list *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Switch between layouts using Tabs 
+(** Switch between layouts using Tabs
 
 {5 {{:graph-b_tabs.html}Dependency graph}}
 *)
 module Tabs : sig
 
-  val create : 
+  val create :
     ?slide:Avar.direction ->
     ?adjust:Layout.adjust -> ?expand:bool ->
     ?canvas:Draw.canvas ->
@@ -1577,16 +1577,16 @@ end (* of Tabs *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Put layouts on top of others 
+(** Put layouts on top of others
 
 {5 {{:graph-b_popup.html}Dependency graph}} *)
 module Popup : sig
 
   val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
   (** Add a screen on top of the layout. This can be useful to make the whole
-     layout clickable as a whole. 
+     layout clickable as a whole.
      @return the screen. *)
-  
+
   (** Generic modal type popup *)
   val attach : ?bg:Draw.color ->
     ?show:bool -> Layout.t -> Layout.t -> Layout.t
@@ -1624,7 +1624,7 @@ module Popup : sig
      the [widget] gets mouse focus and mouse is idle for some time on it. A
      tooltip it not a modal popup, it does not prevent from interacting with the
      rest of the layout. *)
-    
+
 end (* of Popup *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1639,23 +1639,23 @@ The generic {!create} function produces menus whose entries can be arbitrary
 The specialized {!bar} function will produce a familiar menu bar with drop-down
    submenus.
 
-{5 {{:graph-b_menu.html}Dependency graph}} 
+{5 {{:graph-b_menu.html}Dependency graph}}
 *)
 module Menu : sig
 
   type t
   (* The type of generic menus. *)
-  
+
   type action = unit -> unit
-              
+
   type label =
     | Text of string
     | Layout of Layout.t
-              
+
   type entry = {
       label : label;
       content : content }
-             
+
   and content =
     | Action of action
     | Flat of entry list
@@ -1670,16 +1670,16 @@ module Menu : sig
 
   val create : dst:Layout.t -> content -> t
 (** Generic menu creation, inserted in the [dst] layout. *)
-  
+
   val bar : dst:Layout.t -> entry list -> unit
   (** Creation of a menu bar in the [dst] layout, with drop-down submenus. [bar
      dst entries] inserts a layout which contains the menu bar into the top of
      the [dst] layout (so, some room should be provided). The [dst] layout
      should be big enough to contain the submenus. Any item flowing out of [dst]
      will not get focus. *)
-  
+
   val separator : entry
-    
+
 end
 
 (* ---------------------------------------------------------------------------- *)
@@ -1708,14 +1708,14 @@ module Select : sig
         @return a layout showing the selected item. *)
 
 end (* of Select *)
-     
+
 (* ---------------------------------------------------------------------------- *)
 
 (** Check list with a single choice
 
     Each item of the list is displayed with a 'radio button' in front of it, and
    at most one item can be selected, similarly to [<input type="radio"...>] in
-   html. Radiobuttons are implemented with {!Check.t}. 
+   html. Radiobuttons are implemented with {!Check.t}.
 
 {5 {{:graph-b_radiolist.html}Dependency graph}}
 *)
@@ -1741,7 +1741,7 @@ end (* of Radiolist *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Tables with sortable columns and selectable rows 
+(** Tables with sortable columns and selectable rows
 
 {5 {{:graph-b_table.html}Dependency graph}}
 *)
@@ -1770,21 +1770,21 @@ end (* of Table *)
 Because a GUI continuously waits for user interaction, everything has to run
    inside a loop.  *)
 
-(** Control the workflow of the GUI mainloop 
+(** Control the workflow of the GUI mainloop
 
 {5 {{:graph-b_main.html}Dependency graph}}
 *)
 module Main : sig
   type board
   (** The board is the whole universe of your GUI. It contains everything. *)
-  
+
   exception Exit
   (** Raising the [Exit] exception will tell the GUI loop to terminate. *)
 
   val exit_on_escape : int * int * (board -> unit)
   (** If the [exit_on_escape] shortcut is given to the {!make} function, then
      the {!Exit} exception will be raised upon pressing the Escape key. *)
-  
+
   val make : ?shortcuts:(int * int * (board -> unit)) list ->
     Widget.connection list -> Layout.t list -> board
   (** Create a [board] from a list of layouts and connections. The list of
@@ -1792,16 +1792,16 @@ module Main : sig
      Layout in the list will open as a new window. The optional argument
      [shortcuts] is a list of shortcut triples of the form [keycode, keymod,
      action].  *)
-  
+
   val run :
     ?before_display:(unit -> unit) ->
     ?after_display:(unit -> unit) -> board -> unit
   (** Launch the main loop. *)
-  
-  (** {2 Using Bogue together with another graphics loop} 
+
+  (** {2 Using Bogue together with another graphics loop}
 
       See the [embed] example. *)
-    
+
   val make_sdl_windows : ?windows:Tsdl.Sdl.window list -> board -> unit
   (** This is only useful if you have your own graphics loop, and do {e not} use
      {!run}. This function creates an SDL window for each top layout in the
@@ -1813,7 +1813,7 @@ module Main : sig
   val refresh_custom_windows : board -> unit
   (** Ask the GUI to refresh (ie. repaint) the custom windows (those that were
      not created by Bogue itself). *)
-  
+
   val one_step : ?before_display:(unit -> unit) ->
     bool -> (unit -> unit) * (unit -> unit) -> ?clear:bool -> board -> bool
 (** This is only useful if you have your own graphics loop, and do {e not} use
@@ -1829,14 +1829,14 @@ module Main : sig
   val quit : unit -> unit
 (** Use this to close SDL windows and cleanup memory, after {!run} has
    returned. *)
-    
+
 end (* of Main *)
 
 (* ---------------------------------------------------------------------------- *)
 
 (** Alias for {!Main} *)
 module Bogue = Main
-  
+
 (* ---------------------------------------------------------------------------- *)
 
 (** {2:example Example}

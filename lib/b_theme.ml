@@ -2,28 +2,28 @@
 (* This file is part of BOGUE. San Vu Ngoc, 2019 *)
 open B_utils
 module Utf8 = B_utf8
-  
+
 (*
-   
+
 Format of the $HOME/.config/bogue/bogue.conf file ($HOME/.bogue.conf is also ok):
 ## BOGUE version 0.1
-    
+
 # This is a comment
 # The version string is compulsory
 # it must not contain space
-    
+
 # syntax VAR = value
 # the spaces around "=" are required
-    
+
 SCALE = 2.15
 DIR = /home/john/.config/bogue/themes
-    
+
 # (note: there are no quotes around string values)
-    
+
 *)
 
-let this_version = "20200630"  (* see VERSION file *)
-  
+let this_version = "20210101"  (* see VERSION file *)
+
 let default_vars = [
   (* Debug: *)
   "DEBUG", "false";
@@ -39,7 +39,7 @@ let default_vars = [
   "BUTTON_COLOR_ON", "darkturquoise";
   "BUTTON_COLOR_OFF", "steelblue";
   (* The "checked" image: either image or fa icon, eg. "fa:check-square-o" *)
-  "CHECK_ON", "check_on.png"; 
+  "CHECK_ON", "check_on.png";
   (* The "unchecked" image: (eg: "fa:square-o") *)
   "CHECK_OFF", "check_off.png";
   (* The cursor color for text input: *)
@@ -71,14 +71,14 @@ let default_vars = [
   "MONO_FONT", "UbuntuMono-R.ttf";
   (* Room margin: *)
   "ROOM_MARGIN", "10";
-  (* Font awesome dir, in the theme/common directory *)
+  (* Font awesome dir, in the theme/common directory: *)
   "FA_DIR", "font-awesome-4.6.3";
   (* The global scale to be applied to all graphical elements. Setting
      SCALE=2. is useful for HIDPI screens. Here, the scale should be transparent
      to the user, and be applied only at the last moment, when dealing directly
      with rendering functions, or when creating blits. It might be a good idea
      to have a different scale per window, in case of multiple monitors. SCALE=0
-     will try to autodetect. *)
+     will try to autodetect: *)
   "SCALE", "0"; ];;
 
 
@@ -132,7 +132,7 @@ let load_vars config_file =
 let user_vars =
   let config_file = let r = sub_file home ".bogue.conf" in
     if Sys.file_exists r then r
-    else  
+    else
       let d = sub_file conf "bogue/bogue.conf" in
       if Sys.file_exists d then d
       else "" in
@@ -146,7 +146,7 @@ let user_vars = ref user_vars;;
    theme variables *)
 let load_theme_vars dir vars =
   let rec loop newv = function
-    | [] -> printd debug_io "No theme specified"; newv 
+    | [] -> printd debug_io "No theme specified"; newv
     | (name, value)::rest ->
        if name = "THEME"
        then
@@ -156,7 +156,7 @@ let load_theme_vars dir vars =
        else loop ((name, value)::newv) rest
   in
   loop [] vars;;
-    
+
 let get_var s =
   try let v = List.assoc s !user_vars in
       printd debug_warning "Using %s=%s" s v;
@@ -172,7 +172,7 @@ let get_var s =
       | e -> raise e;
     end
   | e -> raise e;;
- 
+
 let get_int ?(default = 0) s =
   let v = get_var s in
   try int_of_string v with
@@ -188,7 +188,7 @@ let get_float ?(default = 0.) s =
     printd debug_error "Expected a float for '%s', got '%s' instead. Using default=%f." s v default;
     default
   | e -> raise e;;
-  
+
 let get_bool s =
   let b = get_var s in
   String.lowercase_ascii b = "true" || b = "1";;
@@ -202,7 +202,9 @@ let dir =
   let dir = get_var "DIR" in
   if Sys.file_exists dir && Sys.is_directory dir
   then dir
-    (* TODO maintenant aller chercher dans  `opam config var prefix`/bogue/themes *)
+  (* TODO Bogue should look for the theme in `~/.opam/bogue/share/bogue/themes/`
+     in case `~/.config/bogue/themes/` does not exist. Use `opam config var
+     prefix`/bogue/themes. See https://github.com/sanette/bogue/issues/3 *)
   else let config = sub_file conf "bogue/themes" in
     if Sys.file_exists config && Sys.is_directory config
     then if dir = ""
@@ -221,17 +223,11 @@ let dir =
         match Unix.close_process_in system with
         | Unix.WEXITED 0 ->
           let sp = Printf.sprintf in
-          let config = sub_file conf "bogue" in begin
-            let tar = sp "%s/../../share/bogue/themes.tgz" res in
-            printd debug_io "tar -C %s -x -v -f %s" config tar;
-            if Sys.command (sp "mkdir -p %s" config) = 0
-            && Sys.command (sp "cp -r %s %s" tar config) = 0
-            && Sys.command (sp "tar -C %s -x -v -f %s" config tar) = 0
-            then (Sys.remove tar; sub_file config "themes")
-            else begin
-              printd debug_error "(FATAL) Cannot create user configuration file.";
-              raise Not_found
-            end
+          let dir = sp "%s/../../share/bogue/themes" res in
+          if Sys.file_exists dir && Sys.is_directory dir
+          then dir else begin
+            printd debug_error "(FATAL) Cannot create user configuration file.";
+            raise Not_found
           end
         | _ -> printd debug_error "(FATAL) Cannot find a usable bogue configuration directory";
           raise Not_found
@@ -302,7 +298,7 @@ let get_font_path name =
             | _ -> printd debug_error "Cannot find font %s" name; name
           )
       )
-      
+
 let background = get_var "BACKGROUND";;
 let bg_color = get_var "BG_COLOR";;
 let button_color_off = get_var "BUTTON_COLOR_OFF";;
@@ -336,7 +332,7 @@ let scale = let s = get_float ~default:0. "SCALE" in
 
 
 let fa_font_size = 18;;
-                        
+
 (** some standard (?) UTF8 symbols *)
 let symbols = [
 "check_empty", "\239\130\150";
@@ -357,23 +353,23 @@ let scale_from_float x =
 
 let unscale_to_float i =
   scale *. (float i)
-  
+
 (** font awesome variables *)
 let load_fa_variables () =
   let file = sub_file fa_dir "less/variables.less" in
   let buffer = Scanf.Scanning.from_file file in
   let rec loop list =
-    try 
+    try
       let key =  Scanf.bscanf buffer "@fa-var-%s@: " (fun x -> x) in
       let value = Scanf.bscanf buffer "\"\\%s@\"" (fun x -> x) in
       let int_value = int_of_string ("0x" ^ value) in
       let ucode = Bytes.to_string (Utf8.uencode int_value) in
       loop ((key, ucode) :: list)
-    with 
-    | End_of_file -> 
+    with
+    | End_of_file ->
       Scanf.Scanning.close_in buffer;
       list
-    | Scanf.Scan_failure _ -> 
+    | Scanf.Scan_failure _ ->
       ignore (Scanf.bscanf buffer "%s@\n" (fun x -> x));
       loop list
     | e -> raise e
@@ -399,16 +395,16 @@ let load_colors () =
       printd debug_io "Reading color [%s]=(%u,%u,%u)" name r g b;
       loop ( (name,(r,g,b))::list )
     with
-    | End_of_file -> 
+    | End_of_file ->
       Scanf.Scanning.close_in buffer;
       list
-    | Scanf.Scan_failure _ -> 
+    | Scanf.Scan_failure _ ->
       let fail = Scanf.bscanf buffer "%s@\n" (fun x -> x) in
       printd (debug_error+debug_io) "Fail to read [%s]" fail;
       loop list
     | e -> raise e
   in
-  loop [];; 
+  loop [];;
 
 let color_names = load_colors ();;
 (* http://www.rapidtables.com/web/color/html-color-codes.htm *)
