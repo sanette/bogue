@@ -15,7 +15,7 @@ module Var = B_var
 module Draw = B_draw
 module Image = B_image
 module Style = B_style
-  
+
 (* "themes/textures/subtle-patterns/subtle-pattern-7.bmp" *)
 (* "themes/textures/grey_wash_wall/grey_wash_wall.bmp" *)
 
@@ -66,7 +66,7 @@ let unload b =
   match Var.get b.background with
   | Style.Image img -> Image.unload img
   | Style.Solid _ -> ()
-  | Style.Gradient _ -> ();; 
+  | Style.Gradient _ -> ();;
 
 let set_background b bkg =
   unload b;
@@ -102,26 +102,26 @@ let display canvas layer b g =
               end in
           fill_pattern canvas.renderer (Some target) pattern
 
-       | Style.Solid color -> 
+       | Style.Solid color ->
           set_color canvas.renderer color;
           go (Sdl.render_clear canvas.renderer);
        (* B_border.essai canvas.renderer; *)
        (* essai corner_gradient2 *)
        (* corner_gradient2 canvas.renderer (opaque black) (set_alpha 0 black);
-        *)   
+        *)
 
-       | Style.Gradient { Style.colors; angle } ->          
+       | Style.Gradient { Style.colors; angle } ->
           gradientv3 canvas.renderer ~angle colors;
-          
+
           (* ESSAI circle *)
-          (* print_endline "CIRCLE"; *)
-          (* let c = transp black in *)
-          (* (\*disc canvas.renderer c (g.w/2) (g.h/2) (g.h/2-5);*\) *)
-          (* (\*annulus_octants canvas.renderer ~octants:(1+2) c (g.w/2) (g.h/2) 20 (g.h/2-5);*\) *)
-          (* rounded_box canvas.renderer c *)
-          (*   ~w:(g.w/2) ~h:(g.h/2) ~thick:10 ~radius:25 (g.w/2) (g.h/2); *)
-          (* let c = opaque cyan in *)
-          (* circle canvas.renderer ~width:2 c 0 0 g.h; *)
+          (* print_endline "CIRCLE";
+           * let c = transp black in
+           * (\*disc canvas.renderer c (g.w/2) (g.h/2) (g.h/2-5);*\)
+           * (\*annulus_octants canvas.renderer ~octants:(1+2) c (g.w/2) (g.h/2) 20 (g.h/2-5);*\)
+           * rounded_box canvas.renderer c
+           *   ~w:(g.w/2) ~h:(g.h/2) ~thick:10 ~radius:25 (g.w/2) (g.h/2);
+           * let c = opaque cyan in
+           * circle canvas.renderer ~width:4 c (g.w/4) (g.h/4) (g.h/2); *)
           (* FIN ESSAI *)
 
        end;
@@ -221,5 +221,5 @@ let display canvas layer b g =
            ~size:(Theme.scale_int s.Style.size)
            ~offset:(Draw.scale_pos s.Style.offset) dst
        ) in
-  
+
   List.rev ((make_blit ~voffset:g.voffset ~dst canvas layer tex)::shadow_blits) ;;

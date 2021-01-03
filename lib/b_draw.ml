@@ -6,11 +6,11 @@ module Theme = B_theme
 module Var = B_var
 open Result
 module TImage = Tsdl_image.Image
-  
+
 type color = int * int * int * int;; (* RGBA *)
 
 type rgb = int * int * int
-           
+
 type texture = Sdl.texture;;
 
 type fill =
@@ -110,21 +110,21 @@ let rec create_texture renderer format access ~w ~h =
           imax w 1, imax h 1)
     else w,h in
   match Sdl.create_texture renderer format access ~w ~h with
-  | Error _ -> 
-    printd debug_error "create_texture error: %s" (Sdl.get_error ()); 
+  | Error _ ->
+    printd debug_error "create_texture error: %s" (Sdl.get_error ());
     let wmax, hmax = max_texture_size renderer in
     if wmax < w || hmax < h
     then (printd debug_error "The requested texture size (%u,%u) exceeds the max size (%u,%u)." w h wmax hmax;
           create_texture renderer format access ~w:(imin w wmax) ~h:(imin h hmax))
     else exit 1
-  | Ok t ->   
+  | Ok t ->
     incr textures_in_memory;
     t;;
 
 let rec create_texture_from_surface renderer surface =
   match Sdl.create_texture_from_surface renderer surface with
-  | Error _ -> 
-    printd debug_error "create_texture_from_surface error: %s" (Sdl.get_error ()); 
+  | Error _ ->
+    printd debug_error "create_texture_from_surface error: %s" (Sdl.get_error ());
     let w,h = Sdl.get_surface_size surface in
     let wmax, hmax = max_texture_size renderer in
     if wmax < w || hmax < h
@@ -140,7 +140,7 @@ let rec create_texture_from_surface renderer surface =
           free_surface new_surf;
           t)
     else exit 1
-  | Ok t ->   
+  | Ok t ->
     incr textures_in_memory;
     t;;
 
@@ -148,7 +148,7 @@ let create_system_cursor = memo Sdl.create_system_cursor;;
 
 let set_system_cursor sdl_cursor =
   Sdl.set_cursor (Some (go (create_system_cursor sdl_cursor)));;
-  
+
 let sdl_image_load file =
   printd debug_memory "Create surface_load (%s)" file;
   incr surfaces_in_memory;
@@ -172,7 +172,7 @@ let rec open_font file size =
       | Result.Ok f ->
         Var.protect_fn font_cache (fun () ->
             Hashtbl.add (Var.unsafe_get font_cache) (file,size) f;
-            f); 
+            f);
       | Result.Error _ ->  (* use default font if error *)
         if file = Theme.label_font
         then begin
@@ -270,7 +270,7 @@ let memory_info () =
     (Gc.allocated_bytes () /. 1024.);
   Gc.print_stat stdout;
   flush_all ();;
-  
+
 let make_transform ?(angle = 0.) ?center ?(flip = Sdl.Flip.none)
     ?(alpha = 1.) () =
   { angle; center; flip; alpha };;
@@ -764,7 +764,7 @@ let img_init () =
     let () = video_init () in
     let flags = TImage.Init.(jpg + png + tif) in
     let initted = TImage.(init flags) in
-    if initted <> flags 
+    if initted <> flags
     then printd debug_error "SDL Image could not be initialized"
     else printd debug_graphics "SDL Image initialized";
     at_cleanup (fun () ->
@@ -850,7 +850,7 @@ let convert_svg ?w ?h file =
     file
   end
   else tmp;;
-     
+
 (* true pixel size *)
 let image_size file =
   let file = Theme.get_path file in
@@ -1157,20 +1157,21 @@ let ring_tex_old renderer ?(bg = opaque grey) ~radius ~width x y =
   else failwith "Render target not supported. TODO";; (* TODO *)
 
 
-(*           |                                          y 
+(*           |                                          y
              |                \3 | 2/                   ^
              |              4  \ | /  1                 |
              |              ----------------            +---> x
              |              5  / | \  8
              |                /6 | 7\
-             
+
                             octants 1,3,5,7 are closed (include boundary. eg: (1)
                             y >= 0
                             x >= 0
                             y <= x)
                             octants 2;4;6;8 are open (exclude boundary).
 
-                            But in fact the center (0,0) should always be excluded, otherwise it will be
+                            But in fact the center (0,0) should always be excluded,
+                            otherwise it will be
                             repeated 4 times.
 
                             (flip upside-down for SDL - we don't care for a circle)
@@ -1217,7 +1218,7 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
           Sdl.Point.create ~x:(x0-x) ~y:(y0-y); (* octant 5 *)
           Sdl.Point.create ~x:(x0-y) ~y:(y0+x); (* octant 3 *)
           Sdl.Point.create ~x:(x0+y) ~y:(y0-x)] in (* octant 7 *)
-        go (Sdl.render_draw_points renderer pts);    
+        go (Sdl.render_draw_points renderer pts);
 
         if x' >= y then begin
           (* color A': *)
@@ -1227,7 +1228,7 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
             Sdl.Point.create ~x:(x0-x') ~y:(y0-y); (* octant 5 *)
             Sdl.Point.create ~x:(x0-y) ~y:(y0+x'); (* octant 3 *)
             Sdl.Point.create ~x:(x0+y) ~y:(y0-x')] in (* octant 7 *)
-          go (Sdl.render_draw_points renderer pts);  
+          go (Sdl.render_draw_points renderer pts);
         end;
 
         (* now we need to be careful avoiding repeated/missing pixels along the
@@ -1241,7 +1242,7 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
               Sdl.Point.create ~x:(x0-x) ~y:(y0+y); (* octant 4 *)
               Sdl.Point.create ~x:(x0-y) ~y:(y0-x); (* octant 6 *)
               Sdl.Point.create ~x:(x0+x) ~y:(y0-y)] in (* octant 8 *)
-            go (Sdl.render_draw_points renderer pts);  
+            go (Sdl.render_draw_points renderer pts);
           end;
           if y <> x' then begin
             (* color A': *)
@@ -1266,6 +1267,24 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
     in
     loop (radius,0) 0.;;
 
+let sdl_draw_hline renderer x0 x1 y =
+  (* Because of SDL bug, we cannot use Sdl.render_draw_line right now (SDL 2.0.10)
+     see https://discourse.libsdl.org/t/sdl-renderdrawline-endpoint-inconsistency/22065/8 *)
+  assert (x0 <= x1);
+  let rec loop list x =
+    if x > x1 then list
+    else loop ((Sdl.Point.create ~x ~y)::list) (x+1) in
+  go (Sdl.render_draw_points renderer (loop [] x0))
+
+let sdl_draw_vline renderer x y0 y1 =
+  (* Because of SDL bug, we cannot use Sdl.render_draw_line right now (SDL 2.0.10)
+     see https://discourse.libsdl.org/t/sdl-renderdrawline-endpoint-inconsistency/22065/8 *)
+  assert (y0 <= y1);
+  let rec loop list y =
+    if y > y1 then list
+    else loop ((Sdl.Point.create ~x ~y)::list) (y+1) in
+  go (Sdl.render_draw_points renderer (loop [] y0))
+
 (* draw a filled annulus between radius1 and radius2 (inclusive) *)
 let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
   (*go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);*)
@@ -1284,13 +1303,14 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
         Sdl.Point.create ~x:(xc-y) ~y:(yc+x); (* octant 3 *)
         Sdl.Point.create ~x:(xc+y) ~y:(yc-x)] in (* octant 7 *)
       go (Sdl.render_draw_points renderer pts);
-      if y <> 0 && y <> x then begin (* same as "plot y x" *)
+      (* Now we draw "plot y x" but careful about boundaries: *)
+      if y <> 0 && y <> x then begin
         let pts = [
           Sdl.Point.create ~x:(xc+y) ~y:(yc+x); (* octant 2 *)
           Sdl.Point.create ~x:(xc-x) ~y:(yc+y); (* octant 4 *)
           Sdl.Point.create ~x:(xc-y) ~y:(yc-x); (* octant 6 *)
           Sdl.Point.create ~x:(xc+x) ~y:(yc-y)] in (* octant 8 *)
-        go (Sdl.render_draw_points renderer pts);  
+        go (Sdl.render_draw_points renderer pts);
       end
     end in
 
@@ -1300,17 +1320,17 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
         go (Sdl.render_draw_point renderer xc yc);
         1
       end else x0 in
-    (* SDL doesn't want to draw a line of 1 pixel length... *)    
+    (* SDL doesn't want to draw a line of 1 pixel length... *)
     if x0 = x3 then plot x0 y
     else if x0 < x3 then begin
-      go (Sdl.render_draw_line renderer (xc+x0) (yc+y) (xc+x3) (yc+y)); (* 1 *)
-      go (Sdl.render_draw_line renderer (xc-x0) (yc-y) (xc-x3) (yc-y)); (* 5 *)
-      go (Sdl.render_draw_line renderer (xc-y) (yc+x0) (xc-y) (yc+x3)); (* 3 *)
-      go (Sdl.render_draw_line renderer (xc+y) (yc-x0) (xc+y) (yc-x3)); (* 7 *)
+      sdl_draw_hline renderer (xc+x0) (xc+x3) (yc+y); (* 1 *)
+      sdl_draw_hline renderer (xc-x3) (xc-x0) (yc-y); (* 5 *)
+      sdl_draw_vline renderer (xc-y) (yc+x0) (yc+x3); (* 3 *)
+      sdl_draw_vline renderer (xc+y) (yc-x3) (yc-x0); (* 7 *)
       if y <> 0
       then
         let x0 = if y=x0 then x0+1 else x0 in
-        if x0 = x3 then 
+        if x0 = x3 then
           let pts = [
             Sdl.Point.create ~x:(xc+y) ~y:(yc+x0); (* octant 2 *)
             Sdl.Point.create ~x:(xc-x0) ~y:(yc+y); (* octant 4 *)
@@ -1319,10 +1339,10 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
           go (Sdl.render_draw_points renderer pts)
         else begin
           (* 2,4,6,8 *)
-          go (Sdl.render_draw_line renderer (xc+y) (yc+x0) (xc+y) (yc+x3));
-          go (Sdl.render_draw_line renderer (xc-x0) (yc+y) (xc-x3) (yc+y));
-          go (Sdl.render_draw_line renderer (xc-y) (yc-x0) (xc-y) (yc-x3));
-          go (Sdl.render_draw_line renderer (xc+x0) (yc-y) (xc+x3) (yc-y))
+          sdl_draw_vline renderer (xc+y) (yc+x0) (yc+x3);
+          sdl_draw_hline renderer (xc-x3) (xc-x0) (yc+y);
+          sdl_draw_vline renderer (xc-y) (yc-x3) (yc-x0);
+          sdl_draw_hline renderer (xc+x0) (xc+x3) (yc-y)
         end
     end in
 
@@ -1334,20 +1354,20 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
         if x1<y (* first circle finished *)
         (* TODO here do we need also y = x1+1 ? *)
         then y (* we start on the diagonal (x0=y) *)
-        else 
+        else
           begin (* first radius *)
             if e1 >= 0. (* blending on the left *)
             (* the case e1=0 is only useful when radius1=0 (filled
                       circle) *)
             then let e1' = e1 -. (float (2*x1 - 1)) in
               let alpha1' =  abs_float e1 /. (abs_float e1 +. abs_float e1') in
-              let a1' = round (alpha0 *. alpha1') in      
+              let a1' = round (alpha0 *. alpha1') in
               go (Sdl.set_render_draw_color renderer r g b a1');
               if x1 > y then plot (x1-1) y;
               x1
             else let e1' = e1 +. (float (2*x1 + 1)) in
               let alpha1 = abs_float e1' /. (abs_float e1 +. abs_float e1') in
-              let a1 = round (alpha0 *. alpha1) in      
+              let a1 = round (alpha0 *. alpha1) in
               go (Sdl.set_render_draw_color renderer r g b a1);
               plot x1 y;
               x1+1
@@ -1356,14 +1376,14 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
         if e2 > 0.
         then let e2' = e2 -. (float (2*x2 - 1)) in
           let alpha2 =  abs_float e2' /. (abs_float e2 +. abs_float e2') in
-          let a2 = round (alpha0 *. alpha2) in      
+          let a2 = round (alpha0 *. alpha2) in
           go (Sdl.set_render_draw_color renderer r g b a2);
           if x2 >= y then plot x2 y;
           x2-1
         else (* blending on the right *)
           let e2' = e2 +. (float (2*x2 + 1)) in
           let alpha2' = abs_float e2 /. (abs_float e2 +. abs_float e2') in
-          let a2' = round (alpha0 *. alpha2') in      
+          let a2' = round (alpha0 *. alpha2') in
           go (Sdl.set_render_draw_color renderer r g b a2');
           plot (x2+1) y;
           x2 in
@@ -1389,13 +1409,13 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
           let ea = e1 +. float (2*y + 1) in
           let eb = e1 +. float (2*(y-x1+1)) in
           if abs_float ea < abs_float eb
-          then x1, ea 
+          then x1, ea
           else x1-1, eb in
       let x2', e2' =
         let ea = e2 +. float (2*y + 1) in
         let eb = e2 +. float (2*(y-x2+1)) in
         if abs_float ea < abs_float eb
-        then x2, ea 
+        then x2, ea
         else x2-1, eb in
       loop x1' e1' x2' e2' (y+1)
     end
@@ -1423,7 +1443,7 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
   let plot x y =
     if (x,y) = (0,0) then go (Sdl.render_draw_point renderer xc yc)
     else begin
-      if octants land 1 = 1 then (* octant 1 *) 
+      if octants land 1 = 1 then (* octant 1 *)
         go (Sdl.render_draw_point renderer (xc+x) (yc+y));
       if octants land 16 = 16 then (* octant 5 *)
         go (Sdl.render_draw_point renderer (xc-x) (yc-y));
@@ -1432,7 +1452,7 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
       if octants land 64 = 64 then (* octant 7 *)
         go (Sdl.render_draw_point renderer (xc+y) (yc-x));
       if y <> 0 && y <> x then begin (* same as "plot y x" *)
-        if octants land 2 = 2 then (* octant 2 *) 
+        if octants land 2 = 2 then (* octant 2 *)
           go (Sdl.render_draw_point renderer (xc+y) (yc+x));
         if octants land 8 = 8 then (* octant 4 *)
           go (Sdl.render_draw_point renderer (xc-x) (yc+y));
@@ -1449,17 +1469,17 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
         go (Sdl.render_draw_point renderer xc yc);
         1
       end else x0 in
-    (* SDL doesn't want to draw a line of 1 pixel length... *)    
+    (* SDL doesn't want to draw a line of 1 pixel length... *)
     if x0 = x3 then plot x0 y
     else if x0 < x3 then begin
       if octants land 1 = 1 then
-        go (Sdl.render_draw_line renderer (xc+x0) (yc+y) (xc+x3) (yc+y)); (* 1 *)
+        sdl_draw_hline renderer (xc+x0) (xc+x3) (yc+y); (* 1 *)
       if octants land 16 = 16 then
-        go (Sdl.render_draw_line renderer (xc-x0) (yc-y) (xc-x3) (yc-y)); (* 5 *)
+        sdl_draw_hline renderer (xc-x3) (xc-x0) (yc-y); (* 5 *)
       if octants land 4 = 4 then
-        go (Sdl.render_draw_line renderer (xc-y) (yc+x0) (xc-y) (yc+x3)); (* 3 *)
+        sdl_draw_vline renderer (xc-y) (yc+x0) (yc+x3); (* 3 *)
       if octants land 64 = 64 then
-        go (Sdl.render_draw_line renderer (xc+y) (yc-x0) (xc+y) (yc-x3)); (* 7 *)
+        sdl_draw_vline renderer (xc+y) (yc-x3) (yc-x0); (* 7 *)
       if y <> 0
       then
         let x0 = if y=x0 then x0+1 else x0 in
@@ -1476,13 +1496,13 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
         else begin
           (* 2,4,6,8 *)
           if octants land 2 = 2 then
-            go (Sdl.render_draw_line renderer (xc+y) (yc+x0) (xc+y) (yc+x3));
+            sdl_draw_vline renderer (xc+y) (yc+x0) (yc+x3);
           if octants land 8 = 8 then
-            go (Sdl.render_draw_line renderer (xc-x0) (yc+y) (xc-x3) (yc+y));
-          if octants land 32 = 32 then 
-            go (Sdl.render_draw_line renderer (xc-y) (yc-x0) (xc-y) (yc-x3));
-          if octants land 128 = 128 then 
-            go (Sdl.render_draw_line renderer (xc+x0) (yc-y) (xc+x3) (yc-y))
+            sdl_draw_hline renderer (xc-x3) (xc-x0) (yc+y);
+          if octants land 32 = 32 then
+            sdl_draw_vline renderer (xc-y) (yc-x3) (yc-x0);
+          if octants land 128 = 128 then
+            sdl_draw_hline renderer (xc+x0) (xc+x3) (yc-y)
         end
     end in
 
@@ -1491,7 +1511,7 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
       let x0 = (* where to start the horizontal line *)
         if x1<y (* first circle finished *)
         then y (* we start on the diagonal (x0=y) *)
-        else 
+        else
           begin (* first radius *)
             if e1 >= 0. (* blending on the left *)
             (* the case e1=0 is only useful when radius1=0 (filled
@@ -1548,13 +1568,13 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
           let ea = e1 +. float (2*y + 1) in
           let eb = e1 +. float (2*(y-x1+1)) in
           if abs_float ea < abs_float eb
-          then x1, ea 
+          then x1, ea
           else x1-1, eb in
       let x2', e2' =
         let ea = e2 +. float (2*y + 1) in
         let eb = e2 +. float (2*(y-x2+1)) in
         if abs_float ea < abs_float eb
-        then x2, ea 
+        then x2, ea
         else x2-1, eb in
       loop x1' e1' x2' e2' (y+1)
     end
@@ -1600,9 +1620,9 @@ let rectangle renderer color ~thick ~w ~h x y =
        <> radius+1   <>
          ___________ _
  (5/6) /              \  (7/8)
-       |               
+       |
                       |
-       |               
+       |
                       |
  (3/4) \_ ___________ /  (1/2)
               lw
@@ -1692,13 +1712,13 @@ let gradientv3 renderer ?angle colors =
   let w,h = go(Sdl.get_renderer_output_size renderer) in
   let n = List.length colors in
   if n <> 0 then begin
-      let small = 
+      let small =
         if (Sdl.(set_hint Hint.render_scale_quality "1"))
         then begin
             (* create an n pixels texture *)
             let small = create_target renderer 1 n in
             let push = push_target ~clear:false renderer small in
-            
+
             (* draw the n points *)
             go (Sdl.set_render_target renderer (Some small));
             go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_none);
@@ -1736,7 +1756,7 @@ let gradientv3 renderer ?angle colors =
            (* Then we need to * enlarge the height of the VB in order to remove
               the 1/2 pixels at * the top and bottom.  *)
            let vh = if n > 1 then ((vh * n)/(n-1)) else vh in
-           
+
            (* copy the small onto the target texture *)
            let flip = Sdl.Flip.none in
            let dw = vw - w
@@ -1745,7 +1765,7 @@ let gradientv3 renderer ?angle colors =
            let dst = Sdl.Rect.create ~x:(-dw/2) ~y:(-dh/2) ~w:(vw) ~h:(vh) in
            go(Sdl.render_copy_ex renderer ~dst small t (Some center) flip)
       end;
-      
+
       forget_texture small
     end
   else ();;
@@ -1753,13 +1773,13 @@ let gradientv3 renderer ?angle colors =
 (* top right corner for a box *)
 let corner_gradient2 renderer c1 c2 =
     let w,h = go(Sdl.get_renderer_output_size renderer) in
-  let small = 
+  let small =
     if (Sdl.(set_hint Hint.render_scale_quality "1"))
     then begin
         (* create an 2x2 texture *)
         let small = create_target renderer 2 2 in
         let push = push_target ~clear:false renderer small in
-        
+
         (* draw the point *)
         go (Sdl.set_render_target renderer (Some small));
         go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_none);
@@ -1790,7 +1810,7 @@ let gradient_texture renderer ~w ~h ?angle ?(pop=true) colors =
   gradientv3 renderer ?angle colors;
   if pop then pop_target renderer p;
   target;;
-  
+
 
 (* blits a "shadow" (to the layer) all around the dst rectangle. *)
 (* uses gradient. the patching of the corners is not perfect... *)
@@ -1885,7 +1905,7 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
       let inside = box_to_layer ?voffset canvas layer ~bg:scolor x y w h in
 
       List.iter forget_texture [horiz; vert; corner];
-      
+
       [inside; bottom; top; left; right;
        bottom_right; bottom_left; top_left; top_right]
     end;;
@@ -2007,7 +2027,7 @@ let alpha_mult_surface surf =
 
 (* multiply the color components by the alpha component *)
 (* not used *)
-(* see also 
+(* see also
 https://developer.nvidia.com/content/alpha-blending-pre-or-not-pre
 *)
 let alpha_mult_tex renderer tex =
@@ -2028,7 +2048,7 @@ let alpha_mult_tex renderer tex =
   go (Sdl.render_copy renderer tex);
   pop_target renderer p;
   target;;
-  
+
 (* f is a function with values in [0,1] *)
 let convolution renderer ?(emboss=false) ?(bg = opaque grey) f radius texture =
   let pf, _, (w,h) = go (Sdl.query_texture texture) in
@@ -2133,7 +2153,7 @@ let gaussian_blur ~radius x y =
 
 
 (* logical AND blending for surfaces. *)
-(* not used yet *) 
+(* not used yet *)
 let mask_surface ~mask surface =
   let sm = Sdl.get_surface_size mask in
   let s = Sdl.get_surface_size surface in
@@ -2207,7 +2227,7 @@ let get_texture_pixels renderer texture =
   go(Sdl.render_read_pixels renderer None (Some format) pixels pitch);
   pop_target renderer push;
   pixels, pitch, go(Sdl.pixel_format_enum_to_masks format);;
-  
+
 (* logical AND blending for textures. *)
 (* TODO: faster: let the mask be a surface *)
 (* TODO: use get_texture_pixels *)
@@ -2225,9 +2245,9 @@ let land_texture renderer mask texture =
   let rect = Sdl.Rect.create ~x:0 ~y:0 ~w:w' ~h:h' in
   let open Bigarray in
   printd debug_graphics "Texture BPP=%u" tex_bytes_per_pixel;
-  let pixels = Array1.create int8_unsigned c_layout 
+  let pixels = Array1.create int8_unsigned c_layout
       (w' * h' * tex_bytes_per_pixel) in
-  let pixelsm = Array1.create int8_unsigned c_layout 
+  let pixelsm = Array1.create int8_unsigned c_layout
       (w' * h' * tex_bytes_per_pixel) in
   (*Array1.fill pixelsm 0;*) (* DEBUG *)
   (*Array1.fill pixels 0;*) (* DEBUG *)
@@ -2285,9 +2305,9 @@ let mask_texture ~mask renderer texture =
   let rect = Sdl.Rect.create ~x:0 ~y:0 ~w:w' ~h:h' in
   let open Bigarray in
   let tex_bytes_per_pixel = 4 in
-  let pixels = Array1.create int8_unsigned c_layout 
+  let pixels = Array1.create int8_unsigned c_layout
       (w' * h' * tex_bytes_per_pixel) in
-  let pixelsm = Array1.create int8_unsigned c_layout 
+  let pixelsm = Array1.create int8_unsigned c_layout
       (w' * h' * tex_bytes_per_pixel) in
   let pitch = w' * tex_bytes_per_pixel in
   let format = Sdl.Pixel.format_argb8888 in
@@ -2307,7 +2327,7 @@ let mask_texture ~mask renderer texture =
   for i = 0 to n - 1 do
     let a = Array1.unsafe_get pixels (4*i+3) in
     let am = Array1.unsafe_get pixelsm (4*i+3) in
-    let alpha = (a * am) / 255 in 
+    let alpha = (a * am) / 255 in
     Array1.unsafe_set pixels (4*i+3) alpha;
     if alpha = 0 then begin (* we set the color to white *)
       Array1.unsafe_set pixels (4*i) 255;
