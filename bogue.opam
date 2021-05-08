@@ -34,7 +34,6 @@ depends: [
   "tsdl" {>= "0.9.0"}
 ]
 build: [
-  ["dune" "subst"] {pinned}
   [
     "dune"
     "build"
