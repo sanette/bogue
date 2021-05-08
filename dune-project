@@ -29,7 +29,6 @@ layouts, callbacks, and of course it has a functional flavor. It uses
 Threads when non-blocking reactions are needed.")
  (tags ("gui"))
  (depends
-  (stdlib-shims (>= 0.1.0))
   (tsdl-image (= 0.1.2))
   (tsdl-ttf (>= 0.2))
   (ocaml (>= 4.08.0))

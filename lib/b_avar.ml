@@ -326,7 +326,7 @@ let oscillate ?(duration = 10000) ?(frequency=5.) amplitude x0 =
   create ~duration ~update 0;;
 
 (** linear slide-in animation *)
-let slide_in ?(from=Right) ~pos ~size =
+let slide_in ?(from=Right) ~pos ~size () =
   let w,h = size in
   let x0, y0 = pos in
   let dx,dy = match from with

@@ -453,6 +453,8 @@ let lock l =
 
 let unlock l =
   printd debug_thread "Unlocking layout %s" (sprint_id l);
+  if Mutex.try_lock l.lock
+  then printd debug_thread "(but layout %s was already unlocked)" (sprint_id l);
   Mutex.unlock l.lock;;
 
 (* What to do when a layout is not used anymore ? *)
@@ -1809,7 +1811,7 @@ let oscillate ?(duration = 10000) ?(frequency=5.) amplitude room =
 (** add a slide_in animation to the room *)
 let slide_in ?from ~dst room =
   let x,y = Avar.slide_in ?from ~size:(get_size dst)
-      ~pos:(getx room, gety room) in
+              ~pos:(getx room, gety room) () in
   animate_x room x;
   animate_y room y;;
 

@@ -20,10 +20,17 @@ let create data =
     mutex = Mutex.create ();
   };;
 
-let release v = (* do not use this without checking thread_id, especially in
-                   case of recursion *)
-  Mutex.unlock v.mutex;
-  v.thread_id <- None;;
+let release v =
+  (* do not use this without checking thread_id, especially in case of
+     recursion *)    
+  match v.thread_id with
+  | Some i when i = Thread.(id (self ())) ->
+     Mutex.unlock v.mutex;
+     v.thread_id <- None
+  | Some i ->
+     printd (debug_thread + debug_error) "Thread %u cannot release variable locked by thread %u" Thread.(id (self ())) i
+  | None ->
+     printd (debug_thread + debug_error) "Trying to release a variable that was not locked"
 
 
 (* Execute an action on the given variable if it is not locked by *another*
@@ -33,27 +40,27 @@ let release v = (* do not use this without checking thread_id, especially in
 let protect_fn v action =
   let was_free = Mutex.try_lock v.mutex in
   if was_free then begin (* this should be the vast majority of cases *)
-    (* The variable is now locked *)
-    if !debug then assert (v.thread_id = None); (* just for debugging *)
-    v.thread_id <- Some Thread.(id (self ()));
-    let result = action () in
-    release v;
-    (* The variable is now unlocked *)
-    result
-  end else if v.thread_id = Some (Thread.(id (self ())))
+      (* The variable is now locked *)
+      if !debug then assert (v.thread_id = None); (* just for debugging *)
+      v.thread_id <- Some Thread.(id (self ()));
+      let result = action () in
+      release v;
+      (* The variable is now unlocked *)
+      result
+    end else if v.thread_id = Some (Thread.(id (self ())))
   then begin
-    printd debug_thread "We can access the variable because it was locked by same thread.";
-    action ()
-  end else begin (* the variable was already locked by another thread *)
-    printd debug_thread "Waiting for locked variable (thread #%i) to unlock..."
-      (default v.thread_id (-1));
-    Mutex.lock v.mutex;
-    v.thread_id <- Some Thread.(id (self ()));
-    printd debug_thread "...ok, the variable was unlocked, we proceed.";
-    let result = action () in
-    release v;
-    result
-  end;;
+      printd debug_thread "We can access the variable because it was locked by same thread.";
+      action ()
+    end else begin (* the variable was already locked by another thread *)
+      printd debug_thread "Waiting for locked variable (thread #%i) to unlock..."
+        (default v.thread_id (-1));
+      Mutex.lock v.mutex;
+      v.thread_id <- Some Thread.(id (self ()));
+      printd debug_thread "...ok, the variable was unlocked, we proceed.";
+      let result = action () in
+      release v;
+      result
+    end;;
     
 
 (* usually we don't need to protect when getting the value. But warning, if the

@@ -28,7 +28,7 @@ let debug_board = 64;;
 let debug_event = 128;;
 let debug_custom = 256;;
 
-let debug_code = ref ((*debug_thread +*) debug_warning (* + debug_graphics *) + debug_error + debug_io + debug_board (* + debug_memory *) + debug_event + debug_custom);;
+let debug_code = ref (debug_thread + debug_warning (* + debug_graphics *) + debug_error + debug_io + debug_board (* + debug_memory *) + debug_event + debug_custom);;
 
 (* debug_code := !debug_code lor debug_thread;; *)
 

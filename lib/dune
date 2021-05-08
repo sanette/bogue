@@ -1,7 +1,7 @@
 (library
  (name bogue)
  (public_name bogue)
- (libraries stdlib-shims str tsdl tsdl_image tsdl_ttf))
+ (libraries str tsdl tsdl_image tsdl_ttf))
 
 (install
  (section share)

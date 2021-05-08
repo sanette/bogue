@@ -53,7 +53,6 @@ lib: [
   "_build/install/default/lib/bogue/bogue.cmti"
   "_build/install/default/lib/bogue/bogue.cmx"
   "_build/install/default/lib/bogue/bogue.cmxa"
-  "_build/install/default/lib/bogue/bogue.cmxs"
   "_build/install/default/lib/bogue/bogue.ml"
   "_build/install/default/lib/bogue/bogue.mli"
   "_build/install/default/lib/bogue/bogue__.cmi"
@@ -200,6 +199,9 @@ lib: [
   "_build/install/default/lib/bogue/bogue__B_window.cmx"
   "_build/install/default/lib/bogue/dune-package"
   "_build/install/default/lib/bogue/opam"
+]
+libexec: [
+  "_build/install/default/lib/bogue/bogue.cmxs"
 ]
 bin: [
   "_build/install/default/bin/boguex"

@@ -573,13 +573,8 @@ let terminate ?(timeout = 50) active =
   printd debug_thread "Ask for terminating connection #%u" active.connect_id;
   Sdl.Event.(set active.event typ) Trigger.stop;
   ignore (Timeout.add timeout (fun () ->
-      if not (has_terminated active)
-      then begin
-        try Thread.kill active.thread;
-          printd debug_thread "Killing thread for connection #%u" active.connect_id
-        with _ ->
-          printd debug_thread "Cannot kill thread for connection #%u (probably Thread.kill not implemented)." active.connect_id
-      end
+              if not (has_terminated active)
+              then printd debug_thread "Cannot terminate thread for connection #%u after %u ms." active.connect_id timeout
     ));;
 
 (* ask for terminate and wait (blocking) until it really terminates by itself *)

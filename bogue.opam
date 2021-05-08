@@ -27,13 +27,13 @@ doc: "http://sanette.github.io/bogue/Bogue.html"
 bug-reports: "https://github.com/sanette/bogue/issues"
 depends: [
   "dune" {>= "1.11"}
-  "stdlib-shims" {>= "0.1.0"}
   "tsdl-image" {= "0.1.2"}
   "tsdl-ttf" {>= "0.2"}
   "ocaml" {>= "4.08.0"}
   "tsdl" {>= "0.9.0"}
 ]
 build: [
+  ["dune" "subst"] {pinned}
   [
     "dune"
     "build"

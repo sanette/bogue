@@ -860,7 +860,7 @@ let image_size file =
   size;;
 
 (** create a texture filled with a color *)
-let texture renderer ?(color = opaque grey) ~w ~h =
+let texture ?(color = opaque grey) renderer ~w ~h =
   let surf = create_surface ~renderer ~color w h in
   let tex = create_texture_from_surface renderer surf in
   free_surface surf;
