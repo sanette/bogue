@@ -516,7 +516,7 @@ let example25 () =
     bar ~dst:main [file; menu2; about]
   in
   let layout = L.tower ~margins:0
-      ~background:(L.color_bg(Draw.(lighter (opaque pale_grey)))) [main] in
+      ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
   let board = make [] [layout] in
   run board;;
 
@@ -616,7 +616,9 @@ let example30 () =
      latter is preferable in case the radio buttons are modified directly
      without clicking, cf Timeout below. (or via TAB, not implemented yet) *)
 
-  let layout = L.flat ~align:Draw.Center [Radiolist.layout radio; L.resident label] in
+  let background = Layout.color_bg Draw.(set_alpha 40 blue) in
+  let layout = L.flat ~align:Draw.Center [Radiolist.layout radio;
+                                          L.resident ~background label] in
   let board = make cs [layout] in
   let _ = Timeout.add 5000 (fun () ->
       print_endline "SET INDEX TO 3";
@@ -719,6 +721,27 @@ let example35 () =
 
   let board = make [] [table] in
   run board;;
+
+let desc35bis = "a table from an array"
+let example35bis () =
+  let a = [|
+    [| "hello"; "salut" |];
+    [| "bye bye"; "salut"|];
+    [| "see you"; "à plus"|];
+    [| "darn"; "zut"|];
+    [| "holy cow"; "oh punaise"|]
+  |] in
+  let headers = ["English"; "French"] in
+  let widths = [Some 100; Some 100] in
+  let table, _ = Table.of_array ~h:400 ~widths headers a in
+
+  let layout = L.tower [L.resident (W.label "This is a nice table"); table] in
+  (* TODO BUG: if we omit the label (hence the table is the only layout), then
+     the title gets redrawn on top of itself on every mouse_over -- thus the
+     transparent color becomes too dark... WHY??? *)
+  let board = make [] [layout] in
+  run board;;
+
 
 let desc36 = "playing sound"
 let example36 () =
@@ -978,6 +1001,7 @@ let _ =
                     "33", (example33, desc33) ;
                     "34", (example34, desc34) ;
                     "35", (example35, desc35) ;
+                    "35bis", (example35bis, desc35bis) ;
                     "36", (example36, desc36) ;
                     "37", (example37, desc37) ;
                     "38", (example38, desc38) ;
@@ -999,7 +1023,7 @@ let _ =
   let to_run = if to_run == [] then all else to_run  in
   (* for instance to_run = [ "23"; "23bis" ] *)
   let exs = try (List.map (fun key -> key, List.assoc key examples) to_run)
-            with Not_found -> failwith "Cannot find requested example"
+    with Not_found -> failwith "Cannot find requested example"
   in
   List.iter (fun (key, (ex,de)) ->
       print_endline (key ^ " = " ^ de);

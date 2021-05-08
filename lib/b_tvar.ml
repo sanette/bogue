@@ -3,7 +3,7 @@
 (* there is no caching *)
 
 module Var = B_var
-  
+
 type ('a, 'b) t =
 { var : 'a Var.t;
   t_from : 'a -> 'b;
@@ -31,4 +31,3 @@ let local_action action value =
   let t_from x = x in
   let t_to x = action (); x in
   create var ~t_to ~t_from;;
-

@@ -7,11 +7,9 @@ module Var = B_var
 open Result
 module TImage = Tsdl_image.Image
 
-type color = int * int * int * int;; (* RGBA *)
-
+type color = int * int * int * int (* RGBA *)
 type rgb = int * int * int
-
-type texture = Sdl.texture;;
+type texture = Sdl.texture
 
 type fill =
   | Pattern of texture
@@ -142,17 +140,17 @@ let rec create_texture_from_surface renderer surface =
     else exit 1
   | Ok t ->
     incr textures_in_memory;
-    t;;
+    t
 
-let create_system_cursor = memo Sdl.create_system_cursor;;
+let create_system_cursor = memo Sdl.create_system_cursor
 
 let set_system_cursor sdl_cursor =
-  Sdl.set_cursor (Some (go (create_system_cursor sdl_cursor)));;
+  Sdl.set_cursor (Some (go (create_system_cursor sdl_cursor)))
 
 let sdl_image_load file =
   printd debug_memory "Create surface_load (%s)" file;
   incr surfaces_in_memory;
-  go(TImage.load file);;
+  remove_option (TImage.load file) (* tsdl-image 0.1.2 *)
 
 (* SDL TTF *)
 

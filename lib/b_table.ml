@@ -12,12 +12,12 @@ module Widget = B_widget
 module Theme = B_theme
 module Var = B_var
 module Tvar = B_tvar
-module Trigger =  B_trigger
+module Trigger = B_trigger
 module Draw = B_draw
 module Selection = B_selection
 module Label = B_label
 module Long_list = B_long_list
-  
+
 (* this is the public, non-mutable type *)
 type column =
   { title : string;
@@ -52,17 +52,18 @@ type t = {
   }
 
 let title_margin = 5;;
-let title_background = Layout.Solid Draw.(set_alpha 40 grey);;
+let title_background = Layout.Solid Draw.(set_alpha 40 blue);;
 let row_hl = Layout.Solid Draw.(set_alpha 30 blue);;
 let row_selected = Layout.Solid Draw.(opaque (pale (pale (pale blue))));;
 let icon_color = Draw.(set_alpha 40 grey);;
-  
+
 let make_title (c : column) =
   (* we compute the label widget *)
   let label = Widget.label c.title in
   (* if no width is specified, we compute the width of the first entry of the
      column *)
-  let w = default c.width (Layout.width (c.rows 0)) in
+  let lw,_ = Widget.default_size label in
+  let w = default c.width (imax lw (Layout.width (c.rows 0))) in
   let layout =
     if c.compare = None
     then (* first encapsulate in order to then left-align *)
@@ -81,10 +82,10 @@ let make_title (c : column) =
     end in
   Layout.set_width layout w; (* not necessary in the case of sort_indicator *)
   let (_,h) = Widget.default_size label in
-  let click_area = Widget.empty ~w ~h () in 
+  let click_area = Widget.empty ~w ~h () in
   let title = Layout.(superpose [resident click_area; layout]) in
   title;;
-        
+
 (* extracts the click_area widget from the title layout *)
 (* Warning: this depends on the way title is created in make_title *)
 let get_area title =
@@ -104,7 +105,7 @@ let get_indicator title =
 
 let get_row _ _ (* t i *) =
   () (* ??? *)
-  
+
 let make_column (c: column) w : column_private =
   { title = c.title;
     rows = c.rows;
@@ -112,10 +113,10 @@ let make_column (c: column) w : column_private =
     width = w;
     sort = None
   };;
-                                     
+
 let make_columns (columns : column list) widths =
   List.map2 make_column columns widths;;
-                                     
+
 let make_table ?row_height (columns : column list) =
   let length, rw = match columns with
     | [] -> failwith "Cannot create empty table"
@@ -156,7 +157,7 @@ let make_long_list ~w ~h t  =
     let left_margin = Widget.empty ~w:title_margin ~h:t.row_height () in
     let click_area = Widget.empty ~w ~h:t.row_height () in
     let ca = Layout.resident ~name:(sprintf "click_area %u(%u)" i ii) click_area in
-    let row = 
+    let row =
       Array.mapi (fun j c ->
           let width = Layout.width t.titles.(j) in
           let name = sprintf "entry[%u,%u]" i j in
@@ -190,7 +191,7 @@ let make_long_list ~w ~h t  =
                      recompute the how long list to update all backgrounds. This
                      will have to be added afterwards. For the moment we only
                      toggle: *)
-                     Selection.toggle (Var.get t.selection) i in 
+                     Selection.toggle (Var.get t.selection) i in
                    Var.set t.selection new_sel;
                    Layout.set_background row (get_background t i ii);
                   ) in
@@ -199,16 +200,17 @@ let make_long_list ~w ~h t  =
   in
   let height_fn _ = Some t.row_height in
   Long_list.create ~w ~h ~generate ~height_fn ~length:t.length ();;
-  
+
 let make_layout ?w ~h t =
   let align = Draw.Max in (* bottom align *)
   let titles_list = Array.to_list t.titles in
   let w = default w (title_margin +
-                     (List.fold_left (fun y r -> y + title_margin + Layout.width r) 0 titles_list)) in
-  let titles_row = Layout.flat ~sep:title_margin ~hmargin:title_margin ~vmargin:title_margin ~background:title_background ~align titles_list in
+                     (List.fold_left (fun y r -> y + title_margin + Layout.width r)
+                        0 titles_list)) in
+  let titles_row = Layout.flat ~sep:title_margin ~hmargin:title_margin
+      ~vmargin:title_margin ~background:title_background ~align titles_list in
   let long = make_long_list t ~w ~h:(h - Layout.height titles_row) in
   titles_row, long;;
-
 
 (* in-place reverse bijection of array *)
 let reverse_array a =
@@ -302,13 +304,14 @@ let connect_title t j =
    layout when the selection is changed. *)
 let make_selection_tvar t =
   let t_from sel = sel in (* the user can access the selection via this *)
-  let t_to sel = (* this is what is done when the user will modifiy the selection using Tvar.set *)
+  let t_to sel = (* this is what is done when the user will modifiy the
+                    selection using Tvar.set *)
     Var.set t.selection sel; (* this is redundant with Tvar.set, but we need it
                                 to be done *before* refresh... *)
     refresh t;
     sel in
   Tvar.create (t.selection) ~t_from ~t_to;;
-  
+
 
 (* this returns the main layout and the selection variable *)
 let create ?w ~h ?row_height ?(name="table") (columns : column list) =
@@ -322,5 +325,31 @@ let create ?w ~h ?row_height ?(name="table") (columns : column list) =
   done;
   layout, make_selection_tvar t;;
 
-(* * * * *)
+(* Create table from text array a.(i).(j) : row i, column j *)
+let of_array ?w ~h ?widths ?row_height ?name headers a =
+  let head = Array.of_list headers in
+  let ni = Array.length a in
+  if ni = 0 then failwith "Cannot create table with empty array."
+  else let nj = Array.length a.(0) in
+    if nj <> Array.length head
+    then failwith "Cannot create table: \
+                   headers size does not fit the number of columns."
+    else let widths = match widths with
+        | None -> List.map (fun _ -> None) headers
+        | Some list -> list in
+      let widths = Array.of_list widths in
+      if Array.length widths <> nj
+      then failwith "Cannot create table: \
+                     list of widths does not fit the number of columns."
+      else let columns =
+             head
+             |> Array.mapi (fun j title ->
+                 { title;
+                   length = ni;
+                   rows = (fun i -> Layout.resident (Widget.label a.(i).(j)));
+                   compare = Some (fun i1 i2 -> compare a.(i1).(j) a.(i2).(j));
+                   width = widths.(j) })
+             |> Array.to_list in
+        create ?w ~h ?row_height ?name columns;;
 
+(* * * * *)

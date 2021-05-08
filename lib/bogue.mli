@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20210103
+@version 20210508
 
 @author Vu Ngoc San
 
@@ -291,6 +291,17 @@ Events are detected by Layouts, and then sent to the resident Widget. Finally,
 module Trigger : sig
   type t = Tsdl.Sdl.event_type
 
+  (** {2 SDL events} *)
+
+  val text_input : t
+  (** Same as Tsdl.Sdl.Event.text_input *)
+
+  val key_down : t
+  (** Same as Tsdl.Sdl.Event.key_down *)
+
+  val key_up : t
+  (** Same as Tsdl.Sdl.Event.key_up *)
+
   (** {2 Special Bogue events} *)
 
   val startup : t
@@ -388,7 +399,10 @@ module Trigger : sig
     | `Text_input
     | `Unknown of int
     | `User_event
-    | `Window_event]
+    | `Window_event
+    | `Display_event
+    | `Sensor_update
+    ]
 
   type bogue_event =
     [ `Bogue_startup
@@ -891,7 +905,10 @@ module Text_display : sig
   val para : string -> words
   val paragraphs_of_string : string -> words list
 
-  (** {2 Creating the widgets} *)
+  (** {2 Creating the widgets}
+
+       Use {!Widget.text_display}
+*)
 
   (** {2 Modifying the widgets} *)
 
@@ -1760,7 +1777,16 @@ module Table : sig
     ?name:string ->
     column list -> Layout.t * (Selection.t, Selection.t) Tvar.t
   (** @return a layout and a Tvar. The Tvar can be used to see which rows were
-     selected by the user, and also to modify the selection if needed. *)
+      selected by the user, and also to modify the selection if needed. *)
+
+  val of_array : ?w:int ->
+    h:int ->
+    ?widths:int option list ->
+    ?row_height:int ->
+    ?name:string ->
+    string list ->
+    string array array -> Layout.t * (Selection.t, Selection.t) Tvar.t
+
 end (* of Table *)
 
 (* ---------------------------------------------------------------------------- *)

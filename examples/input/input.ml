@@ -3,7 +3,6 @@
 (* This file is part of Bogue documentation. *)
 (* http://sanette.github.io/bogue/Principles.html *)
 
-open Tsdl
 open Bogue
 module W = Widget
 module L = Layout
@@ -16,8 +15,8 @@ let main () =
   let action ti l _ =
     let text = W.get_text ti in
     W.set_text l ("Hello " ^ text ^"!") in
-  let c = W.connect input label action Sdl.Event.[text_input; key_down] in
-    
+  let c = W.connect input label action Trigger.[text_input; key_down] in
+
   let board = Bogue.make [c] [layout] in
   Bogue.run board;;
 

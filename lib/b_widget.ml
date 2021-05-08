@@ -19,7 +19,7 @@ module Slider = B_slider
 module Check = B_check
 module Text_display = B_text_display
 module Text_input = B_text_input
-  
+
 type kind =
   | Empty of Empty.t
   | Box of Box.t
@@ -32,7 +32,7 @@ type kind =
   | TextInput of Text_input.t
 
 (** what to do when the same action (= same connection id) is already running ? *)
-type action_priority = 
+type action_priority =
   | Forget (** discard the new action *)
   | Join (** execute the new after the first one has completed *)
   | Replace (** kill the first action (if possible) and execute the second one *)
@@ -151,7 +151,7 @@ let create_empty kind =
   w;;
 
 let dummy_widget = create_empty (Empty (Empty.create (0,0)));;
-    
+
 (*let of_id wid = Hashtbl.find widgets_table wid;;*)
 let of_id wid : t =
   try WHash.find widgets_wtable {dummy_widget with wid} with
@@ -185,7 +185,7 @@ let default_size w =
   | Button b -> Button.size b
   | Slider s -> Slider.default_size s
   | TextInput ti -> Text_input.size ti
-                      
+
 let get_cursor w =
   default w.cursor
     (match w.kind with
@@ -194,7 +194,7 @@ let get_cursor w =
      | Label _
      | TextDisplay _
      | Image _ -> go (Draw.create_system_cursor Sdl.System_cursor.arrow)
-     | Button _ 
+     | Button _
      | Check _
      | Slider _ -> go (Draw.create_system_cursor Sdl.System_cursor.hand)
      | TextInput _ -> go (Draw.create_system_cursor Sdl.System_cursor.ibeam)
@@ -235,7 +235,7 @@ let update w =
   printd debug_board "Please refresh";
   Var.set w.fresh false;
   (* if !draw_boxes then Trigger.(push_event refresh_event) *)
-  (* else *) 
+  (* else *)
   Trigger.push_redraw w.wid;; (*TODO... use wid et/ou window_id...*)
 (* refresh is not used anymore. We redraw everyhting at each frame ... *)
 (* before, it was not very subtle either: if !draw_boxes is false, we ask for
@@ -374,9 +374,9 @@ let image_from_svg ?w ?h ?bg file =
   let svg = Draw.convert_svg ?w ?h file in
   let w,h = Draw.unscale_size (Draw.image_size svg) in
   image ~w ~h ?bg svg;;
-  
+
 let button ?(kind = Button.Trigger) ?label ?label_on ?label_off
-    ?fg ?bg_on ?bg_off ?bg_over ?state 
+    ?fg ?bg_on ?bg_off ?bg_over ?state
     ?border_radius ?border_color text =
   let b = create_empty
       (Button (Button.create ?label ?label_on ?label_off ?fg
@@ -436,7 +436,7 @@ let slider_with_action ?priority ?step ?kind ~value ?length ?thickness ?tick_siz
   let t_to x = action x; Avar.var x in
   let var = Tvar.create v ~t_from ~t_to in
   slider ?priority ?step ?kind ~var ?length ?thickness ?tick_size max;;
-  
+
 let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
   let ti = Text_input.create ?size ?prompt ?filter ?max_size text in
   let w = create_empty (TextInput ti) in
@@ -498,7 +498,7 @@ let get_state w =
   | _ -> (printd debug_error "This type of widget does not have a state function";
           false);;
 
-  
+
 (** creation of combined widgets *)
 let check_box_with_label text =
   let b = check_box () in
@@ -640,7 +640,7 @@ let wake_up event c =
 
 let wake_up_all ev w =
   List.iter (wake_up ev) w.connections;;
-  
+
 (** remove all active connections from this widget and ask for the threads to
     terminate *)
 let remove_active_connections widget =

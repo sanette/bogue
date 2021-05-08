@@ -6,13 +6,13 @@ module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
 module Label = B_label
-  
+
 (* TODO: use TTF_RenderUTF8_Blended_Wrapped *)
 (* cf SDL_ttf.h *)
 
 (* TODO: use Tsdl_extra.TTF.style *)
 
-type entity = 
+type entity =
   | Word of string
   | Space
   | Style of Ttf.Style.t
@@ -122,7 +122,7 @@ let split_line line =
   |> List.map (function
       | Text w -> Word w
       | Delim _ -> Space);;
-    
+
 let para = split_line;;
 
 (* raw is used if you don't want to break spaces. This is (currently) the only
@@ -130,7 +130,7 @@ let para = split_line;;
 let raw s = [Word s];;
 
 let append w1 w2 : words =
-  List.append w1 w2;; 
+  List.append w1 w2;;
 
 let ( ++ ) = append;;
 
@@ -195,8 +195,8 @@ let unsplit_old words =
       | w::rest -> loop rest (if acc = "" then w else acc ^ " " ^ w) in
   loop words "";;
 
-let unsplit_words words = 
-  List.map (function 
+let unsplit_words words =
+  List.map (function
       | Word w -> w
       | Space -> " "
       | _ -> "") words
@@ -262,16 +262,16 @@ let display canvas layer td g =
                             (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
                       free_surface surf;
                       loop (rest_line::rest) (dx + tw) dy)
-              | Space -> 
+              | Space ->
                 let space = if Ttf.Style.(test (Ttf.get_font_style font) italic)
                   then (round (float space *. 0.6)) else space in
                 loop (rest_line::rest) (dx + space) dy
               (* TODO Space should be rendered in case of underline or
                  strikethrough. But not when we break at the end of the line, of
                  course *)
-              | Style s -> 
+              | Style s ->
                 let current_style = Ttf.get_font_style font in
-                let new_style = if s =  Ttf.Style.normal 
+                let new_style = if s =  Ttf.Style.normal
                   then s else Ttf.Style.(s + current_style) in
                 ttf_set_font_style font new_style;
                 loop (rest_line::rest) dx dy

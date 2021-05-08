@@ -8,7 +8,16 @@ exception Sdl2_error of string
 
 let nop _ = ();;
 
-let debug = ref false;; (* set to false for production *)
+let debug = let d = try
+      match Sys.getenv "BOGUE_DEBUG" |> String.capitalize_ascii with
+      | "YES"
+      | "1"
+      | "TRUE" -> true
+      | _ -> false
+    with Not_found -> false (* set to false for production *)
+       | e -> raise e in
+ref d;;
+
 let debug_thread = 1;;
 let debug_warning = 2;;
 let debug_graphics = 4;;
