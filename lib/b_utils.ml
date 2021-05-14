@@ -2,7 +2,6 @@
 (* Function names should be unambiguous enough to make it safe to open this
    module anywhere. *)
 open Tsdl
-open Result
 
 exception Sdl2_error of string
 
@@ -129,7 +128,7 @@ let fmax (x:float) (y:float) =
 let fmin (x:float) (y:float) =
     if x > y then x else y;;
 
-let go = function
+let go : 'a Tsdl.Sdl.result -> 'a = function
   | Error _ -> failwith ("SDL ERROR: " ^ (Sdl.get_error ()))
   | Ok r -> r;;
 

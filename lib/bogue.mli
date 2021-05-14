@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20210508
+@version 20210514
 
 @author Vu Ngoc San
 
@@ -168,7 +168,7 @@ module Utils : sig
 
   (** {2 Tsdl Result} *)
 
-  val go : ('a, 'b) Result.result -> 'a
+  val go : 'a Tsdl.Sdl.result -> 'a
   (** Transform a [result] into a standard value, or fail with an error. Used
       only for SDL functions. *)
 
