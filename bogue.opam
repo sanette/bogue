@@ -21,11 +21,12 @@ layouts, callbacks, and of course it has a functional flavor. It uses
 Threads when non-blocking reactions are needed."""
 maintainer: ["Vu Ngoc San <san.vu-ngoc@laposte.net>"]
 authors: ["Vu Ngoc San <san.vu-ngoc@laposte.net>"]
-license: "IST"
+license: "ISC"
 homepage: "https://github.com/sanette/bogue"
 doc: "http://sanette.github.io/bogue/Bogue.html"
 bug-reports: "https://github.com/sanette/bogue/issues"
 depends: [
+  "dune" {>= "1.11"}
   "tsdl-image" {= "0.1.2"}
   "tsdl-ttf" {>= "0.2"}
   "ocaml" {>= "4.08.0"}
