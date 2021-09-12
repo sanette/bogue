@@ -23,7 +23,7 @@ when non-blocking reactions are needed.
 
 ## Widgets
 
-Widgets are the building bricks, reponsible for graphic elements that
+Widgets are the building bricks, responsible for graphic elements that
 respond to events (mouse, touchscreen, keyboard, etc.).
 
 For a more functional use, they can be "connected" (by pairs at this
@@ -73,7 +73,7 @@ opam install bogue
 
 That's it.
 
-## Bulding from sources
+## Building from sources
 
 ### Prerequisites
 
