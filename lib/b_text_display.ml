@@ -48,14 +48,15 @@ let unload td =
 let free = unload;;
 (* TODO free font ? *)
 
-(* determine the style at the end of the entity list, asuming that the initial
+(* determine the style at the end of the entity list, assuming that the initial
    style is normal *)
 (* TODO: be careful when using this, maybe the initial normal style is a wrong
    assumption. This should be ok if the user may only concatenate entity lists,
    not split them. *)
 let last_style words =
 List.fold_left (fun style entity -> match entity with
-      | Style s when s = Ttf.Style.normal -> s
+      | Style s when s = Ttf.Style.normal -> s (* not necessary, since normal ==
+                                                  0 *)
       | Style s -> Ttf.Style.(s + style)
       | _ -> style) Ttf.Style.normal words;;
 
@@ -164,6 +165,77 @@ let create_from_string ?(size = Theme.text_font_size) ?w ?h ?(font = default_fon
 
 let create_from_lines ?(size = Theme.text_font_size) ?w ?h ?(font = default_font) lines =
   let paragraphs = paragraphs_of_lines lines in
+  create ~size ?w ?h ~font paragraphs;;
+
+(* Basic html parser *)
+
+(* List of accepted html tags *)
+let htmltags = regexp " +\\|<b>\\|</b>\\|<em>\\|</em>\\|<strong>\\|</strong>\\|<p>\\|</p>\\|<br>";;
+
+let style_from_stack stack =
+  List.fold_left (Ttf.Style.(+)) Ttf.Style.normal stack
+
+(* add a style declaration to a list of words in reverse order *)
+let add_style line style =
+  let line = match line with
+    | (Style _) :: rest -> rest
+    (* if the line 'last' element (remember it's reverse order) is a Style we
+       may remove it. *)
+    | _ -> line in
+  (Style style)::line
+
+(* what to do when encountering a new style tag (style should be a primitive
+   one, ie a power of 2) *)
+let apply_style line stylestack style =
+  let stk = style :: stylestack in
+  let line = if List.mem style stylestack
+    then line
+    else add_style line (style_from_stack stk) in
+  stk, line
+
+(* whet to do when encountering a closing tag *)
+let close_style line stylestack style =
+  let stk = try list_remove_first (fun x -> x = style) stylestack
+    with Not_found ->
+      printd debug_warning "Bad HTML: closing tag without opening first.";
+      stylestack in
+  let line = add_style line (style_from_stack stk) in
+  stk, line
+
+let paragraphs_of_html src =
+  let rec loop stylestack paras line = function
+    | [] -> List.rev ((List.rev line)::paras)
+    | x::rest -> match x with
+      | Text s -> loop stylestack paras ((Word s)::line) rest
+      | Delim "<p>" when paras = [] && line = [] ->
+        loop stylestack [] [] rest
+      | Delim "<p>" when line = [] -> loop stylestack paras [] rest
+      | Delim "<p>" -> loop stylestack ((List.rev line)::paras) [] rest
+      | Delim "<br>" -> loop stylestack ((List.rev line)::paras) [] rest
+      | Delim "</p>" -> loop stylestack ([]::(List.rev line)::paras) [] rest
+      | Delim s when s <> "" && s.[0] = ' '
+        (* TODO handle more spaces in case of <pre> tag *)
+        -> loop stylestack paras (Space::line) rest
+      | Delim d ->
+        let stk, line = match String.lowercase_ascii d with
+          | "<b>"
+          | "<strong>" -> apply_style line stylestack Ttf.Style.bold
+          | "<em>" -> apply_style line stylestack Ttf.Style.italic
+          | "</b>"
+          | "</strong>" -> close_style line stylestack Ttf.Style.bold
+          | "</em>" -> close_style line stylestack Ttf.Style.italic
+          | _ ->
+            printd debug_error "html tag %s not implemented" d;
+            stylestack, ((Word d)::line) in
+        loop stk paras line rest in
+  let list = full_split htmltags src in
+  loop [] [] [] list
+
+(* *** *)
+
+let create_from_html ?(size = Theme.text_font_size) ?w ?h
+    ?(font = default_font) html =
+  let paragraphs = paragraphs_of_html html in
   create ~size ?w ?h ~font paragraphs;;
 
 let create_verbatim ?(size = Theme.text_font_size) ?(font = Label.File Theme.mono_font) text =

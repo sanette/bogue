@@ -1,6 +1,18 @@
 (* dealing with sets of range of integers *)
 (* this is used by table.ml *)
 
+(* this module is self-contained and can be used outside Bogue *)
+
+(* Example:
+
+# let r = union [Range (2,6); Range (12,14)] [Range (4,10)];;
+val r : selected list = [Range (2, 10); Range (12, 14)]
+
+# iter (Printf.printf "[%i]") r;;
+[2][3][4][5][6][7][8][9][10][12][13][14]- : unit = ()
+
+*)
+
 type selected =
     | Range of (int * int)
                  
@@ -52,7 +64,6 @@ let mem sel i =
 (* Removes an entry from the selection *)
 (* works only on simplified lists, returns a simplified list *)
 let remove sel i =
-  print_endline "REMOVE";
   let rec loop sl new_sl =
     match sl with
     | [] -> List.rev new_sl
@@ -71,7 +82,6 @@ let remove sel i =
 (* Adds an entry to the selection *)
 (* if the selection was simplified, the result is also simplified *)
 let add sel i =
-  print_endline "ADD";
   let rec loop sl new_sl =
     match sl with
     | [] -> List.rev (Range (i,i)::new_sl)
@@ -97,7 +107,7 @@ let toggle sel i =
 let union sel1 sel2 =
   simplify (List.rev_append sel2 sel1);;
   
-let iter f sel =
+let iter (f : int -> unit) sel =
   let rec loop sl =
     match sl with
     | [] -> ()

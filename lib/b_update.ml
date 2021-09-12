@@ -12,9 +12,8 @@ open B_utils
 module Widget = B_widget
 module Var = B_var
 module Trigger =  B_trigger
-  
-let str = Printf.sprintf
 
+let str = Printf.sprintf
 
 let table : (Widget.t list) Var.t = Var.create  [];;
 
@@ -24,13 +23,13 @@ let is_empty () =
 let clear () =
   if not (is_empty ()) then
     begin
-      printd debug_warning "The update queue was not empty"; 
+      printd debug_warning "The update queue was not empty";
       Var.set table []
     end;;
 
 let mem w =
   List.exists (Widget.equal w) (Var.get table);;
-  
+
 let push w =
   if mem w then
     printd debug_event "Widget #%u is already in the Update.table" w.Widget.wid

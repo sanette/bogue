@@ -150,7 +150,7 @@ let set_system_cursor sdl_cursor =
 let sdl_image_load file =
   printd debug_memory "Create surface_load (%s)" file;
   incr surfaces_in_memory;
-  remove_option (TImage.load file) (* tsdl-image 0.1.2 *)
+  go (TImage.load file) 
 
 (* SDL TTF *)
 
@@ -242,15 +242,15 @@ let destroy_textures () =
 
 (* --- *)
 
-(** call this function to destroy the texture after the next iteration of the
-    main loop *)
-(* this function should be used whenever one wants to change the texture of a
+(* Call [forget_texture] to destroy the texture after the next iteration of the
+   main loop. *)
+(* This function should be used whenever one wants to change the texture of a
    widget without changing the pointer to the widget itself (in other words,
    when we just change the texture field of a widget). Then one should call
    forget_texture on the old texture, so that it will be freed by Sdl.
 
-   If a widget is not used anymore, it is necessary to call forget_texture *)
-(* this is thread-safe *)
+   If a widget is not used anymore, it is necessary to call forget_texture. *)
+(* This is thread-safe. *)
 let forget_texture tex =
   Var.protect_fn textures_to_destroy (fun () ->
       Queue.push tex (Var.get textures_to_destroy));;
@@ -384,7 +384,7 @@ let scale_geom g =
   let open Theme in
   { x=(scale_int g.x); y=(scale_int g.y);
     w=(scale_int g.w); h=(scale_int g.h);
-    voffset=(scale_int g.voffset)};;
+    voffset=(scale_int g.voffset) };;
 
 let scale_pos (x,y) =
   (Theme.scale_int x, Theme.scale_int y);;
@@ -477,6 +477,10 @@ let transp = set_alpha 127;;
 
 let more_transp (r,g,b,a) : color =
   (r,g,b, a/2);;
+
+let random_color () : color =
+  let r () = Random.int 256 in
+  (r(), r(), r(), r())
 
 let sqrt_color x = round (255. *. sqrt (float x /. 255.));;
 
@@ -615,15 +619,33 @@ let blit_to_layer blit =
    re-use. In case of a one-time texture, use forget_texture before calling
    make_blit. *)
 let render_blit blit =
-  go (Sdl.render_set_clip_rect blit.rndr blit.clip);
   (* if no transform = go (Sdl.render_copy ?src:blit.src ?dst:blit.dst blit.rndr
      blit.texture) *)
   let t = blit.transform in
   let alpha = round (255. *. t.alpha) in
   let orig_alpha = go (Sdl.get_texture_alpha_mod blit.texture) in
   go (Sdl.set_texture_alpha_mod blit.texture alpha);
-  go (Sdl.render_copy_ex  ?src:blit.src ?dst:blit.dst blit.rndr blit.texture t.angle  t.center  t.flip);
-  go (Sdl.set_texture_alpha_mod blit.texture orig_alpha);; (* we do this in case the texture is used at several places onscreen *)
+  go (Sdl.render_set_clip_rect blit.rndr blit.clip);
+  go (Sdl.render_copy_ex ?src:blit.src ?dst:blit.dst blit.rndr
+        blit.texture t.angle t.center t.flip);
+  go (Sdl.render_set_clip_rect blit.rndr None);
+  (* : this seems necessary in some cases, see example 35bis. For (extreme)
+     optimization we might try to factor this out. *)
+
+  (* BUG/WORKAROUND. Something is fishy with (un)setting clip_rect. Not sure
+     why, but if I don't draw a dummy thing like a point or a rect, then the
+     texture gets corrupted. It become unproperly offset, and has some random
+     glitches. Hence the following lines where we draw a transparent point at
+     0,0. For more debug information, one can also draw the clip rectangle as
+     follows: *)
+  (* set_color blit.rndr (random_color ()); *)
+  (* go (Sdl.render_draw_rect blit.rndr blit.clip); *)
+  set_color blit.rndr none;
+  go (Sdl.render_draw_point blit.rndr (-1) (-1));
+  (* END WORKAROUND *)
+
+  go (Sdl.set_texture_alpha_mod blit.texture orig_alpha)
+(* : we do this in case the texture is used at several places onscreen *)
 
 (* render all blits in one layer. first in, first out *)
 let render_blits blits =
@@ -882,20 +904,19 @@ let box_to_layer canvas layer ?(bg = opaque grey) ?voffset x y w h =
   make_blit ?voffset ~dst canvas layer tex;;
 
 (** save and reset some useful settings before setting a render target *)
-(* the texture is filled with transparent black *)
 (* TODO : not thread safe !*)
 let push_target ?(clear=true) ?(bg=none) renderer target =
-  let rect = Sdl.render_get_clip_rect renderer in
-  (* TODO one should use SDL_RenderIsClipEnabled once it's implemented in
-     tsdl *)
-  let clip = if Sdl.rect_empty rect then None else Some rect in
-  go (Sdl.render_set_clip_rect renderer None);
-  go (Sdl.set_texture_blend_mode target Sdl.Blend.mode_blend);
-  let old_target = Sdl.get_render_target renderer in
-  go (Sdl.set_render_target renderer (Some target));
+  (* we save the clip rectangle of the current target *)
+  let clip = if Sdl.render_is_clip_enabled renderer
+             then Some (Sdl.render_get_clip_rect renderer)
+             else None in
   let color = go(Sdl.get_render_draw_color renderer) in
+  let old_target = Sdl.get_render_target renderer in
+  (* now switch to the new target *)
+  go (Sdl.set_texture_blend_mode target Sdl.Blend.mode_blend);
+  go (Sdl.set_render_target renderer (Some target));
+  (* go (Sdl.render_set_clip_rect renderer None); *)
   set_color renderer bg;
-  (* go (Sdl.render_fill_rect renderer None); *)
   if clear then go (Sdl.render_clear renderer);
   clip, old_target, color;; (* TODO include the renderer here *)
 
@@ -931,6 +952,7 @@ let fill_pattern ?rect renderer target pattern =
   loop x0 y0;
   do_option save_target (pop_target renderer);;
 
+(* create a texture filled with the repeated pattern *)
 let generate_background window renderer pattern =
   let flags = Sdl.get_window_flags window in
   if Sdl.Window.(test flags hidden)
@@ -947,6 +969,8 @@ let generate_background window renderer pattern =
     target
   end;;
 
+(* use [update_background] to recreate the main background, typically when
+   window size has changed. For a simple clear, use [clear_canvas] *)
 let update_background canvas =
   printd debug_graphics "Update background";
   match canvas.fill with
@@ -955,7 +979,8 @@ let update_background canvas =
     go (Sdl.render_clear canvas.renderer)
   | Pattern t ->
     do_option canvas.textures.background forget_texture;
-    canvas.textures.background <- generate_background canvas.window canvas.renderer t;;
+    canvas.textures.background <- generate_background canvas.window
+                                    canvas.renderer t;;
 
 (* TODO: better to save surfaces instead of textures ? otherwise setting
    eg. alpha on one texture will affect everywhere it is blitted. Cf for example
@@ -1049,16 +1074,20 @@ let clear_layers layer =
         Queue.clear q
       end) layer;;
 
+(* Clear the canvas, using the background color, or the pre-computed
+   texture. For re-computing the texture, use [update_background]. *)
 let clear_canvas c =
   printd debug_graphics "Clear canvas";
-  go (Sdl.render_set_clip_rect c.renderer None);
+  (* go (Sdl.render_set_clip_rect c.renderer None); I lost many hours due to
+     this one. If the above line is active, the render_clear only affects part
+     of the renderer, no idea why... What's even more illogical, the SDL doc
+     says that render_clear does not take clip_rect into account... *)
   let color = match c.fill with
-    | Solid c -> c
+    | Solid x -> x
     | _ -> opaque grey in
   set_color c.renderer color;
   go (Sdl.render_clear c.renderer);
-  (* paste background image... *)
-  (*fill_pattern c.renderer None c.textures.check_on;;*)
+  (* paste background image *)
   do_option c.textures.background
     (fun tex -> go (Sdl.render_copy c.renderer tex));;
 
@@ -1936,7 +1965,8 @@ let copy_tex ?(overlay = TopRight) renderer tex area x y =
       go (Sdl.render_copy ~src ~dst renderer tex));;
 
 (* new version for layers *)
-let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform canvas layer tex area x y =
+let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform
+      canvas layer tex area x y =
   let w, h = tex_size tex in
   let rect = Sdl.Rect.create ~x ~y ~w ~h in
   let dst = Sdl.intersect_rect rect area in
@@ -1978,9 +2008,7 @@ let tex_to_layer canvas layer tex g =
   make_blit ~voffset:g.voffset ~dst canvas layer tex;;
 
 
-
 (* some graphics algorithms *)
-
 
 let normsq (x,y) =
   x*x + y*y;;

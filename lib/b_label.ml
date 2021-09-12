@@ -4,10 +4,12 @@ open Tsdl_ttf;;
 module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
-  
+
 type font =
   | File of string
   | Font of Ttf.font;;
+
+type style = Tsdl_ttf.Ttf.Style.t
 
 type t =
   { text : string Var.t;
@@ -18,7 +20,7 @@ type t =
     fg : (Draw.color option) Var.t; (* foreground color *)
   };;
 
-let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font) 
+let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
     ?(style = Ttf.Style.normal) ?fg text =
   Draw.ttf_init (); (* we init here so that one can get the size of the widget *)
   { text = Var.create text;
@@ -31,7 +33,7 @@ let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
 (* see https://lab.artlung.com/font-awesome-sample/*)
 let icon ?size ?fg name =
   create ?size ?fg ~font:(File Theme.fa_font) (Theme.fa_symbol name);;
-  
+
 let unload l =
   match Var.get l.render with
   | None -> ()
@@ -65,13 +67,13 @@ let set_fg_color l color =
 
 
 (* physical size *)
-let physical_size_text font text = 
+let physical_size_text font text =
   (* Attention, SDL_ttf n'est peut-être pas encore initialisé... *)
   go (Ttf.size_utf8 font text);;
 
 (* not used: *)
 let size_text_init font text =
-   if not (Ttf.was_init ()) 
+   if not (Ttf.was_init ())
    then (go (Ttf.init ());
          printd debug_graphics "SDL TTF initialized";
          Draw.at_cleanup (fun () ->

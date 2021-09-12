@@ -77,7 +77,7 @@ let free = unload;;
 
 (************* display ***********)
 
-(* as all widget display functions, the geometry g must be already scaled *)
+(* As all widget display functions, the geometry g must be already scaled. *)
 let display canvas layer b g =
   let open Draw in
   (* TODO: make sure hoffset <= h *)

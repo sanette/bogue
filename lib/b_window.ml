@@ -1,16 +1,16 @@
-(** a 'window' is just a layout *)
-(* do no mistake with a hardware (SDL) window *)
+(* a 'window' is in fine just a layout *)
+(* Do not mistake it with a hardware (SDL) window *)
 open Tsdl;;
 open B_utils;;
 module Layout = B_layout
 module Draw = B_draw
-  
+
 type t =
   { layout : Layout.t;
     mutable is_fresh : bool;
     mutable bogue : bool;
     (* if bogue = false this means that bogue didn't create the corresponding
-       SDL window, and we should neither clear it before renderering, nor
+       SDL window, and we should neither clear it before rendering, nor
        RenderPresent it after rendering *)
   }
 
@@ -21,7 +21,7 @@ let create ?(is_fresh = false) ?(bogue = false) layout =
 
 let get_layout w =
   w.layout;;
-  
+
 let is_fresh w =
   w.is_fresh;;
 
@@ -56,6 +56,7 @@ let flip ?clear w =
   then begin
     render w;
     let clear = default clear w.bogue in
+    printd debug_graphics "clear=%b" clear;
     let present = w.bogue in
     Layout.flip ~clear ~present w.layout;
     set_fresh w

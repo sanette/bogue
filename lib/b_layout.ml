@@ -2034,12 +2034,13 @@ let debug_box ~color room x y =
   Draw.forget_texture rect.Draw.texture;
   rect;;
 
-let scale_clip clip = map_option clip (fun c ->
-    Sdl.Rect.(create
-                ~x:(Theme.scale_int (x c))
-                ~y:(Theme.scale_int (y c))
-                ~h:(Theme.scale_int (h c))
-                ~w:(Theme.scale_int (w c))));;
+let scale_clip clip =
+  map_option clip (fun c ->
+      Sdl.Rect.(create
+                  ~x:(Theme.scale_int (x c))
+                  ~y:(Theme.scale_int (y c))
+                  ~h:(Theme.scale_int (h c))
+                  ~w:(Theme.scale_int (w c))));;
 
 (** Display a room: *)
 (* this function sends all the blits to be displayed to the layers *)
@@ -2093,6 +2094,7 @@ let display ?pos0 room =
             let bg = map_option r.background (fun bg ->
                          let box = match bg with
                            | Solid c ->
+                              (* let c = Draw.random_color () in *)  (* DEBUG *)
                               let b = Box.(create ~width:g.w ~height:g.h
                                              ~background:(Style.Solid c)
                                              ?shadow:r.shadow ()) in
@@ -2102,7 +2104,8 @@ let display ?pos0 room =
                               b
                            | Box b -> b in
                          let blits = Box.display (get_canvas r) (get_layer r) box
-                                       Draw.(scale_geom {x; y; w = g.w; h = g.h; voffset = - voffset}) in
+                                       Draw.(scale_geom {x; y; w = g.w; h = g.h;
+                                                         voffset = - voffset}) in
                          blits) in
             (* !!! in case of shadow, the blits contains several elements!! *)
 
@@ -2121,6 +2124,7 @@ let display ?pos0 room =
                    let rect = debug_box ~color:(0,0,255,200) r x y in
                    let open Draw in
                    let t = compose_transform transform rect.transform in
+                   let clip = sclip in
                    blit_to_layer { rect with clip; transform = t }
                  end;
                List.iter (display_loop x y voffset clip transform) h
@@ -2237,6 +2241,8 @@ let rec has_anim room =
    *)
 (* only one canvas/renderer is used, the one specified by the layout *)
 let flip ?(clear=false) ?(present=true) layout =
+  printd debug_graphics "flip layout %s" (sprint_id layout);
+  (* go (Sdl.set_render_target (renderer layout) None); *)
   if clear then Draw.clear_canvas (get_canvas layout);
   printd debug_graphics "Render layers";
   Var.protect_fn Draw.current_layer (fun () ->
@@ -2244,9 +2250,9 @@ let flip ?(clear=false) ?(present=true) layout =
          current_layer... TODO do better *)
       Draw.render_all_layers (get_layer layout));
   if present then begin
-    printd debug_graphics "FLIP";
-    Draw.(sdl_flip (renderer layout))
-  end;;
+      printd debug_graphics "Present";
+      Draw.(sdl_flip (renderer layout))
+    end;;
 
 (* prerender the layout to the layers *)
 let render layout =

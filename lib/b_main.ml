@@ -128,7 +128,8 @@ let exit_board board =
   Draw.destroy_textures (); (* en principe inutile: déjà fait *)
   (* Layout.clear_wtable (); *)
   Draw.check_memory ();
-  Trigger.flush_all ();;
+  Trigger.flush_all ();
+  flush_log ();;
 
 let quit = Draw.quit;;
 
@@ -149,16 +150,7 @@ let display board =
 (** Render all layers and flip window buffers, only for windows with the
    is_fresh=false field *)
 let flip ?clear board =
-  List.iter (* (fun w -> *)
-    (* let open Window in *)
-    (* let l = get_layout w in *)
-    (* if not (is_fresh w) *)
-    (* then (render w; *)
-    (*       flip ?clear w; *)
-    (*       set_fresh w) *)
-    (* else Draw.clear_layers (Layout.get_layer l))  *)
-    (Window.flip ?clear)
-    board.windows;
+  List.iter (Window.flip ?clear) board.windows;
   Draw.destroy_textures ();;
 
 (** update window that was resized by user *)
@@ -908,7 +900,7 @@ let make_sdl_windows ?windows board =
 (* make the board. Each layout in the list will be displayed in a different
    window. *)
 let make ?(shortcuts = []) connections layouts =
-  let windows = List.map Window.create layouts in
+  let windows = List.map (Window.create ~bogue:true) layouts in
   (* let canvas = match layouts with *)
   (*   | [] -> failwith "At least one layout is needed to make the board" *)
   (*   | l::_ -> Layout.get_canvas l in *)
@@ -931,7 +923,6 @@ let make ?(shortcuts = []) connections layouts =
                       print_endline "User Redraw";
                       display board;
                       show board) in
-
   { windows;
     top_house;
     mouse_focus = None;
@@ -983,7 +974,7 @@ let run ?before_display ?after_display board =
     (List.flatten (List.map Widget.connections (Layout.get_widgets board.top_house)));
   Trigger.renew_my_event ();
   let rec loop anim =
-    let anim' = one_step ?before_display anim fps board in
+    let anim' = one_step ?before_display ~clear:true anim fps board in
     do_option after_display (fun f -> f ()); (* TODO ? *)
     loop anim' in
   try

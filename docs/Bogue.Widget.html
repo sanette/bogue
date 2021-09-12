@@ -214,7 +214,14 @@
 
 <pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -> ?h:int -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -><br>       ?w:int -> ?h:int -> <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Labelsoricons">Labels or icons</h4>
+<pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALhtml"><span class="keyword">val</span> html</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Display basic html text by interpreting the following tags: &lt;em&gt;,&lt;/em&gt;,
+     <b>,</b>, &lt;strong&gt;,&lt;/strong&gt;, &lt;p&gt;,&lt;/p&gt;, &lt;br&gt;</p>
+</div>
+</div>
+<h4 id="3_Labelsoricons">Labels or icons</h4>
 <pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Label widget with a one-line text.</p>

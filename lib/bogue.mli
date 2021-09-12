@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20210514
+@version 20210912
 
 @author Vu Ngoc San
 
@@ -656,6 +656,10 @@ module Tvar : sig
   (** a transform variable of type [('a,'b)] is a variable of type ['b] attached to
      a variable of type ['a Var.t] by a bi-directional transformation. *)
 
+  val create : 'a Var.t -> t_from:('a -> 'b) -> t_to:('b -> 'a) -> ('a, 'b) t
+  val get : ('a, 'b) t -> 'b
+  val set : ('a, 'b) t -> 'b -> unit
+    
 end (* of Tvar *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -720,6 +724,11 @@ end (* of Avar *)
 module Selection : sig
   type t
 
+  val mem : t -> int -> bool
+  val toggle : t -> int -> t
+  val sprint : t -> string
+  val iter : (int -> unit) -> t -> unit
+ 
 end (* of Selection *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -803,8 +812,9 @@ A [Label] is a widget for displaying a single line of text.
 module Label : sig
   type t
   type font
+  type style
 
-  val create : ?size:int -> ?font:font -> ?style:Tsdl_ttf.Ttf.Style.t ->
+  val create : ?size:int -> ?font:font -> ?style:style ->
                ?fg:Draw.color -> string -> t
   (** Create a new {!Label.t}. Most of the time, you'd rather want to create a
      {!Widget.t} by using {!Widget.label}. *)
@@ -1075,6 +1085,10 @@ let l = get_label w in
   val text_display :  ?w:int -> ?h:int -> string -> t
   val rich_text : ?size:int -> ?w:int -> ?h:int -> Text_display.words list -> t
   val verbatim : string -> t
+
+  val html : string -> t
+  (** Display basic html text by interpreting the following tags: <em>,</em>,
+     <b>,</b>, <strong>,</strong>, <p>,</p>, <br> *)
 
   (** {3 Labels or icons} *)
 
@@ -1786,6 +1800,14 @@ module Table : sig
     ?name:string ->
     string list ->
     string array array -> Layout.t * (Selection.t, Selection.t) Tvar.t
+
+  val of_list :
+    ?w:int ->
+    h:int ->
+    ?widths:int option list ->
+    ?row_height:int ->
+    ?name:string ->
+    string list list -> Layout.t * (Selection.t, Selection.t) Tvar.t
 
 end (* of Table *)
 

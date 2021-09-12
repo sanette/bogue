@@ -57,13 +57,24 @@ let row_hl = Layout.Solid Draw.(set_alpha 30 blue);;
 let row_selected = Layout.Solid Draw.(opaque (pale (pale (pale blue))));;
 let icon_color = Draw.(set_alpha 40 grey);;
 
+(* max_width returns the max width of the first n_max entries of the column c *)
+let max_width ?(n_max = 50) (c : column) =
+  let n_max = imin n_max c.length in
+  let rec loop i m =
+    if i = n_max then m
+    else let w = Layout.width (c.rows i) in
+         loop (i+1) (imax m w) in
+  loop 0 0
+  
 let make_title (c : column) =
   (* we compute the label widget *)
   let label = Widget.label c.title in
-  (* if no width is specified, we compute the width of the first entry of the
-     column *)
+  (* if no width is specified, we compute the max width of the first entries of
+     the column *)
   let lw,_ = Widget.default_size label in
-  let w = default c.width (imax lw (Layout.width (c.rows 0))) in
+  let w = match c.width with
+    | Some w -> w
+    | None -> (imax lw (max_width c)) in
   let layout =
     if c.compare = None
     then (* first encapsulate in order to then left-align *)
@@ -167,34 +178,34 @@ let make_long_list ~w ~h t  =
       |> cons (Layout.resident left_margin)
       |> (Layout.flat ~sep:0 ~hmargin:0 ~vmargin:0 ?background) in
     let enter _ = (Layout.set_background ca (Some row_hl)
-                   (* Layout.fade_in ca ~duration:150 *)) in
+                  (* Layout.fade_in ca ~duration:150 *)) in
     let leave _ = Layout.set_background ca None
-      (* Layout.fade_out ca ~duration:150 *) in
+    (* Layout.fade_out ca ~duration:150 *) in
     (* TODO: PROBLEM if one adds Layout.fade_in/out animations here, it becomes
     very slow when one tries to scroll at the same time ==> cf
     "check_mouse_motion board" dans bogue.ml *)
     Widget.mouse_over ~enter ~leave click_area;
     (* TODO click is not good with touchscreen *)
-    let click _ = (print_endline "CLICK";
-                   t.last_selected <- Some i;
-                   let new_sel =
-                     (* if Trigger.ctrl_pressed () *)
-                     (* then Selection.toggle t.selection i *)
-                     (* else if Trigger.shift_pressed () *)
-                     (* then (match t.last_selected with *)
-                     (*       | Some i0 -> *)
-                     (*          Selection.(union t.selection [Range (min i i0, max i i0)]) *)
-                     (*       | None -> Selection.[Range (i,i)]) *)
-                     (* else Selection.[Range (i,i)] in *)
-                     (* TODO: At this point this (standard) selection mechanism
+    let click _ =
+      (t.last_selected <- Some i;
+       let new_sel =
+         (* if Trigger.ctrl_pressed () *)
+         (* then Selection.toggle t.selection i *)
+         (* else if Trigger.shift_pressed () *)
+         (* then (match t.last_selected with *)
+         (*       | Some i0 -> *)
+         (*          Selection.(union t.selection [Range (min i i0, max i i0)]) *)
+         (*       | None -> Selection.[Range (i,i)]) *)
+         (* else Selection.[Range (i,i)] in *)
+         (* TODO: At this point this (standard) selection mechanism
                      with CRTL and SHIFT does not work because we need to
                      recompute the how long list to update all backgrounds. This
                      will have to be added afterwards. For the moment we only
                      toggle: *)
-                     Selection.toggle (Var.get t.selection) i in
-                   Var.set t.selection new_sel;
-                   Layout.set_background row (get_background t i ii);
-                  ) in
+         Selection.toggle (Var.get t.selection) i in
+       Var.set t.selection new_sel;
+       Layout.set_background row (get_background t i ii);
+      ) in
     Widget.on_click ~click click_area;
     Layout.(superpose [ca; row])
   in
@@ -350,6 +361,16 @@ let of_array ?w ~h ?widths ?row_height ?name headers a =
                    compare = Some (fun i1 i2 -> compare a.(i1).(j) a.(i2).(j));
                    width = widths.(j) })
              |> Array.to_list in
-        create ?w ~h ?row_height ?name columns;;
+           create ?w ~h ?row_height ?name columns;;
+
+(* From a Csv.t style list of rows (first row must be the header). Warning: this
+   functions first converts to an array, ie. the data is likely to be duplicated
+   in memory *)
+let of_list ?w ~h ?widths ?row_height ?name = function
+  | [] -> failwith "Cannot create table with empty list."
+  | headers::rows ->
+     let a = List.map Array.of_list rows
+             |> Array.of_list in
+     of_array ?w ~h ?widths ?row_height ?name headers a
 
 (* * * * *)

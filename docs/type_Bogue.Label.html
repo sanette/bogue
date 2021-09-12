@@ -13,10 +13,11 @@
 <pre class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;font<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;style<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?size:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?font:<span class="constructor">Bogue</span>.<span class="constructor">Label</span>.font&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?style:<span class="constructor">Tsdl_ttf</span>.<span class="constructor">Ttf</span>.<span class="constructor">Style</span>.t&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?style:<span class="constructor">Bogue</span>.<span class="constructor">Label</span>.style&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?fg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Label</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;icon&nbsp;:&nbsp;?size:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?fg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Label</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Label</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>

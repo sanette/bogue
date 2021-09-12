@@ -4,7 +4,7 @@ module Theme = B_theme
 module Trigger =  B_trigger
 module Draw = B_draw
 module E = Sdl.Event
-         
+
 (* mouse position. If the mouse goes over a second window, the new origin
    immediately shifts *)
 (* it doesn't work for touchscreen (only the first touch, not motion) *)
@@ -52,7 +52,7 @@ let compute_finger_pos ev =
   | Some win ->
      let w,h = Sdl.get_window_size win in
      Theme.(unscale_f (fx *. float w),unscale_f (fy *. float h));;
-    
+
 let finger_pos ev =
   match Trigger.event_kind ev with
   | `Finger_down
@@ -81,14 +81,6 @@ let pointer_pos ev =
         "The event for pointer_pos should be a mouse or touch event";
       Trigger.mouse_pos ()
     end;;
-
-
-
-
-
-
-
-
 
 
 (* the mouse_pos with respect to the given window, using window position if

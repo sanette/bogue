@@ -736,9 +736,25 @@ let example35bis () =
   let table, _ = Table.of_array ~h:400 ~widths headers a in
 
   let layout = L.tower [L.resident (W.label "This is a nice table"); table] in
-  (* TODO BUG: if we omit the label (hence the table is the only layout), then
-     the title gets redrawn on top of itself on every mouse_over -- thus the
-     transparent color becomes too dark... WHY??? *)
+
+  let board = make [] [layout] in
+  run board;;
+
+let desc35ter = "a table from a list"
+let example35ter () =
+  let list = [
+      ["English"; "French"];
+      [ "hello"; "salut" ];
+      [ "bye bye"; "salut"];
+      [ "see you"; "à plus"];
+      [ "darn"; "zut"];
+      [ "holy cow"; "oh punaise"]
+    ] in
+  let widths = [Some 100; Some 150] in
+  let table, _ = Table.of_list ~h:400 ~widths list in
+
+  let layout = L.tower [L.resident (W.label "This is a nice table"); table] in
+
   let board = make [] [layout] in
   run board;;
 
@@ -957,7 +973,14 @@ let example46 () =
   let board = make [] [] in
   run board;;
 
-
+let desc47 = "basic HTML"
+let example47 () =
+  let td = W.html "<p>Welcome to <b>Bogue</b>!<br>You will find it \
+                   <em>great</em>.</p><p>Have fun,<br><br><em>and stay \
+                   <strong>calm</strong></em>... Thank you</p><b>This should <b>stay</b> bold.</b>" in
+  let layout = L.flat_of_w [td] in
+  let board = make [] [layout] in
+  run board;;
 
 let _ =
   let examples = [  "0", (example0, desc0) ;
@@ -1002,6 +1025,7 @@ let _ =
                     "34", (example34, desc34) ;
                     "35", (example35, desc35) ;
                     "35bis", (example35bis, desc35bis) ;
+                    "35ter", (example35ter, desc35ter) ;
                     "36", (example36, desc36) ;
                     "37", (example37, desc37) ;
                     "38", (example38, desc38) ;
@@ -1013,6 +1037,7 @@ let _ =
                     "44", (example44, desc44) ;
                     "45", (example45, desc45) ;
                     "46", (example46, desc46) ;
+                    "47", (example47, desc47) ;
 
 
                  ] in

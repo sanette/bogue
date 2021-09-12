@@ -7,15 +7,20 @@ exception Sdl2_error of string
 
 let nop _ = ();;
 
-let debug = let d = try
+let debug =
+  let d = try
       match Sys.getenv "BOGUE_DEBUG" |> String.capitalize_ascii with
       | "YES"
-      | "1"
-      | "TRUE" -> true
+        | "1"
+        | "TRUE" -> true
       | _ -> false
     with Not_found -> false (* set to false for production *)
        | e -> raise e in
-ref d;;
+  ref d;;
+
+let log_channel = ref stdout
+let close_log () = close_out !log_channel
+let flush_log () = flush !log_channel
 
 let debug_thread = 1;;
 let debug_warning = 2;;
@@ -64,7 +69,6 @@ let debug_to_string =
           loop (i lsr 1) (n+1) (s::list) in
     String.concat "; " (loop c 1 []);;
 
-
 (** should we put this in a Var ? *)
 (* TODO: use this to reduce the number of lock if there is no thread *)
 let threads_created = ref 0;;
@@ -81,14 +85,21 @@ let print_debug_old s = Printf.ksprintf
       (xterm_blue ^ "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "] : " ^ xterm_nc ^ s)) s;;
 let debug_select_old code s = if !debug && (code land !debug_code <> 0)
   then print_endline (xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": " ^ s);;
-let printd code s = Printf.ksprintf
-    (fun s -> if !debug && (code land !debug_code <> 0)
-      then print_endline
-          (xterm_blue ^
+
+let iksprintf _f = Printf.ikfprintf (fun () -> ()) ();;
+
+let printd code =
+  let debug = !debug && (code land !debug_code <> 0) in
+  let printf = Printf.(if debug then ksprintf else iksprintf) in
+  printf (fun s ->
+      output_string !log_channel
+        (xterm_blue ^
            "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "]" ^
-           xterm_light_grey ^ "[" ^
-           (string_of_int (Thread.id (Thread.self ()))) ^ "]" ^ xterm_nc ^ " :\t " ^
-           xterm_nc ^ xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": " ^ s)) s;;
+             xterm_light_grey ^ "[" ^
+               (string_of_int (Thread.id (Thread.self ()))) ^ "]" ^ xterm_nc ^ " :\t " ^
+                 xterm_nc ^ xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": "
+                 ^ s ^ "\n");
+    if !log_channel = stdout then flush !log_channel);;
 
 (* check if string s starts with string sub *)
 let startswith s sub =
@@ -155,6 +166,15 @@ let list_findi p l =
 let list_check_ok f l =
   list_check (fun x -> if f x then Some x else None) l;;
 
+(* returns the list where the first element for which f is true is removed *)
+let list_remove_first f l =
+  let rec loop acc = function
+    | [] -> (* printd debug_error "list_remove_first: element not found"; *)
+      raise Not_found
+    | x::rest -> if f x then List.rev_append acc rest
+      else loop (x::acc) rest in
+  loop [] l
+
 (* splits a list atfer the xth element *)
 let split_list_rev list x =
   let rec loop head tail i =
@@ -167,7 +187,6 @@ let split_list_rev list x =
 let split_list list x =
   let daeh, tail = split_list_rev list x in
   List.rev daeh, tail;;
-
 
 (* checks if 'a' contained in the list, with 'equal' function *)
 let rec mem equal a list =
@@ -226,6 +245,10 @@ let check_option o f = match o with
 let default o d = match o with
   | Some x -> x
   | None -> d;;
+
+let default_lazy o d = match o with
+  | Some x -> x
+  | None -> Lazy.force d
 
 let default_option o od = match o with
   | None -> od
