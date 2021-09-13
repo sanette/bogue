@@ -1921,7 +1921,7 @@ and to native code with
 ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml
 v}
 
-You may also evaluated this code in a Toplevel! (for instance [utop], or in a [emacs] session...). Just insert 
+You may also evaluated this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert 
 
 {v 
 #thread;;
