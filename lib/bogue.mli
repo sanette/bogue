@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20210912
+@version 20210913
 
 @author Vu Ngoc San
 
@@ -1906,7 +1906,7 @@ let main () =
   Bogue.run board;;
 
 let () = main ();
-  Draw.quit ()
+  Bogue.quit ()
 ]}
 
 This can be compiled to bytecode with
@@ -1920,5 +1920,14 @@ and to native code with
 {v
 ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml
 v}
+
+You may also evaluated this code in a Toplevel! (for instance [utop], or in a [emacs] session...). Just insert 
+
+{v 
+#thread;;
+#require "bogue";;
+v}
+
+at the top, then paste the example code above, and add [;;] at the end.
 
   *)

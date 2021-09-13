@@ -34,7 +34,7 @@
 </div>
 <ul class="info-attributes">
 <li><b>Author(s):</b> Vu Ngoc San</li>
-<li><b>Version:</b> 20210908</li>
+<li><b>Version:</b> 20210913</li>
 </ul>
 </div>
 <hr width="100%">
@@ -263,11 +263,18 @@
   <span class="constructor">Bogue</span>.run board;;
 
 <span class="keyword">let</span> () = main ();
-  <span class="constructor">Draw</span>.quit ()
+  <span class="constructor">Bogue</span>.quit ()
 </code></pre>
 <p>This can be compiled to bytecode with</p>
 
 <pre class="verbatim">ocamlfind ocamlc -package bogue -linkpkg -o minimal -thread minimal.ml</pre>
 <p>and to native code with</p>
 
-<pre class="verbatim">ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml</pre></body></html>
+<pre class="verbatim">ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml</pre>
+<p>You may also evaluated this code in a Toplevel! (for instance <code class="code">utop</code>, or in a <code class="code">emacs</code> session...). Just insert</p>
+
+<pre class="verbatim">
+#thread;;
+#require "bogue";;</pre>
+<p>at the top, then paste the example code above, and add <code class="code">;;</code> at the end.</p>
+</body></html>
