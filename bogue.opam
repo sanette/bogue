@@ -22,18 +22,20 @@ Threads when non-blocking reactions are needed."""
 maintainer: ["Vu Ngoc San <san.vu-ngoc@laposte.net>"]
 authors: ["Vu Ngoc San <san.vu-ngoc@laposte.net>"]
 license: "ISC"
+tags: ["gui"]
 homepage: "https://github.com/sanette/bogue"
 doc: "http://sanette.github.io/bogue/Bogue.html"
 bug-reports: "https://github.com/sanette/bogue/issues"
 depends: [
-  "dune" {>= "1.11"}
+  "dune" {>= "2.7"}
   "tsdl-image" {>= "0.3.0"}
   "tsdl-ttf" {>= "0.3"}
   "ocaml" {>= "4.08.0"}
   "tsdl" {>= "0.9.1"}
+  "odoc" {with-doc}
 ]
 build: [
-  ["dune" "subst"] {pinned}
+  ["dune" "subst"] {dev}
   [
     "dune"
     "build"

@@ -1,4 +1,4 @@
-(lang dune 1.11)
+(lang dune 2.7)
 (name bogue)
 (version "20210917")
 (generate_opam_files true)
