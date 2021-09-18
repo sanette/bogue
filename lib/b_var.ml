@@ -2,7 +2,7 @@
 (* WARNING contrary to what the OCaml Mutex doc seems to say:
 
    https://caml.inria.fr/pub/docs/manual-ocaml/libref/Mutex.html
-   
+
    calling Mutex.lock on a mutex locked by the SAME thread will ALSO block. *)
 
 open B_utils;;
@@ -22,7 +22,7 @@ let create data =
 
 let release v =
   (* do not use this without checking thread_id, especially in case of
-     recursion *)    
+     recursion *)
   match v.thread_id with
   | Some i when i = Thread.(id (self ())) ->
      Mutex.unlock v.mutex;
@@ -61,7 +61,7 @@ let protect_fn v action =
       release v;
       result
     end;;
-    
+
 
 (* usually we don't need to protect when getting the value. But warning, if the
    value itself is a reference, then one should explicitely protect it *)

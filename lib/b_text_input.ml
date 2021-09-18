@@ -16,7 +16,7 @@ module Trigger =  B_trigger
 module Draw = B_draw
 module Label = B_label
 module Mouse = B_mouse
-  
+
 type selection =
   | Empty
   | Start of int (* ne sert pas à grand chose *)
@@ -388,7 +388,7 @@ let bottom_margin = 5;; (* used for underline *)
 (* let cursor_width = 10;;
  * let cursor_height = 9;; *)
 (* let cursor_thickness = 2;; *)
-  
+
 let font ti = Label.get_font_var ti.font (Theme.scale_int ti.size);;
 
 (* we cannot use Sdl.color type here if we want to memoize, since colors are
@@ -470,7 +470,7 @@ let size ti =
   (w + 2*left_margin (* this should probably be left_margin + cursor_width/2 *),
    h + 2*bottom_margin);;
 (* The bottom margin is also added at the top, in order to keep the text
-   vertically centered. *) 
+   vertically centered. *)
 
 let text_width font s =
   let w,_ = text_dims font s in w;;
@@ -615,7 +615,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
       (* we need to make a slightly larger surface in order to have room for
          underline and cursor *)
       let box = Draw.create_surface ~like:surf
-          (tw + cw + cw/2) (th + Theme.scale_int bottom_margin) in 
+          (tw + cw + cw/2) (th + Theme.scale_int bottom_margin) in
       go (Sdl.set_surface_blend_mode box Sdl.Blend.mode_none);
 
       (* draw text on the larger surface, at (0,0) (upper-left corner)
@@ -704,7 +704,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
   then   (* (re...)compute cursor position *)
     (* The cursor is an additional blit. We don't pre-blend the two textures
        (text+cursor) into a single blit, because the SDL current blend modes
-       don't allow this... 
+       don't allow this...
        http://www.adriancourreges.com/blog/2017/05/09/beware-of-transparent-pixels/
     *)
     let _,bh = tex_size tex in

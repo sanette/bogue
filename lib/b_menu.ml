@@ -12,7 +12,6 @@ module Chain = B_chain
 module Timeout = B_timeout
 module Trigger =  B_trigger
 module Draw = B_draw
-module Label = B_label
 module Button = B_button
 module Popup = B_popup
 module Style = B_style

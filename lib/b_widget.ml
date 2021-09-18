@@ -626,8 +626,8 @@ let wake_up event c =
             add_action c action event
           | Replace, Some a -> begin
               (*printd debug_thread "Killing connection #%d" a.connect_id;*)
-              (* Thread.kill a.thread; *) (*TODO: change this: Thread.kill is in
-                                            fact NOT implemented... ! *)
+              (* Thread.kill a.thread; *) (* Thread.kill is in fact NOT
+                                             implemented... ! *)
               terminate a;
               remove c.source (Thread.id a.thread);
               add_action c action event

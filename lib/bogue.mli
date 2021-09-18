@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20210917
+@version 20210918
 
 @author Vu Ngoc San
 
@@ -83,6 +83,7 @@ Here is the list of Theme variables:
 - [LABEL_COLOR]: The color for text or icon labels.
 - [LABEL_FONT]: path of a TTF font for text labels. Eg: [Ubuntu-R.ttf].
 - [LABEL_FONT_SIZE]: integer, eg [14].
+- [LOG_TO_FILE]: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory.
 - [MENU_HL_COLOR]: the color for highlighting selected menu entries.
 - [MENU_BG_COLOR]
 - [MONO_FONT]: monospace font.
@@ -738,7 +739,10 @@ end (* of Selection *)
     Widgets are building blocks of the GUI. They also receive all events (mouse
    focus, etc.) and contain the {e intelligence} of your GUI, through {e
    connections} (or callbacks, see {!Widget.connection}). However, in order to
-   be displayed, they need to be packed into {e layouts} ({!Layout.t}). *)
+   be displayed, they need to be packed into {e layouts} ({!Layout.t}). 
+
+   The main module for dealing with widgets is {!Widget}.
+*)
 
 (** Image widget
 
@@ -994,7 +998,11 @@ let l = get_label w in
   type action = t -> t -> Tsdl.Sdl.event -> unit
   (** An action is a function with three parameters [w1 w2 ev], where
      [w1] is the source widget, [w2] the target widget, and [ev] the event
-     ({!Trigger.t}) that triggered the action. *)
+     ({!Trigger.t}) that triggered the action. 
+
+     The action should regularly verify {!Trigger.should_exit}[ ev] 
+     and quickly exit when this returns [true].
+*)
 
   (** What to do when the same action (= same connection id) is already running? *)
 

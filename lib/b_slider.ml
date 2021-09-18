@@ -9,13 +9,13 @@ module Tvar = B_tvar
 module Trigger =  B_trigger
 module Draw = B_draw
 module Mouse = B_mouse
-  
+
 type kind =
   | Horizontal (* horizontal bar with a small slider; NO background *)
   | HBar (* horizontal bar filled up to the value *)
   | Vertical
   | Circular;;
-  
+
 type t = {
     (* the value of the slider is a Tvar, which means that it can share a global
         variable. This is used for instance for scrolling bars. When the scroll
@@ -39,7 +39,7 @@ type t = {
     room_x : int Var.t; (* we store here the room position (unscaled) *)
     room_y : int Var.t;
     kind : kind;
-    keyboard_focus : bool Var.t; 
+    keyboard_focus : bool Var.t;
     (* we need to replicate here the keyboard_focus field of the layout, because
        we use it to render the widget differently if it has keyboard_focus. It
        acts similarly as the .active field of Text_input. It is set by
@@ -91,7 +91,7 @@ let create ?step ?(kind = Horizontal) ?(value = 0) ?(length = 200)
 (*   let t_to x = action x; Avar.var x in *)
 (*   let var = Tvar.create v ~t_from ~t_to in *)
 (*   create ?step ?kind ~var ?length ?thickness ?tick_size max;; *)
-  
+
 let unload s =
     match Var.get s.render with
   | None -> ()
@@ -115,7 +115,7 @@ let value s =
 
 let clicked_value s =
   Var.get s.clicked_value;;
-  
+
 let set s value =
   Tvar.set s.var value;
   Var.set s.cache value;;
@@ -210,8 +210,8 @@ let release s =
   Var.set s.clicked_value None;
   s.pointer_motion <- false;
   Var.set s.offset 0;;
-  
-(* on mouse motion: *) 
+
+(* on mouse motion: *)
 let slide s ev =
   let v = compute_value s ev in
   let v = (max 0 (min v s.max)) in
@@ -222,7 +222,7 @@ let slide s ev =
 (* use this to increase the step when using keyboard *)
 let change_speed s =
   let t = Time.now () in
-  if Time.(t - (Var.get s.key_time)) > 200 
+  if Time.(t - (Var.get s.key_time)) > 200
   (* delay too long, we return to initial speed. TODO: check that this is bigger
      than system delay between two key repeats, otherwise this will always
      apply *)
@@ -278,7 +278,7 @@ let make_box_blit ~dst ?(shadow=true) ~focus voffset canvas layer box =
                          canvas layer dst in
     List.rev (box_blit :: shadow_blits)
   else [box_blit]
-  
+
 let display canvas layer s g =
   (* We use y_pos before updating to display a gradient box at the real mouse
      position, in case of non-linear (vertical) slider (see example 34)...  TODO
@@ -304,13 +304,13 @@ let display canvas layer s g =
   let x0 = scale (x_pos s) in
   (*   set_color renderer (opaque color); *)
   match s.kind with
-  | Horizontal -> 
+  | Horizontal ->
      (* let rect = Sdl.Rect.create ~x:x0 ~y:g.y ~w:thickness ~h:width in *)
      (* go (Sdl.render_fill_rect renderer (Some rect)); *)
      let box = texture canvas.renderer ~color ~w:tick_size ~h:thickness in
      let dst = Sdl.Rect.create ~x:x0 ~y:g.y ~w:tick_size ~h:thickness in
      forget_texture box; (* or save ? but be careful color may change *)
-     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
+     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box
   | HBar ->
      (* horizontal gradient for the slider *)
      let colors = [opaque Button.color_on; opaque Button.color_off] in
@@ -319,9 +319,9 @@ let display canvas layer s g =
      let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w:(x0 - g.x + tick_size)
                  ~h:thickness in
      forget_texture box; (* or save ? *)
-     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
+     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box
   (* [make_blit ~voffset:g.voffset ~dst canvas layer box] *)
-  | Vertical -> 
+  | Vertical ->
      let y0 = scale (y_pos s) in
      let dy = scale oldy - y0 in
      let y = imin y0 (y0 + dy) in
@@ -337,7 +337,7 @@ let display canvas layer s g =
                     gradient_texture canvas.renderer ~h ~w:thickness colors in
      let dst = Sdl.Rect.create ~x:g.x ~y ~h ~w:thickness in
      forget_texture box; (* or save ? *)
-     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box 
+     make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box
   | Circular ->
      let radius = g.w/2-2 in
      let tex = match Var.get s.render with
@@ -357,8 +357,8 @@ let display canvas layer s g =
      (* ring renderer ~bg:(lighter (opaque grey)) ~radius:(w/2-2)
        ~width (x+w/2) (y+h/2); *)
      let tick = ray_to_layer canvas layer ~voffset:g.voffset ~bg:color
-                  ~thickness:tick_size 
-                  ~angle:(360. *. (float (s.max - value s)) /. (float s.max)) ~radius 
+                  ~thickness:tick_size
+                  ~angle:(360. *. (float (s.max - value s)) /. (float s.max)) ~radius
                   ~width:thickness (g.x + g.w/2) (g.y + g.h/2) in
      forget_texture tick.texture;
      [sbox; tick];;
@@ -385,4 +385,3 @@ let slow k m x0 x =
     then let t = (x -. x0) /. x0 in
          (1. -. x0 *. m) *. (pwr k t) +. t +. x0 *. m
     else x *. m;;
-  

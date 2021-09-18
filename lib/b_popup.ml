@@ -11,7 +11,7 @@ module Trigger =  B_trigger
 module Draw = B_draw
 module Style = B_style
 module Box = B_box
-  
+
 let new_layer_above base =
   printd debug_graphics "Create new layer";
   Chain.insert_after base (Draw.new_layer ());;
@@ -101,7 +101,7 @@ let popup = Layout.tower ~align:Draw.Center ~background [content; buttons] in
   let screen = attach ~bg:(Draw.(set_alpha 200 (pale grey))) dst popup in
   (* Layout.slide_in ~dst popup; *)
   popup, screen;;
-  
+
 let one_button ?w ?h ~button ~dst content =
   let close_btn = Widget.button ~border_radius:3 button in
   let popup, screen = slide_in ~dst content (Layout.resident ?w ?h close_btn) in
@@ -128,7 +128,7 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   let popup, screen = slide_in ~dst content buttons in
   let close () =
     (*Layout.hide popup;*)
-    Layout.fade_out ~hide:true popup; 
+    Layout.fade_out ~hide:true popup;
     (*Layout.hide screen*)
     Layout.fade_out ~hide:true screen in
   let do1 _ =

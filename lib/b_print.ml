@@ -5,7 +5,7 @@ module Utils = B_utils
 module Chain = B_chain
 module Draw = B_draw
 module Label = B_label
-  
+
 let kind k =
   let open Widget in
   match k with
@@ -99,7 +99,7 @@ let dump r =
   print_endline ("Saving dump to " ^ file);
   output_string ch (layout_down r);
   close_out ch;;
-  
+
 let layout_error_kf room msg =
   Printf.kfprintf (fun ch -> flush ch) stderr msg;
   dump (L.top_house room);;

@@ -150,7 +150,7 @@ let set_system_cursor sdl_cursor =
 let sdl_image_load file =
   printd debug_memory "Create surface_load (%s)" file;
   incr surfaces_in_memory;
-  go (TImage.load file) 
+  go (TImage.load file)
 
 (* SDL TTF *)
 

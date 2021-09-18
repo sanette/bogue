@@ -270,7 +270,7 @@ let example15 () =
       (* printf "Drift = %f\n" drift; *) (* we try to keep the drift near 0.5 *)
       if drift < 0.45 then Thread.delay (0.51 -. drift)
       else if drift > 0.55 then Thread.delay (1.49 -. drift) (* we are too late *)
-      else Trigger.nice_delay ev 0.999;
+      else T.nice_delay ev 0.999;
       if T.should_exit ev
       then (print_endline "Stopping Clock"; T.will_exit ev)
       else loop () in
@@ -888,7 +888,7 @@ let example41 () =
         content = Action (fun () -> print_endline "START!") };
       { label = Layout quit_btn;
         content = Action (fun () -> print_endline "QUIT!";
-                           Trigger.push_quit ()) } ] in
+                           T.push_quit ()) } ] in
   let _ = Menu.create ~dst:image (Menu.Custom entries) in
   let layout = L.superpose [image; title] in
   L.setx title 35; L.sety title 150;

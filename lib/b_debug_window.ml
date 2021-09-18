@@ -4,7 +4,7 @@ open B_utils
 module W = B_widget
 module L = B_layout
 module Draw = B_draw
-  
+
 let is_set code =
   code land !debug_code <> 0;;
 
@@ -16,7 +16,7 @@ let set code b =
   else debug_code := !debug_code land (lnot code);;
 
 let create () =
-  let save_layer = Draw.get_current_layer () in 
+  let save_layer = Draw.get_current_layer () in
   Draw.use_new_layer (); (* TODO this should be saved to the window, not global, otherwise layouts that are created after this but in an older window will be drawn on this layer, and thus not shown at all... *)
   let b = W.check_box ~state:!W.draw_boxes () in
   let l = W.label "Turn on debug rectangles" in

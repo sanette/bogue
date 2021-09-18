@@ -12,7 +12,6 @@ module Widget = B_widget
 module Theme = B_theme
 module Var = B_var
 module Tvar = B_tvar
-module Trigger = B_trigger
 module Draw = B_draw
 module Selection = B_selection
 module Label = B_label
@@ -65,7 +64,7 @@ let max_width ?(n_max = 50) (c : column) =
     else let w = Layout.width (c.rows i) in
          loop (i+1) (imax m w) in
   loop 0 0
-  
+
 let make_title (c : column) =
   (* we compute the label widget *)
   let label = Widget.label c.title in

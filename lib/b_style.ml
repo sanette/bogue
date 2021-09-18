@@ -1,7 +1,7 @@
 module Draw = B_draw
 module Image = B_image
 open B_utils
-    
+
 type line_style =
   | Solid
   | Dotted of (int * int)

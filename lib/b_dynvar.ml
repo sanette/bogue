@@ -7,14 +7,14 @@
    frame. Or, we need a mechanism to impose the scope of the modifications. *)
 
 (* TODO: make thus a functor to specialize equality *)
- 
+
 (* this module is not used yet *)
 
 open Tsdl
 open B_utils
 module Var = B_var
 module Trigger =  B_trigger
-  
+
 (* just to keep track of created threads... not used ? *)
 let threads_created = Var.create [];;
 
@@ -49,20 +49,20 @@ let new_id = fresh_int ();;
     update itself by applying the ~update function to each event *)
 let create ~update ~events x =
   let id = new_id () in
-  let v = { 
+  let v = {
     id;
     data = x;
     changed = false;
     update;
     events } in
-  List.iter (fun typ -> 
+  List.iter (fun typ ->
       printd debug_warning "Add (%u, %u)" typ id;
-      Hashtbl.add var_event_table typ id) events; 
+      Hashtbl.add var_event_table typ id) events;
   (* can have several vars per event type *)
   v;;
 
 let fail _ _ = failwith "This var cannot update itself";;
-  
+
 (** create a "manual" dynvar which does react to any event, but which can be
     modified manually with modify *)
 let of_value x =
@@ -108,7 +108,7 @@ let apply f v =
 let process_event ev =
   let ev_type = Sdl.Event.(get ev typ) in
   let ids = Hashtbl.find_all var_event_table ev_type in
-  List.iter (fun id -> 
+  List.iter (fun id ->
       printd debug_warning "Add to update: (id:%u, ev:%u)" id ev_type;
       Hashtbl.add var_to_update_table id ev) ids;;
 
@@ -126,7 +126,7 @@ let async_compute f default =
 
 
 (***************************************************)
-let test () = 
+let test () =
   let u = of_value 0 in
   let f x = x + 1 in
   let v = apply f u in
@@ -156,7 +156,7 @@ let test () =
       process_event ev;
       printd debug_warning "au=%u, v=%u" (value au) (value v);
       Thread.delay 0.1;
-      loop t0 
+      loop t0
     end in
   loop (Unix.gettimeofday ());;
 

@@ -1,8 +1,8 @@
 open Tsdl;;
 open B_utils;;
-    
+
 type t = int (* 1/1000 sec *)
-          
+
 let (+) t1 t2 = t1 + t2;;
 
 let (-) t1 t2 = t1 - t2;;
@@ -16,7 +16,7 @@ let compare (t1 : t) (t2 : t) =
 
 let (>>) (t1 : t) (t2 : t) =
   t1 > t2;;
-  
+
 let float t = float t;;
 
 (* Do not use ! it is NOT nice to other threads *)
@@ -53,12 +53,12 @@ let adaptive_fps fps =
   (* the main function *)
   fun () ->
     if !start = 0 then (delay 5; start := now (); assert(false))
-    else 
+    else
       let elapsed = now () - !start in
       let theoric = 1000 * !frame / fps in (* theoric time after this number of frames *)
       let wait = theoric - elapsed in
       total_wait := !total_wait + wait;
-      let wait = if wait < 5 
+      let wait = if wait < 5
         then (printd debug_graphics "Warning: cannot keep up required FPS=%u (wait=%d)" fps wait;
               (* this can also happen when the animation was stopped; we reset
                  the counter *)

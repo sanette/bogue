@@ -10,13 +10,13 @@
 open B_utils
 module Time = B_time
 module Mouse = B_mouse
-  
+
 type callback = unit -> unit
 
 type 'a t = {
   mutable value : 'a; (* current value *)
   mutable starting_time : Time.t option;
-  mutable finished : bool; 
+  mutable finished : bool;
   (* this flag is set to true just *before* the computation of the last value *)
   (* one can create a var with finished = true to behave like a normal var *)
   mutable frame : int; (* the frame when the value was computed *)
@@ -26,7 +26,7 @@ type 'a t = {
      elapsed Time (in ms). *)
   init : callback; (* function to be called before the animation starts *)
   ending : callback; (* function to be called when the animation is finished *)
-  update : 'a t -> float -> 'a; 
+  update : 'a t -> float -> 'a;
   (* update is a function v --> [0,1] --> 'a which gives the new value of the
      variable given the old value, where the interval [0,1] represents the whole
      duration of the animation. In case of inifinite animation, it is a function
@@ -40,7 +40,7 @@ finished. At this point, this is only for debugging. We cannot rely on it for
 programming, because if an animation was started on a layout that is not used
 anymore, it will never "finish".  Moreover some animations can belong to layouts
 that are still alive but hidden (maybe clipped, maybe in a hidden window): in
-this case they should not be considered "alive" by the renderer. *)             
+this case they should not be considered "alive" by the renderer. *)
 (* not used *)
 let alive_animations = ref 0;;
 
@@ -58,7 +58,7 @@ let nop () = ();;
 
 let fail _ _ = failwith "This variable cannot update itself";;
 
-let create ?(duration=1000) ?(init=nop) ?(ending=nop) ?(finished=false) 
+let create ?(duration=1000) ?(init=nop) ?(ending=nop) ?(finished=false)
     ?(update=fail) value =
   { value;
     starting_time = None;
@@ -74,7 +74,7 @@ let create ?(duration=1000) ?(init=nop) ?(ending=nop) ?(finished=false)
 let constant x _ _ = x;;
 
 (** simulate a mutable normal variable with a fixed value. The value can be
-    changed by changing v.value. 
+    changed by changing v.value.
 
     <OLD>But it cannot update itself: thus v.finished
     should never be set to false. </OLD> *)
@@ -115,11 +115,11 @@ let progress v = v.progress;;
 
 let in_progress v = v.starting_time <> None && not v.finished;;
 
-let elapsed v = 
-  if v.duration < 0 
+let elapsed v =
+  if v.duration < 0
   then round v.progress
   else round (v.progress *. (float v.duration));;
- 
+
 (** return the final value, or the current value if v was stopped. This does not
     stop the animation and does not trigger 'ending' *)
 let final_value v =
@@ -133,7 +133,7 @@ let final_value v =
 (** stop the animation, but doesn't change the value *)
 (* can be called directly *)
 let stop v =
-  if v.finished then () 
+  if v.finished then ()
   else begin
     v.ending ();
     v.finished <- true;
@@ -160,8 +160,8 @@ let reset v =
   v.finished <- false;
   v.frame <- !frame;
   v.progress <- 0.;;
-  
-  
+
+
 (** start the animation and compute the current value of the variable *)
 let get v =
   if v.finished || (started v && v.frame = !frame) then v.value
@@ -186,7 +186,7 @@ let get v =
     v.frame <- !frame;
     v.progress <- u;
     x;;
-  
+
 (** get the old value. This is the way to get the value if one doesn't want to
     start the animation, or if one doesn't want to make any calculation *)
 let old v =
@@ -257,8 +257,8 @@ let initial_slope ~slope =
 (* from x1 to x2 with given initial and final slopes *)
 let interpol3 ~slope1 ~slope2 x1 x2 u =
   let dx = x2 -. x1 in
-  x1 +. u *. (slope1 
-              +. u *. (3. *. dx -. 2. *. slope1 -. slope2 
+  x1 +. u *. (slope1
+              +. u *. (3. *. dx -. 2. *. slope1 -. slope2
                        +. u *. (slope1 +. slope2 -. 2. *. dx)));;
 
 (* from x1 to x2 *)
@@ -269,7 +269,7 @@ let affine x1 x2 u =
 let linear x u =
   x *. u;;
 
-let reverse u = 
+let reverse u =
   1. -. u;;
 
 let concat ?(weight=0.5) g1 g2 =
@@ -294,7 +294,7 @@ let fromto_old ?(duration=300) x1 x2 =
 let fromto ?(duration=300) ?ending x1 x2 =
   if x1 = x2 then fixed x1
   else let update _ u =
-    initial_slope ~slope:1.2 u 
+    initial_slope ~slope:1.2 u
     |> affine (float x1) (float x2)
     |> round in
     create ~duration ~update ?ending x1;;
@@ -302,7 +302,7 @@ let fromto ?(duration=300) ?ending x1 x2 =
 let fromto_float ?(duration=300) ?ending x1 x2 =
   if x1 = x2 then fixed x1
   else let update _ u =
-    initial_slope ~slope:1.2 u 
+    initial_slope ~slope:1.2 u
     |> affine x1 x2 in
     create ~duration ~update ?ending x1;;
 
@@ -313,7 +313,7 @@ let pl2 ?(duration=300) ~via x1 x3 =
   then fixed x1
   else let g1 = affine (float x1) (float x2) in
     let g2 = affine (float x2) (float x3) in
-    let update _ u = 
+    let update _ u =
       concat ~weight g1 g2 u
       |> round in
     create ~duration ~update x1;;
@@ -368,7 +368,7 @@ let hide ?(duration = 300) ?init ?ending h1 h2 =
 let fade_in ?(duration = 300) ?(from_alpha = 0.) ?(to_alpha = 1.) () =
   let update _ u =
     reverse u
-    |> slowdown 
+    |> slowdown
     |> affine to_alpha from_alpha in
   create ~duration ~update from_alpha;;
 
@@ -389,7 +389,7 @@ let fade_out ?ending ?(duration = 300) ?(from_alpha = 1.) ?(to_alpha = 0.) () =
  *     if !resist then begin
  *       if abs (x - !x0) > threshold then resist := false;
  *       0
- *     end 
+ *     end
  *     else x - !x0 in
  *   create ~duration:(-1) ~init ~update 0;; *)
 
@@ -412,7 +412,7 @@ let mouse_motion_x_old ?(threshold=7) ?(dx = 0) window =
     resist (fst (Mouse.window_pos (Lazy.force window)) - !x0)
     |> (+) dx in
   create ~duration:(-1) ~init ~update dx;;
-    
+
 (* mouse y position relative to starting position *)
 let mouse_motion_y_old ?(threshold=7) ?(dy = 0) window =
   let resist = resist threshold in
@@ -440,7 +440,7 @@ let extendto ~duration v x2 =
     let dx = if u1 < du
       then v.update v (u1 +. du) - x1
       else x1 - (v.update v (u1 -. du)) in
-    if duration >= 0 && v.duration >= 0 
+    if duration >= 0 && v.duration >= 0
     then (float (v.duration * dx)) /. (du *. float duration)
     else if duration < 0 && v.duration >= 0
     then (float dx) /. (du *. float duration)
@@ -453,5 +453,4 @@ let extendto ~duration v x2 =
       interpol3 ~slope1 ~slope2:(0.) (float x1) (float x2) u
       |> round  in
     print_endline ("SLOPE=" ^ (string_of_float slope1)); (* DEBUG *)
-    create ~duration ~update x1;; 
-
+    create ~duration ~update x1;;

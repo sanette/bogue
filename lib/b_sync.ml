@@ -7,7 +7,7 @@ open B_utils
 module Time = B_time
 module Var = B_var
 module Trigger =  B_trigger
-  
+
 type action = unit -> unit;;
 
 let queue : (action Queue.t) Var.t = Var.create (Queue.create ());;
@@ -28,7 +28,7 @@ let push action =
 (** returns true if some action was executed *)
 let execute timeout =
   if is_empty () then false (* a quick test in order to avoid lock *)
-  else let t = Time.now () in 
+  else let t = Time.now () in
        let () = Var.protect queue in
        let q = Var.get queue in
        let rec loop () =
@@ -45,4 +45,3 @@ let execute timeout =
        loop ();
        Var.release queue;
        true;;
-

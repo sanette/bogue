@@ -14,9 +14,9 @@
 module Utils = B_utils
 module Time = B_time
 module Var = B_var
-  
+
 type action = unit -> unit;;
-type t = { 
+type t = {
   id : int;
   timeout : Time.t;
   action : action
@@ -28,7 +28,7 @@ let create timeout action =
   { id = new_id (); timeout; action};;
 
 let execute t =
-  if Time.(now () >> t.timeout) 
+  if Time.(now () >> t.timeout)
   then (Utils.(printd debug_board "Executing timeout");
         t.action (); true)
   else false;;
@@ -90,7 +90,7 @@ let add timeout action =
 let push timeout action =
   (fun () -> add timeout action)
   |> Stack.push
-       
+
 let not_equal t1 t2 =
   t1.id <> t2.id;;
 
@@ -101,7 +101,7 @@ let remove t stack =
       Var.unsafe_set stack (List.filter (not_equal t) list));;
 
 (** cancel a Timeout from the global stack *)
-let cancel t = 
+let cancel t =
   remove t stack;;
 
 let iter stack =
@@ -115,7 +115,7 @@ let iter stack =
     match l with
     | [] -> []
     | t :: l' -> if execute t
-      then loop l' 
+      then loop l'
       else l (* the action t was not executed, we leave it in the stack *)
   in
   let remaining = loop list in

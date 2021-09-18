@@ -3,7 +3,7 @@
 module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
-  
+
 type resize =
   | Crop of int (* cut the image at origin x *)
   | Fit (* fit in given area *)
@@ -104,7 +104,7 @@ let display canvas layer img g =
       Var.set img.render (Some tex);
       tex
       (* TODO render on background *)
-      
+
       (* it is better to render first the image at full resolution and then
          scale it, in case we later use some zoom animation. If one has a zoom
          from 0 to 1, then the first time the image will be rendered, the

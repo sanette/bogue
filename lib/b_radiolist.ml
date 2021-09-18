@@ -16,7 +16,7 @@ module Trigger =  B_trigger
 module Draw = B_draw
 module Check = B_check
 module Update = B_update
-  
+
 type widgets = {
   index : (int option) Var.t; (* the index of selected entry *)
   data : (W.t * W.t) array
@@ -91,7 +91,7 @@ let make_widgets ?selected ?(click_on_label=true) entries =
 let vertical ?(name = "radiolist") ?(click_on_label=true) ?selected entries =
   let widgets = make_widgets ?selected ~click_on_label entries in
   let layout = Layout.tower ~sep:0 ~margins:0 ~name
-      (List.map (fun (b,l) -> 
+      (List.map (fun (b,l) ->
            Layout.flat_of_w ~sep:2 ~align:Draw.Center [b;l])
           (Array.to_list widgets.data)) in
   {widgets; layout; click_on_label};;

@@ -7,8 +7,8 @@
 open B_utils
 module Var = B_var
 module Draw = B_draw
-  
-type style = 
+
+type style =
   | Square
   | Circle (* circle is used for radio buttons *)
 
@@ -19,7 +19,7 @@ type t =
 
 let create ?(state=false) ?(style=Square) () =
   { style; state = Var.create state;
-    size = None; (* will be initialized at first rendering *) 
+    size = None; (* will be initialized at first rendering *)
   };;
 
 let state b = Var.get b.state;;
@@ -49,7 +49,7 @@ let size t =
   default t.size (match t.style with
       | Circle -> default_circle_size
       | Square -> default_square_size);;
-                
+
 let display canvas layer b g =
   printd debug_graphics "Display button";
   let open Draw in

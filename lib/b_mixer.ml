@@ -6,15 +6,15 @@ open Bigarray
 open B_utils (* can easily make this independent of Utils if needed *)
 open Tsdl
 module Time = B_time
-  
+
 type audio_spec = (*(int, Bigarray.int16_signed_elt)*) Sdl.audio_spec
-                                                               
+
 type sound = (int, Bigarray.int16_signed_elt) Sdl.bigarray
 
 type repeat = Repeat of int | Forever
 
 type effect = sound -> unit
-                        
+
 type track = {
     mutable soundpos : int;  (* this should only be modified by the callback *)
     soundlen : int;
@@ -56,7 +56,7 @@ let print_spec spec =
     spec.as_channels
     spec.as_silence
     spec.as_samples
-    spec.as_size 
+    spec.as_size
 
 let bytes_to_value_s16le b1 b2 =
   let value = b1 lor (b2 lsl 8) in
@@ -106,7 +106,7 @@ let blit_or_sum first last volume chunk output =
         if !clipping > 0
         then printd (debug_io + debug_warning) "Sound had to be clipped %u times for saturation" !clipping
       end
-    
+
 (* this is the main application *)
 (* NOTE: this callback is executed in a different thread. Hence, when used in
    Bogue, there is no need to create an additional new thread: use
@@ -187,7 +187,7 @@ let create_mixer ?(tracks=8) ?(freq=44100) devname =
   let format = Sdl.Audio.s16_lsb in
   let tmp_spec = {
     Sdl.as_freq = freq;
-    as_format   = format; 
+    as_format   = format;
     as_channels = 2;
     as_silence  = 0;
     as_callback = None;
@@ -222,10 +222,10 @@ let create_mixer ?(tracks=8) ?(freq=44100) devname =
 (* TODO verify it works for signed too *)
 let convert_from_32le _ b2 =
   b2
-                      
+
 let convert_from_32be b1 _ =
   b1
-                     
+
 let convert_from_s16be b =
   (b lsr 8) lor ((b land 255) lsl 8)
 
@@ -270,7 +270,7 @@ let convert mixer spec sound =
             done
           else if sound_bps = 2
           then if sound_format = Sdl.Audio.s16_msb ||
-                    (sound_format = Sdl.Audio.s16_sys && Sys.big_endian) 
+                    (sound_format = Sdl.Audio.s16_sys && Sys.big_endian)
                then
                  let () = printd debug_io "Converting (s16be,%u) to (s16le,%u)."
                             sound_channels target_channels in
@@ -285,12 +285,12 @@ let convert mixer spec sound =
                             sound_channels target_channels in
                  (* in fact here sound_channels=1 and target_channels=2... *)
                  for j = 0 to soundlen - 1 do
-                   let x = Array1.unsafe_get sound j in 
+                   let x = Array1.unsafe_get sound j in
                    Array1.unsafe_set target (2*j) x;
                    Array1.unsafe_set target (2*j+1) x
                  done
           else if sound_bps = 4
-          then let convert_sample = if sound_format land (1 lsl 12) <> 0 
+          then let convert_sample = if sound_format land (1 lsl 12) <> 0
                                     then convert_from_32be (* TODO check *)
                                     else convert_from_32le in (* TODO check *)
                for i = 0 to targetlen - 1 do
@@ -322,7 +322,7 @@ let interpolate e1 e2 data1 data2 =
    *   begin
    *     value2 := Array1.unsafe_get data1 (j + ch);
    *     let value = if x = 0. (\* ce test n'améliore  pas la vitesse... *\)
-   *                 then !value1 
+   *                 then !value1
    *                 else round (float !value1 +. x *. (float (!value2 - !value1))) in
    *     Array1.unsafe_set data2 i value;
    *     value1 := !value2
@@ -343,12 +343,12 @@ let interpolate e1 e2 data1 data2 =
         let rest = (*(float ((e1 * i) mod e2) /. float e2)*) Array.unsafe_get x !ii in
         (* ii = i mod e2 *)
         let j = (pos + 1) * ch and jj = i * ch in
-        
+
         (* interpolate_sample jj j rest value1left value2left; *) (* left sample *)
         (* we inline this: (but this doesn't speed up) *)
         value2left := Array1.unsafe_get data1 j;
         let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
-                    then !value1left 
+                    then !value1left
                     else round (float !value1left +. rest *. (float (!value2left - !value1left))) in
         Array1.unsafe_set data2 jj value;
         value1left := !value2left;
@@ -357,7 +357,7 @@ let interpolate e1 e2 data1 data2 =
         (* inlined: *)
         value2right := Array1.unsafe_get data1 (j + 1);
         let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
-                    then !value1right 
+                    then !value1right
                     else round (float !value1right +. rest *. (float (!value2right - !value1right))) in
         Array1.unsafe_set data2 (jj+1) value;
         value1right := !value2right;
@@ -365,7 +365,7 @@ let interpolate e1 e2 data1 data2 =
         incr ii; if !ii = e2 then ii:=0;
       done
     end;;
-        
+
 (* stretch frequency (f1 => f2) for a s16le sound with 2 channels *)
 let stretch f1 f2 sound =
   let t = Time.now() in
@@ -397,7 +397,7 @@ let stretch f1 f2 sound =
   (* TODO remove trailing zeroes *)
   printd debug_io "Sound was stretched in %u msec." (Time.now() -t);
   output;;
-  
+
 let load_chunk mixer filename =
   let open Sdl in
   let file = go (rw_from_file filename "rb") in
@@ -447,7 +447,7 @@ let play_chunk ?track ?(effects=[]) ?(volume=1.) ?(repeat = Repeat 1) mixer soun
   let tracks = Array.length mixer.tracks in
   let track = match track with
     | None -> let rec loop i =
-               if i = tracks then None 
+               if i = tracks then None
                else if mixer.tracks.(i) = None then Some i
                else loop (i+1) in
              loop 0
@@ -495,7 +495,7 @@ let pause mixer =
 let unpause mixer =
   do_option mixer.dev_id (fun d ->
       printd debug_io "Unpause mixer";
-      Sdl.pause_audio_device d false)          
+      Sdl.pause_audio_device d false)
 
 let close mixer =
   (*pause mixer;*) (* useful ? *)
@@ -509,10 +509,10 @@ let close mixer =
   for i = 0 to Array.length mixer.tracks - 1 do
     mixer.tracks.(i) <- None
   done;;
-  
+
 (* let free_chunk = Sdl.free_wav *)
 (* DONT USE THIS, the chunks will be free (hopefully) by Ocaml's GC. *)
-                   
+
 let test () =
   print_endline "MIXER TEST";
   Gc.compact ();
@@ -542,7 +542,7 @@ let test () =
 
   close mixer;
 
-  (* DON'T FREE, it causes double free segfault next time you run 
+  (* DON'T FREE, it causes double free segfault next time you run
      test () and Gc.compact.
 
    * free_chunk chunk1;
@@ -550,4 +550,3 @@ let test () =
    * free_chunk chunk3; *)
 
   Sdl.quit()
-    

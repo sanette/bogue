@@ -19,8 +19,6 @@ module Widget = B_widget
 module Var = B_var
 module Label = B_label
 module Menu = B_menu
-module Theme = B_theme
-module Draw = B_draw
 module Sync = B_sync
 module Print = B_print
 
@@ -116,7 +114,7 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
        Layout.flat_of_w ~sep:0 (* ~background *) [line]) in
 
   Menu.Engine.init ~dst:tmp_dst menu;
-  
+
   if dst = None then begin
     Layout.set_height tmp_dst (Layout.height menu_layout);
     (* We need to relocate to the top layout *)

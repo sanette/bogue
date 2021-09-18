@@ -1,6 +1,6 @@
 (lang dune 2.7)
 (name bogue)
-(version "20210917")
+(version "20210918")
 (generate_opam_files true)
 (license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")

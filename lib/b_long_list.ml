@@ -42,8 +42,8 @@ nombre d'entrées.
                     ^ |                |       ^
                     | |  virtual (ll)  |       |
                     | |                |       |  ll.offset >0
-                    | |                |       | 
-                    | |     ________________   |             
+                    | |                |       |
+                    | |     ________________   |
                     | |    |                |  |  ^          ^
                     | |    |                |  |  |          | scroll_margin
                     | |    |----------------|  |  |          v
@@ -54,19 +54,19 @@ nombre d'entrées.
         ll.height   | |    |    |               |   S  ^
                     | |    |    |               |   C  |
                     | |    |    | real display  |   R  | max = length slider units
-                    | |    |    | (container)   |   O  | to represent the whole 
+                    | |    |    | (container)   |   O  | to represent the whole
                     | |    |    |               |   L  | ll.offset range
                     | |    |    |_______________|   L  v
-                    | |    |                |             
+                    | |    |                |
                     | |    |----------------|             ^
                     | |    |                |             | scroll_margin
                     | |    |________________|             v
                     | |                |
                     v |________________|
-                    
-contraint: voffset <= 0 and -voffset + display.height  <= layout.height     
-warning: slider is from bottom to top: 0 = bottom position 
-              
+
+contraint: voffset <= 0 and -voffset + display.height  <= layout.height
+warning: slider is from bottom to top: 0 = bottom position
+
  *)
 
 
@@ -87,7 +87,7 @@ module Tvar = B_tvar
 module Trigger =  B_trigger
 module Draw = B_draw
 module Slider = B_slider
-  
+
 
 type entry = | Void
              | Freed
@@ -95,13 +95,13 @@ type entry = | Void
 
 type direction = | Up
                  | Down;;
-                   
+
 let factor = 5;; (* ok ? factor > 1 to ensure smoother scrolling *)
 let min_tick_size = 10;; (* scrollbar handle min size *)
 let scroll_margin = 70;;
 (* we try to keep at least this amount of pixels above and below the clipped
    layout in order to allow normal mouse wheel scroll *)
-  
+
 (* unless specified, "pixel" means "logical pixel". The real ("physical") size
    onscreen is obtained by multiplying by Theme.scale *)
 type t = {
@@ -185,12 +185,12 @@ let update_first_mem ll i =
          | Computed _ -> ll.first_mem <- j
          | Void | Freed -> loop (j+1)
   in loop i;;
-    
+
 (* reduce memory usage by deleting some entries *)
 (* REMARK: instead of this complicated memory management, one could instead
    store entries in a Weak Array, and let them be collected by the GC. (and the
    "free" function can be called via Gc.finalise) *)
-(* TODO do we check that we don't delete the one that has just been created? *) 
+(* TODO do we check that we don't delete the one that has just been created? *)
 let reduce_memory ll direction =
   printd debug_memory "Long list: Reduce_memory...";
   let mm = match ll.max_memory with
@@ -235,7 +235,7 @@ let reduce_memory ll direction =
   | Up ->
     printd debug_memory "...from bottom";
     loop ll.last_mem (fun i -> i-1);;
-  
+
 (* return value or approximation of the total height: *)
 let total_height ll =
   default ll.total_height (round (float (ll.computed_height * ll.length) /. (float ll.computed)));;
@@ -337,7 +337,7 @@ let update_voffset container dv =
   if dv <> 0 (* this test is important because shift_offset creates a new
                animation... *)
   then Layout.shift_voffset_unsafe container dv;;
-    
+
 (* given the required new value offset for of ll.offset we do all the necessary
    side-effects: changing the container voffset and possibly compute a new
    room.  *)
@@ -377,7 +377,7 @@ let update_room ll container o =
        mouse wheel scroll to go past the computed room. *)
       update_voffset container (voffset2 - voffset);  (* = offset - o *)
       (* ==> the new value of the container voffset is voffset2 *)
-      Var.release Layout.(container.geometry.voffset); 
+      Var.release Layout.(container.geometry.voffset);
       ll.container_voffset <- voffset2;
       Var.release ll.offset;
     end
@@ -395,7 +395,7 @@ let update_room ll container o =
             (* Avar.set (Var.get ll.offset) o; *) (* redundant with tvar... *)
             let new_voffset = voffset2 - dh in
             update_voffset container (new_voffset - voffset);
-            Var.release Layout.(container.geometry.voffset); 
+            Var.release Layout.(container.geometry.voffset);
             ll.container_voffset <- new_voffset;
             room'
           end
@@ -416,7 +416,7 @@ let update_room ll container o =
             (* Avar.set (Var.get ll.offset) o; *)
             let new_voffset = voffset2 + dh in
             update_voffset container (new_voffset - voffset);
-            Var.release Layout.(container.geometry.voffset); 
+            Var.release Layout.(container.geometry.voffset);
             ll.container_voffset <- new_voffset;
             room'
           end
@@ -557,7 +557,7 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
     let slider = Widget.slider ~kind:Slider.Vertical ~length:h ~step:1
         ~thickness:scrollbar_width
         ~tick_size:(max min_tick_size ((h * h) / ll_height))
-        ~var steps in 
+        ~var steps in
     let on_click sl _ _ =
       clicked_value := Slider.clicked_value (Widget.get_slider sl) in
     let c = Widget.connect_main slider slider on_click Trigger.buttons_down in
@@ -569,4 +569,3 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
     let bar = Layout.(resident ~background:(Solid Draw.scrollbar_color) slider) in
     Layout.(flat ~name:"long_list" ~sep:0 ~hmargin:0 ~vmargin:0 [container; bar])
   end;;
-

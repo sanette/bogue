@@ -12,7 +12,7 @@ module Draw = B_draw
 module Style = B_style
 module Box = B_box
 module Label = B_label
-  
+
 type kind =
   | Trigger (* one action when pressed. TODO, better to avoid name clash with
                Trigger module*)
@@ -40,7 +40,7 @@ let create ?size ?border_radius ?border_color ?fg
   let label_on, label_off = match label, label_on, label_off with
     | None, None, None -> let l = Label.create ?size ?fg text in l,l
     | Some l, None, None -> l,l
-    | None, _, _ -> 
+    | None, _, _ ->
       default label_on (Label.create ?size ?fg text),
       default label_off (Label.create ?size ?fg text)
     | _ -> printd debug_warning

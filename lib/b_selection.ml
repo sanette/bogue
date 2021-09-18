@@ -15,14 +15,14 @@ val r : selected list = [Range (2, 10); Range (12, 14)]
 
 type selected =
     | Range of (int * int)
-                 
+
 type t = selected list
 
 let empty = []
-            
+
 let compare (Range (r1,_)) (Range (r2,_)) =
   compare r1 r2
-          
+
 let sort sel =
   List.sort compare sel
 
@@ -34,7 +34,7 @@ let sanitize sel =
     | Range (i1,i2)::rest when i2 < i1 -> loop rest new_sl
     | s::rest -> loop rest (s::new_sl) in
   loop sel []
-    
+
 (* Returns a normalized (sorted and unique) selection list with minimal number
    of elements. Such a simplifed list is always strictly increasing *)
 let simplify sel =
@@ -106,7 +106,7 @@ let toggle sel i =
 (* faster if sel1 is already sorted (?) *)
 let union sel1 sel2 =
   simplify (List.rev_append sel2 sel1);;
-  
+
 let iter (f : int -> unit) sel =
   let rec loop sl =
     match sl with

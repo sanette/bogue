@@ -14,7 +14,7 @@ module Theme = B_theme
 module Trigger =  B_trigger
 module Draw = B_draw
 module Update = B_update
-  
+
 (* we store here rooms that should be updated in case of layout resizing (ie
    when calling Space.update *)
 let rooms_to_update = Layout.WHash.create 50;;
@@ -35,7 +35,7 @@ let update_all room =
 (* TODO reset only those belonging to the layout-window that we resize *)
 let update () =
   Layout.WHash.iter update_room rooms_to_update;;
-  
+
 (* split a list into two lists: the one before and the one after the first
    element for which test is true. This element is not included in the
    result. *)
@@ -235,7 +235,7 @@ let add_action update action w l =
                              its Rooms."
                       (sprint_id h) (sprint_id l))
         | Rooms rooms ->
-          action h l rooms 
+          action h l rooms
       ) in
   let events = if update
     then Trigger.[startup; update; mouse_enter (* DEBUG*) ]

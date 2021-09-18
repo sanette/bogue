@@ -1,14 +1,11 @@
 (** group layouts into tabs *)
 open B_utils;;
 module Layout = B_layout
-module Var = B_var
 module Trigger =  B_trigger
 module Draw = B_draw
-module Label = B_label
 module Button = B_button
 module Style = B_style
-module Box = B_box
-               
+
 (* warning: not thread safe ? we modify the dest_room *)
 module W = B_widget;;
 
@@ -39,7 +36,7 @@ let create_one ?slide title room dest_room =
       Button.press b;
       Layout.iter_rooms (fun l -> Layout.set_show l false) dest_room;
       Layout.set_show room true;
-      
+
       do_option slide (fun from -> Layout.slide_in ~from ~dst:dest_room room);
       W.update w; (* or refresh only layout ? *)
     end
@@ -69,9 +66,9 @@ let create (*?(circular = true)*) ?slide ?(adjust = Layout.Fit) ?(expand = true)
        *   | Nothing -> (\* we fix the size to the maximum of all tabs *\)
        *      set_width dest_room maxw;
        *      set_height dest_room maxh
-       *   | Width -> 
+       *   | Width ->
        *      set_height dest_room maxh
-       *   | Height -> 
+       *   | Height ->
        *      set_width dest_room maxw
        *   | Fit -> ()
        * end; *)

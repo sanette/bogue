@@ -4,7 +4,7 @@
 (* h : distance from boundary (<0 inside) *)
 
 open Tsdl
-open B_utils   
+open B_utils
 module Theme = B_theme
 module Draw = B_draw
 
@@ -37,14 +37,14 @@ let dot p1 p2 =
 let norm_square p = dot p p
 
 let norm p = sqrt (dot p p)
-    
+
 type colorfn = float -> float -> Draw.color
 (* t -> s -> color at boundary t and distance s along the normal.  t and s are
    in [0,1]*)
 
 let getx = Sdl.Point.x
 let gety = Sdl.Point.y
-             
+
 let logical_to_physical p =
   Sdl.Point.create
     ~x:(Theme.scale_from_float p.x) ~y:(Theme.scale_from_float p.y)
@@ -99,7 +99,7 @@ let rectangle x0 y0 w h =
       else if t < t1 +. t2 then (1., 0.)
       else if t < 2. *. t1 +. t2 then (0., 1.)
       else (-1., 0.) in
-    { x; y} in 
+    { x; y} in
   let distance (* p *) _ = 0. (* TODO *) in
   { boundary; normal; distance; size = { x = w; y = h}}
 
@@ -119,9 +119,9 @@ let ellipse center a b =
       );
     distance = (fun p ->
         sqrt ( p.x *. p.x /. (a *. a) +. p.y *. p.y /. (b *. b)) -. 1.);
-    size = { x = 2. *. a; y = 2. *. b } 
+    size = { x = 2. *. a; y = 2. *. b }
   }
-  
+
 (* about 50ms here *)
 let essai renderer =
   print_endline "ESSAI BORDER";
