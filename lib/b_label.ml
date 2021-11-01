@@ -1,13 +1,13 @@
 (** a simple text display in one line *)
-open B_utils;;
-open Tsdl_ttf;;
+open B_utils
+open Tsdl_ttf
 module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
 
 type font =
   | File of string
-  | Font of Ttf.font;;
+  | Font of Ttf.font
 
 type style = Tsdl_ttf.Ttf.Style.t
 
@@ -18,7 +18,7 @@ type t =
     style : Ttf.Style.t;
     size : int; (* font size *)
     fg : (Draw.color option) Var.t; (* foreground color *)
-  };;
+  }
 
 let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
     ?(style = Ttf.Style.normal) ?fg text =
@@ -28,11 +28,11 @@ let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
     font = Var.create font;
     style;
     size;
-    fg = Var.create fg};;
+    fg = Var.create fg}
 
 (* see https://lab.artlung.com/font-awesome-sample/*)
 let icon ?size ?fg name =
-  create ?size ?fg ~font:(File Theme.fa_font) (Theme.fa_symbol name);;
+  create ?size ?fg ~font:(File Theme.fa_font) (Theme.fa_symbol name)
 
 let unload l =
   match Var.get l.render with
@@ -40,13 +40,13 @@ let unload l =
   | Some tex -> begin
       Draw.forget_texture tex;
       Var.set l.render None
-    end;;
+    end
 
 (* TODO *)
-let free = unload;;
+let free = unload
 (* TODO free font ? *)
 
-let text l = Var.get l.text;;
+let text l = Var.get l.text
 
 let set l text =
   if Var.get l.text <> text
@@ -55,10 +55,10 @@ let set l text =
     let texo = Var.get l.render in
     Var.set l.render None;
     do_option texo Draw.forget_texture
-  end;;
+  end
 
 let set_fg_color l color =
-  Var.set l.fg (Some color);;
+  Var.set l.fg (Some color)
 
 (************* display ***********)
 
@@ -69,9 +69,9 @@ let set_fg_color l color =
 (* physical size *)
 let physical_size_text font text =
   (* Attention, SDL_ttf n'est peut-être pas encore initialisé... *)
-  go (Ttf.size_utf8 font text);;
+  go (Ttf.size_utf8 font text)
 
-(* not used: *)
+(* Not used. The init is now done at [create]. *)
 let size_text_init font text =
    if not (Ttf.was_init ())
    then (go (Ttf.init ());
@@ -79,32 +79,28 @@ let size_text_init font text =
          Draw.at_cleanup (fun () ->
              printd debug_graphics "Quitting SDL TTF";
              Ttf.quit ()));
-   go (Ttf.size_utf8 font text);;
+   go (Ttf.size_utf8 font text)
 
-(* not used: *)
-(* after benchmarking, this function is faster than size_text_init, and almost
-   as fast as size_text, after TTF initialization. Thus, this could be a good
-   replacement of size_text, and then we don't care to check that TTF is
-   initialized before calling this. *)
+(* Not used. After benchmarking, this function is faster than size_text_init
+   after TTF initialization. *)
 let size_text_exn font text =
   try go (Ttf.size_utf8 font text) with
-  | Failure _ -> physical_size_text font text
-  | e -> raise e;;
-
+  | Failure _ -> size_text_init font text
+  | e -> raise e
 
 let render_text_surf ?fg font style text =
   let text = if text = "" then " " else text in
   printd debug_graphics "render_text:%s" text;
   let color = Draw.create_color (default fg (10,11,12,255)) in
   Draw.ttf_set_font_style font style;
-  Draw.ttf_render font text color;;
+  Draw.ttf_render font text color
 
 let render_text renderer ?fg font style text =
   let surf = render_text_surf ?fg font style text in
   printd debug_graphics "convert to texture";
   let tex = Draw.create_texture_from_surface renderer surf in
   Draw.free_surface surf;
-  tex;;
+  tex
 
 
 (* open font with specified size. Here this is the true size, it will not be
@@ -114,21 +110,27 @@ let get_font_var v size =
   match Var.get v with
     | Font f -> f
     | File file -> let f = Draw.open_font file size in
-      Var.set v (Font f); f;;
+      Var.set v (Font f); f
 
-let font l = get_font_var l.font (Theme.scale_int l.size);;
+let font l = get_font_var l.font (Theme.scale_int l.size)
 
 let physical_size l =
   match Var.get l.render with
     | Some tex -> Draw.tex_size tex
-    | None -> physical_size_text (font l) (text l);;
+    | None -> physical_size_text (font l) (text l)
 
 (* a first order approximation of the "logical" size is obtained by dividing by
    the scale; this is not ideal because the final physical scale of the layout
    will be calculated by multiplying this by the scale, resulting in a +/- 1
-   pixel error *)
+   pixel error. The size can be larger than the geometry, see
+   [center_tex_to_layer]. *)
 let size l =
-  physical_size l |> Draw.unscale_size;;
+  physical_size l |> Draw.unscale_size
+
+(* Resizing has no effect, since the size of the widget is entirely dictated by
+   the font size and possibly the geometry of the housing layout. *)
+let resize _size _l =
+  ()
 
 let display canvas layer l g =
   let tex = match Var.get l.render with
@@ -137,4 +139,4 @@ let display canvas layer l g =
       let fg = default (Var.get l.fg) Draw.(opaque label_color) in
       let tex = render_text canvas.Draw.renderer (font l) l.style (text l) ~fg in
       Var.set l.render (Some tex); tex in
-  [Draw.center_tex_to_layer canvas layer tex g];;
+  [Draw.center_tex_to_layer canvas layer tex g]

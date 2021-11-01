@@ -22,7 +22,6 @@ type border = {
   radius : int option
 }
 
-
 type gradient =
   { colors : Draw.color list; angle : float }
 

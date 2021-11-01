@@ -89,7 +89,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?kind:<span class="constructor">Bogue</span>.<span class="constructor">Slider</span>.kind&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?var:(int&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Avar</span>.t,&nbsp;int)&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Tvar</span>.t&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?length:int&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?thickness:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?tick_size:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?lock:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?thickness:int&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?tick_size:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?lock:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?w:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?h:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;slider_with_action&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?priority:<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.action_priority&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?step:int&nbsp;<span class="keywordsign">-&gt;</span><br>
@@ -101,6 +102,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;check_box_with_label&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;*&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_state&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_text&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;size&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_text&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_box&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Box</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_check&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Check</span>.t<br>

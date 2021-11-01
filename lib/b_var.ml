@@ -5,20 +5,20 @@
 
    calling Mutex.lock on a mutex locked by the SAME thread will ALSO block. *)
 
-open B_utils;;
+open B_utils
 
 type 'a t = {
   mutable data : 'a;
   mutable thread_id : int option;
   (* = the id of the thread currently locking this var *)
   mutex : Mutex.t;
-};;
+}
 
 let create data =
   { data;
     thread_id = None;
     mutex = Mutex.create ();
-  };;
+  }
 
 let release v =
   (* do not use this without checking thread_id, especially in case of
@@ -60,7 +60,7 @@ let protect_fn v action =
       let result = action () in
       release v;
       result
-    end;;
+    end
 
 
 (* usually we don't need to protect when getting the value. But warning, if the
@@ -68,47 +68,45 @@ let protect_fn v action =
 
 (* TODO in fact one should. See
    https://en.wikipedia.org/wiki/Readers%E2%80%93writers_problem *)
-let get v = v.data;;
+let get v = v.data
 
-let unsafe_get v = v.data;;
+let unsafe_get v = v.data
 
 let set_old v value =
     Mutex.lock v.mutex;
     v.data <- value;
-    Mutex.unlock v.mutex;;
+    Mutex.unlock v.mutex
 
 let set v value =
-  protect_fn v (fun () -> v.data <- value);;
+  protect_fn v (fun () -> v.data <- value)
 
 let unsafe_set v value =
-  v.data <- value;;
+  v.data <- value
 
 let protect v =
   Mutex.lock v.mutex;
-  v.thread_id <- Some Thread.(id (self ()));;
-
-
+  v.thread_id <- Some Thread.(id (self ()))
 
 let incr v =
   protect v;
   v.data <- v.data + 1;
-  release v;;
+  release v
 
 let decr v =
   protect v;
   v.data <- v.data - 1;
-  release v;;
+  release v
 
 (*******)
 (* for initialization of global constant by a lazy eval *)
 (* TODO: use Lazy module ? *)
 
-exception Not_initialized;;
+exception Not_initialized
 
 type 'a init = {
   mutable init : unit -> 'a; (* the function which creates the value *)
   var : ('a option) t
-};;
+}
 
 let init init =
   { init; (* ou Var ? *)
@@ -116,15 +114,15 @@ let init init =
   }
 
 let create_init () =
-  init (fun () -> raise Not_initialized);;
+  init (fun () -> raise Not_initialized)
 
 let set_init i f =
   i.init <- f;
-  set i.var None;;
+  set i.var None
 
 let init_get i = match get i.var with
   | None -> let data = i.init () in set i.var (Some data); data
-  | Some d -> d;;
+  | Some d -> d
 
 (*
 ocamlmktop -thread -custom -o threadtop unix.cma threads.cma -cclib -lthreads

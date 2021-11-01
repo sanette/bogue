@@ -1,7 +1,7 @@
 (** a generic menu layout with submenus *)
 (* can be used with entries (layouts) at arbitrary locations *)
-(* VERSION2 *)
 
+(* TODO implement the resize function *)
 
 open B_utils
 open Tsdl
@@ -17,12 +17,12 @@ module Popup = B_popup
 module Style = B_style
 
 let pre = if !debug
-  then fun s -> print_endline ("[Menu2] " ^ s) (* for local debugging *)
+  then fun s -> print_endline ("[Menu] " ^ s) (* for local debugging *)
   else nop
 
 module Engine = struct
 
-  (* A menu is a usual birectional tree, where each node is either terminal (a
+  (* A menu is a usual bidirectional tree, where each node is either terminal (a
      leaf) and corresponds to a menu item with a action, or a submenu. However,
      we don't really have to optimize functions for arbitrary trees, because it
      will always be a very small tree (not deep).
@@ -74,6 +74,10 @@ module Engine = struct
 
   (* The 'screen' layout is used for grabbing mouse even outside of the menus
      themselves. Used for closing menus when clicking outside. *)
+  (* TODO we should maybe delay the creation of the screen to when the user
+     click on the menu, in order to make sure it will be drawn above all other
+     widgets (possibly created much later than the menu). Or, move it to the
+     top layer dynamically.  *)
   let screen_enable screen =
     pre "ENABLE";
     Layout.set_show screen true
@@ -104,9 +108,10 @@ module Engine = struct
   (* Iter menu downwards *)
   let rec iter f menu =
     f menu;
-    List.iter (fun entry -> match entry.kind with
-                            | Action _ -> ()
-                            | Menu submenu -> iter f submenu) menu.entries
+    List.iter (fun entry ->
+        match entry.kind with
+        | Action _ -> ()
+        | Menu submenu -> iter f submenu) menu.entries
 
   (* not used *)
   let add_submenus_to_dst_old ~dst menu =
@@ -120,22 +125,27 @@ module Engine = struct
                             | Action _ -> ()
                             | Menu submenu -> iter f submenu) menu.entries
 
+  let set_menu_position menu =
+    do_option menu.pos (fun (dx, dy) ->
+        let keep_resize = true in
+        let x, y = match menu.parent_entry with
+          | None -> 0, 0
+          | Some entry ->
+             let m = entry.parent_menu.room in
+             let x0, y0 = Layout.(getx m, gety m) in
+             let dx0, dy0 = Layout.(getx entry.layout, gety entry.layout) in
+             x0+dx0, y0+dy0 in
+        Layout.setx ~keep_resize menu.room (x+dx);
+        Layout.sety ~keep_resize menu.room (y+dy))
+
   (* Inserts all layouts inside 'dst' at the proper position.  Should be done
      only once, otherwise the 'repeated widgets' error will appear. *)
   let add_menu_to_dst ~dst menu =
     let f menu =
       Layout.add_room ~dst menu.room;
-      do_option menu.pos (fun (dx, dy) ->
-          let x, y = match menu.parent_entry with
-            | None -> 0, 0
-            | Some entry ->
-              let m = entry.parent_menu.room in
-              let x0, y0 = Layout.(getx m, gety m) in
-              let dx0, dy0 = Layout.(getx entry.layout, gety entry.layout) in
-              x0+dx0, y0+dy0 in
-          Layout.setx menu.room (x+dx);
-          Layout.sety menu.room (y+dy));
-
+      set_menu_position menu;
+      menu.room.Layout.resize <- (fun _ ->
+        set_menu_position menu);
       if not menu.active && not menu.always_shown
       then Layout.set_show menu.room false
     in
@@ -371,31 +381,31 @@ module Engine = struct
     if keycode = Sdl.K.escape then close_tree screen entry.parent_menu
     else if entry.enabled then
       if keycode = Sdl.K.return then begin
-        match entry.kind with
-        | Menu menu ->
-          (* 1/ouvrir 2/selectionner premier *)
-          if menu.active
-          then set_keyboard_focus (List.hd menu.entries).layout
-          (* vérifier liste non vide ? *)
-          else activate screen menu
-        | Action _ -> run_action screen entry
-      end else
-      if keycode = Sdl.K.up || keycode = Sdl.K.down then
-        match selected_entry entry.parent_menu with
-        | None -> printd debug_error "Cannot find selected entry in menu!"
-        | Some (_,i0) ->
-          pre (string_of_int i0);
-          let n = List.length entry.parent_menu.entries in
-          let rec loop i (* search enabled entry upwards *) =
-            let i = (if keycode = Sdl.K.up
-                     then (i-1+n)
-                     else i+1) mod n  in
-            let new_entry = List.nth entry.parent_menu.entries i in
-            if new_entry.enabled then new_entry
-            else if i = i0 then entry
-            else loop i in
-          let new_entry = loop i0 in
-          set_keyboard_focus new_entry.layout
+          match entry.kind with
+          | Menu menu ->
+             (* 1/ouvrir 2/selectionner premier *)
+             if menu.active
+             then set_keyboard_focus (List.hd menu.entries).layout
+                                     (* vérifier liste non vide ? *)
+             else activate screen menu
+          | Action _ -> run_action screen entry
+        end else
+        if keycode = Sdl.K.up || keycode = Sdl.K.down then
+          match selected_entry entry.parent_menu with
+          | None -> printd debug_error "Cannot find selected entry in menu!"
+          | Some (_,i0) ->
+             pre (string_of_int i0);
+             let n = List.length entry.parent_menu.entries in
+             let rec loop i (* search enabled entry upwards *) =
+               let i = (if keycode = Sdl.K.up
+                        then (i-1+n)
+                        else i+1) mod n  in
+               let new_entry = List.nth entry.parent_menu.entries i in
+               if new_entry.enabled then new_entry
+               else if i = i0 then entry
+               else loop i in
+             let new_entry = loop i0 in
+             set_keyboard_focus new_entry.layout
 
   (* 3. Creation of widgets and connections. *)
   (* --------------------------------------- *)
@@ -411,6 +421,7 @@ module Engine = struct
     (* We need a coat to get mouse focus on the whole length of the menu entry,
        not only on the area of the text itself (label). *)
     Layout.add_room ~dst:entry.layout coat;
+    Layout.resize_follow_house coat;
     (* we don't use Popup.add_screen to avoid creating too many layers. *)
     let widget = Layout.widget coat in
     Widget.set_cursor widget
@@ -426,7 +437,7 @@ module Engine = struct
 
     let action _ _ _ = mouse_over screen entry in
     let c = Widget.connect_main widget widget action
-        [(* Trigger.E.mouse_motion; *) Trigger.mouse_enter] in
+              [(* Trigger.E.mouse_motion; *) Trigger.mouse_enter] in
     (* Warning do NOT add finger_motion, it will interfere with finger_down.
        TODO finger doesn't work well yet. *)
     Widget.add_connection widget c;
@@ -436,7 +447,7 @@ module Engine = struct
     Widget.add_connection widget c;
 
     let action _ _ ev = key_down screen entry
-        Sdl.Event.(get ev keyboard_keycode) in
+                          Sdl.Event.(get ev keyboard_keycode) in
     let c = Widget.connect_main widget widget action [Trigger.E.key_down] in
     Widget.add_connection widget c
 
@@ -451,6 +462,8 @@ module Engine = struct
       ) menu.entries
 
   (* Init, attach the menu to a destination layout. *)
+  (* TODO: by default we should not bother providing a dst, it should
+     automatically attach to its house. *)
 
   let init ~dst t =
   let dst_layer = Chain.last (Layout.get_layer dst) in
@@ -477,6 +490,7 @@ module Engine = struct
 
   screen_disable screen;
   Layout.add_room ~dst screen;
+  Layout.resize_follow_house screen;
 
   let w = Layout.widget screen in
   Widget.on_click ~click:(fun _ -> pre "CLICK SCREEN";
@@ -509,11 +523,11 @@ type label =
    'File', etc. or directly by an arbitrary layout -- useful for game menus, for
    instance. In the latter case, the layout content is not altered to ensure
    that its features, whether it is part of a menu or not, are not
-   altered. However, we cannot preserve its house, because usually the menu is
-   relocated into the main window-layout. One can 'kind-of' preserve the house
-   by letting it be the 'dst' parameter. But warning, in all cases, the layout
-   will be encapsulated into a screen, so the 'dst' will not remain its "direct
-   house". *)
+   altered. However, we cannot preserve its house (and it should not have any),
+   because usually the menu is relocated into the main window-layout. One can
+   'kind-of' preserve the house by letting it be the 'dst' parameter. But
+   warning, in all cases, the layout will be encapsulated into a screen, so the
+   'dst' will not remain its "direct house". *)
 
 type entry = {
   label : label;
@@ -541,7 +555,7 @@ let format_label ?w ?h = function
   | Text s ->
     let res = Layout.resident ?w ?h (Widget.label s) in
     (* : here we cannot use a resident as is because we will need to add another
-       room later. we need to wrap it: *)
+       room later; we need to wrap it: *)
     let background = Layout.Solid Draw.(opaque menu_bg_color) in
     Layout.flat ~name:"menu entry label"
       ~margins:text_margin ~background [res]
@@ -561,8 +575,7 @@ let add_icon_suffix ?(icon = "caret-right") layout =
 
 (* really private, hackish, function...to call only after connections/filters
    have been added.  It relies on the fact that the icon should be the 2nd-to
-   last room of the list (the last one being the filter). Does not raise
-   anything in case of error. *)
+   last room of the list (the last one being the filter). *)
 let remove_icon_suffix ?(icon = "caret-right") layout =
   try begin
     Layout.iter_rooms (fun l -> pre (Layout.sprint_id l)) layout;
@@ -641,10 +654,11 @@ module Tmp = struct
           let background = Layout.Solid Draw.(opaque grey) in
           Layout.empty ~background ~w:10 ~h:1 ()
         | Menu _
-        | Action _ ->  format_label entry.label
+        | Action _ -> format_label entry.label
     in
     if not entry.formatted && entry.suffix <> None
     then Layout.(set_width layout (width layout + suffix_width));
+
     (* we make some room for adding the suffix later *)
 
     let content = match entry.content with
@@ -670,7 +684,7 @@ module Tmp = struct
         let background = Layout.Solid Draw.(opaque menu_bg_color) in
         let l = Layout.tower ~margins:0 ~sep:0 ~background ~shadow list in
         Layout.expand_width l; l)
-    | Custom  -> (fun list -> Layout.superpose list)
+    | Custom -> (fun list -> Layout.superpose list)
 
   (* Return (x,y) option, the coordinates where the submenu should be placed
      when positioned in the same layout as the parent layout. *)
@@ -816,9 +830,18 @@ let bar ~dst entries =
   let content = Flat entries in
   let t = make_engine ~dst content in
   let room = layout_of_menu t in
+  (* Expand first entry (menu bar) to the whole dst width: *)
   Layout.(set_width room (width dst));
-  (* expand first entry (menu bar) to the whole dst width. *)
+  (* All menu layouts are rooms of dst. (Warning: a submenu is not a subroom of
+     the room of the parent menu... They are all on the same level.)*)
+
+  (* The bar should expand when we resize the room; however we may want to keep
+     the menu entries left-aligned, instead of evenly spread on the whole
+     width. TODO. *)
+  Layout.scale_resize ~scale_height:false room;
+  Layout.resize_content dst;
   Layout.set_shadow room None;
+
   (* for a menu bar, we usually don't want indicator icons *)
   List.iter (fun entry ->
       let open Engine in

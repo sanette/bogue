@@ -4,7 +4,7 @@ module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
 
-type resize =
+type resize =  (* not implemented *)
   | Crop of int (* cut the image at origin x *)
   | Fit (* fit in given area *)
   | KeepRatio (* keep aspect ratio and fit inside area *)
@@ -22,10 +22,13 @@ type t =
     ypos : Draw.align; (* NOT used anymore. vertical ... *)
     background : Draw.color;
     render : (Draw.texture option) Var.t;
-  };;
+  }
 
 let size img =
-  img.width, img.height;;
+  img.width, img.height
+
+let resize _size _i =
+  () (* TODO *)
 
 (* use noscale = true to keep original pixel size. *)
 (* TODO: noscale=true is not completely accurate because this leads to
@@ -54,13 +57,13 @@ let create ?width ?height ?(noscale = false)
     ysize = KeepRatio; (* idem *)
     background = bg; (* idem *)
     render = Var.create None;
-  };;
+  }
 
 (* NOTE once we have a more recent version (>= 2.0.2) of SDL_image, we should be
    able to directly load SVG. HOWEVER, it currently it doesn't scale the image,
    so it's not recommended. *)
 let create_from_svg ?width ?height ?(bg = Draw.(opaque black)) file =
-  create ?width ?height ~bg (Draw.convert_svg ?w:width ?h:height file);;
+  create ?width ?height ~bg (Draw.convert_svg ?w:width ?h:height file)
 
 let unload img =
   match Var.get img.render with
@@ -68,11 +71,11 @@ let unload img =
   | Some tex -> begin
       Draw.forget_texture tex;
       Var.set img.render None
-    end;;
+    end
 
 
 (* TODO *)
-let free = unload;;
+let free = unload
 
 (************* display ***********)
 
@@ -112,4 +115,4 @@ let display canvas layer img g =
          this size... *)
   in
   let dst = geom_to_rect g in
-  [make_blit ~dst ~voffset:g.voffset canvas layer tex];;
+  [make_blit ~dst ~voffset:g.voffset canvas layer tex]

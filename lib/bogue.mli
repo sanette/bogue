@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20210918
+@version 20211101
 
 @author Vu Ngoc San
 
@@ -660,7 +660,7 @@ module Tvar : sig
   val create : 'a Var.t -> t_from:('a -> 'b) -> t_to:('b -> 'a) -> ('a, 'b) t
   val get : ('a, 'b) t -> 'b
   val set : ('a, 'b) t -> 'b -> unit
-    
+
 end (* of Tvar *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -729,7 +729,7 @@ module Selection : sig
   val toggle : t -> int -> t
   val sprint : t -> string
   val iter : (int -> unit) -> t -> unit
- 
+
 end (* of Selection *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -739,7 +739,7 @@ end (* of Selection *)
     Widgets are building blocks of the GUI. They also receive all events (mouse
    focus, etc.) and contain the {e intelligence} of your GUI, through {e
    connections} (or callbacks, see {!Widget.connection}). However, in order to
-   be displayed, they need to be packed into {e layouts} ({!Layout.t}). 
+   be displayed, they need to be packed into {e layouts} ({!Layout.t}).
 
    The main module for dealing with widgets is {!Widget}.
 *)
@@ -894,6 +894,8 @@ module Check : sig
   type style
 
   val create :  ?state:bool -> ?style:style -> unit -> t
+  val state : t -> bool
+
 end (* of Check *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -925,6 +927,9 @@ module Text_display : sig
 *)
 
   (** {2 Modifying the widgets} *)
+
+  val replace : by:t -> t -> unit
+(** [replace ~by:t2 t1] replaces the text content of [t1] by the one of [t2]. *)
 
   val update_verbatim : t -> string -> unit
 
@@ -998,9 +1003,9 @@ let l = get_label w in
   type action = t -> t -> Tsdl.Sdl.event -> unit
   (** An action is a function with three parameters [w1 w2 ev], where
      [w1] is the source widget, [w2] the target widget, and [ev] the event
-     ({!Trigger.t}) that triggered the action. 
+     ({!Trigger.t}) that triggered the action.
 
-     The action should regularly verify {!Trigger.should_exit}[ ev] 
+     The action should regularly verify {!Trigger.should_exit}[ ev]
      and quickly exit when this returns [true].
 *)
 
@@ -1145,7 +1150,8 @@ let l = get_label w in
   val slider : ?priority:action_priority -> ?step:int -> ?value:int ->
     ?kind:Slider.kind ->
     ?var:(int Avar.t, int) Tvar.t ->
-    ?length:int -> ?thickness:int -> ?tick_size:int -> ?lock:bool -> int -> t
+    ?length:int -> ?thickness:int -> ?tick_size:int -> ?lock:bool ->
+    ?w:int -> ?h:int -> int -> t
 
   val slider_with_action : ?priority:action_priority ->
     ?step:int -> ?kind:Slider.kind -> value:int -> ?length:int ->
@@ -1168,6 +1174,10 @@ let l = get_label w in
   val get_text : t -> string
   (** Return the text of the widget. Works for Button, TextDisplay, Label,
      and TextInput. *)
+
+  val size : t -> int * int
+  (** If the widget is not rendered yet, a default size may be returned instead
+     of the true size. *)
 
   val set_text : t -> string -> unit
   (** Change the text of a widget. Works for Button, TextDisplay, Label,
@@ -1263,7 +1273,8 @@ module Layout : sig
       Remark: all layouts have an optional [name] property, which is used only
      for debugging. *)
 
-  val empty : ?name:string -> ?background:background -> w:int -> h:int -> unit -> t
+  val empty : ?name:string -> ?background:background ->
+              w:int -> h:int -> unit -> t
   (** An empty layout can reserve some space without stealing focus. *)
 
   (** {3 Create layouts from widgets} *)
@@ -1280,7 +1291,7 @@ module Layout : sig
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> Widget.t list -> t
   val tower_of_w :
-    ?name:string -> ?sep:int ->
+    ?name:string -> ?sep:int -> ?w:int ->
     ?align:Draw.align ->
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> Widget.t list -> t
@@ -1299,11 +1310,20 @@ module Layout : sig
     ?align:Draw.align ->
     ?adjust:adjust ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> t list -> t
-  val superpose : ?w:int -> ?h:int -> ?name:string ->
-    ?background:background -> ?canvas:Draw.canvas -> t list -> t
+    ?canvas:Draw.canvas -> ?clip:bool -> t list -> t
+  val superpose :
+    ?w:int -> ?h:int -> ?name:string ->
+    ?background:background -> ?canvas:Draw.canvas -> ?center:bool ->
+    t list -> t
   (** Create a new layout by superposing a list of layouts without changing
       their (x,y) position. *)
+
+  (** Remark: when creating a house (a layout) with [flat*], [tower*], or
+     [superpose], the size of the inner rooms will be automatically updated
+     whenever the size of the house is modified. However, as soon as one
+     manually sets the size or the position of a room inside this house with
+     {!set_width}, {!setx} and alikes, then the room will stop reacting to
+     changes of the house size. *)
 
   (** {2 Some useful layout combinations} *)
 
@@ -1317,7 +1337,7 @@ module Layout : sig
 
   val xpos : t -> int
   (** get current absolute x position of the layout (relative to the top-left
-      corner of the window) *)
+     corner of the window). Not necessarily up-to-date. *)
 
   val ypos : t -> int
   (** see {!xpos} *)
@@ -1357,16 +1377,29 @@ module Layout : sig
 
   (** {2 Modify existing layouts}
 
-      These functions will not work if there is an animation running acting of the
-     variable we want to set. *)
+      These functions will not work if there is an animation running acting of
+     the variable we want to set. Most of these functions will stop the
+     automatic resizing mechanism of the room. Use {!auto_scale} to reactivate
+     it. *)
 
-  val set_width : ?update_bg:bool -> t -> int -> unit
-  val set_height : t -> int -> unit
-  val setx : t -> int -> unit
-  val sety : t -> int -> unit
+  val auto_scale : t -> unit
+  (** Set the layout to automatically scale its inner rooms when the layout size
+     is modified. *)
+
+  val set_width : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
+                  -> t -> int -> unit
+  val set_height :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
+                  -> t -> int -> unit
+  val set_size :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
+                  -> t -> int * int -> unit
+  val setx : ?keep_resize:bool -> t -> int -> unit
+  val sety : ?keep_resize:bool -> t -> int -> unit
   val set_show : t -> bool -> unit
 
   val set_shadow : t -> Style.shadow option -> unit
+
+  val fix_content : t -> unit
+  (** Disable automatic resizing of the rooms inside this layout. *)
 
   val fit_content : ?sep:int -> t -> unit
   (** Adapt the size of the layout (and their houses) to the disposition of the
@@ -1377,6 +1410,12 @@ module Layout : sig
      rooms. Use [sync=true] (the default) as much as possible in order to avoid
      multi-threading problems. Then the changes will be applied by the main
       thread at next frame (see {!Sync}). *)
+
+  val replace_room : ?house:t -> by:t -> t -> unit
+(** Replace "room" by "by" inside "house" in lieu and place of the intial
+   room. No size adjustments are made. Of course this is dangerous, because it
+   modifies both the house and "by". Beware of circular dependencies... Of
+   course this assumes that "room" already belongs to "house". *)
 
   val unload_textures : t -> unit
   (** Use this to free the textures stored by the layout (and its children) for
@@ -1493,32 +1532,32 @@ These functions {e do not take effect immediately!} They will be executed, in
    they are invoked before the start of the mainloop).
 
 {5 {{:graph-b_space.html}Dependency graph}}
-*)
+ *)
 module Space : sig
 
-
-  val hfill : ?margin:int -> unit -> Layout.t
-  (** When used in a {!Layout.flat} structure, this special empty layout will
+  val hfill : ?right_margin:int -> unit -> Layout.t
+      (** When used in a {!Layout.flat} structure, this special empty layout will
      automatically expand in order to fill the available width in the parent
-     house. *)
+     house. The other inhabitants keep the width they had at the execution of
+     the [hfill] invocation. Their height is resized as usual. Only one [hfill]
+     layout should be used in a given house. *)
 
-  val vfill : ?margin:int -> unit -> Layout.t
-  (** When used in a {!Layout.tower} structure, this special empty layout will
-     automatically expand in order to fill the available height in the parent
-     house. *)
 
-  val full_width : ?margin:int -> Layout.t -> unit
-  (** This will set the width of the room (layout) in order to occupy the whole
+  val make_hfill : ?right_margin:int -> Layout.t -> unit
+  val full_width : ?right_margin:int -> ?left_margin:int -> Layout.t -> unit
+     (** This will set the width of the room (layout) in order to occupy the whole
      width of its house. *)
 
-  val make_hfill : ?margin:int -> Layout.t -> unit
-  (** Like {!hfill}, but applies to the specified layout instead of creating an
+  val make_vfill : ?bottom_margin:int -> Layout.t -> unit
+ (** Like {!hfill}, but applies to the specified layout instead of creating an
       empty one. *)
 
-  val make_vfill : ?margin:int -> Layout.t -> unit
+  val vfill : ?bottom_margin:int -> unit -> Layout.t
+    (** When used in a {!Layout.tower} structure, this special empty layout will
+     automatically expand in order to fill the available height in the parent
+     house. See {!hfill}. *)
 
-  val vcenter : Layout.t -> unit
-  (** Will vertically center the layout in its house. *)
+  val full_height : ?top_margin:int -> ?bottom_margin:int -> Layout.t -> unit
 end (* of Space *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1929,9 +1968,9 @@ and to native code with
 ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml
 v}
 
-You may also evaluated this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert 
+You may also evaluated this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert
 
-{v 
+{v
 #thread;;
 #require "bogue";;
 v}

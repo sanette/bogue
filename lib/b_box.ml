@@ -28,18 +28,18 @@ type t = {
                                           on). *)
   border : Style.border option; (* border is drawn *inside* the box *)
   shadow: Style.shadow option;
-  size : int * int; (* size incl. border if line width > 0 *)
+  mutable size : int * int; (* size incl. border if line width > 0 *)
   (* note that this size is not really used. g.w, g.h is used instead when
      displaying, which is good if this box is a background of a room, and we
      changed the size of the room... *)
-};;
+}
 
 (* TODO report correct size if line width < 0 *)
 let size b =
-  b.size;;
+  b.size
 
-let default_size = (256,64);;
-let default_background = Style.Solid Draw.(opaque pale_grey);;
+let default_size = (256,64)
+let default_background = Style.Solid Draw.(opaque pale_grey)
 let default_border = Style.(border {
     color = Draw.(opaque grey);
     width = 1;
@@ -52,7 +52,7 @@ let create ?width ?height ?(background = default_background) ?border ?shadow () 
     border;
     shadow;
     size = (default width w), (default height h)
-  };;
+  }
 
 let unload b =
   let () =
@@ -66,14 +66,18 @@ let unload b =
   match Var.get b.background with
   | Style.Image img -> Image.unload img
   | Style.Solid _ -> ()
-  | Style.Gradient _ -> ();;
+  | Style.Gradient _ -> ()
 
 let set_background b bkg =
   unload b;
-  Var.set b.background bkg;;
+  Var.set b.background bkg
+
+let resize size b =
+  unload b;
+  b.size <- size
 
 (* TODO *)
-let free = unload;;
+let free = unload
 
 (************* display ***********)
 
@@ -222,4 +226,4 @@ let display canvas layer b g =
            ~offset:(Draw.scale_pos s.Style.offset) dst
        ) in
 
-  List.rev ((make_blit ~voffset:g.voffset ~dst canvas layer tex)::shadow_blits) ;;
+  List.rev ((make_blit ~voffset:g.voffset ~dst canvas layer tex)::shadow_blits) 

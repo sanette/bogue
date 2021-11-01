@@ -10,10 +10,14 @@ type ('a, 'b) t =
   t_to : 'b -> 'a
 }
 
+(* Setting/getting the a value should be done directly via the variable [var] *)
+
+(* Get the b value *)
 let get v =
   Var.get v.var
   |> v.t_from;;
 
+(* Set the b value *)
 let set v value =
   Var.set v.var (v.t_to value);;
 

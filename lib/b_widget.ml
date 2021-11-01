@@ -25,8 +25,8 @@ type kind =
   | Box of Box.t
   | Button of Button.t
   | Check of Check.t
-  | TextDisplay of Text_display.t
   | Label of Label.t
+  | TextDisplay of Text_display.t
   | Image of Image.t
   | Slider of Slider.t
   | TextInput of Text_input.t
@@ -183,8 +183,22 @@ let default_size w =
   | Label l -> let x,y = Label.size l in (x+2,y+2)
   | Image img -> Image.size img
   | Button b -> Button.size b
-  | Slider s -> Slider.default_size s
+  | Slider s -> Slider.size s
   | TextInput ti -> Text_input.size ti
+
+let size = default_size
+
+let resize w size =
+  match w.kind with
+  | Empty e -> Empty.resize size e
+  | Box b -> Box.resize size b
+  | Button b -> Button.resize size b
+  | Check c -> Check.resize size c
+  | Label l -> Label.resize size l
+  | TextDisplay t -> Text_display.resize size t
+  | Image i -> Image.resize size i
+  | Slider s -> Slider.resize size s
+  | TextInput ti -> Text_input.resize size ti
 
 let get_cursor w =
   default w.cursor
@@ -404,30 +418,32 @@ let button ?(kind = Button.Trigger) ?label ?label_on ?label_off
 (* TODO: actions *)
 
 (* use ~lock if the user is not authorized to slide *)
-let slider ?(priority=Main) ?step ?value ?kind ?var ?length ?thickness ?tick_size ?(lock = false) maxi =
-  let w = create_empty (Slider (Slider.create ?step ?value ?kind ?var ?length ?thickness ?tick_size maxi)) in
+let slider ?(priority=Main) ?step ?value ?kind ?var ?length ?thickness
+      ?tick_size ?(lock = false) ?w ?h maxi =
+  let w = create_empty (Slider (Slider.create ?step ?value ?kind ?var ?length
+                                  ?thickness ?tick_size ?w ?h maxi)) in
   if not lock then begin
-    let onbutton_down = fun w _ ev -> Slider.click (get_slider w) ev in
-    let c = connect_main w w onbutton_down Trigger.buttons_down in
-    add_connection w c;
-    (* let onclick = fun w _ ev -> Slider.click_focus (get_slider w) ev in *)
-    (* let c = connect_main w w onclick [Sdl.Event.mouse_button_up] in *)
-    (* add_connection w c; *)
-    let on_release = fun w _ _ -> Slider.release (get_slider w) in
-    let c = connect_main w w on_release Trigger.buttons_up in
-    add_connection w c;
-    let slide = fun w _ ev ->
-      let ti = get_slider w in
-      if Trigger.mm_pressed ev || Trigger.event_kind ev = `Finger_motion
-      then (Slider.slide ti ev; update w)
-    in
-    let c = connect ~priority ~update_target:false w w slide Trigger.pointer_motion in
-    add_connection w c;
-    let get_keys = fun w _ ev -> Slider.receive_key (get_slider w) ev
-    in
-    let c = connect ~priority w w get_keys [Sdl.Event.key_down] in
-    add_connection w c
-  end;
+      let onbutton_down = fun w _ ev -> Slider.click (get_slider w) ev in
+      let c = connect_main w w onbutton_down Trigger.buttons_down in
+      add_connection w c;
+      (* let onclick = fun w _ ev -> Slider.click_focus (get_slider w) ev in *)
+      (* let c = connect_main w w onclick [Sdl.Event.mouse_button_up] in *)
+      (* add_connection w c; *)
+      let on_release = fun w _ _ -> Slider.release (get_slider w) in
+      let c = connect_main w w on_release Trigger.buttons_up in
+      add_connection w c;
+      let slide = fun w _ ev ->
+        let ti = get_slider w in
+        if Trigger.mm_pressed ev || Trigger.event_kind ev = `Finger_motion
+        then (Slider.slide ti ev; update w)
+      in
+      let c = connect ~priority ~update_target:false w w slide Trigger.pointer_motion in
+      add_connection w c;
+      let get_keys = fun w _ ev -> Slider.receive_key (get_slider w) ev
+      in
+      let c = connect ~priority w w get_keys [Sdl.Event.key_down] in
+      add_connection w c
+    end;
   w;;
 
 (* create a slider with a simple Tvar that executes an action each time the

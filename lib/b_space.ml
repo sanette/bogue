@@ -1,40 +1,25 @@
-(* This module provides some tools to auto-adjust space and size of layouts at
-   startup or when resizing window. They use the animation mechanism (Avar) with
-   duration=0. *)
+(* New implementation of Space, based on the Layout resize mechanism. *)
+(* Since we cannot know in advance where the space layout will reside, we invoke
+   a Sync action to install the resize actions. Warning: Sync actions are
+   executed in the same order as they are registered. Another possibility (as in
+   the previous Space implementation) is to use an Avar (animated variable),
+   which would force actions to be executed in the order of the layout hierarchy
+   (top to bottom). However: 1. the Avar is computed *after* the resize functions
+   are executed. 2. Avar actions are not triggered if the layout is not shown. *)
 
-(* The order of invocation of the fill functions is not important. The structure
-   of the layouts prevail: from top house to inner rooms. *)
+module Layout = B_layout
+module Avar = B_avar
+module Sync = B_sync
 
 open B_utils
-open Printf
-module Layout = B_layout
-module Widget = B_widget
-module Avar = B_avar
-module Theme = B_theme
-module Trigger =  B_trigger
-module Draw = B_draw
-module Update = B_update
 
-(* we store here rooms that should be updated in case of layout resizing (ie
-   when calling Space.update *)
-let rooms_to_update = Layout.WHash.create 50;;
+(* Not used *)
+let push_avar room action =
+  let update _ _ = action (); 0 in
+  let avar = Avar.create ~duration:0 ~update 0 in
+  Layout.animate_w room avar
 
-
-let update_room r =
-  let open Layout in
-  Avar.reset r.geometry.w;
-  Avar.reset r.geometry.y;
-  Avar.reset r.geometry.h;;
-
-(* Use "update" to force recomputation of all layouts (by resetting animations);
-   for instance this is called by Layout.resize when resizing a window. *)
-let update_all room =
-  Layout.iter update_room room;;
-
-(* reset only those that have a Space.something *)
-(* TODO reset only those belonging to the layout-window that we resize *)
-let update () =
-  Layout.WHash.iter update_room rooms_to_update;;
+let push _ = Sync.push
 
 (* split a list into two lists: the one before and the one after the first
    element for which test is true. This element is not included in the
@@ -45,289 +30,115 @@ let split_at test list =
     | a::rest -> if test a
       then List.rev before, rest
       else loop (a::before) rest in
-  loop [] list;;
+  loop [] list
 
-let hfill_action margin house layout rooms =
+(* Only one hfill element will work in a flat. [right_margin] is the margin you
+   would like to keep at the right end of the list of rooms. By default we take
+   the same as the left margin. *)
+let make_hfill_sync ?right_margin layout =
   let open Layout in
+  let rooms = siblings layout in
+  List.iter resize_fix_x rooms;
   let before,after = split_at (equal layout) rooms in
   let bx,_,bw,_ = bounding_geometry before in
   let ax,_,aw,_ = bounding_geometry after in
-  let available_width = width house - aw - bw - bx - margin in
-  if available_width > 0 then begin
-    printd debug_graphics "hfill (%s, margin=%i) will use %u pixel%s."
-      (sprint_id layout) margin available_width
-      (if available_width > 1 then "s" else "");
-    set_width layout available_width;
-    setx layout (bx+bw);
-    List.iter (fun r -> setx r (getx r - ax + width house - aw - margin)) after
-  end
-  else printd (debug_graphics+debug_warning)
-      "hfill cannot operate since available_width=%d" available_width;;
+  let initial_width = width layout in
+  (* The margins around the layout: *)
+  let margin_left = getx layout - bx - bw in
+  let margin_right = ax - getx layout - width layout in
+  (* The margin at the right end of the flat: *)
+  let right_margin = default right_margin (if before = [] then margin_left else bx) in
+  let old_resize = layout.resize in
+  let resize (w,h) =
+    let keep_resize = true in
+    let available_width = w - aw - bw - bx
+                          - margin_left - margin_right - right_margin
+                          |> imax initial_width in
+    (* TODO compute bounding_geometry here? *)
+    let offset = available_width - width layout in
+    old_resize (w,h);
+    set_width ~keep_resize layout available_width;
+    List.iter (fun r ->
+        setx ~keep_resize r (getx r + offset)) after in
+  layout.resize <- resize
 
-let vfill_action margin house layout rooms =
+let make_hfill ?right_margin layout =
+  push layout (fun () ->
+      make_hfill_sync ?right_margin layout;
+      Layout.resize layout)
+
+let hfill ?right_margin () =
+  let l = Layout.empty ~w:0 ~h:0 ~name:"hfill-space" () in
+  make_hfill ?right_margin l;
+  l
+
+let make_vfill_sync ?bottom_margin layout =
   let open Layout in
+  let rooms = siblings layout in
+  List.iter resize_fix_y rooms;
   let before,after = split_at (equal layout) rooms in
   let _,by,_,bh = bounding_geometry before in
   let _,ay,_,ah = bounding_geometry after in
-  let available_height = height house - ah - bh - by - margin in
-  if available_height > 0 then begin
-    printd debug_graphics "vfill (%s, margin=%i) will use %u pixel%s."
-      (sprint_id layout) margin available_height
-      (if available_height > 1 then "s" else "");
-    set_height layout available_height;
-    sety layout (by+bh);
-    List.iter (fun r -> sety r (get_oldy r - ay + height house - ah - margin)) after
-  end
-  else printd (debug_graphics+debug_warning)
-      "vfill cannot operate since available_height=%d" available_height;;
+  let initial_height = height layout in
+  (* The margins around the layout: *)
+  let margin_top = gety layout - by - bh in
+  let margin_bottom = ay - gety layout - height layout in
+  (* The margin at the bottom end of the tower: *)
+  let bottom_margin = default bottom_margin (if before = [] then margin_top else by) in
+  let resize (_w,h) =
+    let keep_resize = true in
+    let available_height = h - ah - bh - by
+                           - margin_top - margin_bottom - bottom_margin
+                           |> imax initial_height in
+    (* TODO compute bounding_geometry here? *)
+    let offset = available_height - height layout in
+    set_height ~keep_resize layout available_height;
+    List.iter (fun r ->
+        sety ~keep_resize r (gety r + offset)) after in
+  layout.resize <- resize
 
-let full_width_action margin layout house =
+let make_vfill ?bottom_margin layout =
+  push layout (fun () ->
+      make_vfill_sync ?bottom_margin layout;
+      Layout.resize layout)
+
+let vfill ?bottom_margin () =
+  let l = Layout.empty ~w:0 ~h:0 ~name:"vfill-space" () in
+  make_vfill ?bottom_margin l;
+  l
+
+let full_width_sync ?right_margin ?left_margin layout =
   let open Layout in
-  let w = width house in
-  set_width layout (w - 2*margin);
-  setx layout margin;;
+  let left_margin = default left_margin (getx layout) in
+  let right_margin = default right_margin left_margin in
+  resize_fix_x layout;
+  let f = layout.resize in
+  let resize (w,h) =
+    let keep_resize = true in
+    f (w,h);
+    setx ~keep_resize layout left_margin;
+    set_width ~keep_resize layout (w - left_margin - right_margin) in
+  layout.resize <- resize
 
-let full_height_action margin layout house =
+let full_width ?right_margin ?left_margin layout =
+  push layout (fun () ->
+      full_width_sync ?right_margin ?left_margin layout;
+      Layout.resize layout)
+
+let full_height_sync ?top_margin ?bottom_margin layout =
   let open Layout in
-  let h = height house in
-  set_height layout (h - 2*margin);
-  sety layout margin;;
+  let top_margin = default top_margin (gety layout) in
+  let bottom_margin = default bottom_margin top_margin in
+  resize_fix_y layout;
+  let f = layout.resize in
+  let resize (w,h) =
+    let keep_resize = true in
+    f (w,h);
+    sety ~keep_resize layout top_margin;
+    set_height ~keep_resize layout (h - top_margin - bottom_margin) in
+  layout.resize <- resize
 
-let vcenter_action layout house =
-  let open Layout in
-  let hh = height house in
-  let h = height layout in
-  let y = Draw.center 0 hh h in
-  sety layout y;;
-
-(* the "make_" versions apply the fill animation to already existing layouts in
-   a Layouts.flat structure. *)
-
-let make_avar l action =
-  let open Layout in
-  let update _ _ =
-    match l.house with
-    | None -> printd debug_error "hfill: the room must have a house.";
-      0
-    | Some house -> begin
-        match house.content with
-        | Resident _ ->
-          failwith (sprintf
-                      "hfill: This house %s cannot contain a Resident, \
-                       since it must containt the Layout %s amongst its Rooms."
-                      (sprint_id house) (sprint_id l))
-        | Rooms rooms ->
-          action house l rooms
-      end in
-  Avar.create ~duration:0 ~update 0;;
-
-let make_hfill ?(margin = Theme.room_margin) l =
-  let avar = make_avar l (fun house l rooms ->
-      hfill_action margin house l rooms; Layout.width l) in
-  Layout.animate_w l avar;
-  Layout.WHash.add rooms_to_update l;;
-
-let make_vfill ?(margin = Theme.room_margin) l =
-  let avar = make_avar l (fun house l rooms ->
-      vfill_action margin house l rooms; Layout.height l) in
-  Layout.animate_h l avar;
-  Layout.WHash.add rooms_to_update l;;
-
-(* hfill ~margin () will create an empty layout that expands at startup in order to
-   fill the available width in the parent house. It will only work in a
-   "Layout.flat" structure. See example 39. *)
-(* rooms to the right will be shifted further right until they reach the right
-   boundary, just leaving a right margin of "margin" pixels; it won't work for
-   rooms that are animated. *)
-let hfill ?(margin = Theme.room_margin) () =
-  let l = Layout.empty ~w:0 ~h:0 ~name:"hfill-a" () in
-  make_hfill ~margin l;
-  l;;
-
-(* vfill will only work in a Layout.tower structure *)
-let vfill ?(margin = Theme.room_margin) () =
-  let l = Layout.empty ~w:0 ~h:0 ~name:"vfill-a" () in
-  make_vfill ~margin l;
-  l;;
-
-(* set width + margin to fit house width *)
-let full_width ?(margin = Theme.room_margin) l =
-  let open Layout in
-  let update _ _ =
-    match l.house with
-    | None -> printd debug_error "hfill: the room must have a house.";
-      0
-    | Some house -> begin
-        full_width_action margin l house;
-        width l
-      end in
-  let avar = Avar.create ~duration:0 ~update 0 in
-  animate_w l avar;
-  Layout.WHash.add rooms_to_update l;;
-
-
-
-let full_height ?(margin = Theme.room_margin) l =
-  let open Layout in
-  let update _ _ =
-    match l.house with
-    | None -> printd debug_error "full_height: the room must have a house.";
-      0
-    | Some house -> begin
-        full_height_action margin l house;
-        height l
-      end in
-  let avar = Avar.create ~duration:0 ~update 0 in
-  animate_h l avar;
-  Layout.WHash.add rooms_to_update l;;
-
-let vcenter l =
-  let open Layout in
-  let update _ _ =
-    match l.house with
-    | None -> printd debug_error "vcenter: the room must have a house.";
-      0
-    | Some house -> begin
-        vcenter_action l house;
-        get_oldy l
-      end in
-  let avar = Avar.create ~duration:0 ~update 0 in
-  animate_y l avar;
-  Layout.WHash.add rooms_to_update l;;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(** old **)
-
-(* (h/v)fill are placeholder layouts that expand at startup, and optionally on
-   update *)
-(* TODO in fact, startup is not really necessary. However, be careful when
-   create a Space on-the-fly with ~update: it will be updated at next sync, and
-   if the layout has no canvas, it will maybe crash (?). To avoid this: make
-   sure you immediately attach it to a displayed layout. *)
-(* TODO add "resize" event. The problem is that events are only sent to widgets
-   that have focus. Maybe we should make an exception for some events like
-   resize ? (send them to all widgets ?) Cf: Bogue.resize *)
-
-let add_action update action w l =
-  let open Layout in
-  let startup _ _ _ =
-    do_option l.house (fun h ->
-        match h.content with
-        | Resident _ ->
-          failwith (sprintf "This house %s cannot contain a Resident, \
-                             since it must containt the Layout %s amongst \
-                             its Rooms."
-                      (sprint_id h) (sprint_id l))
-        | Rooms rooms ->
-          action h l rooms
-      ) in
-  let events = if update
-    then Trigger.[startup; update; mouse_enter (* DEBUG*) ]
-    else [Trigger.startup] in
-  let c = Widget.connect_main w w startup events in
-  Widget.add_connection w c;
-  if update then Update.push w;;
-
-let create update action =
-  let w = 0 and h = 0 in
-  let e = Widget.empty ~w ~h () in
-  let l = Layout.resident ~name:"hfill" e in
-  add_action update action e l;
-  l;;
-
-let add_room_action update action w l =
-  let open Layout in
-  let startup _ _ _ =
-    do_option l.house (action l) in
-  let events = if update
-    then Trigger.[startup; update; mouse_enter (* DEBUG*)]
-    else [Trigger.startup] in
-  let c = Widget.connect_main w w startup events in
-  Widget.add_connection w c;
-  if update then Update.push w;;
-
-let hfill_old ?(sep = Theme.room_margin/2) ?(update=false) () =
-  create update (hfill_action sep);;
-
-let vfill_old ?(sep = Theme.room_margin/2) ?(update=false) () =
-  create update (vfill_action sep);;
-
-let full_width_old ?(margin = Theme.room_margin) ?(update=false) ?widget room =
-  let widget = default widget (Layout.first_show_widget room) in
-  add_room_action update (full_width_action margin) widget room;;
-
-let full_height_old ?(margin = Theme.room_margin) ?(update=false) ?widget room =
-  let widget = default widget (Layout.first_show_widget room) in
-  add_room_action update (full_height_action margin) widget room;;
-
-
-(* in example 39: the order of the following commands: full_width and
-    make_hfill is important (both will be executed at Sync): first we set the
-    full_width to line2, and then the hfill can have some effect.  However if
-    we manually set the width of line2 (instead of calling full_width), then
-    the hfill can be before or after (because set_width is immediate, while
-    hfill is Sync.) *)
-
-(* Note that the connection has to be attached to a widget. Either the widget is
-   specified (safer) or the first one appearing in the room will be selected. *)
-let make_hfill_old ?(sep = Theme.room_margin/2) ?(update=false) ?widget room =
-  let widget = default widget
-      (Layout.first_show_widget room) in
-  add_action update (hfill_action sep) widget room;;
-
-
-let make_hfill_bis ?(sep = Theme.room_margin/2) l =
-  let open Layout in
-  let update _ _ =
-    match l.house with
-    | None -> printd debug_error "hfill: the room must have a house.";
-      0
-    | Some house -> begin
-        match house.content with
-        | Resident _ ->
-          failwith (sprintf
-                      "hfill: This house %s cannot contain a Resident, \
-                       since it must containt the Layout %s amongst its Rooms."
-                      (sprint_id house) (sprint_id l))
-        | Rooms rooms ->
-          hfill_action sep house l rooms;
-          width l
-      end in
-  let avar = Avar.create ~duration:0 ~update 0 in
-  animate_w l avar;;
-
-let make_vfill_bis ?(sep = Theme.room_margin/2) l =
-  let open Layout in
-  let update _ _ =
-    match l.house with
-    | None -> printd debug_error "vfill: the room must have a house.";
-      0
-    | Some house -> begin
-        match house.content with
-        | Resident _ ->
-          failwith (sprintf
-                      "vfill: This house %s cannot contain a Resident, \
-                       since it must containt the Layout %s amongst its Rooms."
-                      (sprint_id house) (sprint_id l))
-        | Rooms rooms ->
-          vfill_action sep house l rooms;
-          height l
-      end in
-  let avar = Avar.create ~duration:0 ~update 0 in
-  animate_h l avar;;
+let full_height ?top_margin ?bottom_margin layout =
+  push layout (fun () ->
+      full_height_sync ?top_margin ?bottom_margin layout;
+      Layout.resize layout)

@@ -68,6 +68,13 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Layout.html#VALauto_scale">auto_scale</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Set the layout to automatically scale its inner rooms when the layout size
+     is modified.</p>
+
+</div>
+</td></tr>
 <tr><td align="left"><div>B</div></td></tr>
 <tr><td><a href="Bogue.Menu.html#VALbar">bar</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td><div class="info">
@@ -329,6 +336,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Layout.html#VALfix_content">fix_content</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Disable automatic resizing of the rooms inside this layout.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALflat">flat</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALflat_of_w">flat_of_w</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -342,6 +355,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Space.html#VALfull_height">full_height</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Space.html#VALfull_width">full_width</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
 <td><div class="info">
 <p>This will set the width of the room (layout) in order to occupy the whole
@@ -586,12 +601,7 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Space.html#VALmake_hfill">make_hfill</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
-<td><div class="info">
-<p>Like <a href="Bogue.Space.html#VALhfill"><code class="code"><span class="constructor">Space</span>.hfill</code></a>, but applies to the specified layout instead of creating an
-      empty one.</p>
-
-</div>
-</td></tr>
+<td></td></tr>
 <tr><td><a href="Bogue.Main.html#VALmake_sdl_windows">make_sdl_windows</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
 <p>This is only useful if you have your own graphics loop, and do <em>not</em> use
@@ -600,7 +610,12 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Space.html#VALmake_vfill">make_vfill</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Like <a href="Bogue.Space.html#VALhfill"><code class="code"><span class="constructor">Space</span>.hfill</code></a>, but applies to the specified layout instead of creating an
+      empty one.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Utils.html#VALmap_option">map_option</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Selection.html#VALmem">mem</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
@@ -786,6 +801,19 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Text_display.html#VALreplace">replace</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
+<td><div class="info">
+<p><code class="code">replace&nbsp;~by:t2&nbsp;t1</code> replaces the text content of <code class="code">t1</code> by the one of <code class="code">t2</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Layout.html#VALreplace_room">replace_room</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Replace "room" by "by" inside "house" in lieu and place of the intial
+   room.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Button.html#VALreset">reset</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALresident">resident</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -892,6 +920,8 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_show">set_show</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Layout.html#VALset_size">set_size</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALset_system_cursor">set_system_cursor</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
 <p>Set the mouse cursor to be the standard system cursor.</p>
@@ -933,6 +963,13 @@
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALsienna">sienna</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Widget.html#VALsize">size</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td><div class="info">
+<p>If the widget is not rendered yet, a default size may be returned instead
+     of the true size.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Slider.html#VALsize">size</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Label.html#VALsize">size</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
@@ -968,6 +1005,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Check.html#VALstate">state</a> [<a href="Bogue.Check.html">Bogue.Check</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Button.html#VALstate">state</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALstop_pos">stop_pos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -1095,12 +1134,6 @@
 
 </div>
 </td></tr>
-<tr><td><a href="Bogue.Space.html#VALvcenter">vcenter</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
-<td><div class="info">
-<p>Will vertically center the layout in its house.</p>
-
-</div>
-</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALverbatim">verbatim</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALvertical">vertical</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
@@ -1149,7 +1182,7 @@
 <tr><td><a href="Bogue.Layout.html#VALxpos">xpos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>get current absolute x position of the layout (relative to the top-left
-      corner of the window)</p>
+     corner of the window).</p>
 
 </div>
 </td></tr>

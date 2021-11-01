@@ -1,7 +1,9 @@
 (** put a sublayout on top of the main layout *)
 (* recall that "on top" means "insert_after" layer; change ? *)
 
-open B_utils;;
+(* TODO implement the resize function *)
+
+open B_utils
 module Layout = B_layout
 module Widget = B_widget
 module Chain = B_chain
@@ -14,7 +16,7 @@ module Box = B_box
 
 let new_layer_above base =
   printd debug_graphics "Create new layer";
-  Chain.insert_after base (Draw.new_layer ());;
+  Chain.insert_after base (Draw.new_layer ())
 
 (* search top_layer inside the layout. *)
 (* use the global toplayer instead (Chain.last) or at least the top_layer of the
@@ -28,10 +30,31 @@ let rec top_layer layout =
   | Resident _ -> get_layer layout
   | Rooms r -> match list_max Chain.compare (List.map top_layer r) with
     | None -> printd debug_error "Error: there should be a top layer"; get_layer layout
-    | Some l -> l;;
+    | Some l -> l
 
 let global_top_layer layout : Draw.layer =
-  Chain.last (Layout.get_layer layout);;
+  Chain.last (Layout.get_layer layout)
+
+(* Register a resize function that will follow (size AND position) the model
+   layout. For the position to work correctly, both layouts must be in the same
+   house. *)
+let resize_same_as model room =
+  let resize _ =
+    let open Layout in
+    match model.house, room.house with
+    | Some h1, Some h2 when Layout.equal h1 h2 ->
+       let keep_resize = true in
+       let size = get_size model in
+       let x = xpos model in
+       let y = ypos model in
+       setx ~keep_resize room x;
+       sety ~keep_resize room y;
+       set_size ~keep_resize room size
+    | _ -> printd debug_error
+             "[resize_same_as] must apply to two rooms in the same house. Maybe \
+              you should use [Layout.resize_follow_house]."
+  in
+  room.resize <- resize
 
 (* create a box of the dimension of the layout *)
 let filter_screen ?color ?layer ?keyboard_focus layout =
@@ -45,7 +68,7 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
   (* Layout.(screen.geometry <- {screen.geometry with w; h}); *)
   do_option layer (Layout.set_layer screen);
   screen.Layout.keyboard_focus <- keyboard_focus;
-  screen;;
+  screen
 
 (** add a screen on top of the layout. This can be useful to make the whole
    layout clickable as a whole. To make sure this works as expected, it should
@@ -57,7 +80,8 @@ let add_screen ?(color = Draw.(transp red) (* DEBUG *) ) layout =
   let screen_layer = new_layer_above base_layer in
   let screen = filter_screen ~color ~layer:screen_layer layout in
   Layout.add_room ~dst:layout screen;
-  screen;;
+  Layout.resize_follow_house screen;
+  screen
 
 (* TODO add dx dy *)
 let attach_on_top ?(dx=0) ?(dy=0) house layout =
@@ -65,7 +89,9 @@ let attach_on_top ?(dx=0) ?(dy=0) house layout =
   setx layout (getx layout + dx);
   sety layout (gety layout + dy);
   global_set_layer layout (global_top_layer house);
-  add_room ~dst:house layout;;
+  add_room ~dst:house layout;
+  resize_same_as house layout
+
 
 (** add two layers on top of the house: one for the screen to hide the house,
     one for the layout on top of the screen. Return the screen. *)
@@ -79,14 +105,16 @@ let attach ?bg ?(show=true) house layout =
   let screen = filter_screen ?color:bg house in
   Layout.set_layer screen filter_layer;
   Layout.add_room ~dst:house screen;
+  Layout.scale_resize screen;
   Layout.add_room ~halign:Draw.Center ~valign:Draw.Center ~dst:house layout;
+  Layout.scale_resize layout;
   screen.Layout.show <- show;
   layout.Layout.show <- show;
   Trigger.push_keyboard_focus (screen.Layout.id);
   Trigger.push_mouse_focus (screen.Layout.id); (* redundant *)
   (* When inserting new elements on the fly, one needs to ask to mouse to
      refresh its focus, see b_main.ml. *)
-  screen;;
+  screen
 
 
 (* some predefined popup designs *)
@@ -95,12 +123,13 @@ let slide_in ~dst content buttons =
   let border = Style.(border (line ~color:Draw.(opaque grey) ())) in
   let shadow = Style.shadow () in
   let background = Layout.Box
-      (Box.create ~shadow ~background:(Style.Solid Draw.(opaque (pale grey)))
-         ~border ()) in
-let popup = Layout.tower ~align:Draw.Center ~background [content; buttons] in
+                     (Box.create ~shadow
+                        ~background:(Style.Solid Draw.(opaque (pale grey)))
+                        ~border ()) in
+  let popup = Layout.tower ~align:Draw.Center ~background [content; buttons] in
   let screen = attach ~bg:(Draw.(set_alpha 200 (pale grey))) dst popup in
   (* Layout.slide_in ~dst popup; *)
-  popup, screen;;
+  popup, screen
 
 let one_button ?w ?h ~button ~dst content =
   let close_btn = Widget.button ~border_radius:3 button in
@@ -109,7 +138,7 @@ let one_button ?w ?h ~button ~dst content =
     Layout.hide popup;
     Layout.hide screen;
     Layout.fade_out screen in
-  Widget.on_release ~release:close close_btn;;
+  Widget.on_release ~release:close close_btn
 
 (* a text and a close button. *)
 (* TODO the ?w and ?h define the size of the text_display (not automatically
@@ -117,7 +146,7 @@ let one_button ?w ?h ~button ~dst content =
 let info ?w ?h ?(button="Close") text dst =
   let td = Widget.text_display ?w ?h text
            |> Layout.resident in
-  one_button ?w ?h ~button ~dst td;;
+  one_button ?w ?h ~button ~dst td
 
 (* ?w and ?h to specify a common size for both buttons *)
 let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
@@ -138,13 +167,13 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
     close ();
     action2 () in
   Widget.on_release ~release:do1 btn1;
-  Widget.on_release ~release:do2 btn2;;
+  Widget.on_release ~release:do2 btn2
 
 let yesno ?w ?h ?(yes="Yes") ?(no="No") ~yes_action ~no_action text dst =
   let td = Widget.text_display ?w ?h text
            |> Layout.resident in
   two_buttons ?w ?h ~label1:yes ~label2:no ~action1:yes_action ~action2:no_action
-    td dst;;
+    td dst
 
 
 (* tooltips *)
@@ -206,4 +235,4 @@ let tooltip ?background ?(position = Below) text ~target widget layout =
 
   Widget.mouse_over ~enter ~leave:hide_tooltip widget;
   let c = Widget.connect_main widget widget show_tooltip [Trigger.mouse_at_rest] in
-  Widget.add_connection widget c;;
+  Widget.add_connection widget c

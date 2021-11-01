@@ -96,6 +96,8 @@ let unload ti =
 let free = unload;;
 (* TODO free font ? *)
 
+let resize _size ti =
+  unload ti
 
 let text ti = String.concat "" (Var.get ti.keys);;
 

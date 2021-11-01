@@ -1,5 +1,5 @@
 (** group layouts into tabs *)
-open B_utils;;
+open B_utils
 module Layout = B_layout
 module Trigger =  B_trigger
 module Draw = B_draw
@@ -7,11 +7,11 @@ module Button = B_button
 module Style = B_style
 
 (* warning: not thread safe ? we modify the dest_room *)
-module W = B_widget;;
+module W = B_widget
 
-let bg_on = Style.gradient Draw.[opaque Button.color_off; opaque Button.color_off; opaque Button.color_on];;
+let bg_on = Style.gradient Draw.[opaque Button.color_off; opaque Button.color_off; opaque Button.color_on]
   (* Style.gradient Draw.[opaque white;opaque pale_grey;opaque pale_grey;opaque pale_grey];; *)
-let bg_off = Style.Solid Draw.(opaque Button.color_off);;
+let bg_off = Style.Solid Draw.(opaque Button.color_off)
 (* Style.gradient Draw.[opaque pale_grey;opaque grey;opaque grey;opaque grey];; *)
 
 (* On attache tous les rooms dans le layout (en mode "superposition"), et on met
@@ -33,17 +33,17 @@ let create_one ?slide title room dest_room =
     (* TODO skip this if the tab is already selected *)
     if not (Button.is_pressed b)
     then begin
-      Button.press b;
-      Layout.iter_rooms (fun l -> Layout.set_show l false) dest_room;
-      Layout.set_show room true;
+        Button.press b;
+        Layout.iter_rooms (fun l -> Layout.set_show l false) dest_room;
+        Layout.set_show room true;
 
-      do_option slide (fun from -> Layout.slide_in ~from ~dst:dest_room room);
-      W.update w; (* or refresh only layout ? *)
-    end
- in
- let c = W.connect_main l l onpress Trigger.buttons_down in
+        do_option slide (fun from -> Layout.slide_in ~from ~dst:dest_room room);
+        W.update w; (* or refresh only layout ? *)
+      end
+  in
+  let c = W.connect_main l l onpress Trigger.buttons_down in
   W.add_connection l c;
-  l;;
+  l
 
 (** create tabs from a assoc list ("title"; layout) *)
 (* TODO, return a function that can be called to activate tab #i *)
@@ -94,12 +94,15 @@ let create (*?(circular = true)*) ?slide ?(adjust = Layout.Fit) ?(expand = true)
                     (* TODO ajuster le dernier w - n(w/3)... *)
         end;
       Layout.reflat ~margins:0 menu;
+      (* TODO since reflat uses an animation, it's not so easy to insert a
+         correct resize function. *)
 
       (* on ajoute une ligne ?? *)
       (* let hline = Layout.empty ~w:(Layout.width menu) ~h:1 ~background:(Layout.color_bg Draw.(opaque dark_grey)) () in *)
       Layout.tower ~name ~sep:0 ~adjust ?canvas [menu; (*hline;*) dest_room]
-    end;;
+    end
 
-(* TODO mutually recursive modules in separate files
+
+         (* TODO mutually recursive modules in separate files
 http://www.davehking.com/2011/05/23/mutually-recursive-modules-in-ocaml-and-why-you-might-care.html
-*)
+          *)

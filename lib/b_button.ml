@@ -65,47 +65,47 @@ let create ?size ?border_radius ?border_color ?fg
     box_on = Box.(create ~background:bg_on ?border:border_on ());
     box_off = Box.(create ~background:bg_off ?border:border_off ());
     box_over = map_option bg_over (fun bg -> Box.create ~background:bg ())
-  };;
+  }
 
 let unload l =
   Label.unload l.label_on;
   Label.unload l.label_off;
   Box.unload l.box_on;
   Box.unload l.box_off;
-  do_option l.box_over Box.unload;;
+  do_option l.box_over Box.unload
 
 (* TODO *)
-let free = unload;;
+let free = unload
 
 let state b =
-  Var.get b.state;;
+  Var.get b.state
 
 let text b =
   if state b
   then Label.text b.label_on
-  else Label.text b.label_off;;
+  else Label.text b.label_off
 
 let set_label b text =
   if state b
   then Label.set b.label_on text
-  else Label.set b.label_off text;;
+  else Label.set b.label_off text
 
 let is_pressed b =
-  Var.get b.pressed;;
+  Var.get b.pressed
 
 let press b =
-  Var.set b.pressed true;;
+  Var.set b.pressed true
 
 let reset b =
   Var.set b.pressed false;
-  Var.set b.state false;;
+  Var.set b.state false
 
 let release b =
   (* TODO: verify true click *)
   if is_pressed b then begin
     Var.set b.pressed false;
     Var.set b.state (not (Var.get b.state)) (* TODO; this is not exactly what we want with Trigger *)
-  end;;
+  end
 
 (* called by button_up in case of kind=Switch *)
 let switch b ev =
@@ -115,24 +115,33 @@ let switch b ev =
     Var.set b.state (not (Var.get b.state));
     printd debug_event "Switch button to [pressed=%b] [state=%b]" (is_pressed b) (Var.get b.state);
   end;
-  Var.set b.pressed (Var.get b.state);;
+  Var.set b.pressed (Var.get b.state)
 
 let mouse_enter b =
-  b.mouse_over <- true;;
+  b.mouse_over <- true
 
 let mouse_leave b =
-  b.mouse_over <- false;;
+  b.mouse_over <- false
 
 (************* display ***********)
 
 let button_margin = 6;; (* logical size - TODO theme this var ? *)
-let bm = Theme.scale_int button_margin;;
+let bm = Theme.scale_int button_margin
 
+(* The size of the widget is dictated by the size of the labels *)
 let size b =
   let (w,h) = Label.size b.label_on in
   let (w',h') = Label.size b.label_off in
   let w = imax w w' and h = imax h h' in
-  (w + 2*button_margin, h + 2*button_margin);;
+  (w + 2*button_margin, h + 2*button_margin)
+
+(* For safety (?), if the size is too small, the check icon is not clipped (see
+   [display] below). *)
+let resize (w,h) b =
+  let size = w - 2*button_margin, h - 2*button_margin in
+  List.iter (Label.resize size) [b.label_on; b.label_off];
+  List.iter (Box.resize (w,h)) [b.box_on; b.box_off];
+  do_option b.box_over (Box.resize (w,h))
 
 let display canvas layer b g =
   let (dx,dy) = if is_pressed b then (0, 1) else (0, 0) in
@@ -156,4 +165,4 @@ let display canvas layer b g =
                w = g.w - 2*bm;
                h = g.h - 2*bm;
                voffset = g.voffset } )
-  in List.concat [box_blit; label_blit];;
+  in List.concat [box_blit; label_blit]

@@ -51,14 +51,14 @@ let icon  : (Sdl.surface option) ref = ref None;;
 
 let check_memory () =
   if !textures_in_memory <> 0
-  then printd (debug_memory+debug_error) "Textures remaining: %u"
+  then printd (debug_memory+debug_error) "Textures remaining: %i"
       !textures_in_memory;
   if !surfaces_in_memory > 1 + !ttf_surfaces_in_memory
-  then printd (debug_memory+debug_error) "Surfaces remaining: %u"
+  then printd (debug_memory+debug_error) "Surfaces remaining: %i"
       (!surfaces_in_memory - 1 - !ttf_surfaces_in_memory);
   (* there is always the icon surface in memory, that's ok *)
   if !ttf_surfaces_in_memory > 0
-  then printd debug_memory "TTF surfaces in memory: %u" !ttf_surfaces_in_memory;;
+  then printd debug_memory "TTF surfaces in memory: %i" !ttf_surfaces_in_memory;;
 
 (* SDL wrappers *)
 
@@ -260,7 +260,7 @@ let memory_info () =
   let open Printf in
   printf
     "Memory info:\n Textures: %d\n Surfaces: %d \nThreads: %d\nSystem RAM: \
-     %u\t Allocated kbytes: %02f"
+     %u\t Allocated kbytes: %02f\n"
     !textures_in_memory
     !surfaces_in_memory
     !threads_created
@@ -890,11 +890,15 @@ let texture ?(color = opaque grey) renderer ~w ~h =
 
 (** draw a filled rectangle *)
 let box renderer ?bg x y w h =
-  printd debug_graphics "Drawing box (%d, %d) (%d, %d)" x y (x+w-1) (y+h-1);
-  let r = Sdl.Rect.create ~x ~y ~w ~h in
-  (*go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_blend); *)
-  do_option bg (set_color renderer);
-  go (Sdl.render_fill_rect renderer (Some r));;
+  if w * h = 0
+  then printd debug_graphics "Not drawing empty box at (%d, %d)" x y
+  else begin
+      printd debug_graphics "Drawing box (%d, %d) (%d, %d)" x y (x+w-1) (y+h-1);
+      let r = Sdl.Rect.create ~x ~y ~w ~h in
+      (*go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_blend); *)
+      do_option bg (set_color renderer);
+      go (Sdl.render_fill_rect renderer (Some r))
+    end
 
 (** create a "blit" of a filled rectangle *)
 let box_to_layer canvas layer ?(bg = opaque grey) ?voffset x y w h =
@@ -931,9 +935,9 @@ let pop_target renderer (clip, old_target, (r,g,b,a)) =
 let fill_pattern ?rect renderer target pattern =
   let x0,y0,w,h = match rect with
     | None -> let w,h = (match target with
-        | None -> go (Sdl.get_renderer_output_size renderer)
-        | Some tex -> tex_size tex)
-      in (0,0,w,h)
+                         | None -> go (Sdl.get_renderer_output_size renderer)
+                         | Some tex -> tex_size tex)
+              in (0,0,w,h)
     | Some r -> Sdl.Rect.(x r, y r, w r, h r) in
   printd debug_graphics "Target size (%d,%d, %d,%d)" x0 y0 w h;
   let pw, ph = tex_size pattern in
@@ -944,13 +948,14 @@ let fill_pattern ?rect renderer target pattern =
     if x >= x0 + w then loop x0 (y + ph)
     else if y >= y0 + h then ()
     else let rw = min pw (x0 + w - x) in
-      let rh = min ph (y0 + h - y) in
-      let src = Sdl.Rect.create ~x:0 ~y:0 ~w:rw ~h:rh in
-      let dst = Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
-      go (Sdl.render_copy ~src ~dst renderer pattern);
-      loop (x + pw) y in
+         let rh = min ph (y0 + h - y) in
+         (* BUG upside-down ??? *)
+         let src = Sdl.Rect.create ~x:0 ~y:0 ~w:rw ~h:rh in
+         let dst = Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
+         go (Sdl.render_copy ~src ~dst renderer pattern);
+         loop (x + pw) y in
   loop x0 y0;
-  do_option save_target (pop_target renderer);;
+  do_option save_target (pop_target renderer)
 
 (* create a texture filled with the repeated pattern *)
 let generate_background window renderer pattern =
@@ -1719,7 +1724,7 @@ let filled_rounded_box renderer color ?(antialias=true) ~w ~h ~radius x0 y0 =
 (* radius is the exterior radius. Total size is 2*radius+2 *)
 let ring_tex renderer ?(color = opaque grey) ~radius ~width x y =
   (* diameter = 2*radius+1 and we add 1 for antialiasing *)
-  let w = imax (x+radius+2) (2*radius+2) in
+  let w = imax (x+radius+2) (2*radius+2) |> imax (y+radius+2) in
   let target = create_target renderer w w in
   let push = push_target  ~bg:(set_alpha 0 white) renderer target in
   annulus renderer color x y ~radius1:(radius-width+1) ~radius2:radius;
@@ -1992,15 +1997,22 @@ let center_tex ?(horiz=true) ?(verti=true) renderer tex x y w h =
   let dst= Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
   go (Sdl.render_copy ~dst renderer tex);;
 
-(* new version for layers *)
+(* new version for layers. If clip is true and the texture is larger than the
+   geometry, we do not center, instead we align from the origin. *)
 (* TODO use voffset *)
-let center_tex_to_layer ?(horiz=true) ?(verti=true) canvas layer tex g =
-  let w, h = tex_size tex in
+let center_tex_to_layer ?(horiz=true) ?(verti=true) ?(clip=true)
+      canvas layer tex g =
+  let tw, th = tex_size tex in
+  let w, h = if clip then imin tw g.w, imin th g.h else tw, th in
+  let src =
+    if not clip || (tw <= g.w && th <=  g.h)
+    then None
+    else Some (Sdl.Rect.create ~x:0 ~y:0 ~w ~h) in
   (* we center the texture *)
   let x = if horiz then center g.x g.w w else g.x in
   let y = if verti then center g.y g.h h else g.y in
-  let dst= Sdl.Rect.create ~x ~y ~w ~h in
-  make_blit ~voffset:g.voffset ~dst canvas layer tex;;
+  let dst = Sdl.Rect.create ~x ~y ~w ~h in
+  make_blit ~voffset:g.voffset ?src ~dst canvas layer tex;;
 
 let tex_to_layer canvas layer tex g =
   let w, h = tex_size tex in

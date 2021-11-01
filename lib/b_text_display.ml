@@ -20,21 +20,23 @@ type entity =
      italic; Word "Foo"], "Foo" is bold and italic. Use Style normal to cancel a
      style. *)
 
-type words = entity list;;
+type words = entity list
 
 let example : words = let open Ttf.Style in
-  [ Word "Hello"; Space; Word "I"; Space; Word "am"; Space; Style bold; Word "bold"; Style normal; Space; Word "and"; Space; Style italic; Word "italic." ];;
+  [ Word "Hello"; Space; Word "I"; Space; Word "am"; Space; Style bold; Word "bold"; Style normal; Space; Word "and"; Space; Style italic; Word "italic." ]
 
 type t =
     { paragraphs : (words list) Var.t;
       render : (Draw.texture option) Var.t;
       font : (Label.font) Var.t;
       size: int; (* FONT size *)
-      mutable w: int option; (* width of the widget in pixels *)
-      mutable h: int option; (* height in pixels *)
-    };;
+      mutable w: int option; (* width of the widget in pixels. Currently it is
+                                not used, since rendering is done with the
+                                geometry of the housing layout. *)
+      mutable h: int option; (* height in pixels. See above. *)
+    }
 
-let default_font = Label.File Theme.text_font;;
+let default_font = Label.File Theme.text_font
 
 let unload td =
     match Var.get td.render with
@@ -42,10 +44,10 @@ let unload td =
   | Some tex -> begin
       Draw.forget_texture tex;
       Var.set td.render None
-    end;;
+    end
 
 (* TODO *)
-let free = unload;;
+let free = unload
 (* TODO free font ? *)
 
 (* determine the style at the end of the entity list, assuming that the initial
@@ -58,7 +60,7 @@ List.fold_left (fun style entity -> match entity with
       | Style s when s = Ttf.Style.normal -> s (* not necessary, since normal ==
                                                   0 *)
       | Style s -> Ttf.Style.(s + style)
-      | _ -> style) Ttf.Style.normal words;;
+      | _ -> style) Ttf.Style.normal words
 
 let set_style style words =
   let last = last_style words in
@@ -75,18 +77,18 @@ let set_style style words =
         | Style s when s = Ttf.Style.normal -> false
         | _ -> true) words in
       (Style style) :: w in
-  List.rev (Style last :: (List.rev new_words));;
+  List.rev (Style last :: (List.rev new_words))
 
 
-let bold = set_style Ttf.Style.bold;;
+let bold = set_style Ttf.Style.bold
 
-let italic = set_style Ttf.Style.italic;;
+let italic = set_style Ttf.Style.italic
 
-let normal = set_style Ttf.Style.normal;;
+let normal = set_style Ttf.Style.normal
 
-let underline = set_style Ttf.Style.underline;;
+let underline = set_style Ttf.Style.underline
 
-let strikethrough = set_style Ttf.Style.strikethrough;;
+let strikethrough = set_style Ttf.Style.strikethrough
 
 (** convert tabs '\t' in a string to the required number of spaces *)
 let tab_to_space ?(sep = 8) s =
@@ -105,7 +107,7 @@ let tab_to_space ?(sep = 8) s =
       loop (i+1) (j+n)
   in
   loop 0 0;
-  Buffer.contents b;;
+  Buffer.contents b
 
 (** change the content of the text on the fly *)
 let update ?w ?h t paragraphs =
@@ -116,24 +118,24 @@ let update ?w ?h t paragraphs =
   Var.set t.paragraphs paragraphs;
   t.w <- w;
   t.h <- h;
-  Var.release t.render;;
+  Var.release t.render
 
 let split_line line =
   full_split (regexp " ") line
   |> List.map (function
       | Text w -> Word w
-      | Delim _ -> Space);;
+      | Delim _ -> Space)
 
-let para = split_line;;
+let para = split_line
 
 (* raw is used if you don't want to break spaces. This is (currently) the only
    way to have spaces underlined *)
-let raw s = [Word s];;
+let raw s = [Word s]
 
 let append w1 w2 : words =
-  List.append w1 w2;;
+  List.append w1 w2
 
-let ( ++ ) = append;;
+let ( ++ ) = append
 
 (* This is a shorthand which allows the notation: *)
 (* Text_display.(page [para "Hello"; para "World"]) *)
@@ -142,35 +144,36 @@ let ( ++ ) = append;;
 (*   [para "Hello"; para "World"]  *)
 let page list : words list = list
 
-let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font) paragraphs =
+let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font)
+      paragraphs =
   Draw.ttf_init ();
   { paragraphs = Var.create (List.rev ([Style Ttf.Style.normal] :: (List.rev paragraphs))); (* we add normal style at the end *)
     render = Var.create None;
     font = Var.create font;
-    size; w; h};;
+    size; w; h}
 
 (* convert a full text including '\n' into paragraphs *)
 let paragraphs_of_string text =
   split (regexp "\n") text
-  |> List.map split_line;;
+  |> List.map split_line
 
 (* convert each line into a paragraph *)
 let paragraphs_of_lines lines =
-  List.map split_line lines;;
+  List.map split_line lines
 
 let create_from_string ?(size = Theme.text_font_size) ?w ?h ?(font = default_font) text =
   let paragraphs = paragraphs_of_string text in
-  create ~size ?w ?h ~font paragraphs;;
+  create ~size ?w ?h ~font paragraphs
 
 
 let create_from_lines ?(size = Theme.text_font_size) ?w ?h ?(font = default_font) lines =
   let paragraphs = paragraphs_of_lines lines in
-  create ~size ?w ?h ~font paragraphs;;
+  create ~size ?w ?h ~font paragraphs
 
 (* Basic html parser *)
 
 (* List of accepted html tags *)
-let htmltags = regexp " +\\|<b>\\|</b>\\|<em>\\|</em>\\|<strong>\\|</strong>\\|<p>\\|</p>\\|<br>";;
+let htmltags = regexp " +\\|<b>\\|</b>\\|<em>\\|</em>\\|<strong>\\|</strong>\\|<p>\\|</p>\\|<br>\\|\n+"
 
 let style_from_stack stack =
   List.fold_left (Ttf.Style.(+)) Ttf.Style.normal stack
@@ -213,7 +216,7 @@ let paragraphs_of_html src =
       | Delim "<p>" -> loop stylestack ((List.rev line)::paras) [] rest
       | Delim "<br>" -> loop stylestack ((List.rev line)::paras) [] rest
       | Delim "</p>" -> loop stylestack ([]::(List.rev line)::paras) [] rest
-      | Delim s when s <> "" && s.[0] = ' '
+      | Delim s when String.trim s = ""
         (* TODO handle more spaces in case of <pre> tag *)
         -> loop stylestack paras (Space::line) rest
       | Delim d ->
@@ -236,7 +239,7 @@ let paragraphs_of_html src =
 let create_from_html ?(size = Theme.text_font_size) ?w ?h
     ?(font = default_font) html =
   let paragraphs = paragraphs_of_html html in
-  create ~size ?w ?h ~font paragraphs;;
+  create ~size ?w ?h ~font paragraphs
 
 let create_verbatim ?(size = Theme.text_font_size) ?(font = Label.File Theme.mono_font) text =
   Draw.ttf_init ();
@@ -250,54 +253,69 @@ let create_verbatim ?(size = Theme.text_font_size) ?(font = Label.File Theme.mon
   let h = map_option h Theme.unscale_int in
   print_endline (Printf.sprintf "SIZE = (%d,%d)" (default w 0) (default h 0));
   let paragraphs = List.map (fun p -> [Word p]) lines in
-  create ~size ?w ?h ~font:(Label.Font font) paragraphs;;
+  create ~size ?w ?h ~font:(Label.Font font) paragraphs
 
-let update_verbatim t text =
+let update_verbatim_old t text =
   let size = t.size in
   let font = Var.get t.font in
   let dummy = create_verbatim ~size ~font text in
   let paragraphs = Var.get dummy.paragraphs in
   print_endline (Printf.sprintf "New SIZE %d,%d" (default dummy.w 0) (default dummy.h 0));
-  update ?w:dummy.w ?h:dummy.h t paragraphs;;
+  update ?w:dummy.w ?h:dummy.h t paragraphs
+
+let replace ~by:t old =
+  let paragraphs = Var.get t.paragraphs in
+  update ?w:t.w ?h:t.h old paragraphs
+
+let update_verbatim t text =
+  let size = t.size in
+  let font = Var.get t.font in
+  let dummy = create_verbatim ~size ~font text in
+  print_endline (Printf.sprintf "New SIZE %d,%d" (default dummy.w 0) (default dummy.h 0));
+  replace ~by:dummy t
 
 let unsplit_old words =
   let rec loop list acc =
     match list with
       | [] -> acc
       | w::rest -> loop rest (if acc = "" then w else acc ^ " " ^ w) in
-  loop words "";;
+  loop words ""
 
 let unsplit_words words =
   List.map (function
       | Word w -> w
       | Space -> " "
       | _ -> "") words
-  |> String.concat "";;
+  |> String.concat ""
 
-let unsplit pars = String.concat "\n" (List.map unsplit_words pars);;
+let unsplit pars = String.concat "\n" (List.map unsplit_words pars)
 
-let paragraphs td = Var.get td.paragraphs;;
+let paragraphs td = Var.get td.paragraphs
 
-let text td = unsplit (Var.get td.paragraphs);;
+let text td = unsplit (Var.get td.paragraphs)
 
-let default_size = (256,128);;
+let default_size = (256,128)
 
 let size td =
   let w,h = default_size in
   (default td.w w),
-  (default td.h h);;
+  (default td.h h)
+
+let resize (w,h) td =
+  unload td;
+  td.w <- Some w;
+  td.h <- Some h
 
 (************* display ***********)
-
 
 let render_word ?fg font word =
   printd debug_graphics "render word:%s" word;
   let color = Draw.create_color (default fg (10,11,12,255)) in
   let surf = Draw.ttf_render font word color in
   go (Sdl.set_surface_blend_mode surf Sdl.Blend.mode_none);
-  surf;;
+  surf
 
-let get_font td = Label.get_font_var td.font (Theme.scale_int td.size);;
+let get_font td = Label.get_font_var td.font (Theme.scale_int td.size)
 
 let display canvas layer td g =
   let open Draw in
@@ -356,4 +374,4 @@ let display canvas layer td g =
   in
   Var.release td.render;
   let dst = geom_to_rect g in
-  [make_blit ~voffset:g.voffset ~dst canvas layer tex];;
+  [make_blit ~voffset:g.voffset ~dst canvas layer tex]
