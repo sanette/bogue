@@ -16,7 +16,7 @@ module Button = B_button
 module Popup = B_popup
 module Style = B_style
 
-let pre = if !debug
+let pre = if !debug && !debug_code land debug_custom <> 0
   then fun s -> print_endline ("[Menu] " ^ s) (* for local debugging *)
   else nop
 
@@ -138,6 +138,9 @@ module Engine = struct
         Layout.setx ~keep_resize menu.room (x+dx);
         Layout.sety ~keep_resize menu.room (y+dy))
 
+  let menu_children_set_hide menu =
+    List.iter (fun e -> Layout.rec_set_show false e.layout) menu.entries
+
   (* Inserts all layouts inside 'dst' at the proper position.  Should be done
      only once, otherwise the 'repeated widgets' error will appear. *)
   let add_menu_to_dst ~dst menu =
@@ -147,7 +150,10 @@ module Engine = struct
       menu.room.Layout.resize <- (fun _ ->
         set_menu_position menu);
       if not menu.active && not menu.always_shown
-      then Layout.set_show menu.room false
+      then begin
+          Layout.set_show menu.room false;
+          menu_children_set_hide menu
+          end;
     in
     iter f menu
 
@@ -203,6 +209,7 @@ module Engine = struct
   let show screen menu =
     screen_enable screen;
     Layout.show ~duration menu.room;
+    List.iter (fun e -> Layout.rec_set_show true e.layout) menu.entries;
     (* Layout.rec_set_show true menu.room; *)
     Layout.fade_in ~duration menu.room
 
@@ -216,6 +223,7 @@ module Engine = struct
         menu.active <- true
       end
 
+
   let close ?(timeout = false) screen menu =
     pre "CLOSE";
     (* If the parent of this menu is the top menu, this should mean that we have
@@ -228,6 +236,7 @@ module Engine = struct
     if not menu.always_shown && menu.active then
       begin
         menu.active <- false;
+        menu_children_set_hide menu;
         clear_timeout ();
         let action () =
           Layout.hide ~duration ~towards:Avar.Top menu.room;
@@ -380,7 +389,7 @@ module Engine = struct
     pre "KEY_DOWN";
     if keycode = Sdl.K.escape then close_tree screen entry.parent_menu
     else if entry.enabled then
-      if keycode = Sdl.K.return then begin
+      if keycode = Sdl.K.return || keycode = Sdl.K.space then begin
           match entry.kind with
           | Menu menu ->
              (* 1/ouvrir 2/selectionner premier *)

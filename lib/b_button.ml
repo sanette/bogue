@@ -34,28 +34,28 @@ let color_off = Draw.find_color Theme.button_color_off
 
 (* if label_on and/or label_off is provided, then label is ignored *)
 let create ?size ?border_radius ?border_color ?fg
-    ?(bg_on = Style.color_bg Draw.(opaque color_on))
-    ?(bg_off = Style.color_bg Draw.(opaque color_off))
-    ?bg_over ?label ?label_on ?label_off ?(state=false) text =
+      ?(bg_on = Style.color_bg Draw.(opaque color_on))
+      ?(bg_off = Style.color_bg Draw.(opaque color_off))
+      ?bg_over ?label ?label_on ?label_off ?(state=false) text =
   let label_on, label_off = match label, label_on, label_off with
     | None, None, None -> let l = Label.create ?size ?fg text in l,l
     | Some l, None, None -> l,l
     | None, _, _ ->
-      default label_on (Label.create ?size ?fg text),
-      default label_off (Label.create ?size ?fg text)
+       default_lazy label_on (lazy (Label.create ?size ?fg text)),
+       default_lazy label_off (lazy (Label.create ?size ?fg text))
     | _ -> printd debug_warning
              "label argument was ignored because label_on and/or \
               label_off was provided";
-      default label_on (Label.create ?size ?fg text),
-      default label_off (Label.create ?size ?fg text) in
+           default_lazy label_on (lazy (Label.create ?size ?fg text)),
+           default_lazy label_off (lazy (Label.create ?size ?fg text)) in
   let border_on, border_off = match border_color, border_radius with
     | None, None -> None, None
     | None, Some radius ->
-      Some Style.(border ~radius (line ~color:(Style.get_color bg_on) () )),
-      Some Style.(border ~radius (line ~color:(Style.get_color bg_off) () ))
+       Some Style.(border ~radius (line ~color:(Style.get_color bg_on) () )),
+       Some Style.(border ~radius (line ~color:(Style.get_color bg_off) () ))
     | _ ->
-      let s = Style.(border ?radius:border_radius (line ?color:border_color ())) in
-      Some s, Some s
+       let s = Style.(border ?radius:border_radius (line ?color:border_color ())) in
+       Some s, Some s
   in
   { label_on;
     label_off;

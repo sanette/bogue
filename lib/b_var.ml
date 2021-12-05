@@ -1,9 +1,19 @@
-(** variables with mutex *)
-(* WARNING contrary to what the OCaml Mutex doc seems to say:
+(** variables with mutex, to perform atomic operations *)
+
+(* WARNING contrary to what the OCaml Mutex doc seems to say: (fixed in ocaml
+   4.12)
 
    https://caml.inria.fr/pub/docs/manual-ocaml/libref/Mutex.html
 
-   calling Mutex.lock on a mutex locked by the SAME thread will ALSO block. *)
+   calling Mutex.lock on a mutex locked by the SAME thread will ALSO block.
+
+TODO starting from ocaml 4.12 one could use the Atomic module in order to avoid
+   locking. Anyways, for single reading/assignement, it seems that we can get
+   rid of locks. See
+   https://discuss.ocaml.org/t/threads-and-atomicity-of-reading-and-assignement/8923/3
+
+Remark: if optimization is needed, one could check whether
+   [Utils.threads_created <> 0] before playing with mutexes.  *)
 
 open B_utils
 
@@ -20,23 +30,27 @@ let create data =
     mutex = Mutex.create ();
   }
 
+(* lock *)
+let protect v =
+  Mutex.lock v.mutex;
+  v.thread_id <- Some Thread.(id (self ()))
+
+(* unlock *)
 let release v =
-  (* do not use this without checking thread_id, especially in case of
-     recursion *)
   match v.thread_id with
   | Some i when i = Thread.(id (self ())) ->
      Mutex.unlock v.mutex;
      v.thread_id <- None
   | Some i ->
-     printd (debug_thread + debug_error) "Thread %u cannot release variable locked by thread %u" Thread.(id (self ())) i
+     printd (debug_thread + debug_error)
+       "Thread %u cannot release variable locked by thread %u"
+       Thread.(id (self ())) i
   | None ->
-     printd (debug_thread + debug_error) "Trying to release a variable that was not locked"
-
+     printd (debug_thread + debug_error)
+       "Trying to release a variable that was not locked"
 
 (* Execute an action on the given variable if it is not locked by *another*
-   thread. Can be used in recursions. When the action wants to access v, it
-   should use the unsafe_ versions (although this is not necessary, only
-   faster). *)
+   thread. Can be used in recursions. *)
 let protect_fn v action =
   let was_free = Mutex.try_lock v.mutex in
   if was_free then begin (* this should be the vast majority of cases *)
@@ -62,12 +76,14 @@ let protect_fn v action =
       result
     end
 
+(* usually we don't need to protect when getting the value. (But if the value
+   itself is a reference, then one should explicitely protect the target when
+   needed...) *)
 
-(* usually we don't need to protect when getting the value. But warning, if the
-   value itself is a reference, then one should explicitely protect it *)
+(* Some people think that in fact one should. See
+   https://en.wikipedia.org/wiki/Readers%E2%80%93writers_problem
 
-(* TODO in fact one should. See
-   https://en.wikipedia.org/wiki/Readers%E2%80%93writers_problem *)
+But probably not for Ocaml. TODO starting 4.12, use Atomic.  *)
 let get v = v.data
 
 let unsafe_get v = v.data
@@ -77,15 +93,17 @@ let set_old v value =
     v.data <- value;
     Mutex.unlock v.mutex
 
-let set v value =
+(* [safe_set] should be used when we want to register which thread is setting
+   this value. (After assignement, thread_id is set back to None). Thus, this
+   prevents other threads to modify the value at the same time. But in Ocaml,
+   assignement is (essentially?) atomic. Hence, for the moment I don't see in
+   which case [safe_set] should be required... *)
+let safe_set v value =
   protect_fn v (fun () -> v.data <- value)
 
-let unsafe_set v value =
+(* [set] will set the value without touching the thread_id field. *)
+let set v value =
   v.data <- value
-
-let protect v =
-  Mutex.lock v.mutex;
-  v.thread_id <- Some Thread.(id (self ()))
 
 let incr v =
   protect v;
@@ -99,7 +117,7 @@ let decr v =
 
 (*******)
 (* for initialization of global constant by a lazy eval *)
-(* TODO: use Lazy module ? *)
+(* TODO: use Lazy module? *)
 
 exception Not_initialized
 
@@ -120,9 +138,11 @@ let set_init i f =
   i.init <- f;
   set i.var None
 
-let init_get i = match get i.var with
-  | None -> let data = i.init () in set i.var (Some data); data
-  | Some d -> d
+let init_get i =
+  protect_fn i.var (fun () ->
+      match unsafe_get i.var with
+      | None -> let data = i.init () in set i.var (Some data); data
+      | Some d -> d)
 
 (*
 ocamlmktop -thread -custom -o threadtop unix.cma threads.cma -cclib -lthreads

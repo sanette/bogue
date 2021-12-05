@@ -241,7 +241,9 @@ let reduce_memory ll direction =
 
 (* return value or approximation of the total height: *)
 let total_height ll =
-  default ll.total_height (round (float (ll.computed_height * ll.length) /. (float ll.computed)))
+  match ll.total_height with
+  | Some h -> h
+  | None -> round (float (ll.computed_height * ll.length) /. (float ll.computed))
 
 (* get ith entry *)
 (* TODO: not thread safe *)
@@ -339,7 +341,7 @@ let addup_entries ll ~start ~height direction =
 let update_voffset container dv =
   if dv <> 0 (* this test is important because shift_offset creates a new
                animation... *)
-  then Layout.shift_voffset_unsafe container dv
+  then Layout.shift_voffset container dv
 
 (* given the required new value offset for of ll.offset we do all the necessary
    side-effects: changing the container voffset and possibly compute a new

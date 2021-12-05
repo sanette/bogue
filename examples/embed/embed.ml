@@ -13,7 +13,7 @@ module L = Layout
 
 type tmprect = { rect : Sdl.rect;
                  color : int * int * int;
-                 created : int } 
+                 created : int }
 
 let duration = 1000 (* lifetime of a rectangle *)
 let width = 400 (* width of window in Bogue units. *)
@@ -21,18 +21,15 @@ let height = 400 (* height of window in Bogue units. *)
 let size = 50 (* max size of rectangle in Bogue units. *)
 let n = 60 (* number of rectangles *)
 let margin = 10
-           
+
 let bg = (180,180,180,255)
 
 let get_alpha r =
   let t = Time.now () - r.created in
   if t > duration then 0
-  else
-    let _ = print_int t in
-    let _ = print_newline() in
-    let a = 255. *. (sin (3.14159 *. (float t) /. (float duration)))
-            |> round in
-    imax a 0
+  else let a = 255. *. (sin (3.14159 *. (float t) /. (float duration)))
+               |> round in
+       imax a 0
 
 let new_rect () =
   let size, width, height =
@@ -64,8 +61,8 @@ let make_board () =
     let text = W.get_text input in
     W.set_text label ("Hello " ^ text ^ "!") in
 
-  Bogue.make [] [layout], before_display
-  
+  Bogue.(make ~shortcuts:[exit_on_escape] [] [layout]), before_display
+
 let main () =
   Sys.catch_break true;
   go(Sdl.init Sdl.Init.video);
@@ -86,7 +83,7 @@ let main () =
                  List.rev (r::new_list)
             else List.rev new_list
     | r :: rest ->
-       let r' = 
+       let r' =
          let a = get_alpha r in
          if a <> 0 then r else new_rect () in
        draw_rect renderer r';
@@ -103,8 +100,9 @@ let main () =
     then begin
         match Trigger.event_kind e with
         | `Key_up when Sdl.Event.(get e keyboard_keycode) = Sdl.K.tab ->
-           show_gui := not !show_gui
-        | `Key_up when Sdl.Event.(get e keyboard_keycode) = Sdl.K.escape ->
+           show_gui := not !show_gui;
+           print_endline (Printf.sprintf "Show GUI:%b" !show_gui)
+        | `Key_down when Sdl.Event.(get e keyboard_keycode) = Sdl.K.escape ->
            raise Sys.Break
         | _ -> ()
       end;
@@ -114,7 +112,6 @@ let main () =
 
     if !show_gui
     then begin
-        (*List.iter Window.to_refresh board.Bogue.windows;*)
         Bogue.refresh_custom_windows board;
         try if not (Bogue.one_step ~before_display true (start_fps, fps) board)
                    (* one_step returns true if fps was executed *)

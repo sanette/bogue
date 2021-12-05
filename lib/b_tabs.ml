@@ -9,8 +9,9 @@ module Style = B_style
 (* warning: not thread safe ? we modify the dest_room *)
 module W = B_widget
 
-let bg_on = Style.gradient Draw.[opaque Button.color_off; opaque Button.color_off; opaque Button.color_on]
-  (* Style.gradient Draw.[opaque white;opaque pale_grey;opaque pale_grey;opaque pale_grey];; *)
+let bg_on = Style.gradient Draw.[opaque Button.color_off;
+                                 opaque Button.color_off; opaque Button.color_on]
+(* Style.gradient Draw.[opaque white;opaque pale_grey;opaque pale_grey;opaque pale_grey];; *)
 let bg_off = Style.Solid Draw.(opaque Button.color_off)
 (* Style.gradient Draw.[opaque pale_grey;opaque grey;opaque grey;opaque grey];; *)
 
@@ -74,21 +75,24 @@ let create (*?(circular = true)*) ?slide ?(adjust = Layout.Fit) ?(expand = true)
        * end; *)
       let labels = List.map (fun (title, layout) ->
                        create_one ?slide title layout dest_room) list in
+
       let reset_other_labels w _ _ =
         List.iter (fun b ->
             if not (W.equal w b) then Button.reset (W.get_button b)) labels;
       (* + refresh ? *) in
+
       List.iter (fun l ->
           let c =  W.connect_main l l reset_other_labels Trigger.buttons_down in
           W.add_connection l c) labels;
+
       (* we activate the first label (TODO: choose which one) *)
       let first_l = List.hd labels in
       Button.press (W.get_button first_l);
 
-      let menu = Layout.flat_of_w ?canvas ~sep:0 labels in
+      let menu = Layout.flat_of_w ~name:(name ^ ".menu") ?canvas ~sep:0 labels in
       if expand (* we set the same width to all labels... do better? *)
       then begin
-          let w = Layout.width dest_room in (* TODO utiliser relayout *)
+          let w = Layout.width dest_room in
           Layout.set_width menu w;
           List.iter (fun r -> Layout.set_width r (w/3)) (Layout.get_rooms menu)
                     (* TODO ajuster le dernier w - n(w/3)... *)
@@ -101,8 +105,3 @@ let create (*?(circular = true)*) ?slide ?(adjust = Layout.Fit) ?(expand = true)
       (* let hline = Layout.empty ~w:(Layout.width menu) ~h:1 ~background:(Layout.color_bg Draw.(opaque dark_grey)) () in *)
       Layout.tower ~name ~sep:0 ~adjust ?canvas [menu; (*hline;*) dest_room]
     end
-
-
-         (* TODO mutually recursive modules in separate files
-http://www.davehking.com/2011/05/23/mutually-recursive-modules-in-ocaml-and-why-you-might-care.html
-          *)

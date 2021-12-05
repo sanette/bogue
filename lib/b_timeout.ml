@@ -83,7 +83,7 @@ let add timeout action =
   let t = create timeout action in
   Var.protect_fn stack (fun () ->
       let list = Var.unsafe_get stack in
-      Var.unsafe_set stack (insert t list));
+      Var.set stack (insert t list));
   t;;
 
 (* Push a timeout to be registered at the next iteration of the main loop. *)
@@ -98,7 +98,7 @@ let not_equal t1 t2 =
 let remove t stack =
   Var.protect_fn stack (fun () ->
       let list = Var.unsafe_get stack in
-      Var.unsafe_set stack (List.filter (not_equal t) list));;
+      Var.set stack (List.filter (not_equal t) list));;
 
 (** cancel a Timeout from the global stack *)
 let cancel t =
@@ -109,7 +109,7 @@ let iter stack =
      to add new timeouts while we are processing *)
   let list = Var.protect_fn stack (fun () ->
       let list = Var.unsafe_get stack in
-      Var.unsafe_set stack [];
+      Var.set stack [];
       list) in
   let rec loop l =
     match l with
@@ -121,7 +121,7 @@ let iter stack =
   let remaining = loop list in
   Var.protect_fn stack (fun () ->
       let modified = Var.unsafe_get stack in
-      Var.unsafe_set stack (insert_sublist modified remaining));;
+      Var.set stack (insert_sublist modified remaining));;
 
 let run () =
   (* the stack should be empty most of the time, so we add a test to be faster *)

@@ -198,9 +198,11 @@ type position =
 let tooltip ?background ?(position = Below) text ~target widget layout =
   let t = Widget.label ~size:Theme.small_font_size text in
   let border = Style.(border ~radius:5 (line ())) in
-  let background = default background
-      (Layout.Box (Box.create ~background:(Style.Solid Draw.(opaque (pale grey)))
-                     ~border ())) in
+  let background = match background with
+    | Some b -> b
+    | None -> Layout.Box
+                (Box.create ~background:(Style.Solid Draw.(opaque (pale grey)))
+                   ~border ()) in
   let tooltip = Layout.tower_of_w ~sep:3 ~background [t] in
   attach_on_top layout tooltip;
   tooltip.Layout.show <- false;
@@ -208,25 +210,25 @@ let tooltip ?background ?(position = Below) text ~target widget layout =
   let show_tooltip _ _ _ =
     let open Layout in
     if not tooltip.show then begin
-      let x,y = pos_from layout target in
-      (* print_endline (Printf.sprintf "(%i,%i)" x y); *)
-      let x',y' = match position with
-        | Below -> x, y+(height target)+2
-        | Above -> x, y-(height tooltip)-2
-        | LeftOf -> x-(width tooltip)-2, y
-        | RightOf -> x+(width target)+2, y
-        | Mouse -> let x,y = Trigger.mouse_pos () in (x+8,y+8) in
-      sety tooltip y';
-      setx tooltip x';
-      tooltip.show <- true;
-      Layout.fade_in tooltip
-    end in
+        let x,y = pos_from layout target in
+        (* print_endline (Printf.sprintf "(%i,%i)" x y); *)
+        let x',y' = match position with
+          | Below -> x, y+(height target)+2
+          | Above -> x, y-(height tooltip)-2
+          | LeftOf -> x-(width tooltip)-2, y
+          | RightOf -> x+(width target)+2, y
+          | Mouse -> let x,y = Trigger.mouse_pos () in (x+8,y+8) in
+        sety tooltip y';
+        setx tooltip x';
+        tooltip.show <- true;
+        Layout.fade_in tooltip
+      end in
   let to_show = ref true in
   let hide_tooltip b =
     to_show := false;
     ignore (Timeout.add 200 (fun () ->
-        tooltip.Layout.show <- !to_show;
-        Trigger.push_redraw (Widget.id b)))
+                tooltip.Layout.show <- !to_show;
+                Trigger.push_redraw (Widget.id b)))
   in
   let enter _ =
     if tooltip.Layout.show

@@ -34,7 +34,7 @@
 </div>
 <ul class="info-attributes">
 <li><b>Author(s):</b> Vu Ngoc San</li>
-<li><b>Version:</b> 20211102</li>
+<li><b>Version:</b> 20211205</li>
 </ul>
 </div>
 <hr width="100%">
@@ -273,7 +273,14 @@
 <p>and to native code with</p>
 
 <pre class="verbatim">ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml</pre>
-<p>You may also evaluated this code in a Toplevel! (for instance <code class="code">utop</code>, or in an <code class="code">emacs</code> session...). Just insert</p>
+<p>Then execute the compiled code:</p>
+
+<pre class="verbatim">./minimal</pre>
+<p>A window should open which should look like this:</p>
+
+<p><img src="minimal.png"></p>
+
+<p>You may also evaluate this code in a Toplevel! (for instance <code class="code">utop</code>, or in an <code class="code">emacs</code> session...). Just insert</p>
 
 <pre class="verbatim">#thread;;
 #require "bogue";;</pre>

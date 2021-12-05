@@ -20,12 +20,12 @@ let threads_created = Var.create [];;
 
 let add_thread t =
   Var.protect_fn threads_created (fun () ->
-      Var.unsafe_set threads_created (t :: Var.unsafe_get threads_created));;
+      Var.set threads_created (t :: Var.unsafe_get threads_created));;
 
 let remove_thread t =
   Var.protect_fn threads_created (fun () ->
       let list = List.filter (fun t' -> t' <> t) (Var.unsafe_get threads_created) in
-      Var.unsafe_set threads_created list);;
+      Var.set threads_created list);;
 
 type 'a t = {
   id : int;

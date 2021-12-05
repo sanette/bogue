@@ -177,9 +177,12 @@ let resize window =
       Thread.delay 0.1;
     end
 
-(** add a new window (given by the layout) to the board *)
+(* Dynamically add a new window (given by the layout) to the board, while
+   running. *)
 let add_window board layout =
+  Layout.move_to_new_stack layout;
   let window = Window.create ~bogue:true layout in
+  Window.make_sdl_window window;
 
   (* update board *)
   let windows = List.rev (window :: (List.rev board.windows)) in
@@ -251,8 +254,13 @@ let button_down_widget board =
 let layout_focus board =
   match Sdl.get_mouse_focus () with
   | None -> None (* the mouse is outside of the SDL windows *)
-  | Some w -> list_check_ok
-                (fun l -> same_window (Layout.window l)  w) (get_layouts board)
+  | Some w -> (* we return the first corresponding window (there should be only one anyway) *)
+     list_check_ok (fun l -> same_window (Layout.window l) w) (get_layouts board)
+
+(* What is the window containing this house *)
+let top_house board room =
+  let top = Layout.top_house room in
+  list_check_ok (fun l -> Layout.(top == l)) (get_layouts board)
 
 (** which window corresponds to the event ? *)
 let window_of_event board ev =
@@ -453,8 +461,9 @@ let set_keyboard_focus board ro =
      mouse cursor...) *)
 
 
-(** react to the TAB key *)
-(* we activate the next keyboard focus *)
+(* react to the TAB key. We look for the next room that is shown in one of the
+   windows and give it keyboard focus. Rooms with show=false OR in a detached
+   layout cannot be selected for keyboard focus. *)
 (* TODOO this should not permit to activate items that are hidden behind a
    popup... Maybe we could restrict TAB nagivation to a unique layer ? (or
    layers above the current one?)*)
@@ -466,9 +475,15 @@ let tab board =
       | None -> match layout_focus board with
         | Some l -> l
         | None -> Window.get_layout (List.hd board.windows) in
+  let top = match top_house board current_room with
+    | None -> printd (debug_board+debug_custom)
+                "Current keyboard focus %s has no Window..." (Layout.sprint_id current_room);
+              Window.get_layout (List.hd board.windows)
+    | Some top -> printd debug_custom "Current window is %s" (Layout.sprint_id top);
+                  top in
   printd debug_board "Current room #%u" current_room.Layout.id;
   Layout.keyboard_focus_before_tab := Some current_room;
-  match Layout.next_keyboard current_room with
+  match Layout.next_keyboard ~top current_room with
   | None -> printd debug_board " ==> No keyboard focus found !"
   | Some r as ro -> printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
     set_keyboard_focus board ro
@@ -480,7 +495,6 @@ let toggle_debug_window =
     | None ->
       print_endline "OPENING DEBUG WINDOW";
       let debug_window = B_debug_window.create () in
-      Layout.make_window debug_window;
       let w = add_window board debug_window in
       window := Some w
     | Some w ->
@@ -669,7 +683,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
              do_option board.keyboard_focus (fun x ->
                  printd debug_board "Keyboard focus: %d" x.Layout.id);
              do_option board.button_down (fun x ->
-                 printd debug_board "Set keyboard_focus to #%d" x.Layout.id;
+                 printd debug_board "Button down on #%d" x.Layout.id;
                  Layout.set_keyboard_focus x);
              board.keyboard_focus <- board.button_down; (* OK ?? *)
            end
@@ -853,11 +867,12 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
            check_mouse_motion board
         | `Window_event -> () (* done above *)
         | `Bogue_redraw ->
-           (* Sometimes there are too many redraw events in the queue, this would
-             cause a noticeable delay if only one can be treated by
-             iteration. Cf example 28/bis.  Hence we leave at most one. Flushing
-             all here is NOT recommended, it can prevent the correct detection
-             of new animations (ex: adding sliding popups). *)
+           (* Sometimes there are too many redraw events in the queue, this
+              would cause a noticeable delay if only one can be treated by
+              iteration. Cf example 28/bis.  Hence we leave at most
+              one. Flushing all here is NOT recommended, it can prevent the
+              correct detection of new animations (ex: adding sliding
+              popups). *)
            do_option Trigger.(get_last redraw) (fun ev -> Trigger.push_event ev);
            if not anim then begin
                printd debug_event "Redraw";
@@ -877,9 +892,8 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
         | _ -> ());
     if anim then fps () else Thread.delay 0.005;
   (* even when there is no anim, we need to to be nice to other treads, in
-           particular when an event is triggered very rapidly (mouse_motion) and
-           captured by a connection, without anim. Should we put also here a FPS
-           ?? *)
+     particular when an event is triggered very rapidly (mouse_motion) and
+     captured by a connection, without anim. Should we put also here a FPS?? *)
   end;
   let t = Time.now () in
   flip ?clear board; (* This is where all rendering takes place. *)
@@ -896,15 +910,15 @@ let make_sdl_windows ?windows board =
   match windows with
   | None -> List.iter Window.make_sdl_window board.windows
   | Some list ->
-    let rec loop sdl ws =
-      match sdl,ws with
-      | _, [] -> ()
-      | [], _::rest -> List.iter Window.make_sdl_window rest
-      | s::srest, w::wrest -> begin
-          Layout.make_window ~window:s (Window.get_layout w);
-          loop srest wrest
-        end in
-    loop list board.windows
+     let rec loop sdl ws =
+       match sdl, ws with
+       | _, [] -> ()
+       | [], rest -> List.iter Window.make_sdl_window rest
+       | s::srest, w::wrest -> begin
+           Window.use_sdl_window s w;
+           loop srest wrest
+         end in
+     loop list board.windows
 
 (* make the board. Each layout in the list will be displayed in a different
    window. *)

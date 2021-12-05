@@ -106,12 +106,14 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
     | Some s -> s
     | None -> failwith "Menu should have a unique submenu" in
 
-  let tmp_dst = default dst
-                  (* Just a horizontal line *)
-                  (let line = Widget.empty ~w ~h:1 () in
-                   (* let background = Layout.Solid(Draw.(transp grey)) in *)
-                   (* DEBUG *)
-                   Layout.flat_of_w ~sep:0 (* ~background *) [line]) in
+  let tmp_dst = match dst with
+    | Some r -> r
+    | None ->
+       (* Just a horizontal line *)
+       let line = Widget.empty ~w ~h:1 () in
+       (* let background = Layout.Solid(Draw.(transp grey)) in *)
+       (* DEBUG *)
+       Layout.flat_of_w ~sep:0 (* ~background *) [line] in
 
   Menu.Engine.init ~dst:tmp_dst menu;
 
@@ -160,7 +162,7 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
          donc il va PAS être caché correctement par ce screen: bref le premier
          menu ne va pas se fermer quand on clique sur le deuxième...  A la place
          on pourrait créer le screen dynamiquement quand on clique sur le menu.
-         *)
+       *)
       )
       |> Sync.push;
     end else

@@ -72,9 +72,10 @@ let check_max m =
 let create ?step ?(kind = Horizontal) ?(value = 0) ?(length = 200)
       ?(thickness = 20) ?w ?h ?tick_size ?var m =
 
-  let tick_size = default tick_size (match kind with
-      | HBar -> 4
-      | _ -> 50) in
+  let tick_size = default tick_size
+                    (match kind with
+                     | HBar -> 4
+                     | _ -> 50) in
   let size = match kind with
     | HBar
       | Horizontal
@@ -86,10 +87,11 @@ let create ?step ?(kind = Horizontal) ?(value = 0) ?(length = 200)
     | Vertical -> fst size
     | Circular -> thickness in
   let step = default step (max 1 (m/100)) in
-  let var = default var (Tvar.create
-                           (Var.create (Avar.var value))
-                           ~t_from:(Avar.get)
-                           ~t_to:(Avar.var)) in
+  let var = default_lazy var
+              (lazy (Tvar.create
+                       (Var.create (Avar.var value))
+                       ~t_from:(Avar.get)
+                       ~t_to:(Avar.var))) in
   { var;
     cache = Var.create (Tvar.get var);
     pointer_motion = false;

@@ -1,15 +1,15 @@
 (* We create a Box widget whose image will be a snapshot of a given room. *)
-(* The texture is initialized at the startup event, or upon user call *)
+(* The texture is initialized at the startup event, or upon user call. *)
 
 (* In order to achieve this, we hijack the Layout.display function, which uses
    blits in layers, and render the layers to a target texture. Hence the
    assumption is that the layers blits are empty. This means that creating
    snapshots should NOT be done in a separate thread: the risk is to corrupt
-   layers in case it is called at the same time as the Bogue.render function *)
+   layers in case it is called at the same time as the Bogue.render function. *)
 
 (* Just in case, we have added a mutex to the current_layer. but still... *)
 
-(* when we create the widget, the size of the box may not be the same as the
+(* When we create the widget, the size of the box may not be the same as the
    size of the widget at the time it receives the startup event... *)
 
 (* TODO: we have trouble rendering correctly when the room background has alpha
@@ -53,6 +53,7 @@ let update widget room =
 let create ?border room =
   let w,h = Layout.get_size room in
   let box = Widget.box ~w ~h ?border () in
-  let c = Widget.connect_main box box (fun w _ _ -> update w room) [Trigger.startup] in
+  let c = Widget.connect_main box box (fun w _ _ -> update w room)
+            [Trigger.startup] in
   Widget.add_connection box c;
   box;;

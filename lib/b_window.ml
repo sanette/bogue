@@ -4,7 +4,8 @@ open Tsdl
 open B_utils
 module Layout = B_layout
 module Draw = B_draw
-
+module Chain = B_chain
+             
 type t =
   { layout : Layout.t;
     mutable is_fresh : bool;
@@ -63,7 +64,15 @@ let flip ?clear w =
   end
   else Draw.clear_layers (Layout.get_layer w.layout)
 
+(* Span an SDL window controlled by Bogue *)
 let make_sdl_window w =
-  printd debug_board "Make_window for layout %s" (Layout.sprint_id w.layout);
+  printd debug_board "Make window for layout %s (stack %d)."
+    (Layout.sprint_id w.layout) (Chain.get_stack_id (Layout.get_layer w.layout));
   Layout.make_window w.layout;
   w.bogue <- true
+
+let use_sdl_window sdl_win w =
+  printd debug_board "Use existing SDL Window for layout %s."
+    (Layout.sprint_id w.layout);
+  Layout.make_window ~window:sdl_win w.layout;
+  w.bogue <- false

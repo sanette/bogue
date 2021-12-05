@@ -40,8 +40,8 @@ let debug_code =
     (* + debug_io *)
     (* + debug_board *)
     (* + debug_memory *)
-    (* + debug_event
-     * + debug_custom *))
+    (* + debug_event *)
+     (* + debug_custom *))
 
 (* debug_code := !debug_code lor debug_thread;; *)
 
@@ -79,7 +79,7 @@ let debug_to_string =
               loop (i lsr 1) (n+1) (s::list) in
   String.concat "; " (loop c 1 [])
 
-(** should we put this in a Var ? *)
+(** should we put this in a Var/Atomic ? *)
 (* TODO: use this to reduce the number of lock if there is no thread *)
 let threads_created = ref 0
 
@@ -157,6 +157,9 @@ let go : 'a Tsdl.Sdl.result -> 'a = function
   | Error _ -> failwith ("SDL ERROR: " ^ (Sdl.get_error ()))
   | Ok r -> r
 
+
+let list_iter list f = List.iter f list
+                     
 (* returns an option containing the first element of the list for which the
     function f does not return None *)
 let rec list_check f l =
@@ -194,8 +197,9 @@ let split_list_rev list x =
   let rec loop head tail i =
     if i >= x then (head, tail)
     else match tail with
-      | [] -> printd debug_error "Error: position too far in list"; raise Not_found
-      | a::rest -> loop (a::head) rest (i+1) in
+         | [] -> printd debug_error
+                   "Error: position too far in list"; raise Not_found
+         | a::rest -> loop (a::head) rest (i+1) in
   loop [] list 0
 
 let split_list list x =
@@ -255,7 +259,7 @@ let check_option o f = match o with
   | None -> None
 
 (* Warning the "d" is always evaluated, so it's not always a good idea to use
-   this...TODO use lazy  *)
+   this...use the lazy or fn version instead.  *)
 let default o d = match o with
   | Some x -> x
   | None -> d
@@ -263,6 +267,10 @@ let default o d = match o with
 let default_lazy o d = match o with
   | Some x -> x
   | None -> Lazy.force d
+
+let default_fn o f = match o with
+  | Some x -> x
+  | None -> f ()
 
 let default_option o od = match o with
   | None -> od

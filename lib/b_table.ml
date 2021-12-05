@@ -214,11 +214,14 @@ let make_long_list ~w ~h t  =
 let make_layout ?w ~h t =
   let align = Draw.Max in (* bottom align *)
   let titles_list = Array.to_list t.titles in
-  let w = default w (title_margin +
-                     (List.fold_left (fun y r -> y + title_margin + Layout.width r)
-                        0 titles_list)) in
+  let w = match w with
+    | Some w -> w
+    | None -> title_margin +
+                (List.fold_left (fun y r -> y + title_margin + Layout.width r)
+                   0 titles_list) in
   let titles_row = Layout.flat ~sep:title_margin ~hmargin:title_margin
-      ~vmargin:title_margin ~background:title_background ~align titles_list in
+                     ~vmargin:title_margin ~background:title_background
+                     ~align titles_list in
   let long = make_long_list t ~w ~h:(h - Layout.height titles_row) in
   titles_row, long;;
 

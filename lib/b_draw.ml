@@ -7,6 +7,8 @@ module Var = B_var
 open Result
 module TImage = Tsdl_image.Image
 
+let draw_error = debug_error + debug_graphics
+
 type color = int * int * int * int (* RGBA *)
 type rgb = int * int * int
 type texture = Sdl.texture
@@ -28,7 +30,7 @@ type textures = { (* use hashtbl ? *)
 type align =
   | Min
   | Center
-  | Max;;
+  | Max
 
 type transform =
   { angle : float;
@@ -37,17 +39,17 @@ type transform =
     alpha : float; (* alpha multiplier: 0..1 *)
   }
 
-let textures_in_memory = ref 0;;
-let surfaces_in_memory = ref 0;;
-let ttf_surfaces_in_memory = ref 0;;
+let textures_in_memory = ref 0
+let surfaces_in_memory = ref 0
+let ttf_surfaces_in_memory = ref 0
 
-let textures_to_destroy = Var.create (Queue.create ());;
+let textures_to_destroy = Var.create (Queue.create ())
 (* TODO this should be attached to a window. Make sure all textures that
    belonged to a renderer are removed from this queue when the renderer is
    detroyed. Otherwise we will be destroying a new texture! *)
 
 (* the generic window icon *)
-let icon  : (Sdl.surface option) ref = ref None;;
+let icon  : (Sdl.surface option) ref = ref None
 
 let check_memory () =
   if !textures_in_memory <> 0
@@ -58,22 +60,22 @@ let check_memory () =
       (!surfaces_in_memory - 1 - !ttf_surfaces_in_memory);
   (* there is always the icon surface in memory, that's ok *)
   if !ttf_surfaces_in_memory > 0
-  then printd debug_memory "TTF surfaces in memory: %i" !ttf_surfaces_in_memory;;
+  then printd debug_memory "TTF surfaces in memory: %i" !ttf_surfaces_in_memory
 
 (* SDL wrappers *)
 
 let create_color (r,g,b,a) =
-  Sdl.Color.create ~r~g ~b ~a;;
+  Sdl.Color.create ~r~g ~b ~a
 
 let create_rgb_surface ~w ~h ~depth (r,g,b,a) =
   incr surfaces_in_memory;
   printd debug_memory "Create rgb_surface (%i,%i)" w h;
-  go (Sdl.create_rgb_surface ~w ~h ~depth r g b a);;
+  go (Sdl.create_rgb_surface ~w ~h ~depth r g b a)
 
 let create_surface_like surf ~w ~h =
   let format = Sdl.get_surface_format_enum surf in
   let depth,r,g,b,a = go (Sdl.pixel_format_enum_to_masks format) in
-  create_rgb_surface ~w ~h ~depth (r,g,b,a);;
+  create_rgb_surface ~w ~h ~depth (r,g,b,a)
 
 (* see also create_surface below *)
 
@@ -85,62 +87,64 @@ let create_surface_from ~like:surf bigarray =
   let w,h = Sdl.get_surface_size surf in
   printd debug_memory "CReate surface_from (%i,%i)" w h;
   incr surfaces_in_memory;
-  go(Sdl.create_rgb_surface_from bigarray ~w ~h ~depth ~pitch r g b a);;
+  go(Sdl.create_rgb_surface_from bigarray ~w ~h ~depth ~pitch r g b a)
 
 let free_surface surface =
   Sdl.free_surface surface;
   let w,h = Sdl.get_surface_size surface in
   printd debug_memory "Freeing surface (%i,%i)" w h;
-  decr surfaces_in_memory;;
+  decr surfaces_in_memory
 
 (* Sdl.get_surface_format. See issue in tsdl.ml *)
 (* the resulting format should be freed after use *)
 let copy_surface_format surface =
-  go(Sdl.alloc_format (Sdl.get_surface_format_enum surface));;
+  go(Sdl.alloc_format (Sdl.get_surface_format_enum surface))
 
 let max_texture_size renderer =
   let info = go(Sdl.get_renderer_info renderer) in
-  info.Sdl.ri_max_texture_width, info.Sdl.ri_max_texture_height;;
+  info.Sdl.ri_max_texture_width, info.Sdl.ri_max_texture_height
 
 let rec create_texture renderer format access ~w ~h =
   let w,h = if w = 0 || h = 0
-    then (printd debug_error "Texture dimensions can't be 0. We change to 1.";
-          imax w 1, imax h 1)
-    else w,h in
+            then (printd draw_error
+                    "Texture dimensions can't be 0. We change to 1.";
+                  imax w 1, imax h 1)
+            else w,h in
   match Sdl.create_texture renderer format access ~w ~h with
   | Error _ ->
-    printd debug_error "create_texture error: %s" (Sdl.get_error ());
-    let wmax, hmax = max_texture_size renderer in
-    if wmax < w || hmax < h
-    then (printd debug_error "The requested texture size (%u,%u) exceeds the max size (%u,%u)." w h wmax hmax;
-          create_texture renderer format access ~w:(imin w wmax) ~h:(imin h hmax))
-    else exit 1
+     printd draw_error "create_texture error: %s" (Sdl.get_error ());
+     let wmax, hmax = max_texture_size renderer in
+     if wmax < w || hmax < h
+     then (printd draw_error "The requested texture size (%u,%u) exceeds the max size (%u,%u)." w h wmax hmax;
+           create_texture renderer format access ~w:(imin w wmax) ~h:(imin h hmax))
+     else exit 1
   | Ok t ->
-    incr textures_in_memory;
-    t;;
+     incr textures_in_memory;
+     t
 
 let rec create_texture_from_surface renderer surface =
   match Sdl.create_texture_from_surface renderer surface with
   | Error _ ->
-    printd debug_error "create_texture_from_surface error: %s" (Sdl.get_error ());
-    let w,h = Sdl.get_surface_size surface in
-    let wmax, hmax = max_texture_size renderer in
-    if wmax < w || hmax < h
-    then (printd debug_error "The requested texture size (%u,%u) exceeds the max size (%u,%u)." w h wmax hmax;
-          (* now we scale the surface (loosing quality of course)--- and cross
+     printd draw_error "create_texture_from_surface error: %s" (Sdl.get_error ());
+     let w,h = Sdl.get_surface_size surface in
+     let wmax, hmax = max_texture_size renderer in
+     if wmax < w || hmax < h
+     then (printd draw_error "The requested texture size (%u,%u) exceeds the max \
+                              size (%u,%u)." w h wmax hmax;
+           (* now we scale the surface (loosing quality of course)--- and cross
              fingers *)
-          let rect = Sdl.Rect.create ~x:0 ~y:0 ~h ~w in
-          let w = imin w wmax in
-          let h = imin h hmax in
-          let new_surf = create_surface_like surface ~w ~h in
-          go(Sdl.blit_scaled ~src:surface (Some rect) ~dst:new_surf None);
-          let t = create_texture_from_surface renderer new_surf in
-          free_surface new_surf;
-          t)
-    else exit 1
+           let rect = Sdl.Rect.create ~x:0 ~y:0 ~h ~w in
+           let w = imin w wmax in
+           let h = imin h hmax in
+           let new_surf = create_surface_like surface ~w ~h in
+           go(Sdl.blit_scaled ~src:surface (Some rect) ~dst:new_surf None);
+           let t = create_texture_from_surface renderer new_surf in
+           free_surface new_surf;
+           t)
+     else exit 1
   | Ok t ->
-    incr textures_in_memory;
-    t
+     incr textures_in_memory;
+     t
 
 let create_system_cursor = memo Sdl.create_system_cursor
 
@@ -162,26 +166,29 @@ let font_cache : (((string * int), Tsdl_ttf.Ttf.font) Hashtbl.t) Var.t =
 let rec open_font file size =
   (* first we check if it is available in memory *)
   try let f = Hashtbl.find (Var.get font_cache) (file,size) in
-    printd debug_memory "Font %s (%u) was found in cache" file size; f
+      printd debug_memory "Font %s (%u) was found in cache" file size; f
   with
   | Not_found -> begin
       printd debug_io "Loading font %s (%u)" file size;
       match Tsdl_ttf.Ttf.open_font file size with
       | Result.Ok f ->
-        Var.protect_fn font_cache (fun () ->
-            Hashtbl.add (Var.unsafe_get font_cache) (file,size) f;
-            f);
+         Var.protect_fn font_cache (fun () ->
+             Hashtbl.add (Var.unsafe_get font_cache) (file,size) f;
+             f);
       | Result.Error _ ->  (* use default font if error *)
-        if file = Theme.label_font
-        then begin
-          printd debug_error "(FATAL) default font %s (%u) cannot be loaded" file size;
-          raise Not_found
-        end
-        else begin
-          printd debug_error "Font %s (%u) could not be loaded. Using default font instead" file size;
-          open_font Theme.label_font size
-        end
-    end;;
+         if file = Theme.label_font
+         then begin
+             printd (debug_io + debug_error)
+               "(FATAL) default font %s (%u) cannot be loaded" file size;
+             raise Not_found
+           end
+         else begin
+             printd (debug_io + debug_error)
+               "Font %s (%u) could not be loaded. Using default font instead"
+               file size;
+             open_font Theme.label_font size
+           end
+    end
 
 let ttf_render font text color =
   if text = ""
@@ -190,13 +197,13 @@ let ttf_render font text color =
     incr surfaces_in_memory;
     printd debug_memory "Create surface_ttf (%s)" text;
     go (Tsdl_ttf.Ttf.render_utf8_blended font text color)
-  end;;
+  end
 
 let ttf_texture renderer font text color =
   let surf = ttf_render font text color in
   let tex = create_texture_from_surface renderer surf in
   free_surface surf;
-  tex;;
+  tex
 
 let ttf_set_font_style font style =
   let open Tsdl_ttf in
@@ -205,11 +212,11 @@ let ttf_set_font_style font style =
      check the current style using TTF_GetFontStyle first.
   *)
   if Ttf.get_font_style font <> style
-  then Ttf.set_font_style font style;;
+  then Ttf.set_font_style font style
 
 (* return a new rectangle translated by the vector (x0,y0) *)
 let rect_translate r (x0,y0) =
-  Sdl.Rect.(create ~x:(x r + x0) ~y:(y r + y0) ~w:(w r) ~h:(h r));;
+  Sdl.Rect.(create ~x:(x r + x0) ~y:(y r + y0) ~w:(w r) ~h:(h r))
 
 
 
@@ -237,7 +244,7 @@ let destroy_textures () =
                  mean that there is a design flaw in the program..." in
           decr textures_in_memory;
           loop (i+1)) in
-  loop 0;;
+  loop 0
 
 
 (* --- *)
@@ -253,7 +260,7 @@ let destroy_textures () =
 (* This is thread-safe. *)
 let forget_texture tex =
   Var.protect_fn textures_to_destroy (fun () ->
-      Queue.push tex (Var.get textures_to_destroy));;
+      Queue.push tex (Var.get textures_to_destroy))
 
 (* prints some memory info *)
 let memory_info () =
@@ -267,11 +274,11 @@ let memory_info () =
     (Sdl.get_system_ram ())
     (Gc.allocated_bytes () /. 1024.);
   Gc.print_stat stdout;
-  flush_all ();;
+  flush_all ()
 
 let make_transform ?(angle = 0.) ?center ?(flip = Sdl.Flip.none)
     ?(alpha = 1.) () =
-  { angle; center; flip; alpha };;
+  { angle; center; flip; alpha }
 
 (** compute the transform corresponding to t2 *after* t1 *)
 (* TODO: of course this is not correct, need to check rotation center and
@@ -286,7 +293,7 @@ let compose_transform t1 t2 =
     let alpha = t1.alpha *. t2.alpha in
     let center = one_of_two t1.center t2.center in
     let flip = Sdl.Flip.(t1.flip + t2.flip) in
-    make_transform ~angle ?center ~flip ~alpha ();;
+    make_transform ~angle ?center ~flip ~alpha ()
 
 (* a texture ready to be blit onscreen *)
 type blit = {
@@ -298,8 +305,8 @@ type blit = {
   transform : transform;
   to_layer : layer;
 }
-and layer = blit Queue.t Chain.t;;
-(* layers are organized in a chain. Not thread safe: only the main thread should
+and layer = blit Queue.t Chain.t
+(* Layers are organized in a chain. Not thread safe: only the main thread should
    modify layers.  Adding a new layer to a chain will put it "on top" of the
    previous layer, as in most drawing programs. It can be confusing because it
    does not fit well with the vocabulary ('depth') used in the Chain module: the
@@ -323,36 +330,36 @@ type canvas = {
 
 (* There should be one (and only one) canvas per window *)
 let canvas_equal c1 c2 =
-  c1.window = c2.window;;
+  c1.window = c2.window
 
 (** get the canvas window size *)
 let window_size canvas =
-  Sdl.get_window_size canvas.window;;
+  Sdl.get_window_size canvas.window
 (* difference with SDL_GetRendererOutputSize ? *)
 
 (** test if window is shown *)
 let window_is_shown w =
   let flags = Sdl.get_window_flags w in
-  Sdl.Window.(test flags shown);;
+  Sdl.Window.(test flags shown)
 
 let max_texture_size_old ?canvas () =
   match canvas with
   | Some c -> let info = go(Sdl.get_renderer_info c.renderer) in
     info.Sdl.ri_max_texture_width, info.Sdl.ri_max_texture_height
   | None -> (* go(Sdl.get_render_driver_info 1) in *)
-    (* does not work, gives (0,0) *) 4096,4096;;
+    (* does not work, gives (0,0) *) 4096,4096
 
 (* not used ? *)
 type overlay =
   | Shrink
   | Clip
   | TopRight
-  | Xoffset of int;;
+  | Xoffset of int
 
-let cleanup = ref [];;
+let cleanup = ref []
 
 let at_cleanup f =
-  cleanup := f :: !cleanup;;
+  cleanup := f :: !cleanup
 
 let destroy_canvas c =
   Sdl.hide_window c.window;
@@ -369,7 +376,7 @@ let destroy_canvas c =
      that was destroyed this way, it will in fact most probably refer to a new
      texture with same id that was created after this... *)
   Sdl.destroy_window c.window;
-  do_option c.gl_context Sdl.gl_delete_context;;
+  do_option c.gl_context Sdl.gl_delete_context
 
 type geometry = {
   x : int;
@@ -377,48 +384,48 @@ type geometry = {
   w : int;
   h : int;
   voffset : int;
-};;
+}
 
 (* get "physical size" in pixel from the geometry *)
 let scale_geom g =
   let open Theme in
   { x=(scale_int g.x); y=(scale_int g.y);
     w=(scale_int g.w); h=(scale_int g.h);
-    voffset=(scale_int g.voffset) };;
+    voffset=(scale_int g.voffset) }
 
 let scale_pos (x,y) =
-  (Theme.scale_int x, Theme.scale_int y);;
+  (Theme.scale_int x, Theme.scale_int y)
 
-let scale_size = scale_pos;;
+let scale_size = scale_pos
 
 let unscale_pos (x,y) =
-  (Theme.unscale_int x, Theme.unscale_int y);;
+  (Theme.unscale_int x, Theme.unscale_int y)
 
-let unscale_size = unscale_pos;;
+let unscale_size = unscale_pos
 
 let geom_to_rect g =
-  Sdl.Rect.create ~x:g.x ~y:g.y ~w:g.w ~h:g.h;;
+  Sdl.Rect.create ~x:g.x ~y:g.y ~w:g.w ~h:g.h
 
 let make_geom ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) () =
-  { x; y; w; h; voffset };;
+  { x; y; w; h; voffset }
 
 let window_id canvas =
-  Sdl.get_window_id canvas.window;;
+  Sdl.get_window_id canvas.window
 
 (* colors *)
-let black = (0,0,0);;
-let grey = (100,100,100);;
-let pale_grey = (150,150,150);;
-let dark_grey = (75,75,75);;
-let white = (255,255,255);;
-let red = (255,0,0);;
-let blue = (0,0,255);;
-let green = (0,255,0);;
-let magenta = (255,0,255);;
-let cyan = (0,255,255);;
-let yellow = (255,255,0);;
-let sienna = (160,82,45);;
-let none = (0,0,0,0);;
+let black = (0,0,0)
+let grey = (100,100,100)
+let pale_grey = (150,150,150)
+let dark_grey = (75,75,75)
+let white = (255,255,255)
+let red = (255,0,0)
+let blue = (0,0,255)
+let green = (0,255,0)
+let magenta = (255,0,255)
+let cyan = (0,255,255)
+let yellow = (255,255,0)
+let sienna = (160,82,45)
+let none = (0,0,0,0)
 let colors = [ "black", black;
                "grey", grey;
                "pale_grey", pale_grey;
@@ -428,14 +435,14 @@ let colors = [ "black", black;
                "blue", blue;
                "green", green;
                "sienna", sienna
-             ];;
+             ]
 
-let colors = List.flatten [colors; Theme.color_names];;
+let colors = List.flatten [colors; Theme.color_names]
 (* we add all colors from: *)
 (* http://www.rapidtables.com/web/color/html-color-codes.htm *)
 
 let color_of_int24 i =
-  (i lsr 16) land 255, (i lsr 8) land 255, i land 255;;
+  (i lsr 16) land 255, (i lsr 8) land 255, i land 255
 
 (* convert a string of the form "grey" or "#FE01BC" to a color code (r,g,b) *)
 let find_color c =
@@ -453,74 +460,74 @@ let find_color c =
 
       printd debug_error "Color '%s' unknown" c;
       grey
-    | e -> raise e;;
+    | e -> raise e
 
 (* alpha=0 means totally transparent, alpha=1 means totally opaque *)
 let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * int *) color =
-  (r,g,b,alpha);;
+  (r,g,b,alpha)
 
-let bg_color = find_color Theme.bg_color;;
-let cursor_color = find_color Theme.cursor_color;;
-let faint_color = find_color Theme.faint_color;;
-let text_color = find_color Theme.text_color;;
-let sel_bg_color = find_color Theme.sel_bg_color;;
-let sel_fg_color = find_color Theme.sel_fg_color;;
-let label_color = find_color Theme.label_color;;
-let menu_hl_color = find_color Theme.menu_hl_color;;
-let menu_bg_color = find_color Theme.menu_bg_color;;
+let bg_color = find_color Theme.bg_color
+let cursor_color = find_color Theme.cursor_color
+let faint_color = find_color Theme.faint_color
+let text_color = find_color Theme.text_color
+let sel_bg_color = find_color Theme.sel_bg_color
+let sel_fg_color = find_color Theme.sel_fg_color
+let label_color = find_color Theme.label_color
+let menu_hl_color = find_color Theme.menu_hl_color
+let menu_bg_color = find_color Theme.menu_bg_color
 (* TODO put in VAR: *)
-let scrollbar_color = set_alpha 20 blue;;
+let scrollbar_color = set_alpha 20 blue
 
-let opaque = set_alpha 255;;
+let opaque = set_alpha 255
 
-let transp = set_alpha 127;;
+let transp = set_alpha 127
 
 let more_transp (r,g,b,a) : color =
-  (r,g,b, a/2);;
+  (r,g,b, a/2)
 
 let random_color () : color =
   let r () = Random.int 256 in
   (r(), r(), r(), r())
 
-let sqrt_color x = round (255. *. sqrt (float x /. 255.));;
+let sqrt_color x = round (255. *. sqrt (float x /. 255.))
 
 (* non linear increase of color *)
 (* f(x) = a - exp(-bx), f(0)=0.1, f(1)=1  => a = 1.1, b = - ln 0.1 = 2.3... *)
-let incr_color x = min 255 (round (255. *. (1.1 -. exp (-.2.3 *. float x /. 255.))));;
+let incr_color x = min 255 (round (255. *. (1.1 -. exp (-.2.3 *. float x /. 255.))))
 
-let pale (r,g,b) = (incr_color r, incr_color g, incr_color b);;
+let pale (r,g,b) = (incr_color r, incr_color g, incr_color b)
 
 let darker (r,g,b,a) : color =
-  (3*r/4, 3*g/4, 3*b/4, a);;
+  (3*r/4, 3*g/4, 3*b/4, a)
 
 let component_lighter x =
-  min 255 ((4*x)/3 + 80);;
+  min 255 ((4*x)/3 + 80)
 
 let lighter (r,g,b,a) : color =
-  (component_lighter r, component_lighter g, component_lighter b, a);;
+  (component_lighter r, component_lighter g, component_lighter b, a)
 
 let median (r1,g1,b1,a1) (r2,g2,b2,a2) : color =
-  (r1+r2)/2, (g1+g2)/2, (b1+b2)/2, (a1+a2)/2;;
+  (r1+r2)/2, (g1+g2)/2, (b1+b2)/2, (a1+a2)/2
 
 let set_color renderer (r,g,b,a) =
-  go (Sdl.set_render_draw_color renderer r g b a);;
+  go (Sdl.set_render_draw_color renderer r g b a)
 
 (* get the color mask for creating textures *)
 let mask renderer =
   let info = go (Sdl.get_renderer_info renderer) in
   let px = List.hd info.Sdl.ri_texture_formats in (* we take the first pixel format available... is it the right thing to do ?? *)
   let depth,r,g,b,a = go (Sdl.pixel_format_enum_to_masks px (* Sdl.Pixel.format_argb8888 *)) in
-  depth,(r,g,b,a);;
+  depth,(r,g,b,a)
 
-let pixel_format_old = go (Sdl.alloc_format Sdl.Pixel.format_argb8888);;
+let pixel_format_old = go (Sdl.alloc_format Sdl.Pixel.format_argb8888)
 (* TODO: init ? *)
 
 let color_to_int32 ?format surf (r,g,b,a) =
   (* Warning: the tsdl source says I should not use get_surface_format *)
-  let format' = default format (copy_surface_format surf) in
+  let format' = default_lazy format (lazy (copy_surface_format surf)) in
   let r = Sdl.map_rgba format' r g b a in
   if format = None then Sdl.free_format format';
-  r;;
+  r
 
 (* TODO this won't work in 32bits systems. Use Int32 for pixel instead *)
 (* not used *)
@@ -528,58 +535,78 @@ let color_to_int32 ?format surf (r,g,b,a) =
  *   Sdl.get_rgba (Sdl.get_surface_format surf) (Int32.of_int pixel);; *)
 
 let tex_size tex =
-  let _,_,(w,h) = go (Sdl.query_texture tex) in w,h;;
+  let _,_,(w,h) = go (Sdl.query_texture tex) in w,h
 
 (**** Layers ****)
 
-let new_layer () : blit Queue.t =
-  Queue.create ();;
+(* A layer can be seen as a number assigned to each layout, indicating its
+   'depth', ie which one should be drawn first. As such it can be used at the
+   stage of creation of layouts, in order to indicate which one should 'stay
+   above' which one. But... a layer is actually implemented as a queue that will
+   contain all 'blits' of the same depth. This, of course, belongs to the stage
+   of rendering. Finally, a layer is also an entry to the whole stack of layers,
+   since they are organized as a Chain. Each window shoud contain only one stack
+   of layers. This causes a difficulty: at the layout creation stage, no window
+   is created, and the user is allowed to define layouts that she will then send
+   to different windows...  Hence the concept of "current_layer" below is not
+   correct. (Currently one has to call [Draw.use_new_layer ();] when defining
+   layouts for another window.) See for instance in "b_debug_window.ml": we have
+   to store the current_layer and restore it afterwards. *)
 
-let current_layer = Var.create (Chain.singleton (new_layer ()));;
-(* TODO, how to get rid of this global variable ? *)
+(* Warning: Layers are part of a Stack of layers, which uses the Chain
+   datatype. Hence, a layer is in fact always referenced as a Chain element. A
+   layer should never be Chain.None *)
+
+let new_layer () : blit Queue.t =
+  Queue.create ()
+
+(* [current_layer] is a global variable that should be initialized as soon as
+   Bogue starts, because creating layouts necessitates the existence of a base
+   layer. *)
+let current_layer = Var.create (Chain.singleton (new_layer ()))
 (* the mutex is used in Layout.flip *)
 
-let get_current_layer () = Var.get current_layer;;
+let get_current_layer () = Var.get current_layer
 
-let set_current_layer layer = Var.set current_layer layer;;
+let set_current_layer layer = Var.set current_layer layer
 
-let use_new_layer () = Var.set current_layer (Chain.singleton (new_layer ()));;
+let new_stack () = Chain.singleton (new_layer ())
+
+let use_new_layer () = Var.set current_layer (new_stack ())
 
 let set_get_current_layer layer =
   set_current_layer layer;
-  layer;;
+  layer
 
 let layer_insert_above layer =
   printd debug_graphics "Create new layer above";
   let l = Chain.insert_after layer (new_layer ()) in
-  set_get_current_layer l;;
+  set_get_current_layer l
 
 let layer_above layer =
   let l = match Chain.next layer with
     | None -> printd debug_graphics "Create new layer above";
       Chain.insert_after layer (new_layer ())
     | t -> t
-  in set_get_current_layer l;;
+  in set_get_current_layer l
 
 let layer_insert_below layer =
   printd debug_graphics "Create new layer below";
   let l = Chain.insert_before layer (new_layer ()) in
-  set_get_current_layer l;;
+  set_get_current_layer l
 
 let layer_below layer =
   let l = match Chain.next layer with
     | None -> printd debug_graphics "Create new layer below";
       Chain.insert_before layer (new_layer ())
     | t -> t
-  in set_get_current_layer l;;
+  in set_get_current_layer l
 
 let top_layer () =
-  set_get_current_layer (Chain.last (Var.get current_layer));;
+  set_get_current_layer (Chain.last (Var.get current_layer))
 
 let deepest_layer () =
-  set_get_current_layer (Chain.first (Var.get current_layer));;
-
-
+  set_get_current_layer (Chain.first (Var.get current_layer))
 
 (* compute src and dst for a texture *)
 (* voffset can be positive or negative *)
@@ -596,13 +623,13 @@ let apply_offset ?src ?dst voffset tex =
     then Some (Sdl.Rect.create ~x:0 ~y:vo ~w ~h:(h-vo)),
          Some (Sdl.Rect.create ~x ~y ~w ~h:(h-vo))
     else Some (Sdl.Rect.create ~x:0 ~y:0 ~w ~h:(h+vo)),
-         Some (Sdl.Rect.create ~x ~y:(y-vo) ~w ~h:(h+vo));;
+         Some (Sdl.Rect.create ~x ~y:(y-vo) ~w ~h:(h+vo))
 
 (* prepare a blit *)
 let make_blit ?src ?dst ?clip ?transform ?(voffset=0) canvas to_layer tex =
-  let transform = default transform (make_transform ()) in
+  let transform = default_fn transform make_transform in
   let src, dst = apply_offset ?src ?dst voffset tex in
-  { src; dst; clip; rndr = canvas.renderer; texture = tex; transform; to_layer };;
+  { src; dst; clip; rndr = canvas.renderer; texture = tex; transform; to_layer }
 
 (* saves the blit into its layer *)
 (* Warning: not thread safe (uses Queues) *)
@@ -612,7 +639,7 @@ let blit_to_layer blit =
   (*   | None -> canvas.layer (\* the default current layer *\) *)
   (*   | Some l -> l in *)
   let queue = Chain.value blit.to_layer in
-  Queue.add blit queue;;
+  Queue.add blit queue
 
 (* render a blit onscreen *)
 (* WARNING: this does NOT free the texture, because often we want to keep it for
@@ -634,7 +661,7 @@ let render_blit blit =
 
   (* BUG/WORKAROUND. Something is fishy with (un)setting clip_rect. Not sure
      why, but if I don't draw a dummy thing like a point or a rect, then the
-     texture gets corrupted. It become unproperly offset, and has some random
+     texture gets corrupted. It becomes unproperly offset, and has some random
      glitches. Hence the following lines where we draw a transparent point at
      0,0. For more debug information, one can also draw the clip rectangle as
      follows: *)
@@ -650,11 +677,11 @@ let render_blit blit =
 (* render all blits in one layer. first in, first out *)
 let render_blits blits =
   Queue.iter render_blit blits;
-  Queue.clear blits;;
+  Queue.clear blits
 
 (* render all layers and empty them *)
 let render_all_layers (layer : layer) =
-  Chain.iter render_blits layer;;
+  Chain.iter render_blits layer
 
 (* TODO it could be convenient (for a probably very small cost) to render the
    blits onto a target texture instead of directly to the renderer, so that we
@@ -671,7 +698,7 @@ let draw_rect ?color renderer (x,y) w h =
          Sdl.Point.create ~x:(x + w - 1) ~y;
          Sdl.Point.create ~x:(x + w - 1) ~y:(y + h - 1);
          Sdl.Point.create ~x ~y:(y + h - 1);
-         Sdl.Point.create ~x ~y]);;
+         Sdl.Point.create ~x ~y])
 
 (* see also "box" for renderer *)
 let fill_rect surf recto color =
@@ -680,11 +707,11 @@ let fill_rect surf recto color =
     printd debug_graphics "Locking surface";
     go (Sdl.lock_surface surf)
     );*)
-  go (Sdl.fill_rect surf recto (color_to_int32 surf color));
+  go (Sdl.fill_rect surf recto (color_to_int32 surf color))
   (* if ml then ( *)
   (*   printd debug_graphics "Unlocking surface"; *)
   (*   Sdl.unlock_surface surf *)
-  (* ) *);;
+  (* ) *)
 
 (** create a surface of the same pixel format as surf, filled with color *)
 let create_surface ?like:surf ?renderer ?color w h =
@@ -701,10 +728,10 @@ let create_surface ?like:surf ?renderer ?color w h =
   let surf = create_rgb_surface ~w ~h ~depth color_mask in
   do_option color (fun c ->
       fill_rect surf None c);
-  surf;;
+  surf
 
 let create_target ?(format = Sdl.Pixel.format_argb8888) renderer w h =
-  create_texture renderer format Sdl.Texture.access_target ~w ~h;;
+  create_texture renderer format Sdl.Texture.access_target ~w ~h
 (* should clear here ? this done in push_target *)
 
 (* read pixel in surface with format_argb8888 *)
@@ -721,7 +748,7 @@ let get_pixel_color surface ~x ~y =
   let format_enum = Sdl.get_surface_format_enum surface in
   if !debug then
     if format_enum <> Sdl.Pixel.format_argb8888
-    then printd debug_error "get_pixel_color: surface has wrong format";
+    then printd draw_error "get_pixel_color: surface has wrong format";
   (*let format = Sdl.get_surface_format surface in*)
   let w,_ = Sdl.get_surface_size surface in
   let byte_per_pixel = pitch / w in (* just to confirm... *)
@@ -734,7 +761,7 @@ let get_pixel_color surface ~x ~y =
   let a = Array1.get pixels (i0+3) in
   Sdl.unlock_surface surface;
   printd debug_graphics "color r,g,b,a= %u,%u,%u,%u" r g b a;
-  r,g,b,a;;
+  r,g,b,a
 
 
 (** Sdl quit *)
@@ -748,9 +775,9 @@ let quit () =
   printd debug_graphics "Exit SDL...";
   Sdl.quit ();
   printd debug_graphics
-    "Done.";;
+    "Done."
 
-let sdl_flip = Sdl.render_present;;
+let sdl_flip = Sdl.render_present
 
 let video_init () =
   if Sdl.was_init (Some Sdl.Init.video) = Sdl.Init.video
@@ -762,7 +789,7 @@ let video_init () =
             Sdl.quit_sub_system Sdl.Init.video);
         if !icon = None
         then icon := Some (sdl_image_load (Theme.current ^ "/bogue-icon.png"))
-       );;
+       )
 
 let ttf_init () =
   let open Tsdl_ttf in
@@ -772,7 +799,7 @@ let ttf_init () =
      at_cleanup (fun () ->
          printd debug_graphics "Quitting SDL TTF";
          Ttf.quit ());
-     printd debug_graphics "SDL TTF initialized");;
+     printd debug_graphics "SDL TTF initialized")
 
 (* Initialize SDL_Image. this is not really necessary, as the SDL_Image doc says
    that the system will be initialized at the first use of a function. The only
@@ -785,13 +812,13 @@ let img_init () =
     let flags = TImage.Init.(jpg + png + tif) in
     let initted = TImage.(init flags) in
     if initted <> flags
-    then printd debug_error "SDL Image could not be initialized"
+    then printd draw_error "SDL Image could not be initialized"
     else printd debug_graphics "SDL Image initialized";
     at_cleanup (fun () ->
         printd debug_graphics "Quitting SDL Image";
         TImage.quit ()
       )
-  end;;
+  end
 
 (* ici ? *)
 let load_image renderer file =
@@ -803,7 +830,7 @@ let load_image renderer file =
   printd debug_io "Done loading %s, format=%s" file
     Sdl.(get_pixel_format_name (get_surface_format_enum surf));
   free_surface surf;
-  tex;;
+  tex
 
 (* either load an image (eg: "images.png") or a font-awesome symbol (eg:
    "fa:circle") into a texture *)
@@ -825,8 +852,8 @@ let fill_of_string renderer s =
   then let r,g,b = find_color (sub s 6 (length s - 6)) in
     printd debug_graphics "Fill color = %u,%u,%u" r g b;
     Solid (opaque (r,g,b))
-  else (printd debug_error "Wrong background format. Expecting color:... or file:..., got %s instead" s;
-        Solid (opaque pale_grey));;
+  else (printd draw_error "Wrong background format. Expecting color:... or file:..., got %s instead" s;
+        Solid (opaque pale_grey))
 
 
 let svg_loader =
@@ -835,7 +862,7 @@ let svg_loader =
   else begin
       printd (debug_warning + debug_io) "Cannot find rsvg converter. You will not be able to load SVG images.";
       ""
-    end;;
+    end
 
 (* load svg using rsvg from command-line. Return name of output png file *)
 (* rsvg -w 1024 -h 1024 input.svg -o output.png *)
@@ -865,11 +892,11 @@ let convert_svg ?w ?h file =
   in
   if ret <> 0
   then begin
-    printd (debug_io + debug_error)
-      "Converting %s to %s via rsvg failed with exit code %u." file tmp ret;
-    file
-  end
-  else tmp;;
+      printd (debug_io + debug_error)
+        "Converting %s to %s via rsvg failed with exit code %u." file tmp ret;
+      file
+    end
+  else tmp
 
 (* true pixel size *)
 let image_size file =
@@ -879,14 +906,14 @@ let image_size file =
   let surf = sdl_image_load file in
   let size = Sdl.get_surface_size surf in
   free_surface surf;
-  size;;
+  size
 
 (** create a texture filled with a color *)
 let texture ?(color = opaque grey) renderer ~w ~h =
   let surf = create_surface ~renderer ~color w h in
   let tex = create_texture_from_surface renderer surf in
   free_surface surf;
-  tex;;
+  tex
 
 (** draw a filled rectangle *)
 let box renderer ?bg x y w h =
@@ -905,7 +932,7 @@ let box_to_layer canvas layer ?(bg = opaque grey) ?voffset x y w h =
   let tex = texture canvas.renderer ~color:bg ~w ~h in
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
   forget_texture tex;
-  make_blit ?voffset ~dst canvas layer tex;;
+  make_blit ?voffset ~dst canvas layer tex
 
 (** save and reset some useful settings before setting a render target *)
 (* TODO : not thread safe !*)
@@ -928,7 +955,7 @@ let push_target ?(clear=true) ?(bg=none) renderer target =
 let pop_target renderer (clip, old_target, (r,g,b,a)) =
   go (Sdl.set_render_target renderer old_target);
   go (Sdl.render_set_clip_rect renderer clip);
-  go (Sdl.set_render_draw_color renderer r g b a);;
+  go (Sdl.set_render_draw_color renderer r g b a)
 
 (* fill Some target with a pattern. If target is None, use the default target *)
 (* WARNING: the render-target method does NOT work if the window is hidden *)
@@ -972,7 +999,7 @@ let generate_background window renderer pattern =
     printd debug_graphics "Creating background (%d,%d)" w h;
     fill_pattern renderer target pattern;
     target
-  end;;
+  end
 
 (* use [update_background] to recreate the main background, typically when
    window size has changed. For a simple clear, use [clear_canvas] *)
@@ -985,7 +1012,7 @@ let update_background canvas =
   | Pattern t ->
     do_option canvas.textures.background forget_texture;
     canvas.textures.background <- generate_background canvas.window
-                                    canvas.renderer t;;
+                                    canvas.renderer t
 
 (* TODO: better to save surfaces instead of textures ? otherwise setting
    eg. alpha on one texture will affect everywhere it is blitted. Cf for example
@@ -1018,7 +1045,7 @@ let load_textures window renderer fill = (* use hashtbl ? *)
     check_off;
     radio_on;
     radio_off;
-    background };;
+    background }
 
 (** Sdl init *)
 (* return a new canvas. A canvas has the physical size in pixels of the
@@ -1029,17 +1056,17 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   (* https://wiki.libsdl.org/SDL_GLattr#multisample *)
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
-  let win = default window
-      (go (Sdl.create_window ?x ?y ~w ~h name Sdl.Window.((*fullscreen_desktop*) windowed + resizable + hidden + opengl + allow_highdpi))) in
+  let win = default_lazy window
+              (lazy (go (Sdl.create_window ?x ?y ~w ~h name Sdl.Window.((*fullscreen_desktop*) windowed + resizable + hidden + opengl + allow_highdpi)))) in
   do_option !icon (Sdl.set_window_icon win);
   let px = Sdl.get_window_pixel_format win in
   printd debug_graphics "Window pixel format = %s" (Sdl.get_pixel_format_name px);
   let renderer = match window with
     | None -> go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win)
     | Some win -> match Sdl.get_renderer win with
-      | Ok w -> printd debug_graphics "Using existing renderer"; w
-      | Error _ ->
-        go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
+                  | Ok w -> printd debug_graphics "Using existing renderer"; w
+                  | Error _ ->
+                     go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
   let ri = go (Sdl.get_renderer_info renderer) in
   let ww, wh = Sdl.get_window_size win in
   printd debug_graphics "Window size = (%u,%u)" ww wh;
@@ -1055,20 +1082,21 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
 
   (* set dummy solid background in case of new window *)
   if window = None then begin
-    set_color renderer (opaque red);
-    go (Sdl.render_clear renderer)
-  end;
+      set_color renderer (opaque red);
+      go (Sdl.render_clear renderer)
+    end;
 
   printd debug_graphics "Canvas created";
 
-  let fill = default fill (fill_of_string renderer Theme.background) in
+  let fill = default_lazy fill
+               (lazy (fill_of_string renderer Theme.background)) in
   let textures = load_textures win renderer fill in
   { renderer;
     window = win;
     textures;
     fill;
     gl_context = None;
-  };;
+  }
 
 (* rarely used... ? *)
 let clear_layers layer =
@@ -1077,7 +1105,7 @@ let clear_layers layer =
       then begin
         printd debug_graphics "Clearing layer";
         Queue.clear q
-      end) layer;;
+      end) layer
 
 (* Clear the canvas, using the background color, or the pre-computed
    texture. For re-computing the texture, use [update_background]. *)
@@ -1094,7 +1122,7 @@ let clear_canvas c =
   go (Sdl.render_clear c.renderer);
   (* paste background image *)
   do_option c.textures.background
-    (fun tex -> go (Sdl.render_copy c.renderer tex));;
+    (fun tex -> go (Sdl.render_copy c.renderer tex))
 
 let rect_to_layer ?color ?bg canvas layer (x,y) w h =
   let target = create_target canvas.renderer w h in
@@ -1112,7 +1140,7 @@ let rect_to_layer ?color ?bg canvas layer (x,y) w h =
   pop_target canvas.renderer push;
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
   forget_texture target;
-  make_blit ~dst canvas layer target;;
+  make_blit ~dst canvas layer target
 
 
 (* like the hand of a clock. It was used to draw a ring, below (ring_tex_old) by
@@ -1146,19 +1174,19 @@ let make_ray renderer ~bg ~radius ~width ?thickness x y =
   let center = Sdl.Point.create ~x:0 ~y:(h/2) in
   (* =center coordinates relative to the dst rect below *)
   let dst = Sdl.Rect.create ~x ~y:(y-h/2) ~w ~h in
-  tex, center, dst, steps;;
+  tex, center, dst, steps
 
 (* draw the "ray" (radius) on the renderer *)
 let ray renderer ?(bg = opaque black) ~radius ~width ?thickness ~angle x y =
   let tex, center, dst, _ = make_ray renderer ?thickness ~bg ~radius ~width x y in
-  go(Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none);;
+  go(Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none)
 
 let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thickness ~angle x y =
   let tex, center, dst, _ = make_ray canvas.renderer ?thickness ~bg ~radius ~width x y in
   let transform = make_transform ~angle ~center () in
   (* { flip = Sdl.Flip.none; angle; center = Some center; alpha = 255 } in *)
   forget_texture tex;
-  make_blit ?voffset ~dst ~transform canvas layer tex;;
+  make_blit ?voffset ~dst ~transform canvas layer tex
 
 (* draw a ring *)
 let ring_old renderer ?(bg = opaque grey) ~radius ~width x y =
@@ -1167,7 +1195,7 @@ let ring_old renderer ?(bg = opaque grey) ~radius ~width x y =
   for i = 0 to steps do
     let a = di *. float i in
     go(Sdl.render_copy_ex renderer ~dst tex a (Some center) Sdl.Flip.none);
-  done;;
+  done
 
 (* draw a ring on a texture, and return the texture *)
 let ring_tex_old renderer ?(bg = opaque grey) ~radius ~width x y =
@@ -1297,7 +1325,7 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
         else loop (x-1,y+1) e2
       end
     in
-    loop (radius,0) 0.;;
+    loop (radius,0) 0.
 
 let sdl_draw_hline renderer x0 x1 y =
   (* Because of SDL bug, we cannot use Sdl.render_draw_line right now (SDL 2.0.10)
@@ -1452,7 +1480,7 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
       loop x1' e1' x2' e2' (y+1)
     end
   in
-  loop radius1 0. radius2 0. 0;;
+  loop radius1 0. radius2 0. 0
 
 (* in this version, we can choose which one of the 8 octants to draw. But recall
    that some of them are "closed" (odd numbers) and the other are "open" (even
@@ -1611,7 +1639,7 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
       loop x1' e1' x2' e2' (y+1)
     end
   in
-  loop radius1 0. radius2 0. 0;;
+  loop radius1 0. radius2 0. 0
 
 
 let circle renderer ?(width=1) color x0 y0 radius =
@@ -1620,32 +1648,32 @@ let circle renderer ?(width=1) color x0 y0 radius =
     else
       let radius1 = radius - width/2 in
       let radius2 = radius1 + width - 1 in
-      annulus renderer color x0 y0 ~radius1 ~radius2;;
+      annulus renderer color x0 y0 ~radius1 ~radius2
 
 (* we draw a filled circle by calling annulus with radius1 = 0. Not optimal
    (could reduce the number of lines drawn) but not too far. *)
 let disc renderer color x0 y0 radius =
-  annulus renderer color x0 y0 ~radius1:0 ~radius2:radius;;
+  annulus renderer color x0 y0 ~radius1:0 ~radius2:radius
 
 
 (* a simple rectangle with uniform thickness inside (w,h) *)
 let rectangle renderer color ~thick ~w ~h x y =
-  if thick <= 0 then printd debug_error "rectangle thickness must be positive"
+  if thick <= 0 then printd draw_error "rectangle thickness must be positive"
   else begin
-    let bg = color in
-    let width_up, width_down, width_left, width_right =
-      if h < w
-      then if thick <= h/2
+      let bg = color in
+      let width_up, width_down, width_left, width_right =
+        if h < w
+        then if thick <= h/2
+             then thick, thick, thick, thick
+             else h/2, h - h/2, 0,0
+        else if thick <= w/2
         then thick, thick, thick, thick
-        else h/2, h - h/2, 0,0
-      else if thick <= w/2
-      then thick, thick, thick, thick
-      else 0,0, w/2, w - w/2 in
-    box renderer ~bg x y w width_up; (* top *)
-    box renderer ~bg x (y+h-width_down) w width_down; (* bottom *)
-    box renderer ~bg x (y+width_down) width_left (h-width_down-width_up); (* left *)
-    box renderer ~bg (x+w-width_right) (y+width_down) width_right (h-width_down-width_up); (* right *)
-  end;;
+        else 0,0, w/2, w - w/2 in
+      box renderer ~bg x y w width_up; (* top *)
+      box renderer ~bg x (y+h-width_down) w width_down; (* bottom *)
+      box renderer ~bg x (y+width_down) width_left (h-width_down-width_up); (* left *)
+      box renderer ~bg (x+w-width_right) (y+width_down) width_right (h-width_down-width_up); (* right *)
+    end
 
 (* Draw rounded box of size (w,h) *)
 (*
@@ -1711,13 +1739,13 @@ let rounded_box renderer color ?(antialias=true) ~w ~h ~radius ~thick x0 y0 =
         go (Sdl.render_draw_point renderer (x1) (y1));
         go (Sdl.render_draw_point renderer (x-1) (y1))
       end
-  end;;
+  end
 
 let filled_rounded_box renderer color ?(antialias=true) ~w ~h ~radius x0 y0 =
   let thick = imax w h in
   (* of course this is too much, but rounded_box will correct this
      automatically *)
-  rounded_box renderer color ~antialias ~w ~h ~radius ~thick x0 y0;;
+  rounded_box renderer color ~antialias ~w ~h ~radius ~thick x0 y0
 
 (* draw a ring (=annulus) on a new transparent texture *)
 (* and returns the texture. *)
@@ -1729,7 +1757,7 @@ let ring_tex renderer ?(color = opaque grey) ~radius ~width x y =
   let push = push_target  ~bg:(set_alpha 0 white) renderer target in
   annulus renderer color x y ~radius1:(radius-width+1) ~radius2:radius;
   pop_target renderer push;
-  target;;
+  target
 
 (* Draw gradient on the renderer. *)
 (* vertical gradient with n colors -- hinted version only *)
@@ -1800,7 +1828,7 @@ let gradientv3 renderer ?angle colors =
 
       forget_texture small
     end
-  else ();;
+  else ()
 
 (* top right corner for a box *)
 let corner_gradient2 renderer c1 c2 =
@@ -1831,7 +1859,7 @@ let corner_gradient2 renderer c1 c2 =
      effects: *)
   let dst = Sdl.Rect.create ~x:(-w/2) ~y:(-h/2) ~w:(2*w) ~h:(2*h) in
   go (Sdl.render_copy ~dst renderer small);
-  forget_texture small;;
+  forget_texture small
 
 (* create a gradient texture. Use pop=false only for optimization when using
    several push in a row, only one pop is usually needed. But well, this
@@ -1841,18 +1869,19 @@ let gradient_texture renderer ~w ~h ?angle ?(pop=true) colors =
   let p = push_target ~clear:false renderer target in
   gradientv3 renderer ?angle colors;
   if pop then pop_target renderer p;
-  target;;
+  target
 
 
 (* blits a "shadow" (to the layer) all around the dst rectangle. *)
-(* uses gradient. the patching of the corners is not perfect... *)
+(* Uses gradient. The patching of the corners is not perfect... *)
 (* TODO: this simple technique does not work for round corners *)
 (* but it's very fast *)
 (* Note: shadows look better if the box has a white (or light) background *)
 (* Warning: the 'radius' here corresponds to 'width' in Style module (+ theme
    scaling) *)
 let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
-      ?(size=Theme.scale_int 2) ?(offset=scale_pos (3,5)) ?voffset dst  =
+      ?(size=Theme.scale_int 2) ?(offset=scale_pos (3,5))
+      ?voffset ?(fill = true) dst  =
   (* size = 0 means that the complete shadow has the same size as the box -- and
      hence cannot be seen if offset=(0,0). If size>0 then the shadow is larger
      than the box by 'size' pixels in each of the 4 directions. 'size' should be
@@ -1863,13 +1892,14 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
   let w,h = Sdl.Rect.(w dst, h dst) in
   let x = x + ox + radius - size in
   let y = y + oy + radius - size in
-  let w = w - 2*radius + 2*size in (* width of the inner rectangle on which the
-                                      shadow is fitted *)
-  let h = h - 2*radius + 2*size in (* idem *)
+  (* We define now the size of the inner rectangle on which the shadow is
+     fitted. TODO why don't we just take the original (w,h) ? *)
+  let w = w - 2*radius + 2*size in
+  let h = h - 2*radius + 2*size in
 
   if h <= 0 || w <= 0 then
     begin
-      printd debug_error "Box too small for the requested Shadow.";
+      printd draw_error "Box too small for the requested Shadow.";
       []
     end else
     begin
@@ -1889,7 +1919,7 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
        * let _ = push_target ~clear:false canvas.renderer horiz in
        * gradientv3 canvas.renderer [scolor; tcolor]; *)
       let vert = gradient_texture ~pop:false canvas.renderer ~w:radius ~h
-                    ~angle:90. [scolor; tcolor] in
+                   ~angle:90. [scolor; tcolor] in
       (* create_target canvas.renderer radius h in
        * let _ = push_target ~clear:false canvas.renderer vert in
        * gradientv3 canvas.renderer ~angle:90. [scolor; tcolor]; *)
@@ -1934,22 +1964,25 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
       (* we fill also the inside rectangle, otherwise it looks bad if applied to
          a transparent box (but who wants to add shadow to a transparent box?),
          and also if the offset is larger than the radius.  *)
-      let inside = box_to_layer ?voffset canvas layer ~bg:scolor x y w h in
 
       List.iter forget_texture [horiz; vert; corner];
 
-      [inside; bottom; top; left; right;
-       bottom_right; bottom_left; top_left; top_right]
-    end;;
+      if fill
+      then let inside = box_to_layer ?voffset canvas layer ~bg:scolor x y w h in
+           [inside; bottom; top; left; right;
+            bottom_right; bottom_left; top_left; top_right]
+      else [bottom; top; left; right;
+            bottom_right; bottom_left; top_left; top_right]
+    end
 
 let center x0 big_w small_w =
-  x0 + (big_w - small_w) / 2;;
+  x0 + (big_w - small_w) / 2
 
 let align align x0 big_w small_w =
   match align with
   | Min -> x0
   | Center -> x0 + (big_w - small_w) / 2
-  | Max -> x0 + big_w - small_w;;
+  | Max -> x0 + big_w - small_w
 
 (** copy the texture on the canvas, clipped (or else) in the given
     area *)
@@ -1967,7 +2000,7 @@ let copy_tex ?(overlay = TopRight) renderer tex area x y =
         | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
                           ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
         ) in
-      go (Sdl.render_copy ~src ~dst renderer tex));;
+      go (Sdl.render_copy ~src ~dst renderer tex))
 
 (* new version for layers *)
 let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform
@@ -1986,7 +2019,7 @@ let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform
       | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
                         ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
       ) in
-  make_blit ?src ?dst ?voffset ?transform canvas layer tex;;
+  make_blit ?src ?dst ?voffset ?transform canvas layer tex
 
 (** copy the texture on the canvas, centered in the given area *)
 let center_tex ?(horiz=true) ?(verti=true) renderer tex x y w h =
@@ -1995,7 +2028,7 @@ let center_tex ?(horiz=true) ?(verti=true) renderer tex x y w h =
   let x = if horiz then center x w rw else x in
   let y = if verti then center y h rh else y in
   let dst= Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
-  go (Sdl.render_copy ~dst renderer tex);;
+  go (Sdl.render_copy ~dst renderer tex)
 
 (* new version for layers. If clip is true and the texture is larger than the
    geometry, we do not center, instead we align from the origin. *)
@@ -2012,26 +2045,26 @@ let center_tex_to_layer ?(horiz=true) ?(verti=true) ?(clip=true)
   let x = if horiz then center g.x g.w w else g.x in
   let y = if verti then center g.y g.h h else g.y in
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
-  make_blit ~voffset:g.voffset ?src ~dst canvas layer tex;;
+  make_blit ~voffset:g.voffset ?src ~dst canvas layer tex
 
 let tex_to_layer canvas layer tex g =
   let w, h = tex_size tex in
   let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w ~h in
-  make_blit ~voffset:g.voffset ~dst canvas layer tex;;
+  make_blit ~voffset:g.voffset ~dst canvas layer tex
 
 
 (* some graphics algorithms *)
 
 let normsq (x,y) =
-  x*x + y*y;;
+  x*x + y*y
 
 (** euclidian norm *)
 let norm (x,y) =
-  sqrt(float (x*x + y*y));;
+  sqrt(float (x*x + y*y))
 
 (** euclidian distance *)
 let dist (x,y) (x0,y0) =
-  norm (x-x0, y-y0);;
+  norm (x-x0, y-y0)
 
 (** intersection of rectangles; None means no clipping = the whole texture *)
 (* if the intersection is empty, we return a rect with zero area. This can be
@@ -2044,7 +2077,7 @@ let intersect_rect r1o r2o =
   | Some r1, Some r2 -> let r = Sdl.intersect_rect r1 r2 in
     if r = None then (printd debug_graphics "Empty intersect"; (* DEBUG *)
                       Some (Sdl.Rect.create ~x:0 ~y:0 ~w:0 ~h:0))
-    else r;;
+    else r
 
 (* see alpha_mult_tex below *)
 let alpha_mult_surface surf =
@@ -2059,7 +2092,7 @@ let alpha_mult_surface surf =
   go (Sdl.set_surface_blend_mode surf Sdl.Blend.mode_add);
   go (Sdl.blit_surface ~src:surf None ~dst None);
   go (Sdl.set_surface_blend_mode surf blend_mode);
-  dst;;
+  dst
 
 (* Texture manipulations *)
 
@@ -2085,7 +2118,7 @@ let alpha_mult_tex renderer tex =
   go (Sdl.set_texture_blend_mode target Sdl.Blend.mode_add);
   go (Sdl.render_copy renderer tex);
   pop_target renderer p;
-  target;;
+  target
 
 (* f is a function with values in [0,1] *)
 let convolution renderer ?(emboss=false) ?(bg = opaque grey) f radius texture =
@@ -2139,7 +2172,7 @@ let convolution renderer ?(emboss=false) ?(bg = opaque grey) f radius texture =
   done;
   pop_target renderer push;
   go (Sdl.set_texture_blend_mode target Sdl.Blend.mode_blend);
-  target;;
+  target
 
 (* f is a function with values in [0,1] *)
 let convolution_emboss renderer ?(bg = opaque grey) f radius texture =
@@ -2173,21 +2206,21 @@ let convolution_emboss renderer ?(bg = opaque grey) f radius texture =
   done;
   pop_target renderer push;
   go (Sdl.set_texture_blend_mode target Sdl.Blend.mode_blend);
-  target;;
+  target
 
 (* use with radius = 1 *)
-let one_pixel_blur _ _ = 0.111111;;
+let one_pixel_blur _ _ = 0.111111
 
 
 (* gaussian *)
 let gaussian ~variance t =
-  1. /. (variance *. sqrt(2. *. pi)) *. exp (-. t *. t /. 2. /. (variance *. variance));;
+  1. /. (variance *. sqrt(2. *. pi)) *. exp (-. t *. t /. 2. /. (variance *. variance))
 
 let gaussian_blur ~radius x y =
   let variance = (float radius) /. 2. in
   let gx =  gaussian ~variance (float x) in
   let gy =  gaussian ~variance (float y) in
-  gx *. gy;;
+  gx *. gy
 
 
 (* logical AND blending for surfaces. *)
@@ -2199,24 +2232,25 @@ let mask_surface ~mask surface =
   (* first some tests *)
   let mask, surface, to_free =
     if s <> sm then begin
-      printd debug_error "The surface and the mask should have same size. We crop";
-      let wm,hm = sm and w,h = s in
-      let w' = min wm w and h' = min hm h in
-      let mask' = create_surface_like surface ~w:w' ~h:h' in
-      let surface' = create_surface_like surface ~w:w' ~h:h' in
-      let rect = Sdl.get_clip_rect surface' in
-      go(Sdl.blit_surface ~src:mask (Some rect) ~dst:mask' None);
-      go(Sdl.blit_surface ~src:surface (Some rect) ~dst:surface' None);
-      mask', surface', [mask'; surface']
-    end
-    else let formatm = Sdl.get_surface_format_enum mask in
-      let format = Sdl.get_surface_format_enum surface in
-      if formatm <> formatm then begin
-        printd debug_warning "The surface and the mask should have same pixel format. We convert";
-        let mask' = go(Sdl.convert_surface_format mask format) in
-        mask', surface, [mask']
+        printd draw_error
+          "The surface and the mask should have same size. We crop";
+        let wm,hm = sm and w,h = s in
+        let w' = min wm w and h' = min hm h in
+        let mask' = create_surface_like surface ~w:w' ~h:h' in
+        let surface' = create_surface_like surface ~w:w' ~h:h' in
+        let rect = Sdl.get_clip_rect surface' in
+        go(Sdl.blit_surface ~src:mask (Some rect) ~dst:mask' None);
+        go(Sdl.blit_surface ~src:surface (Some rect) ~dst:surface' None);
+        mask', surface', [mask'; surface']
       end
-      else mask, surface, [] in
+    else let formatm = Sdl.get_surface_format_enum mask in
+         let format = Sdl.get_surface_format_enum surface in
+         if formatm <> formatm then begin
+             printd debug_warning "The surface and the mask should have same pixel format. We convert";
+             let mask' = go(Sdl.convert_surface_format mask format) in
+             mask', surface, [mask']
+           end
+         else mask, surface, [] in
 
   (* then the blending *)
   (* let mlm = Sdl.must_lock mask in *)
@@ -2241,7 +2275,7 @@ let mask_surface ~mask surface =
   Sdl.unlock_surface surface;
   let res = create_surface_from ~like:surface result in
   List.iter free_surface to_free;
-  res;;
+  res
 (* recall in the end the bigarray is part of the surface structure, it is
    not copied *)
 
@@ -2264,7 +2298,7 @@ let get_texture_pixels renderer texture =
   (* = there is a bug in SDL; the RenderRead pixels are upside-down... *)
   go(Sdl.render_read_pixels renderer None (Some format) pixels pitch);
   pop_target renderer push;
-  pixels, pitch, go(Sdl.pixel_format_enum_to_masks format);;
+  pixels, pitch, go(Sdl.pixel_format_enum_to_masks format)
 
 (* logical AND blending for textures. *)
 (* TODO: faster: let the mask be a surface *)
@@ -2275,8 +2309,8 @@ let land_texture renderer mask texture =
   let format,_,(w,h) = go(Sdl.query_texture texture) in
   let formatm,_,(wm,hm) = go(Sdl.query_texture mask) in
   if formatm <> format
-  then printd debug_error "Mask and texture must have same format. \
-                           Expect garbage.";
+  then printd draw_error "Mask and texture must have same format. \
+                          Expect garbage.";
   let bpp,_,_,_,_ = go(Sdl.pixel_format_enum_to_masks format) in
   let tex_bytes_per_pixel = if bpp = 32 then 4 else if bpp <= 8 then 1 else 2 in
   let w' = min wm w and h' = min hm h in
@@ -2284,9 +2318,9 @@ let land_texture renderer mask texture =
   let open Bigarray in
   printd debug_graphics "Texture BPP=%u" tex_bytes_per_pixel;
   let pixels = Array1.create int8_unsigned c_layout
-      (w' * h' * tex_bytes_per_pixel) in
+                 (w' * h' * tex_bytes_per_pixel) in
   let pixelsm = Array1.create int8_unsigned c_layout
-      (w' * h' * tex_bytes_per_pixel) in
+                  (w' * h' * tex_bytes_per_pixel) in
   (*Array1.fill pixelsm 0;*) (* DEBUG *)
   (*Array1.fill pixels 0;*) (* DEBUG *)
   let pitch = w' * tex_bytes_per_pixel in
@@ -2307,7 +2341,7 @@ let land_texture renderer mask texture =
   done;
   printd debug_graphics "Loop time: %f" (Unix.gettimeofday () -. t);
   go(Sdl.update_texture target (Some rect) pixels pitch);
-  target;;
+  target
 
 
 (* alpha=0 ==> transparent, 1 ==> opaque *)
@@ -2375,7 +2409,7 @@ let mask_texture ~mask renderer texture =
   done;
   printd debug_graphics "Loop time: %f" (Unix.gettimeofday () -. t);
   go(Sdl.update_texture target (Some rect) pixels pitch);
-  target;;
+  target
 
 (* cheap blur by zooming *) (* not used yet *)
 let blur_texture renderer tex scale =
@@ -2392,7 +2426,7 @@ let blur_texture renderer tex scale =
   go (Sdl.render_copy renderer small);
   pop_target renderer p;
   forget_texture small;
-  final;;
+  final
 
 (* More ideas:
    https://software.intel.com/en-us/blogs/2014/07/15/an-investigation-of-fast-real-time-gpu-based-image-blur-algorithms

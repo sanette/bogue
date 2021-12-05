@@ -113,7 +113,7 @@ let tab_to_space ?(sep = 8) s =
 let update ?w ?h t paragraphs =
   Var.protect t.render;
   let texo = Var.get t.render in
-  Var.unsafe_set t.render None;
+  Var.set t.render None;
   do_option texo Draw.forget_texture;
   Var.set t.paragraphs paragraphs;
   t.w <- w;
@@ -369,7 +369,7 @@ let display canvas layer td g =
         loop (paragraphs td) 0 0;
         let tex = create_texture_from_surface canvas.renderer target_surf in
         free_surface target_surf;
-        Var.unsafe_set td.render (Some tex); tex
+        Var.set td.render (Some tex); tex
       end
   in
   Var.release td.render;

@@ -7,6 +7,9 @@
    (top to bottom). However: 1. the Avar is computed *after* the resize functions
    are executed. 2. Avar actions are not triggered if the layout is not shown. *)
 
+(* Warning: currently Space elements can not be applied to a scrollable layout
+   obtained by [make_clip]. *)
+
 module Layout = B_layout
 module Avar = B_avar
 module Sync = B_sync
@@ -47,7 +50,8 @@ let make_hfill_sync ?right_margin layout =
   let margin_left = getx layout - bx - bw in
   let margin_right = ax - getx layout - width layout in
   (* The margin at the right end of the flat: *)
-  let right_margin = default right_margin (if before = [] then margin_left else bx) in
+  let right_margin = default right_margin
+                       (if before = [] then margin_left else bx) in
   let old_resize = layout.resize in
   let resize (w,h) =
     let keep_resize = true in
@@ -84,7 +88,8 @@ let make_vfill_sync ?bottom_margin layout =
   let margin_top = gety layout - by - bh in
   let margin_bottom = ay - gety layout - height layout in
   (* The margin at the bottom end of the tower: *)
-  let bottom_margin = default bottom_margin (if before = [] then margin_top else by) in
+  let bottom_margin = default bottom_margin
+                        (if before = [] then margin_top else by) in
   let resize (_w,h) =
     let keep_resize = true in
     let available_height = h - ah - bh - by
@@ -109,7 +114,7 @@ let vfill ?bottom_margin () =
 
 let full_width_sync ?right_margin ?left_margin layout =
   let open Layout in
-  let left_margin = default left_margin (getx layout) in
+  let left_margin = default_lazy left_margin (lazy (getx layout)) in
   let right_margin = default right_margin left_margin in
   resize_fix_x layout;
   let f = layout.resize in
@@ -120,6 +125,9 @@ let full_width_sync ?right_margin ?left_margin layout =
     set_width ~keep_resize layout (w - left_margin - right_margin) in
   layout.resize <- resize
 
+(* Warning, [full_width] and [full_height] pile up a new resize function on top
+   of the old one. Hence if it is applied many times on the same layout,
+   performance will be degraded. *)
 let full_width ?right_margin ?left_margin layout =
   push layout (fun () ->
       full_width_sync ?right_margin ?left_margin layout;
@@ -127,7 +135,7 @@ let full_width ?right_margin ?left_margin layout =
 
 let full_height_sync ?top_margin ?bottom_margin layout =
   let open Layout in
-  let top_margin = default top_margin (gety layout) in
+  let top_margin = default_lazy top_margin (lazy (gety layout)) in
   let bottom_margin = default bottom_margin top_margin in
   resize_fix_y layout;
   let f = layout.resize in
@@ -141,4 +149,49 @@ let full_height_sync ?top_margin ?bottom_margin layout =
 let full_height ?top_margin ?bottom_margin layout =
   push layout (fun () ->
       full_height_sync ?top_margin ?bottom_margin layout;
+      Layout.resize layout)
+
+(* Wee warning above. Or use reset_scaling = true. *)
+let keep_bottom_sync ~reset_scaling ?margin layout =
+  let open Layout in
+  match layout.house with
+  | None -> printd (debug_board + debug_error)
+              "Cannot apply [keep_bottom_sync] to room %s because it has no \
+               house."
+              (sprint_id layout)
+  | Some house ->
+     let bottom = default_lazy margin
+                    (lazy (height house - gety layout - height layout)) in
+     let f = layout.resize in
+     let resize (w,h) =
+       let keep_resize = true in
+       if not reset_scaling then f (w,h);
+       sety ~keep_resize layout (h - height layout - bottom) in
+     layout.resize <- resize
+
+let keep_bottom ?(reset_scaling = false) ?margin layout =
+  push layout (fun () ->
+      keep_bottom_sync ~reset_scaling ?margin layout;
+      Layout.resize layout)
+
+(* Wee warning above. Or use reset_scaling = true. *)
+let keep_right_sync ~reset_scaling ?margin layout =
+  let open Layout in
+  match layout.house with
+  | None -> printd (debug_board + debug_error)
+              "Cannot apply [keep_right_sync] to room %s because it has no house."
+              (sprint_id layout)
+  | Some house ->
+     let right = default_lazy margin
+                   (lazy (width house - getx layout - width layout)) in
+     let f = layout.resize in
+     let resize (w,h) =
+       let keep_resize = true in
+       if not reset_scaling then f (w,h);
+       setx ~keep_resize layout (w - width layout - right) in
+     layout.resize <- resize
+
+let keep_right ?(reset_scaling = false) ?margin layout =
+  push layout (fun () ->
+      keep_right_sync ~reset_scaling ?margin layout;
       Layout.resize layout)

@@ -186,7 +186,6 @@ let example10 () =
   let b1 = W.check_box () in
   let b2 = W.check_box () in
   let l1 = L.flat_of_w ~name:"Window#1" [b1; W.label "First window"] in
-  Draw.use_new_layer (); (* we start a new window *)
   let l2 = L.flat_of_w ~name:"Window#2" [b2; W.label "Win 2"] in
 
   let shortcuts = [exit_on_escape] in
@@ -204,7 +203,6 @@ let example11 () = (* attention ne marche pas avec DEBUG=false !! OK problème r
   let c = W.connect b1 b2 action T.buttons_down in
   (* W.add_connection b1 c;  *)(* TODO à faire autom *)
   let l1 = L.flat_of_w [b1; W.label "Window 1 = the master"] in
-  Draw.use_new_layer ();
   let l2 = L.flat_of_w [b2; W.label "Window 2"] in
   let shortcuts = [exit_on_escape] in
   let board = make ~shortcuts [c] [l1;l2] in
@@ -850,6 +848,25 @@ let example39 () =
   let board = make [] [layout] in
   run board
 
+let desc39bis = "Keep bottom/right"
+let example39bis () =
+  let background = L.bg_color in
+  let bg_red = L.color_bg (Draw.(transp red)) in
+  let bottom = L.resident ~background:bg_red (W.label "Bottom") in
+  let right = L.resident ~background:bg_red (W.label "Right") in
+  let topline = L.flat ~scale_content:false ~margins:0
+                  [L.resident ~background (W.label "Top"); right] in
+  let l = L.tower ~scale_content:false
+            [ topline;
+              L.resident ~h:300 ~w:300 ~background
+                (W.label "Try and resize the window.");
+              bottom] in
+  Space.keep_bottom bottom;
+  Space.full_width topline;
+  Space.keep_right ~margin:0 right;
+  make [] [l] |> run
+
+
 let desc40 = "rearrange, and gradient background"
 let example40 () =
   let b1 = W.check_box () in
@@ -1048,6 +1065,7 @@ let _ =
                     "37", (example37, desc37) ;
                     "38", (example38, desc38) ;
                     "39", (example39, desc39) ;
+                    "39bis", (example39bis, desc39bis) ;
                     "40", (example40, desc40) ;
                     "41", (example41, desc41) ;
                     "42", (example42, desc42) ;

@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20211102
+@version 20211205
 
 @author Vu Ngoc San
 
@@ -1289,12 +1289,14 @@ module Layout : sig
     ?name:string -> ?sep:int -> ?h:int ->
     ?align:Draw.align ->
     ?background:background ->
-    ?widget_bg:background -> ?canvas:Draw.canvas -> Widget.t list -> t
+    ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
+    Widget.t list -> t
   val tower_of_w :
     ?name:string -> ?sep:int -> ?w:int ->
     ?align:Draw.align ->
     ?background:background ->
-    ?widget_bg:background -> ?canvas:Draw.canvas -> Widget.t list -> t
+    ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
+    Widget.t list -> t
 
   (** {3 Create layouts from other layouts} *)
 
@@ -1303,17 +1305,18 @@ module Layout : sig
     ?adjust:adjust -> ?hmargin:int -> ?vmargin:int -> ?margins:int ->
     ?align:Draw.align ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> t list -> t
+    ?canvas:Draw.canvas -> ?scale_content:bool -> t list -> t
   val tower :
     ?name:string -> ?sep:int ->
     ?margins:int -> ?hmargin:int -> ?vmargin:int ->
     ?align:Draw.align ->
     ?adjust:adjust ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> ?clip:bool -> t list -> t
+    ?canvas:Draw.canvas -> ?clip:bool -> ?scale_content:bool -> t list -> t
   val superpose :
     ?w:int -> ?h:int -> ?name:string ->
     ?background:background -> ?canvas:Draw.canvas -> ?center:bool ->
+    ?scale_content:bool ->
     t list -> t
   (** Create a new layout by superposing a list of layouts without changing
       their (x,y) position. *)
@@ -1558,6 +1561,12 @@ module Space : sig
      house. See {!hfill}. *)
 
   val full_height : ?top_margin:int -> ?bottom_margin:int -> Layout.t -> unit
+
+  val keep_bottom : ?reset_scaling:bool -> ?margin:int -> Layout.t -> unit
+
+  val keep_right : ?reset_scaling:bool -> ?margin:int -> Layout.t -> unit
+
+
 end (* of Space *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1968,7 +1977,17 @@ and to native code with
 ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml
 v}
 
-You may also evaluated this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert
+Then execute the compiled code:
+
+{v
+./minimal
+v}
+
+A window should open which should look like this:
+
+{%html:<img src="minimal.png">%}
+
+You may also evaluate this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert
 
 {v
 #thread;;

@@ -23,60 +23,40 @@
 <li>you keep your frame rate;</li>
 <li>the events are sent to the GUI when it’s shown.</li>
 </ul>
-<p>Here is how to do it (see examples/embed). We will use an alias for Sdl.Event:</p>
+<p>Here is how to do it (see the full code here: <a href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a>). We will use an alias for Sdl.Event:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">module</span> E = Sdl.Event;;</a></code></pre></div>
 <ol style="list-style-type: decimal">
 <li><p>Do the SDL initialization (window, renderer) yourself.</p></li>
 <li><p>Define your GUI board with <code>Bogue.make</code> (and define the <code>before_display</code> function if you use it)</p></li>
 <li><p>Attach the SDL window to the board with <code>Bogue.make_sdl_windows</code>.</p></li>
-<li>Define a GUI state variable:<br />
-</li>
-</ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb2-1" title="1">    <span class="kw">let</span> show_gui = <span class="dt">ref</span> <span class="kw">false</span> <span class="kw">in</span></a></code></pre></div>
-<ol start="5" style="list-style-type: decimal">
+<li><p>Define a GUI state variable:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb2-1" title="1"> <span class="kw">let</span> show_gui = <span class="dt">ref</span> <span class="kw">false</span> <span class="kw">in</span></a></code></pre></div></li>
 <li><p>Start your loop. In principle you will clear the screen at each frame with <code>Sdl.set_render_draw_color</code> and <code>Sdl.render_clear</code>.</p></li>
-<li>Make sure your event handling is done only when <code>!show_gui = false</code>. For instance, here we will stop when Escape is pressed, and show the GUI when TAB is pressed:<br />
-</li>
-</ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb3-1" title="1">   <span class="kw">if</span> <span class="dt">not</span> !show_gui &amp;&amp; Sdl.poll_event (<span class="dt">Some</span> e)</a>
-<a class="sourceLine" id="cb3-2" title="2">   <span class="kw">then</span> <span class="kw">begin</span></a>
-<a class="sourceLine" id="cb3-3" title="3">     <span class="kw">match</span> E.(enum (get e typ)) <span class="kw">with</span></a>
-<a class="sourceLine" id="cb3-4" title="4">     | `Key_up <span class="kw">when</span> E.(get e keyboard_keycode) = Sdl.K.tab -&gt;</a>
-<a class="sourceLine" id="cb3-5" title="5">       show_gui := <span class="dt">not</span> !show_gui</a>
-<a class="sourceLine" id="cb3-6" title="6">     | `Key_up <span class="kw">when</span> E.(get e keyboard_keycode) = Sdl.K.escape -&gt;</a>
-<a class="sourceLine" id="cb3-7" title="7">       <span class="dt">raise</span> <span class="dt">Sys</span>.Break</a>
-<a class="sourceLine" id="cb3-8" title="8">     | _ -&gt; ()</a>
-<a class="sourceLine" id="cb3-9" title="9">     <span class="kw">end</span>;</a></code></pre></div>
-<ol start="7" style="list-style-type: decimal">
-<li>Call the one_step function when needed:<br />
-</li>
-</ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb4-1" title="1">    <span class="kw">if</span> !show_gui</a>
-<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">then</span> <span class="kw">begin</span></a>
-<a class="sourceLine" id="cb4-3" title="3">      Bogue.refresh_custom_windows board;</a>
-<a class="sourceLine" id="cb4-4" title="4">      <span class="kw">try</span> <span class="kw">if</span> <span class="dt">not</span> (Bogue.one_step ~before_display <span class="kw">true</span> (start_fps, fps) board)</a>
-<a class="sourceLine" id="cb4-5" title="5">      <span class="co">(* one_step returns true if fps was executed *)</span></a>
-<a class="sourceLine" id="cb4-6" title="6">        <span class="kw">then</span> fps () <span class="kw">with</span></a>
-<a class="sourceLine" id="cb4-7" title="7">      | Bogue.<span class="dt">Exit</span> -&gt; show_gui := <span class="kw">false</span></a>
-<a class="sourceLine" id="cb4-8" title="8">      | e -&gt; <span class="dt">raise</span> e</a>
-<a class="sourceLine" id="cb4-9" title="9">    <span class="kw">end</span></a>
-<a class="sourceLine" id="cb4-10" title="10">    <span class="kw">else</span> fps ();</a></code></pre></div>
-<pre><code>The `Bogue.refresh_custom_windows board` tells BOGUE that the
-custom window should be completely rendered even though BOGUE may
-think there was no change since last frame. The `true`
-argument of the `one_step` function indicates that an
-animation is running and BOGUE should not interrupt it by waiting
-for an event. Then, the `one_step` function will return
-`true` if BOGUE itself has an animation running, which means
-that you should *not* interrupt the graphics loop.
-
-Here we close the GUI when the user presses Esc, which raises the
-`Bogue.Exit` exception.
-
-The `fps` function was created earlier by `let start_fps, fps =
-Time.adaptive_fps 60` but you may use your own FPS handling.</code></pre>
-<ol start="8" style="list-style-type: decimal">
-<li>Flip the graphics buffer with <code>Sdl.render_present</code> and loop (jump to Step 5.)</li>
+<li><p>Make sure your event handling is done only when <code>!show_gui = false</code>. For instance, here we will stop when Escape is pressed, and show the GUI when TAB is pressed:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">if</span> <span class="dt">not</span> !show_gui &amp;&amp; Sdl.poll_event (<span class="dt">Some</span> e)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">then</span> <span class="kw">begin</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  <span class="kw">match</span> E.(enum (get e typ)) <span class="kw">with</span></a>
+<a class="sourceLine" id="cb3-4" title="4">  | `Key_up <span class="kw">when</span> E.(get e keyboard_keycode) = Sdl.K.tab -&gt;</a>
+<a class="sourceLine" id="cb3-5" title="5">    show_gui := <span class="dt">not</span> !show_gui</a>
+<a class="sourceLine" id="cb3-6" title="6">  | `Key_down <span class="kw">when</span> E.(get e keyboard_keycode) = Sdl.K.escape -&gt;</a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="dt">raise</span> <span class="dt">Sys</span>.Break</a>
+<a class="sourceLine" id="cb3-8" title="8">  | _ -&gt; ()</a>
+<a class="sourceLine" id="cb3-9" title="9">  <span class="kw">end</span>;</a></code></pre></div></li>
+<li><p>Call the one_step function when needed:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb4-1" title="1"> <span class="kw">if</span> !show_gui</a>
+<a class="sourceLine" id="cb4-2" title="2"> <span class="kw">then</span> <span class="kw">begin</span></a>
+<a class="sourceLine" id="cb4-3" title="3">   Bogue.refresh_custom_windows board;</a>
+<a class="sourceLine" id="cb4-4" title="4">   <span class="kw">try</span> <span class="kw">if</span> <span class="dt">not</span> (Bogue.one_step ~before_display <span class="kw">true</span> (start_fps, fps) board)</a>
+<a class="sourceLine" id="cb4-5" title="5">   <span class="co">(* one_step returns true if fps was executed *)</span></a>
+<a class="sourceLine" id="cb4-6" title="6">     <span class="kw">then</span> fps () <span class="kw">with</span></a>
+<a class="sourceLine" id="cb4-7" title="7">   | Bogue.<span class="dt">Exit</span> -&gt; show_gui := <span class="kw">false</span></a>
+<a class="sourceLine" id="cb4-8" title="8">   | e -&gt; <span class="dt">raise</span> e</a>
+<a class="sourceLine" id="cb4-9" title="9"> <span class="kw">end</span></a>
+<a class="sourceLine" id="cb4-10" title="10"> <span class="kw">else</span> fps ();</a></code></pre></div>
+<p>The <code>Bogue.refresh_custom_windows board</code> tells BOGUE that the custom window should be completely rendered even though BOGUE may think there was no change since last frame. The <code>true</code> argument of the <code>one_step</code> function indicates that an animation is running and BOGUE should not interrupt it by waiting for an event. Then, the <code>one_step</code> function will return <code>true</code> if BOGUE itself has an animation running, which means that you should <em>not</em> interrupt the graphics loop.</p>
+<p>Here we close the GUI when the user presses Esc, which raises the <code>Bogue.Exit</code> exception.</p>
+<p>The <code>fps</code> function was created earlier by <code>let start_fps, fps = Time.adaptive_fps 60</code> but you may use your own FPS handling.</p></li>
+<li><p>Flip the graphics buffer with <code>Sdl.render_present</code> and loop (jump to Step 5.)</p></li>
 </ol>
   <div style="float: right;">
     <a href="https://github.com/sanette/bogue">Find bogue on
