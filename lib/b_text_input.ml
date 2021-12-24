@@ -22,7 +22,7 @@ type selection =
   | Start of int (* ne sert pas à grand chose *)
   | Active of (int * int);; (* n1 should be <= n2 *)
 
-type filter = string -> bool;;
+type filter = string -> bool
 
 type t =
   { keys : (string list) Var.t;
@@ -44,15 +44,15 @@ type t =
     max_size : int; (* max number of letters *)
     prompt : string; (* text to display when there is no user input *)
     filter : filter; (* which letters are accepted *)
-  };;
+  }
 
-let no_filter _ = true;;
-let uint_filter s = List.mem s ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"];;
+let no_filter _ = true
+let uint_filter s = List.mem s ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"]
 
 let and_filter f1 f2 = function
-    s -> (f1 s) && (f2 s);;
+    s -> (f1 s) && (f2 s)
 
-let default_font = Label.File Theme.text_font;;
+let default_font = Label.File Theme.text_font
 
 let create ?(max_size = 2048) ?(prompt = "Enter text")
       ?(size = Theme.text_font_size)
@@ -74,7 +74,7 @@ let create ?(max_size = 2048) ?(prompt = "Enter text")
     max_size;
     prompt;
     filter;
-  };;
+  }
 
 let unload ti =
   begin
@@ -90,29 +90,29 @@ let unload ti =
   | Some tex -> begin
       Var.set ti.cursor None;
       Draw.forget_texture tex
-    end;;
+    end
 
 (* TODO *)
-let free = unload;;
+let free = unload
 (* TODO free font ? *)
 
 let resize _size ti =
   unload ti
 
-let text ti = String.concat "" (Var.get ti.keys);;
+let text ti = String.concat "" (Var.get ti.keys)
 
-let is_active ti = Var.get ti.active;;
+let is_active ti = Var.get ti.active
 
 let clear ti =
   let texo = Var.get ti.render in
   Var.set ti.render None;
-  do_option texo Draw.forget_texture;;
+  do_option texo Draw.forget_texture
 
 let stop ti =
   printd debug_event "Stopping text input";
   if Sdl.is_text_input_active () then Sdl.stop_text_input ();
   clear ti;
-  Var.set ti.active false;;
+  Var.set ti.active false
 
 (* because there is a length test, it should be placed ad the end of
    all modifications of ti *)
@@ -127,7 +127,7 @@ let set ti keys =
       else keys in
     Var.set ti.keys keys;
     clear ti
-  end;;
+  end
 
 let kill_selection ti =
   match Var.get ti.selection with
@@ -136,18 +136,18 @@ let kill_selection ti =
     Var.set ti.cursor_pos n1;
     Var.set ti.selection Empty;
     set ti (List.flatten [head1; tail2]);
-  | _ -> ();;
+  | _ -> ()
 
 (* better to inline ? *)
 let unselect ti =
   printd debug_board "Removing selection";
-  Var.set ti.selection Empty;;
+  Var.set ti.selection Empty
 
 let select_all ti =
   printd debug_board "Select all text";
   let l = List.length (Var.get ti.keys) in
   Var.set ti.selection (Active (0,l));
-  clear ti;;
+  clear ti
 
 (* insert a list of letters *)
 let insert_list ti list =
@@ -155,18 +155,18 @@ let insert_list ti list =
   let x = Var.get ti.cursor_pos in
   let head, tail = split_list (Var.get ti.keys) x in
   Var.set ti.cursor_pos (x + (List.length list));
-  set ti (List.flatten [head; list; tail]);;
+  set ti (List.flatten [head; list; tail])
 
 (** insert a letter *)
 let insert ti s =
-  insert_list ti [s];;
+  insert_list ti [s]
 
 (** insert a whole string *)
 let insert_text ti text =
   let list = Utf8.split text in
-  insert_list ti list;;
+  insert_list ti list
 
-let seps = [" "; ";"; "."; ","; "/"; ":"; "\\n"; "\\t"; "\\j"; "?"; "!"];;
+let seps = [" "; ";"; "."; ","; "/"; ":"; "\\n"; "\\t"; "\\j"; "?"; "!"]
 
 (* find a word containg the cursor position *)
 let find_word ti =
@@ -187,29 +187,29 @@ let find_word ti =
     let left = find_sep ~complement daeh 0 in
     let right = find_sep ~complement tail 0 in
     printd debug_board "Word found (%d,%d)" left right;
-    Active (n-left, n+right);;
+    Active (n-left, n+right)
 
 let select_word ti =
   let sel = find_word ti
   in Var.set ti.selection sel;
-  clear ti;;
+  clear ti
 
 let ctrl_pressed () =
   let m = Sdl.get_mod_state () in
   m = Sdl.Kmod.ctrl
   || m = Sdl.Kmod.lctrl
-  || m = Sdl.Kmod.rctrl;;
+  || m = Sdl.Kmod.rctrl
 
 let start_selection ti =
   let n = Var.get ti.cursor_pos in
   printd debug_board "Starting text selection at %d" n;
-  Var.set ti.selection (Start n);;
+  Var.set ti.selection (Start n)
 
 (* start selection on pressing SHIFT *)
 let shift_check_sel ti =
   if Trigger.shift_pressed () then
     (if Var.get ti.selection = Empty then start_selection ti)
-  else unselect ti;;
+  else unselect ti
 
 let backspace ti =
   if Var.get ti.selection <> Empty then kill_selection ti
@@ -220,33 +220,33 @@ let backspace ti =
         | [] -> printd debug_error "This should not happen in backspace"; []
         | _::rest -> rest in
       Var.set ti.cursor_pos (x-1);
-      set ti (List.flatten [head; tail']);;
+      set ti (List.flatten [head; tail'])
 
 (* move cursor to the left *)
 let left ti =
   shift_check_sel ti;
   let x = Var.get ti.cursor_pos in
   clear ti;
-  Var.set ti.cursor_pos (max 0 (x-1));;
+  Var.set ti.cursor_pos (max 0 (x-1))
 
 (* move cursor to the right *)
 let right ti =
   shift_check_sel ti;
   let x = Var.get ti.cursor_pos in
   clear ti;
-  Var.set ti.cursor_pos (min (List.length (Var.get ti.keys)) (x+1));;
+  Var.set ti.cursor_pos (min (List.length (Var.get ti.keys)) (x+1))
 
 (* move to beginning of line *)
 let home ti =
   shift_check_sel ti;
   clear ti;
-  Var.set ti.cursor_pos 0;;
+  Var.set ti.cursor_pos 0
 
 (* move to end of line *)
 let last ti =
   shift_check_sel ti;
   clear ti;
-  Var.set ti.cursor_pos (List.length (Var.get ti.keys));;
+  Var.set ti.cursor_pos (List.length (Var.get ti.keys))
 
 (*** input ***)
 
@@ -258,7 +258,7 @@ let activate ?(check=true) ti ev =
     Sdl.start_text_input ();
     Var.set ti.active true;
     clear ti;
-  end;;
+  end
 
 (** validate selection from starting point to current cursor_pos *)
 let make_selection ti =
@@ -269,7 +269,7 @@ let make_selection ti =
         if n <> n0 then (printd debug_board "Make selection [%d,%d]" n0 n;
                          Var.set ti.selection (Active (min n0 n, max n0 n)))
         else (Var.set ti.selection Empty)
-    | Active _ -> Var.set ti.selection Empty;;
+    | Active _ -> Var.set ti.selection Empty
 
 (*** clipboard ***)
 
@@ -279,7 +279,7 @@ let selection_text ti =
     | Active (n1,n2) -> let _, tail = split_list (Var.get ti.keys) n1 in
                         let head, _ = split_list tail (n2-n1) in
                         String.concat "" head
-    | _ -> "";;
+    | _ -> ""
 
 (* copy to clipboard *)
 let copy ti =
@@ -287,18 +287,18 @@ let copy ti =
   if text <> "" then begin
     printd debug_memory "Copy to clipboard: [%s]" text;
     go (Sdl.set_clipboard_text text)
-  end;;
+  end
 
 (* copy and kill *)
 let kill ti =
   copy ti;
-  kill_selection ti;;
+  kill_selection ti
 
 (* paste from clipboard *)
 let paste ti =
   if Sdl.has_clipboard_text () then
     let text = go (Sdl.get_clipboard_text ()) in
-    insert_text ti text;;
+    insert_text ti text
 
 
 (* keyboard events *)
@@ -348,7 +348,7 @@ let receive_key ti ev =
                 printd debug_event "Key=[%s], mod=%u, Keycode:%u" (Sdl.get_key_name c) (Sdl.get_mod_state ()) c)
       )
     | _ -> printd debug_warning "Warning: Event should not happen here"
-;;
+
 
 (************* display ***********)
 
@@ -382,16 +382,16 @@ The "cursor_xpos" is computed wrt the origin of the surface "surf"
 *)
 
 
-let memo = ref true;; (* use more memory (memoization) for speeding up display *)
-let default_size = (128,32);;
-let left_margin = 2;; (* in logical pixels *)
-let bottom_margin = 5;; (* used for underline *)
+let memo = ref true (* use more memory (memoization) for speeding up display *)
+let default_size = (128,32)
+let left_margin = 2 (* in logical pixels *)
+let bottom_margin = 5 (* used for underline *)
 (* TODO replace bottom_margin by cursor height (to compute) *)
-(* let cursor_width = 10;;
+(* let cursor_width = 10
  * let cursor_height = 9;; *)
 (* let cursor_thickness = 2;; *)
 
-let font ti = Label.get_font_var ti.font (Theme.scale_int ti.size);;
+let font ti = Label.get_font_var ti.font (Theme.scale_int ti.size)
 
 (* we cannot use Sdl.color type here if we want to memoize, since colors are
    typically recreated by Sdl.Color.create... *)
@@ -407,7 +407,7 @@ let render_key font key color =
   (* "If RLE is enabled, color key and alpha blending blits are much faster, but
      the surface must be locked before directly accessing the pixels." (SDL
      doc) *)
-  surf;;
+  surf
 
 (* memoize. Warning: do NOT free the resulting surfaces !! *)
 (* NOTE: it seems that this memoing does not really improve speed, but at least
@@ -426,9 +426,9 @@ let render_key, render_key_cleanup =
           decr Draw.ttf_surfaces_in_memory) table;
       Hashtbl.clear table in
     f, cleanup
-  else render_key, fun () -> ();;
+  else render_key, fun () -> ()
 
-Draw.at_cleanup render_key_cleanup;;
+let () = Draw.at_cleanup render_key_cleanup
 
 (** return size of rendered text. It seems that Sdl.TTF.size_utf8 does not always
     give the exact same result as size of blended-rendered surface. Warning:
@@ -455,11 +455,11 @@ let text_dims font text =
   (*   else *) Label.physical_size_text font text
     in
     printd debug_graphics "Size of '%s' = (%d,%d)." text w h;
-    w,h;;
+    w,h
 
 (* we use all-purpose memo to memoize the kerning values. One could do
    something more optimized, of course. *)
-let text_dims = memo2 text_dims;;
+let text_dims = memo2 text_dims
 
 (* initial size of the widget *)
 (* not scaled, in order to conform to all widgets size functions *)
@@ -470,12 +470,12 @@ let size ti =
     | None -> text_dims (font ti) (ti.prompt) in
   let w,h = Draw.unscale_size (w,h) in
   (w + 2*left_margin (* this should probably be left_margin + cursor_width/2 *),
-   h + 2*bottom_margin);;
+   h + 2*bottom_margin)
 (* The bottom margin is also added at the top, in order to keep the text
    vertically centered. *)
 
 let text_width font s =
-  let w,_ = text_dims font s in w;;
+  let w,_ = text_dims font s in w
 
 (** return the cursor position with respect to the total text surface *)
 (* warning: this is already scaled... (physical pixels) *)
@@ -484,7 +484,7 @@ let cursor_xpos ?n ti =
     | None -> Var.get ti.cursor_pos
     | Some n -> n in
   let head, _ = split_list (Var.get ti.keys) n in
-  List.fold_left (fun s key -> s + text_width (font ti) key) 0  head;;
+  List.fold_left (fun s key -> s + text_width (font ti) key) 0  head
 
 (** return cursor_pos corresponding to the x position *)
 let x_to_cursor_old ti x0 =
@@ -497,7 +497,7 @@ let x_to_cursor_old ti x0 =
     else let cx = cursor_xpos ~n ti in
       if cx >= x0 then n else loop (n+1)
       (* TODO: test if n is larger than max size ? *)
-  in loop 0;;
+  in loop 0
 
 (** Return cursor_pos corresponding to the x position *)
 let x_to_cursor ti x0 =
@@ -513,7 +513,7 @@ let x_to_cursor ti x0 =
       if cx >= x0 then n else
         let advance, _ = text_dims (font ti) key in
         loop rest (cx + advance) (n+1) in
-  loop (Var.get ti.keys) 0 0;;
+  loop (Var.get ti.keys) 0 0
 
 
 (* Recall that none of the functions that are called by threads should call
@@ -525,13 +525,13 @@ let click_cursor ti ev =
   let x0u, _ = Mouse.pointer_pos ev in
   let x0 = Theme.scale_int x0u in (* on pourrait éviter de faire unscale-scale *)
   Var.set ti.cursor_pos (x_to_cursor ti x0);
-  clear ti;;
+  clear ti
 
 (* This should be called on mouse_button_down *)
 let button_down ti ev =
   if is_active ti then
     (click_cursor ti ev;
-     start_selection ti);;
+     start_selection ti)
 
 (* This should be called on mouse_button_up *)
 let click ti ev =
@@ -544,19 +544,19 @@ let click ti ev =
         ignore (make_selection ti)
       end
     )
-  else activate ti ev;;
+  else activate ti ev
 
 let tab ti ev =
   if Sdl.Event.(get ev keyboard_keycode) = Sdl.K.tab then begin
     activate ~check:false ti ev;
     select_all ti
-  end;;
+  end
 
 (* we ask for redraw when mouse moves when button is pressed *)
 let mouse_select ti ev=
   printd debug_event "Mouse selection";
   click_cursor ti ev;
-  clear ti;;
+  clear ti
 
 (* render letter by letter so that x position is precise *)
 let draw_keys ?fg font keys =
@@ -584,7 +584,7 @@ let draw_keys ?fg font keys =
       if not !memo then Draw.free_surface surf;
       draw_loop rest in
   draw_loop surfs;
-  total_surf;;
+  total_surf
 
 (* REMARK: instead of blitting surfaces, one could also use textures and SDL
    RenderTarget ? *)
@@ -609,7 +609,8 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
       let start_time = Unix.gettimeofday () in (* =for debug only *)
       let keys = Var.get ti.keys in
       let fg = if keys <> [] then Draw.(opaque text_color) else
-          (* if is_active ti then Draw.(opaque pale_grey) else *) Draw.(opaque faint_color) in
+          (* if is_active ti then Draw.(opaque pale_grey) else *)
+          Draw.(opaque faint_color) in
       let keys = if keys = [] && not (is_active ti) then [ti.prompt] else keys in
       let surf = draw_keys (font ti) keys ~fg in
       (* TODO: draw only the relevent text, not everything. *)
@@ -715,4 +716,4 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
                                 cursor_xpos ti - Var.get ti.offset;
                             y = g.y + bh - voff } in
     [text_blit; tex_to_layer canvas layer cursor cursor_g]
-  else [text_blit];;
+  else [text_blit]

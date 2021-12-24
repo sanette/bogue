@@ -31,17 +31,18 @@ let debug_memory = 32
 let debug_board = 64
 let debug_event = 128
 let debug_custom = 256
+let debug_disable = 512 (* use this to disable the debug message *)
 
 let debug_code =
   ref (debug_error
-    (* + debug_warning *)
-    (* + debug_graphics *)
-    (* + debug_thread *)
-    (* + debug_io *)
-    (* + debug_board *)
-    (* + debug_memory *)
-    (* + debug_event *)
-     (* + debug_custom *))
+       + debug_warning
+       (* + debug_graphics *)
+       (* + debug_thread *)
+       + debug_io
+       (* + debug_board *)
+       + debug_memory
+       (* + debug_event *)
+       + debug_custom)
 
 (* debug_code := !debug_code lor debug_thread;; *)
 
@@ -157,11 +158,13 @@ let go : 'a Tsdl.Sdl.result -> 'a = function
   | Error _ -> failwith ("SDL ERROR: " ^ (Sdl.get_error ()))
   | Ok r -> r
 
+(* List utilities *)
+(******************)
 
 let list_iter list f = List.iter f list
-                     
-(* returns an option containing the first element of the list for which the
-    function f does not return None *)
+
+(* Return an option containing the first element of the list for which the
+   function f does not return None *)
 let rec list_check f l =
   match l with
     | [] -> None
@@ -171,6 +174,10 @@ let rec list_check f l =
         | s -> s
     end
 
+(* Idem where the function f returns true *)
+let list_check_ok f l =
+  list_check (fun x -> if f x then Some x else None) l
+
 (* Return the first element of the list satisfying p, and its index *)
 let list_findi p l =
   let rec loop i = function
@@ -179,18 +186,37 @@ let list_findi p l =
       else loop (i+1) rest in
   loop 0 l
 
-(* idem where the function f returns true *)
-let list_check_ok f l =
-  list_check (fun x -> if f x then Some x else None) l
+(* Split l into two lists l1rev,l2, where the first element of l2 is the first
+   element of l for which f is true (l2 can be empty). We always have: l =
+   List.rev_append l1rev l2. *)
+let list_split_first_rev f l =
+  let rec loop l1rev = function
+    | [] -> l1rev, []
+    | x::rest as l2 -> if f x then l1rev, l2
+      else loop (x::l1rev) rest in
+  loop [] l
+
+let list_split_before l equal x =
+  let l1rev, l2 = list_split_first_rev (equal x) l in
+  List.rev l1rev, l2
+
+(* Return l1rev, x, l2, where x is the first element for which f x = true and l
+   is the concatenation of List.rev l1, x and l2 *)
+let list_split_at_rev f l =
+  match list_split_first_rev f l with
+  | _, [] -> raise Not_found
+  | l1, x::l2 -> l1, x, l2
+
+(* Replace the first element for which f returns true by x *)
+let list_replace f l x =
+  let l1, _, l2 = list_split_at_rev f l in
+  List.rev_append l1 (x :: l2)
 
 (* returns the list where the first element for which f is true is removed *)
 let list_remove_first f l =
-  let rec loop acc = function
-    | [] -> (* printd debug_error "list_remove_first: element not found"; *)
-      raise Not_found
-    | x::rest -> if f x then List.rev_append acc rest
-      else loop (x::acc) rest in
-  loop [] l
+  match list_split_first_rev f l with
+  | _, [] -> raise Not_found
+  | l1, _::l2 -> List.rev_append l1 l2
 
 (* splits a list atfer the xth element *)
 let split_list_rev list x =
@@ -219,6 +245,9 @@ let rec injective equal list =
     | [] -> true
     | a::rest -> if mem equal a rest then false else injective equal rest
 
+(* Check if some element is repeated and return the first one. Note this is
+   O(n²) in the worse case. One could use sort_uniq instead which should be O(n
+   log n). *)
 let rec repeated equal list =
    match list with
     | [] -> None
@@ -229,34 +258,34 @@ let rec repeated equal list =
 let list_max compare list =
   match list with
   | [] -> None
-  | a::rest -> Some (List.fold_left
-                       (fun max x ->
-                          (* printd debug_warning "Compare=%d" (compare x min); *)
-                          if compare x max > 0 then x else max)
-                       a rest)
-
-(* included in ocaml 4.03.0 *)
-let cons x list =
-  x::list
+  | a::rest ->
+    Some (List.fold_left
+            (fun max x ->
+               (* printd debug_warning "Compare=%d" (compare x min); *)
+               if compare x max > 0 then x else max)
+            a rest)
 
 let run f = f ()
 
-(* monadic operations *)
+(* monadic operations. Starting with ocaml 4.08 we can use the Option module. *)
 
 exception None_option
 (* used when the option should not be None. *)
 
-let map_option o f = match o with
-  | Some x -> Some (f x)
-  | None -> None
+(* let map_option o f = match o with
+ *   | Some x -> Some (f x)
+ *   | None -> None *)
+let map_option o f = Option.map f o
 
-let do_option o f = match o with
-  | Some x -> f x
-  | None -> ()
+(* let do_option o f = match o with
+ *   | Some x -> f x
+ *   | None -> () *)
+let do_option o f = Option.iter f o
 
-let check_option o f = match o with
-  | Some x -> f x
-  | None -> None
+(* let check_option o f = match o with
+ *   | Some x -> f x
+ *   | None -> None *)
+let check_option = Option.bind
 
 (* Warning the "d" is always evaluated, so it's not always a good idea to use
    this...use the lazy or fn version instead.  *)
@@ -295,26 +324,29 @@ let remove_option = function
 (* standard memo fns. Don't use when the variable is mutable, it would store the
    old value for ever when the variable changes. *)
 
-let memo f =
+let memo ~name f =
   let store = Hashtbl.create 100 in
-  fun x -> try Hashtbl.find store x with
-    | Not_found -> let result = f x in
-                   Hashtbl.add store x result;
-                   printd debug_memory "##Size of Hashtbl : %u" (Hashtbl.length store);
-                   result
+  fun x -> match Hashtbl.find_opt store x with
+    | Some y -> y
+    | None -> let result = f x in
+      Hashtbl.add store x result;
+      printd debug_memory "##Size of %s Hashtbl : %u" name (Hashtbl.length store);
+      result
 
 let memo2 f =
   let store = Hashtbl.create 100 in
-  fun x y -> try Hashtbl.find store (x,y) with
-    | Not_found -> let result = f x y in
-                   Hashtbl.add store (x,y) result;
-                   printd debug_memory "##Size of Hashtbl2 : %u" (Hashtbl.length store);
-                   result
+  fun x y -> match Hashtbl.find_opt store (x,y) with
+    | Some y -> y
+    | None -> let result = f x y in
+      Hashtbl.add store (x,y) result;
+      printd debug_memory "##Size of Hashtbl2 : %u" (Hashtbl.length store);
+      result
 
 let memo3 f =
   let store3 = Hashtbl.create 100 in
-  (fun x y z -> try Hashtbl.find store3 (x,y,z) with
-     | Not_found -> let result = f x y z in
+  (fun x y z -> match Hashtbl.find_opt store3 (x,y,z) with
+     | Some y -> y
+     | None -> let result = f x y z in
        Hashtbl.add store3 (x,y,z) result;
        printd debug_memory "###Size of Hashtbl3 : %u" (Hashtbl.length store3);
        result),

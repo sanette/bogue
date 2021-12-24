@@ -5,6 +5,7 @@ module Utils = B_utils
 module Chain = B_chain
 module Draw = B_draw
 module Label = B_label
+module Style = B_style
 
 let kind k =
   let open Widget in
@@ -52,8 +53,17 @@ let bool b =
 let anim _ =
   "Anim";; (* TODO*)
 
+let style_bg _ = "" (* TODO *)
+let style_border _ = "" (* TODO *)
+let style_shadow _ = "" (* TODO *)
+
+let style s =
+  let open Style in
+  sprintf "Style {background=%s; border=%s; shadow=%s}"
+    (style_bg s.background) (style_border s.border) (style_shadow s.shadow)
+
 let background = function
-  | L.Solid c -> color c
+  | L.Style s -> style s
   | L.Box _ -> "Box";;
 
 let rec layout_up ?(indent = "") r =

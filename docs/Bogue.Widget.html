@@ -203,7 +203,7 @@
 </div>
 
 <pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -><br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><h3 id="widget_create">Creation of Widgets</h3><h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
-<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?background:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?border:<a href="Bogue.Style.html#TYPEborder">Style.border</a> -><br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -> ?h:int -> ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Box widget, which simply displays a rectangle, optionally with
      rounded corners and drop shadow. It is often used for the background of a
@@ -225,7 +225,7 @@
 </div>
 </div>
 <h4 id="3_Labelsoricons">Labels or icons</h4>
-<pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Label widget with a one-line text.</p>
 </div>

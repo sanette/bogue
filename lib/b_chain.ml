@@ -9,6 +9,10 @@
    the connected component of any of its elements) is called a stack. There is
    no particular type for a stack. *)
 
+(* TODO we could use a phatom type when we want to ensure the chain is not
+   empty. See
+   https://blog.janestreet.com/howto-static-access-control-using-phantom-types/*)
+
 let debug = !B_utils.debug
 
 exception Max_insert
@@ -59,7 +63,7 @@ let singleton value =
     next = None }
 
 let get_stack_id = function
-  | None -> raise (Invalid_argument "Empty Chain has no stack id")
+  | None -> invalid_arg "Empty Chain has no stack id"
   | Some a -> a.id
 
 (* same as Option.iter f o *)
@@ -168,22 +172,24 @@ let insert_after t value =
 
 let insert_after t value =
   try insert_after t value with
-  | Max_insert -> B_utils.(printd debug_memory "Need to evenize chain...");
-                 evenize t; insert_after t value
+  | Max_insert ->
+    B_utils.(printd debug_memory "Need to evenize chain...");
+    evenize t; insert_after t value
   | e -> raise e
 
 let insert_before t value =
   let p = prev t in
   let id, depth = match t with
     | None -> new_id (), dx
-    | Some x -> let d' =
-                  match p with
-                  | None -> 0
-                  | Some x' -> x'.depth in
-                let d = x.depth - d' in
-                if d < 2 then raise Max_insert
-                (* TODO: en fait on peut encore décaler le suivant ! *)
-                else x.id, x.depth - d / 2 in
+    | Some x ->
+      let d' =
+        match p with
+        | None -> 0
+        | Some x' -> x'.depth in
+      let d = x.depth - d' in
+      if d < 2 then raise Max_insert
+      (* TODO: en fait on peut encore décaler le suivant ! *)
+      else x.id, x.depth - d / 2 in
   let t' = Some { id; value; depth; prev = p; next = t } in
   B_utils.(printd debug_memory  "New layer created with depth: %u\n" depth);
   do_option t (fun x -> x.prev <- t');
@@ -192,8 +198,9 @@ let insert_before t value =
 
 let insert_before t value =
   try insert_before t value with
-  | Max_insert -> B_utils.(printd debug_memory "Need to evenize chain...");
-                 evenize t; insert_before t value
+  | Max_insert ->
+    B_utils.(printd debug_memory "Need to evenize chain...");
+    evenize t; insert_before t value
   | e -> raise e
 
 let replace t value =
@@ -319,45 +326,44 @@ let copy = function
    order. *)
 let copy_into ~dst:t = function
   | None ->
-     B_utils.(printd debug_warning "Copying an empty Chain has no effect");
-     None
+    B_utils.(printd debug_warning "Copying an empty Chain has no effect");
+    None
   | Some a as s ->
-     if same_stack s t
-     then raise (Invalid_argument
-                   "Cannot copy a chain element into the same stack")
-     else
-       let rec search_position t0 = function
-         | None -> t0, None
-         | Some b as t1 ->
-            if a.depth > b.depth then search_position t1 b.next
-            else t0, t1 in  (* t0 < Some a <= t1 *)
-       let id = match t with None -> new_id () | Some b -> b.id in
-       let a' = { a with id } in
-       match search_position None (first t) with
-       | None, None ->
-          a'.next <- None;
-          a'.prev <- None;
-          Some a'
-       | Some a0 as t0, None ->
-          a'.next <- None;
-          a'.prev <- t0;
-          a0.next <- Some a';
-          Some a'
-       | None, (Some a1 as t1) ->
-          if a1.depth <> a.depth then
-            begin
-              a'.prev <- None;
-              a'.next <- t1;
-              a1.prev <- Some a';
-              Some a'
-            end else t1
-       | Some a0 as t0, (Some a1 as t1) ->
-          if a1.depth <> a.depth then
-            begin
-              let tt = Some a' in
-              a'.prev <- t0;
-              a'.next <- t1;
-              a0.next <- tt;
-              a1.prev <- tt;
-              tt
-            end else t1
+    if same_stack s t
+    then invalid_arg "Cannot copy a chain element into the same stack"
+    else
+      let rec search_position t0 = function
+        | None -> t0, None
+        | Some b as t1 ->
+          if a.depth > b.depth then search_position t1 b.next
+          else t0, t1 in  (* t0 < Some a <= t1 *)
+      let id = match t with None -> new_id () | Some b -> b.id in
+      let a' = { a with id } in
+      match search_position None (first t) with
+      | None, None ->
+        a'.next <- None;
+        a'.prev <- None;
+        Some a'
+      | Some a0 as t0, None ->
+        a'.next <- None;
+        a'.prev <- t0;
+        a0.next <- Some a';
+        Some a'
+      | None, (Some a1 as t1) ->
+        if a1.depth <> a.depth then
+          begin
+            a'.prev <- None;
+            a'.next <- t1;
+            a1.prev <- Some a';
+            Some a'
+          end else t1
+      | Some a0 as t0, (Some a1 as t1) ->
+        if a1.depth <> a.depth then
+          begin
+            let tt = Some a' in
+            a'.prev <- t0;
+            a'.next <- t1;
+            a0.next <- tt;
+            a1.prev <- tt;
+            tt
+          end else t1

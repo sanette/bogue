@@ -62,7 +62,9 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
   printd debug_graphics "Create filter screen (%d,%d)" w h;
   let b = match color with
     | None -> Widget.empty ~w ~h ()
-    | Some color -> Widget.box ~w ~h ~background:(Style.Solid color)() in
+    | Some color ->
+      let style = Style.create ~background:(Style.Solid color)() in
+      Widget.box ~w ~h ~style () in
   let screen = (* Layout.(flat_of_w ~sep:0 layout.canvas [b]) in *)
     Layout.(resident ~name:"filter" ?canvas:layout.canvas b) in
   (* Layout.(screen.geometry <- {screen.geometry with w; h}); *)
@@ -120,12 +122,11 @@ let attach ?bg ?(show=true) house layout =
 (* some predefined popup designs *)
 
 let slide_in ~dst content buttons =
-  let border = Style.(border (line ~color:Draw.(opaque grey) ())) in
-  let shadow = Style.shadow () in
-  let background = Layout.Box
-                     (Box.create ~shadow
-                        ~background:(Style.Solid Draw.(opaque (pale grey)))
-                        ~border ()) in
+  let style = Style.(create
+                       ~border:(mk_border (mk_line ~color:Draw.(opaque grey) ()))
+                       ~shadow:(mk_shadow ())
+                       ~background:(Solid Draw.(opaque (pale grey))) ()) in
+  let background = Layout.Box (Box.create ~style ()) in
   let popup = Layout.tower ~align:Draw.Center ~background [content; buttons] in
   let screen = attach ~bg:(Draw.(set_alpha 200 (pale grey))) dst popup in
   (* Layout.slide_in ~dst popup; *)
@@ -197,12 +198,12 @@ type position =
 
 let tooltip ?background ?(position = Below) text ~target widget layout =
   let t = Widget.label ~size:Theme.small_font_size text in
-  let border = Style.(border ~radius:5 (line ())) in
   let background = match background with
     | Some b -> b
-    | None -> Layout.Box
-                (Box.create ~background:(Style.Solid Draw.(opaque (pale grey)))
-                   ~border ()) in
+    | None ->
+      let style = Style.(create ~border:(mk_border ~radius:5 (mk_line ()))
+                           ~background:(Solid Draw.(opaque (pale grey))) ()) in
+      Layout.Box (Box.create ~style ()) in
   let tooltip = Layout.tower_of_w ~sep:3 ~background [t] in
   attach_on_top layout tooltip;
   tooltip.Layout.show <- false;
@@ -210,25 +211,25 @@ let tooltip ?background ?(position = Below) text ~target widget layout =
   let show_tooltip _ _ _ =
     let open Layout in
     if not tooltip.show then begin
-        let x,y = pos_from layout target in
-        (* print_endline (Printf.sprintf "(%i,%i)" x y); *)
-        let x',y' = match position with
-          | Below -> x, y+(height target)+2
-          | Above -> x, y-(height tooltip)-2
-          | LeftOf -> x-(width tooltip)-2, y
-          | RightOf -> x+(width target)+2, y
-          | Mouse -> let x,y = Trigger.mouse_pos () in (x+8,y+8) in
-        sety tooltip y';
-        setx tooltip x';
-        tooltip.show <- true;
-        Layout.fade_in tooltip
-      end in
+      let x,y = pos_from layout target in
+      (* print_endline (Printf.sprintf "(%i,%i)" x y); *)
+      let x',y' = match position with
+        | Below -> x, y+(height target)+2
+        | Above -> x, y-(height tooltip)-2
+        | LeftOf -> x-(width tooltip)-2, y
+        | RightOf -> x+(width target)+2, y
+        | Mouse -> let x,y = Trigger.mouse_pos () in (x+8,y+8) in
+      sety tooltip y';
+      setx tooltip x';
+      tooltip.show <- true;
+      Layout.fade_in tooltip
+    end in
   let to_show = ref true in
   let hide_tooltip b =
     to_show := false;
     ignore (Timeout.add 200 (fun () ->
-                tooltip.Layout.show <- !to_show;
-                Trigger.push_redraw (Widget.id b)))
+        tooltip.Layout.show <- !to_show;
+        Trigger.push_redraw (Widget.id b)))
   in
   let enter _ =
     if tooltip.Layout.show

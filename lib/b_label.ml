@@ -13,6 +13,7 @@ type style = Tsdl_ttf.Ttf.Style.t
 
 type t =
   { text : string Var.t;
+    align : Draw.align;
     render : (Draw.texture option) Var.t;
     font : font Var.t;
     style : Ttf.Style.t;
@@ -21,9 +22,10 @@ type t =
   }
 
 let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
-    ?(style = Ttf.Style.normal) ?fg text =
+    ?(style = Ttf.Style.normal) ?fg ?(align = Draw.Center) text =
   Draw.ttf_init (); (* we init here so that one can get the size of the widget *)
   { text = Var.create text;
+    align;
     render = Var.create None;
     font = Var.create font;
     style;
@@ -139,4 +141,4 @@ let display canvas layer l g =
       let fg = default (Var.get l.fg) Draw.(opaque label_color) in
       let tex = render_text canvas.Draw.renderer (font l) l.style (text l) ~fg in
       Var.set l.render (Some tex); tex in
-  [Draw.center_tex_to_layer canvas layer tex g]
+  [Draw.center_tex_to_layer ~horiz:l.align canvas layer tex g]

@@ -11,6 +11,7 @@
 </head>
 <body>
 <pre class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;line_style&nbsp;=&nbsp;<span class="constructor">Solid</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Dotted</span>&nbsp;<span class="keyword">of</span>&nbsp;(int&nbsp;*&nbsp;int)<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;line<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;border<br>
@@ -20,16 +21,28 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Image</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Image</span>.t<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Solid</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Gradient</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.gradient<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?background:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?border:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?shadow:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_bg&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_border&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_shadow&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;empty&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;color_bg&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;opaque_bg&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;gradient&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?angle:float&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;hgradient&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;vgradient&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;line&nbsp;:<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mk_line&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?color:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?style:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line_style&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;border&nbsp;:&nbsp;?radius:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;shadow&nbsp;:<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mk_border&nbsp;:&nbsp;?radius:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.line&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mk_shadow&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?offset:int&nbsp;*&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?size:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?radius:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;with_bg&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.background&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;with_border&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;with_shadow&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.t<br>
 <span class="keyword">end</span></pre></body></html>

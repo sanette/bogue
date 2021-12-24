@@ -16,17 +16,21 @@ val r : selected list = [Range (2, 10); Range (12, 14)]
 type selected =
     | Range of (int * int)
 
-type t = selected list
+(* Phantom types: *)
+type normalized
+type sorted
 
-let empty = []
+type 'a t = selected list
+
+let empty : normalized t = []
 
 let compare (Range (r1,_)) (Range (r2,_)) =
   compare r1 r2
 
-let sort sel =
+let sort sel : sorted t =
   List.sort compare sel
 
-(* first step before simplify: remove "syntax errors" *)
+(* first step before normalize: remove "syntax errors" *)
 let sanitize sel =
   let rec loop sl new_sl =
     match sl with
@@ -37,7 +41,7 @@ let sanitize sel =
 
 (* Returns a normalized (sorted and unique) selection list with minimal number
    of elements. Such a simplifed list is always strictly increasing *)
-let simplify sel =
+let normalize sel : normalized t =
   (* this loop *assumes* sl is sorted *)
   let rec loop current sl new_sl =
     match current, sl with
@@ -63,7 +67,7 @@ let mem sel i =
 
 (* Removes an entry from the selection *)
 (* works only on simplified lists, returns a simplified list *)
-let remove sel i =
+let remove (sel : normalized t) i : normalized t=
   let rec loop sl new_sl =
     match sl with
     | [] -> List.rev new_sl
@@ -100,12 +104,12 @@ let add sel i =
   in
   loop sel []
 
-let toggle sel i =
+let toggle (sel : normalized t) i : normalized t=
   if mem sel i then remove sel i else add sel i;;
 
 (* faster if sel1 is already sorted (?) *)
-let union sel1 sel2 =
-  simplify (List.rev_append sel2 sel1);;
+let union sel1 sel2 : normalized t =
+  normalize (List.rev_append sel2 sel1);;
 
 let iter (f : int -> unit) sel =
   let rec loop sl =

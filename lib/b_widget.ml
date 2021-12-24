@@ -60,20 +60,22 @@ and connection = {
 
 and t = {
   kind : kind;
-  (*  receiver : action Event.channel; *) (* TODO: pas nécessaire ? *)
+  (* receiver : action Event.channel; *) (* TODO: pas nécessaire ? *)
   actives : (active list) Var.t;
-  (** all active threads/connections for this widget. Most recent come first in
-      the list *)
+  (* [actives] lists all active threads/connections for this widget. Most recent
+     come first in the list *)
   mutable connections : connection list;
-  (** all possible connections from this widget. In the order to be
-      executed. Particular case: the local actions are connection from
-      and to the same widget. *)
+  (* the [connections] field lists all possible connections from this widget. In
+     the order to be executed. Particular case: the local actions are connection
+     from and to the same widget. *)
   (* mutable à cause de définition cyclique *)
   wid : int;
   mutable fresh : bool Var.t; (* is the display up-to-date ? *)
   (* not really used anymore. TODO: check if this flag is still used *)
-  mutable room_id : int option; (* will be filled by the room id when inserted in that room *)
-  mutable cursor : Sdl.cursor option (* use this to override the default mouse cursor *)
+  mutable room_id : int option;
+  (* [room_id] will be filled by the room id when inserted in that room *)
+  mutable cursor : Sdl.cursor option
+  (* use [cursor] to override the default mouse cursor *)
 }
 
 let draw_boxes = ref false
@@ -376,11 +378,11 @@ let verbatim text =
 let html text =
   create_empty (TextDisplay (Text_display.create_from_html text))
 
-let box ?w ?h ?background ?border ?shadow () =
-  create_empty (Box (Box.create ?width:w ?height:h ?background ?border ?shadow ()))
+let box ?w ?h ?style () =
+  create_empty (Box (Box.create ?width:w ?height:h ?style ()))
 
-let label ?size ?fg ?font text =
-  create_empty (Label (Label.create ?size ?fg ?font text))
+let label ?size ?fg ?font ?align text =
+  create_empty (Label (Label.create ?size ?fg ?font ?align text))
 
 (* alias for fontawesome icon labels *)
 let icon ?size ?fg name =

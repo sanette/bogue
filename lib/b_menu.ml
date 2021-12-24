@@ -15,6 +15,7 @@ module Draw = B_draw
 module Button = B_button
 module Popup = B_popup
 module Style = B_style
+module Sync = B_sync
 
 let pre = if !debug && !debug_code land debug_custom <> 0
   then fun s -> print_endline ("[Menu] " ^ s) (* for local debugging *)
@@ -64,7 +65,7 @@ module Engine = struct
     }
 
   let separator = Action (fun () ->
-                      pre "This action should not be launched.")
+      pre "This action should not be launched.")
 
   (* 1. Functions for gearing menus interaction *)
   (* ------------------------------------------ *)
@@ -75,9 +76,9 @@ module Engine = struct
   (* The 'screen' layout is used for grabbing mouse even outside of the menus
      themselves. Used for closing menus when clicking outside. *)
   (* TODO we should maybe delay the creation of the screen to when the user
-     click on the menu, in order to make sure it will be drawn above all other
-     widgets (possibly created much later than the menu). Or, move it to the
-     top layer dynamically.  *)
+     clicks on the menu, in order to make sure it will be drawn above all other
+     widgets (possibly created much later than the menu). Or, move it to the top
+     layer dynamically.  *)
   let screen_enable screen =
     pre "ENABLE";
     Layout.set_show screen true
@@ -97,11 +98,11 @@ module Engine = struct
 
   (* the entry below mouse should always be highlighted. But we also highlight
      the parent of each open menu. *)
-  let highlight_entry ?(bg=Layout.Solid Draw.(opaque menu_hl_color)) entry =
+  let highlight_entry ?(bg=Layout.opaque_bg Draw.menu_hl_color) entry =
     set_entry_bg ~bg entry;
     entry.selected <- true
 
-  let reset_entry ?(bg=Layout.Solid Draw.(opaque menu_bg_color)) entry =
+  let reset_entry ?(bg=Layout.opaque_bg Draw.menu_bg_color) entry =
     set_entry_bg ~bg entry;
     entry.selected <- false
 
@@ -119,11 +120,10 @@ module Engine = struct
       Layout.add_room ~dst menu.room;
       if not menu.active && not menu.always_shown
       then Layout.set_show menu.room false
-
     in
     List.iter (fun entry -> match entry.kind with
-                            | Action _ -> ()
-                            | Menu submenu -> iter f submenu) menu.entries
+        | Action _ -> ()
+        | Menu submenu -> iter f submenu) menu.entries
 
   let set_menu_position menu =
     do_option menu.pos (fun (dx, dy) ->
@@ -131,10 +131,10 @@ module Engine = struct
         let x, y = match menu.parent_entry with
           | None -> 0, 0
           | Some entry ->
-             let m = entry.parent_menu.room in
-             let x0, y0 = Layout.(getx m, gety m) in
-             let dx0, dy0 = Layout.(getx entry.layout, gety entry.layout) in
-             x0+dx0, y0+dy0 in
+            let m = entry.parent_menu.room in
+            let x0, y0 = Layout.(getx m, gety m) in
+            let dx0, dy0 = Layout.(getx entry.layout, gety entry.layout) in
+            x0+dx0, y0+dy0 in
         Layout.setx ~keep_resize menu.room (x+dx);
         Layout.sety ~keep_resize menu.room (y+dy))
 
@@ -143,17 +143,21 @@ module Engine = struct
 
   (* Inserts all layouts inside 'dst' at the proper position.  Should be done
      only once, otherwise the 'repeated widgets' error will appear. *)
-  let add_menu_to_dst ~dst menu =
+  let add_menu_to_dst ?(skip_first = false) ~dst menu =
+    let skip_first = ref skip_first in
     let f menu =
-      Layout.add_room ~dst menu.room;
+      printd debug_custom "MENU - Adding %s to %s" (Layout.sprint_id menu.room)
+        (Layout.sprint_id dst);
+      if not !skip_first then Layout.add_room ~dst menu.room;
+      skip_first:=false;
       set_menu_position menu;
       menu.room.Layout.resize <- (fun _ ->
-        set_menu_position menu);
+          set_menu_position menu);
       if not menu.active && not menu.always_shown
       then begin
-          Layout.set_show menu.room false;
-          menu_children_set_hide menu
-          end;
+        Layout.set_show menu.room false;
+        menu_children_set_hide menu
+      end;
     in
     iter f menu
 
@@ -223,7 +227,6 @@ module Engine = struct
         menu.active <- true
       end
 
-
   let close ?(timeout = false) screen menu =
     pre "CLOSE";
     (* If the parent of this menu is the top menu, this should mean that we have
@@ -289,7 +292,7 @@ module Engine = struct
     match entry.kind with
     | Menu _ -> printd debug_error "Cannot run action on a Menu entry"
     | Action action ->
-      let bg = Layout.Solid Draw.(opaque Button.color_on) in
+      let bg = Layout.opaque_bg Button.color_on in
       reset_entry ~bg entry;
       action ();
       (* We use a Timeout to make the colored entry visible longer. Warning: it
@@ -446,7 +449,7 @@ module Engine = struct
 
     let action _ _ _ = mouse_over screen entry in
     let c = Widget.connect_main widget widget action
-              [(* Trigger.E.mouse_motion; *) Trigger.mouse_enter] in
+        [(* Trigger.E.mouse_motion; *) Trigger.mouse_enter] in
     (* Warning do NOT add finger_motion, it will interfere with finger_down.
        TODO finger doesn't work well yet. *)
     Widget.add_connection widget c;
@@ -456,7 +459,7 @@ module Engine = struct
     Widget.add_connection widget c;
 
     let action _ _ ev = key_down screen entry
-                          Sdl.Event.(get ev keyboard_keycode) in
+        Sdl.Event.(get ev keyboard_keycode) in
     let c = Widget.connect_main widget widget action [Trigger.E.key_down] in
     Widget.add_connection widget c
 
@@ -474,37 +477,53 @@ module Engine = struct
   (* TODO: by default we should not bother providing a dst, it should
      automatically attach to its house. *)
 
-  let init ~dst t =
-  let dst_layer = Chain.last (Layout.get_layer dst) in
-  let entry_layer = Popup.new_layer_above dst_layer in
-  add_menu_to_layer t entry_layer;
-  let coating_layer = Popup.new_layer_above entry_layer in
+  let init_now ~dst t =
+    if Layout.(dst == t.room)
+    then begin
+      printd (debug_error + debug_board)
+        "The destination %s of the menu cannot be the menu itself"
+        (Layout.sprint_id dst);
+      invalid_arg "bar"
+    end;
 
-  (* the screen is used to grab all mouse focus outside of the submenus while
-     they are open *)
-  let screen = Popup.filter_screen ~layer:entry_layer
-      (* ~color:Draw.(more_transp (transp green)) *) (* DEBUG*) dst in
-  (* Le screen couvre tout ce qui est actuellement tracé, y compris le menu,
-     mais les connexions pour les entrées de menu sont sur le coating_layer, qui
-     est encore au dessus, donc ça fonctionne. TODO ça serait plus logique que
-     le screen soit entre dst_layer et entry_layer. Ou alors le mettre AVANT les
-     entries pour qu'il soit recouvert par elles (c'est le contraire
-     actuellement). ATTENTION si un deuxième menu est construit après, il sera
-     affiché AU DESSUS de ce screen... *)
-  (* TODO one could reserve a special layer for some usual menu types, like menu
-     bar on the main layout, and make sure this layer is always above anything
-     else. OU ALORS: définir le screen de façon dynamique quand on clique. *)
-  connect_loop screen coating_layer t;
-  add_menu_to_dst ~dst t;
+    printd debug_custom "Menu init to dst=%s" (Layout.sprint_id dst);
+    let dst_layer = Chain.last (Layout.get_layer dst) in
+    let entry_layer = Popup.new_layer_above dst_layer in
+    add_menu_to_layer t entry_layer;
+    let coating_layer = Popup.new_layer_above entry_layer in
 
-  screen_disable screen;
-  Layout.add_room ~dst screen;
-  Layout.resize_follow_house screen;
+    (* the screen is used to grab all mouse focus outside of the submenus while
+       they are open *)
+    let screen = Popup.filter_screen ~layer:entry_layer
+        (* ~color:Draw.(more_transp (transp green)) *) (* DEBUG*) dst in
+    (* Le screen couvre tout ce qui est actuellement tracé, y compris le menu,
+       mais les connexions pour les entrées de menu sont sur le coating_layer, qui
+       est encore au dessus, donc ça fonctionne. TODO ça serait plus logique que
+       le screen soit entre dst_layer et entry_layer. Ou alors le mettre AVANT les
+       entries pour qu'il soit recouvert par elles (c'est le contraire
+       actuellement). ATTENTION si un deuxième menu est construit après, il sera
+       affiché AU DESSUS de ce screen... *)
+    (* TODO one could reserve a special layer for some usual menu types, like menu
+       bar on the main layout, and make sure this layer is always above anything
+       else. OU ALORS: définir le screen de façon dynamique quand on clique. *)
+    connect_loop screen coating_layer t;
+    add_menu_to_dst ~skip_first:(Layout.get_house t.room <> None) ~dst t;
 
-  let w = Layout.widget screen in
-  Widget.on_click ~click:(fun _ -> pre "CLICK SCREEN";
-      close_tree screen t
-      (* screen_disable screen *)) w;
+    screen_disable screen;
+    Layout.add_room ~dst screen;
+    Layout.resize_follow_house screen;
+
+    let w = Layout.widget screen in
+    Widget.on_click ~click:(fun _ -> pre "CLICK SCREEN";
+                             close_tree screen t
+                             (* screen_disable screen *)) w
+
+  (* If dst is not provided we delay the initialization (push it to Sync). *)
+  let init ?dst t =
+    let dst = Option.(map some dst) in
+    Sync.option dst (fun () -> pre "Delaying Menu init to Sync";
+                      Layout.get_house t.room)
+      (Option.iter (fun dst -> init_now ~dst t)) (* TODO add a warning if None *)
 
 end
 
@@ -565,7 +584,7 @@ let format_label ?w ?h = function
     let res = Layout.resident ?w ?h (Widget.label s) in
     (* : here we cannot use a resident as is because we will need to add another
        room later; we need to wrap it: *)
-    let background = Layout.Solid Draw.(opaque menu_bg_color) in
+    let background = Layout.opaque_bg Draw.menu_bg_color in
     Layout.flat ~name:"menu entry label"
       ~margins:text_margin ~background [res]
   | Layout l ->
@@ -592,6 +611,9 @@ let remove_icon_suffix ?(icon = "caret-right") layout =
     | []
     | [_] -> ()
     | filter::(this::others) -> assert (default this.Layout.name "" = icon);
+      (* Layout.delete_textures this; *)
+      (* In [bar], for instance, this function is called via Sync before
+         creating textures, so there should be no texture to free. *)
       Layout.set_rooms layout (List.rev (filter::others))
   end with
   | e -> printd debug_error "Menu: Cannot remove icon suffix";
@@ -660,7 +682,7 @@ module Tmp = struct
       then get_layout entry
       else match entry.content with
         | Separator->
-          let background = Layout.Solid Draw.(opaque grey) in
+          let background = Layout.opaque_bg Draw.grey in
           Layout.empty ~background ~w:10 ~h:1 ()
         | Menu _
         | Action _ -> format_label entry.label
@@ -685,15 +707,16 @@ module Tmp = struct
 
   let menu_formatter = function
     | Flat -> (fun list ->
-        let background = Layout.Solid Draw.(opaque menu_bg_color) in
-        let shadow = Style.shadow ~offset:(1,1) ~size:1 () in
-        Layout.flat ~margins:0 ~background ~shadow list)
+        let background = Layout.opaque_bg Draw.menu_bg_color in
+        let shadow = Style.mk_shadow ~offset:(1,1) ~size:1 () in
+        Layout.flat ~name:"menu flat" ~margins:0 ~background ~shadow list)
     | Tower -> (fun list ->
-        let shadow = Style.shadow ~offset:(1,1) ~size:1 () in
-        let background = Layout.Solid Draw.(opaque menu_bg_color) in
-        let l = Layout.tower ~margins:0 ~sep:0 ~background ~shadow list in
+        let shadow = Style.mk_shadow ~offset:(1,1) ~size:1 () in
+        let background = Layout.opaque_bg Draw.menu_bg_color in
+        let l = Layout.tower ~name:"menu tower" ~margins:0 ~sep:0
+            ~background ~shadow list in
         Layout.expand_width l; l)
-    | Custom -> (fun list -> Layout.superpose list)
+    | Custom -> (fun list -> Layout.superpose ~name:"menu custom" list)
 
   (* Return (x,y) option, the coordinates where the submenu should be placed
      when positioned in the same layout as the parent layout. *)
@@ -823,9 +846,9 @@ let raw_engine content =
   let tcontent = content_to_tmp position content in
   Tmp.create_engine tcontent
 
-let make_engine ~dst content =
+let make_engine ?dst content =
   let t = raw_engine content in
-  Engine.init ~dst t;
+  Engine.init ?dst t;
   t
 
 (* Create a generic menu layout and insert it into the dst layout. *)
@@ -834,27 +857,49 @@ let make_engine ~dst content =
  *   layout_of_menu t *)
 let create = make_engine
 
-(* Specific "menu bar" creation *)
-let bar ~dst entries =
+(* Specific "menu bar" creation. If dst is not prodived we sync-install the menu
+   in the house of the main menu layout. *)
+let make_bar ?dst entries =
   let content = Flat entries in
-  let t = make_engine ~dst content in
+  pre "make_engine";
+  let t = make_engine ?dst content in
   let room = layout_of_menu t in
-  (* Expand first entry (menu bar) to the whole dst width: *)
-  Layout.(set_width room (width dst));
-  (* All menu layouts are rooms of dst. (Warning: a submenu is not a subroom of
-     the room of the parent menu... They are all on the same level.)*)
+  pre "resize...";
+  let dst = Option.(map some dst) in (* "add a Some to a Some" *)
+  Sync.option dst (fun () ->
+      pre "getting house"; Layout.get_house room)
+    (function
+      | None -> printd (debug_board + debug_error)
+                  "Menu %s has no house. It will not be usable"
+                  (Layout.sprint_id room)
+      | Some dst ->
+        (* Expand first entry (menu bar) to the whole dst width: *)
+        Layout.(set_width room (width dst));
+        Layout.setx room 0;
+        Layout.sety room 0;
 
-  (* The bar should expand when we resize the room; however we may want to keep
-     the menu entries left-aligned, instead of evenly spread on the whole
-     width. TODO. *)
-  Layout.scale_resize ~scale_height:false room;
-  Layout.resize_content dst;
-  Layout.set_shadow room None;
+        (* All menu layouts are rooms of dst. (Warning: a submenu is not a
+           subroom of the room of the parent menu... They are all on the same
+           level.)*)
 
-  (* for a menu bar, we usually don't want indicator icons *)
-  List.iter (fun entry ->
-      let open Engine in
-      match entry.kind with
-      | Menu _ -> remove_icon_suffix ~icon:"caret-down" entry.layout
-      | Action _ -> ())
-    t.Engine.entries
+        (* The bar should expand when we resize the room; however we may want to
+           keep the menu entries left-aligned, instead of evenly spread on the
+           whole width. TODO. *)
+        Layout.scale_resize ~scale_height:false room;
+        Layout.resize_content dst;
+        Layout.ask_update room;
+        (* for a menu bar, we usually don't want indicator icons *)
+        List.iter (fun entry ->
+            let open Engine in
+            match entry.kind with
+            | Menu _ -> remove_icon_suffix ~icon:"caret-down" entry.layout
+            | Action _ -> ())
+          t.Engine.entries);
+  Layout.set_shadow room None; (* this should be done before Sync *)
+  room
+
+let bar entries = make_bar entries
+
+let add_bar ~dst entries =
+  let _ : Layout.t = make_bar ~dst entries in
+  ()

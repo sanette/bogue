@@ -117,17 +117,40 @@
 <pre><span id="TYPEbackground"><span class="keyword">type</span> <code class="type"></code>background</span> </pre>
 <div class="info ">
 <div class="info-desc">
-<p>Warning, there is also <a href="Bogue.Style.html#TYPEbackground"><code class="code"><span class="constructor">Style</span>.background</code></a>... Maybe this will change in the
-      future.</p>
+<p>Warning, the <code class="code">background</code> type corresponds actually to the <a href="Bogue.Style.html#TYPEt"><code class="code"><span class="constructor">Style</span>.t</code></a>
+     type, which means is includes color backgrounds, image patterns, corner and
+     shadow styles. In fact, any <a href="Bogue.Box.html#TYPEt"><code class="code"><span class="constructor">Box</span>.t</code></a> can be turned into a <code class="code">background</code>.</p>
 </div>
 </div>
 
 
-<pre><span id="VALcolor_bg"><span class="keyword">val</span> color_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALbox_bg"><span class="keyword">val</span> box_bg</span> : <code class="type"><a href="Bogue.Box.html#TYPEt">Box.t</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALcolor_bg"><span class="keyword">val</span> color_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Construct a background from an RGBA color.</p>
+</div>
+</div>
+
+<pre><span id="VALopaque_bg"><span class="keyword">val</span> opaque_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">Draw.rgb</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Construct a background from a RGB (ie non-transparent) color.</p>
+</div>
+</div>
+
+<pre><span id="VALbox_bg"><span class="keyword">val</span> box_bg</span> : <code class="type"><a href="Bogue.Box.html#TYPEt">Box.t</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Construct a background from the given <code class="code"><span class="constructor">Box</span></code>.</p>
+</div>
+</div>
+
+<pre><span id="VALstyle_bg"><span class="keyword">val</span> style_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEt">Style.t</a> -> <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Construct a background from the given <code class="code"><span class="constructor">Style</span></code>.</p>
+</div>
+</div>
+
 <pre><span id="VALbg_color"><span class="keyword">val</span> bg_color</span> : <code class="type"><a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
 <div class="info-desc">
-<p>This is the value of the current theme's BG_COLOR.</p>
+<p>This is the background constructed from the current theme's BG_COLOR.</p>
 </div>
 </div>
 
@@ -235,7 +258,9 @@
 </div>
 </div>
 
-<pre><span id="VALget_content"><span class="keyword">val</span> get_content</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEroom_content">room_content</a></code></pre><h3 id="2_Modifyexistinglayouts">Modify existing layouts</h3>
+<pre><span id="VALget_content"><span class="keyword">val</span> get_content</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEroom_content">room_content</a></code></pre>
+<pre><span id="VALget_rooms"><span class="keyword">val</span> get_rooms</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> list</code></pre>
+<pre><span id="VALhas_resident"><span class="keyword">val</span> has_resident</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -> bool</code></pre><h3 id="2_Modifyexistinglayouts">Modify existing layouts</h3>
 <p>These functions will not work if there is an animation running acting of
      the variable we want to set. Most of these functions will stop the
      automatic resizing mechanism of the room. Use <a href="Bogue.Layout.html#VALauto_scale"><code class="code"><span class="constructor">Layout</span>.auto_scale</code></a> to reactivate
@@ -277,12 +302,12 @@
 </div>
 </div>
 
-<pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">?house:<a href="Bogue.Layout.html#TYPEt">t</a> -> by:<a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">by:<a href="Bogue.Layout.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Replace "room" by "by" inside "house" in lieu and place of the intial
-   room. No size adjustments are made. Of course this is dangerous, because it
-   modifies both the house and "by". Beware of circular dependencies... Of
-   course this assumes that "room" already belongs to "house".</p>
+     room. No size adjustments are made. Of course this is dangerous, because it
+     modifies both the house and "by". Beware of circular dependencies... Of
+     course this assumes that "room" already belongs to "house".</p>
 </div>
 </div>
 

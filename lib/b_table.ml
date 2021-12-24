@@ -42,7 +42,7 @@ type column_private = {
 type t = {
     length : int;
     data : column_private array;
-    selection : Selection.t Var.t; (* selection of rows *)
+    selection : Selection.normalized Selection.t Var.t; (* selection of rows *)
     mutable last_selected : int option;
     order : int array; (* we keep here the bijection ith entry --> jth displayed *)
     titles : Layout.t array;
@@ -50,11 +50,11 @@ type t = {
     layout : (Layout.t option) Var.t (* the global layout *)
   }
 
-let title_margin = 5;;
-let title_background = Layout.Solid Draw.(set_alpha 40 blue);;
-let row_hl = Layout.Solid Draw.(set_alpha 30 blue);;
-let row_selected = Layout.Solid Draw.(opaque (pale (pale (pale blue))));;
-let icon_color = Draw.(set_alpha 40 grey);;
+let title_margin = 5
+let title_background = Layout.color_bg Draw.(set_alpha 40 blue)
+let row_hl = Layout.color_bg Draw.(set_alpha 30 blue)
+let row_selected = Layout.opaque_bg Draw.(pale (pale (pale blue)))
+let icon_color = Draw.(set_alpha 40 grey)
 
 (* max_width returns the max width of the first n_max entries of the column c *)
 let max_width ?(n_max = 50) (c : column) =
@@ -94,7 +94,7 @@ let make_title (c : column) =
   let (_,h) = Widget.default_size label in
   let click_area = Widget.empty ~w ~h () in
   let title = Layout.(superpose [resident click_area; layout]) in
-  title;;
+  title
 
 (* extracts the click_area widget from the title layout *)
 (* Warning: this depends on the way title is created in make_title *)
@@ -122,10 +122,10 @@ let make_column (c: column) w : column_private =
     compare = c.compare;
     width = w;
     sort = None
-  };;
+  }
 
 let make_columns (columns : column list) widths =
-  List.map2 make_column columns widths;;
+  List.map2 make_column columns widths
 
 let make_table ?row_height (columns : column list) =
   let length, rw = match columns with
@@ -148,7 +148,7 @@ let make_table ?row_height (columns : column list) =
     titles = Array.of_list titles; (* useful ? we have the layout below *)
     row_height;
     layout = Var.create None (* will be computed afterwards *)
-  };;
+  }
 
 (* entry number i in the original array and in position ii in the display *)
 let get_background t i ii =
@@ -156,8 +156,8 @@ let get_background t i ii =
   then Some row_selected
   else
     if ii mod 2 = 1
-    then Some (Layout.Solid Draw.(set_alpha 20 grey))
-    else None;;
+    then Some (Layout.color_bg Draw.(set_alpha 20 grey))
+    else None
 
 let make_long_list ~w ~h t  =
   (* generate row #i: *)
@@ -174,7 +174,7 @@ let make_long_list ~w ~h t  =
           let r = Layout.flat ~sep:0 ~hmargin:0 ~vmargin:0 ~name [c.rows i] in
           Layout.set_width r (width  + title_margin); r) t.data
       |> Array.to_list
-      |> cons (Layout.resident left_margin)
+      |> List.cons (Layout.resident left_margin)
       |> (Layout.flat ~sep:0 ~hmargin:0 ~vmargin:0 ?background) in
     let enter _ = (Layout.set_background ca (Some row_hl)
                   (* Layout.fade_in ca ~duration:150 *)) in
@@ -209,7 +209,7 @@ let make_long_list ~w ~h t  =
     Layout.(superpose [ca; row])
   in
   let height_fn _ = Some t.row_height in
-  Long_list.create ~w ~h ~generate ~height_fn ~length:t.length ();;
+  Long_list.create ~w ~h ~generate ~height_fn ~length:t.length ()
 
 let make_layout ?w ~h t =
   let align = Draw.Max in (* bottom align *)
@@ -223,7 +223,7 @@ let make_layout ?w ~h t =
                      ~vmargin:title_margin ~background:title_background
                      ~align titles_list in
   let long = make_long_list t ~w ~h:(h - Layout.height titles_row) in
-  titles_row, long;;
+  titles_row, long
 
 (* in-place reverse bijection of array *)
 let reverse_array a =
@@ -232,7 +232,7 @@ let reverse_array a =
     let x = Array.unsafe_get a i in
     Array.unsafe_set a i (Array.unsafe_get a (l-i));
     Array.unsafe_set a (l-i) x
-  done;;
+  done
 
 (* sets the sort-indicator symbol. Does nothing if column is not sortable *)
 let set_indicator t j =
@@ -246,7 +246,7 @@ let set_indicator t j =
                            (* terminology in font_a is reversed *)
                            | Some Ascending -> Theme.fa_symbol "sort-desc"
                            | Some Descending -> Theme.fa_symbol "sort-asc"))
-    end;;
+    end
 
 
 (* refreshes the table by creating a new long_list *)
@@ -274,7 +274,7 @@ let refresh t =
     (* = not really necessary, because I have removed do_adjust in set_rooms *)
     Layout.set_rooms r [titles_row; long];
 
-    Var.release t.layout;;
+    Var.release t.layout
 
 (* changes sorting order. We don't try to modify the long_list in-place, we
    create a new one *)
@@ -290,7 +290,7 @@ let change_order t j sort =
         if i <> j then t.data.(i).sort <- None;
         set_indicator t i
       done
-    );;
+    )
 
 let connect_title t j =
   if t.data.(j).compare = None then ()
@@ -310,7 +310,7 @@ let connect_title t j =
       let title = t.titles.(j) in
       Layout.set_background title None in
     Widget.mouse_over ~enter ~leave widget;
-  end;;
+  end
 
 
 (* we just share the selection variable via a Tvar to automatically update the
@@ -323,7 +323,7 @@ let make_selection_tvar t =
                                 to be done *before* refresh... *)
     refresh t;
     sel in
-  Tvar.create (t.selection) ~t_from ~t_to;;
+  Tvar.create (t.selection) ~t_from ~t_to
 
 
 (* this returns the main layout and the selection variable *)
@@ -336,7 +336,7 @@ let create ?w ~h ?row_height ?(name="table") (columns : column list) =
   for j = 0 to List.length columns - 1 do
     connect_title t j
   done;
-  layout, make_selection_tvar t;;
+  layout, make_selection_tvar t
 
 (* Create table from text array a.(i).(j) : row i, column j *)
 let of_array ?w ~h ?widths ?row_height ?name headers a =
@@ -363,7 +363,7 @@ let of_array ?w ~h ?widths ?row_height ?name headers a =
                    compare = Some (fun i1 i2 -> compare a.(i1).(j) a.(i2).(j));
                    width = widths.(j) })
              |> Array.to_list in
-           create ?w ~h ?row_height ?name columns;;
+           create ?w ~h ?row_height ?name columns
 
 (* From a Csv.t style list of rows (first row must be the header). Warning: this
    functions first converts to an array, ie. the data is likely to be duplicated

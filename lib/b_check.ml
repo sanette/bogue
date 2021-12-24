@@ -78,6 +78,6 @@ let display canvas layer b g =
   (* let (w,h) = tex_size tex in *)
   (* Printf.printf "TEX SIZE=(%u,%u)\n" w h; *)
 
-  [center_tex_to_layer ~clip:false ~horiz:false canvas layer tex g]
+  [center_tex_to_layer ~clip:false ~horiz:Draw.Min canvas layer tex g]
 (* we could center horizontally, but then first one should change textures so
    that check_off and check_on have same width. *)

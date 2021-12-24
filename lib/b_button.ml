@@ -34,37 +34,44 @@ let color_off = Draw.find_color Theme.button_color_off
 
 (* if label_on and/or label_off is provided, then label is ignored *)
 let create ?size ?border_radius ?border_color ?fg
-      ?(bg_on = Style.color_bg Draw.(opaque color_on))
-      ?(bg_off = Style.color_bg Draw.(opaque color_off))
-      ?bg_over ?label ?label_on ?label_off ?(state=false) text =
+    ?(bg_on = Style.color_bg Draw.(opaque color_on))
+    ?(bg_off = Style.color_bg Draw.(opaque color_off))
+    ?bg_over ?label ?label_on ?label_off ?(state=false) text =
   let label_on, label_off = match label, label_on, label_off with
     | None, None, None -> let l = Label.create ?size ?fg text in l,l
     | Some l, None, None -> l,l
     | None, _, _ ->
-       default_lazy label_on (lazy (Label.create ?size ?fg text)),
-       default_lazy label_off (lazy (Label.create ?size ?fg text))
+      default_lazy label_on (lazy (Label.create ?size ?fg text)),
+      default_lazy label_off (lazy (Label.create ?size ?fg text))
     | _ -> printd debug_warning
              "label argument was ignored because label_on and/or \
               label_off was provided";
-           default_lazy label_on (lazy (Label.create ?size ?fg text)),
-           default_lazy label_off (lazy (Label.create ?size ?fg text)) in
+      default_lazy label_on (lazy (Label.create ?size ?fg text)),
+      default_lazy label_off (lazy (Label.create ?size ?fg text)) in
   let border_on, border_off = match border_color, border_radius with
     | None, None -> None, None
     | None, Some radius ->
-       Some Style.(border ~radius (line ~color:(Style.get_color bg_on) () )),
-       Some Style.(border ~radius (line ~color:(Style.get_color bg_off) () ))
+      Some Style.(mk_border ~radius
+                    (mk_line ~color:(Style.get_color bg_on) () )),
+      Some Style.(mk_border ~radius
+                    (mk_line ~color:(Style.get_color bg_off) () ))
     | _ ->
-       let s = Style.(border ?radius:border_radius (line ?color:border_color ())) in
-       Some s, Some s
+      let s = Style.(mk_border ?radius:border_radius
+                       (mk_line ?color:border_color ())) in
+      Some s, Some s
   in
+  let style_on = Style.create ~background:bg_on ?border:border_on () in
+  let style_off = Style.create ~background:bg_off ?border:border_off () in
   { label_on;
     label_off;
     state = Var.create state;
     pressed = Var.create state;
     mouse_over = false;
-    box_on = Box.(create ~background:bg_on ?border:border_on ());
-    box_off = Box.(create ~background:bg_off ?border:border_off ());
-    box_over = map_option bg_over (fun bg -> Box.create ~background:bg ())
+    box_on = Box.(create ~style:style_on ());
+    box_off = Box.(create ~style:style_off ());
+    box_over = map_option bg_over (fun bg ->
+        let style = Style.create ~background:bg () in
+        Box.create ~style ())
   }
 
 let unload l =

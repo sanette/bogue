@@ -1,3 +1,7 @@
+(* Style is used to describe background, border, shadow in an immutable way. Box
+   uses this, Layout uses this in addition to a Box field for caching the
+   computation.  *)
+
 module Draw = B_draw
 module Image = B_image
 open B_utils
@@ -36,13 +40,67 @@ type shadow = {
     radius: int option; (* corner radius *)
     width: int (* the width of the gradient *)
   }
+
+type t = {
+  background : background option;
+  border : border option;
+  shadow : shadow option
+}
+
+let create ?background ?border ?shadow () =
+  { background; border; shadow }
+
+let of_bg background = create ~background ()
+
+let of_border border = create ~border ()
+
+let of_shadow shadow = create ~shadow ()
+
+let empty = create ()
+
+let with_bg background t =
+  { t with background = Some background }
+
+let with_shadow shadow t =
+  { t with shadow = Some shadow }
+
+let with_border border t =
+  { t with border = Some border}
+
+let without_bg t =
+  { t with background = None}
+
+let without_shadow t =
+  { t with shadow = None }
+
+let without_border t =
+  { t with border = None }
+
+let get_bg t =
+  t.background
+
+let get_border t =
+  t.border
+
+let get_shadow t =
+  t.shadow
+
+let unload t =
+  do_option t.background @@ function
+  | Image img -> Image.unload img
+  | Solid _ -> ()
+  | Gradient _ -> ()
+
 let color_bg color =
   Solid color
+
+let opaque_bg rgb =
+  Solid (Draw.opaque rgb)
 
 let get_color = function
   | Solid c -> c
   | _ -> printd debug_error "Cannot get color from non Solid background";
-    Draw.none;;
+    Draw.none
 
 let gradient ?(angle = 0.) colors =
   Gradient { colors; angle }
@@ -53,14 +111,14 @@ let hgradient colors =
 let vgradient colors =
   Gradient { colors; angle = 0. }
 
-let line ?(color = Draw.(opaque black)) ?(width = 1)
+let mk_line ?(color = Draw.(opaque black)) ?(width = 1)
     ?(style : line_style = Solid) () =
-  { color; width; style };;
+  { color; width; style }
 
-let border ?radius line =
-  { up=line; down=line; left=line; right=line; radius };;
+let mk_border ?radius line =
+  { up = line; down = line; left = line; right = line; radius }
 
-let shadow ?(offset = (1,3)) ?(size = 3) ?(width = 6) ?radius () : shadow =
+let mk_shadow ?(offset = (1,3)) ?(size = 3) ?(width = 6) ?radius () : shadow =
   { size;
     offset;
     radius;

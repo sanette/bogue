@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20211205
+@version 20211224
 
 @author Vu Ngoc San
 
@@ -329,7 +329,7 @@ module Trigger : sig
      finger_down event. *)
 
   val buttons_up : t list
-    (** A list of events containing the mouse_button_up event, and the
+  (** A list of events containing the mouse_button_up event, and the
      finger_up event. *)
 
   val pointer_motion : t list
@@ -357,6 +357,9 @@ module Trigger : sig
   (** Send the SDL_QUIT event, as if the user clicked on the close button of the
      last existing window. It will in principle raise the {!Main.Exit}
      exception and hence exit the mainloop. *)
+
+  (** {2 SDL Misc} *)
+  val wait_for : ?timeout:float -> ?ev:Tsdl.Sdl.event -> (unit -> bool) -> unit
 
   (** {2 SDL events} *)
 
@@ -723,12 +726,13 @@ end (* of Avar *)
 {5 {{:graph-b_selection.html}Dependency graph}}
  *)
 module Selection : sig
-  type t
+  type 'a t
+  type normalized
 
-  val mem : t -> int -> bool
-  val toggle : t -> int -> t
-  val sprint : t -> string
-  val iter : (int -> unit) -> t -> unit
+  val mem : 'a t -> int -> bool
+  val toggle : normalized t -> int -> normalized t
+  val sprint : 'a t -> string
+  val iter : (int -> unit) -> 'a t -> unit
 
 end (* of Selection *)
 
@@ -784,25 +788,42 @@ end (* of Image *)
 {5 {{:graph-b_style.html}Dependency graph}}
  *)
 module Style : sig
-  type line_style = (* not implemented *)
+  type t
+
+  type line_style =
     | Solid
     | Dotted of (int * int)
+    (** not implemented *)
+                
   type line
   type border
   type shadow
   type gradient
   type background =
-  | Image of Image.t (* pattern image *)
+  | Image of Image.t (** pattern image *)
   | Solid of Draw.color
   | Gradient of gradient
 
+  val create : ?background:background -> ?border:border ->
+    ?shadow:shadow -> unit -> t
+  val of_bg : background -> t
+  val of_border : border -> t
+  val of_shadow : shadow -> t
+  val empty : t
   val color_bg : Draw.color -> background
+  val opaque_bg : Draw.rgb -> background
   val gradient : ?angle:float -> Draw.color list -> background
   val hgradient : Draw.color list -> background
   val vgradient : Draw.color list -> background
-  val line : ?color:Draw.color -> ?width:int -> ?style:line_style -> unit -> line
-  val border : ?radius:int -> line -> border
-  val shadow : ?offset:int * int -> ?size:int -> ?width:int -> ?radius:int -> unit -> shadow
+  val mk_line : ?color:Draw.color -> ?width:int ->
+    ?style:line_style -> unit -> line
+  val mk_border : ?radius:int -> line -> border
+  val mk_shadow : ?offset:int * int -> ?size:int -> ?width:int ->
+    ?radius:int -> unit -> shadow
+  val with_bg : background -> t -> t
+  val with_border : border -> t -> t
+  val with_shadow : shadow -> t -> t
+
 end (* of Style *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -819,8 +840,8 @@ module Label : sig
   type style
 
   val create : ?size:int -> ?font:font -> ?style:style ->
-               ?fg:Draw.color -> string -> t
-  (** Create a new {!Label.t}. Most of the time, you'd rather want to create a
+               ?fg:Draw.color -> ?align:Draw.align -> string -> t
+  (** Create a new {!Label.t}. Most of the tit of the time, you'd rather want to create a
      {!Widget.t} by using {!Widget.label}. *)
 
   val icon : ?size:int -> ?fg:Draw.color -> string -> t
@@ -960,8 +981,7 @@ module Box : sig
   type t
 
   val create : ?width:int -> ?height:int ->
-               ?background:Style.background -> ?border:Style.border ->
-               ?shadow:Style.shadow -> unit -> t
+    ?style:Style.t -> unit -> t
 
 end (* of Box *)
 
@@ -1079,9 +1099,7 @@ let l = get_label w in
   (** {3 Simple boxes (rectangles)} *)
 
   val box :
-    ?w:int -> ?h:int ->
-    ?background:Style.background -> ?border:Style.border ->
-    ?shadow:Style.shadow -> unit -> t
+    ?w:int -> ?h:int -> ?style:Style.t -> unit -> t
   (** Create a Box widget, which simply displays a rectangle, optionally with
      rounded corners and drop shadow. It is often used for the background of a
      group of widgets (i.e. a {!Layout.t}). *)
@@ -1105,7 +1123,8 @@ let l = get_label w in
 
   (** {3 Labels or icons} *)
 
-  val label : ?size:int -> ?fg:Draw.color -> ?font:Label.font -> string -> t
+  val label : ?size:int -> ?fg:Draw.color -> ?font:Label.font ->
+    ?align:Draw.align -> string -> t
   (** Create a Label widget with a one-line text. *)
 
   val icon : ?size:int -> ?fg:Draw.color -> string -> t
@@ -1253,16 +1272,25 @@ module Layout : sig
 
   (** {2 Backgrounds} *)
 
-  (** Warning, there is also {!Style.background}... Maybe this will change in the
-      future. *)
+  (** Warning, the [background] type corresponds actually to the {!Style.t}
+     type, which means is includes color backgrounds, image patterns, corner and
+     shadow styles. In fact, any {!Box.t} can be turned into a [background]. *)
   type background
 
   val color_bg : Draw.color -> background
+  (** Construct a background from an RGBA color.*)
+
+  val opaque_bg : Draw.rgb -> background
+  (** Construct a background from a RGB (ie non-transparent) color. *)
 
   val box_bg : Box.t -> background
+  (** Construct a background from the given [Box]. *)
+
+  val style_bg : Style.t -> background
+  (** Construct a background from the given [Style]. *)
 
   val bg_color: background
-    (** This is the value of the current theme's BG_COLOR. *)
+  (** This is the background constructed from the current theme's BG_COLOR. *)
 
   val unload_background : t -> unit
   (** Free the texture associated with the background (if any). This can be used
@@ -1378,6 +1406,10 @@ module Layout : sig
 
   val get_content : t -> room_content
 
+  val get_rooms : t -> t list
+
+  val has_resident : t -> bool
+
   (** {2 Modify existing layouts}
 
       These functions will not work if there is an animation running acting of
@@ -1414,11 +1446,11 @@ module Layout : sig
      multi-threading problems. Then the changes will be applied by the main
       thread at next frame (see {!Sync}). *)
 
-  val replace_room : ?house:t -> by:t -> t -> unit
-(** Replace "room" by "by" inside "house" in lieu and place of the intial
-   room. No size adjustments are made. Of course this is dangerous, because it
-   modifies both the house and "by". Beware of circular dependencies... Of
-   course this assumes that "room" already belongs to "house". *)
+  val replace_room : by:t -> t -> unit
+  (** Replace "room" by "by" inside "house" in lieu and place of the intial
+     room. No size adjustments are made. Of course this is dangerous, because it
+     modifies both the house and "by". Beware of circular dependencies... Of
+     course this assumes that "room" already belongs to "house". *)
 
   val unload_textures : t -> unit
   (** Use this to free the textures stored by the layout (and its children) for
@@ -1755,15 +1787,19 @@ module Menu : sig
     | Separator
     (** Currently only used for inserting separator lines in Tower menus. *)
 
-  val create : dst:Layout.t -> content -> t
+  val create : ?dst:Layout.t -> content -> t
 (** Generic menu creation, inserted in the [dst] layout. *)
 
-  val bar : dst:Layout.t -> entry list -> unit
+  val add_bar : dst:Layout.t -> entry list -> unit
   (** Creation of a menu bar in the [dst] layout, with drop-down submenus. [bar
      dst entries] inserts a layout which contains the menu bar into the top of
      the [dst] layout (so, some room should be provided). The [dst] layout
      should be big enough to contain the submenus. Any item flowing out of [dst]
      will not get focus. *)
+
+  val bar : entry list -> Layout.t
+  (** Return a menu layout that will be installed with {!add_bar} into the top
+     house at startup. *)
 
   val separator : entry
 
@@ -1845,7 +1881,7 @@ module Table : sig
 
   val create : ?w:int -> h:int -> ?row_height:int ->
     ?name:string ->
-    column list -> Layout.t * (Selection.t, Selection.t) Tvar.t
+    column list -> Layout.t * (Selection.normalized Selection.t, Selection.normalized Selection.t) Tvar.t
   (** @return a layout and a Tvar. The Tvar can be used to see which rows were
       selected by the user, and also to modify the selection if needed. *)
 
@@ -1855,7 +1891,7 @@ module Table : sig
     ?row_height:int ->
     ?name:string ->
     string list ->
-    string array array -> Layout.t * (Selection.t, Selection.t) Tvar.t
+    string array array -> Layout.t * (Selection.normalized Selection.t, Selection.normalized Selection.t) Tvar.t
 
   val of_list :
     ?w:int ->
@@ -1863,7 +1899,7 @@ module Table : sig
     ?widths:int option list ->
     ?row_height:int ->
     ?name:string ->
-    string list list -> Layout.t * (Selection.t, Selection.t) Tvar.t
+    string list list -> Layout.t * (Selection.normalized Selection.t, Selection.normalized Selection.t) Tvar.t
 
 end (* of Table *)
 
@@ -1929,6 +1965,9 @@ module Main : sig
    @return [true] if the GUI currently handles an animation. In this case
    [fps()] was executed by [one_step]. If not, you should handle the frame rate
    yourself. *)
+
+  val get_frame : unit -> int
+  (** Number of displayed frames since startup. *)
 
   val quit : unit -> unit
 (** Use this to close SDL windows and cleanup memory, after {!run} has

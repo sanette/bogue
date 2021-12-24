@@ -42,8 +42,34 @@ let europe = [|
   "United Kingdom" |]
 
 
+(* We define some styles shared by several examples *)
 let sandybrown = Draw.find_color "sandybrown"
 let cornsilk = Draw.find_color "cornsilk"
+let no_line = Style.mk_line ~width:0 ()
+let thick_grey_line = Style.mk_line ~color:Draw.(opaque grey)
+    ~width:3 ~style:Solid ()
+
+(* Round corner without border line *)
+let round_blue_box = let open Style in
+  let border = mk_border ~radius:25 no_line in
+  create ~border ~background:(color_bg Draw.(transp blue)) ()
+
+(* Image pattern with rounded corner and thick grey border line *)
+let round_image_box = let open Style in
+  let border = mk_border ~radius:10 thick_grey_line in
+  (* the image is used as a pattern background, and so will not be scaled by
+     theme (is this good?) *)
+  let p = Image.create "images/chl.png" in
+  create ~border ~background:(Image p) ()
+
+(* Grey with shadow *)
+let shadow_box = let open Style in
+  create ~background:(opaque_bg Draw.grey)
+    ~shadow:(mk_shadow ()) ()
+
+(*************************)
+(* Here are the examples *)
+(*************************)
 
 let desc0 = "Just a check button."
 let example0 () =
@@ -56,13 +82,7 @@ let desc1h = "Horizontal layout, box with image and border."
 let example1h () =
   let b = W.check_box () in
   let td = W.text_display lorem in
-  let border = Style.(border ~radius:10
-                        (line ~color:Draw.(opaque grey) ~width:3 ~style:Solid ())) in
-
-  (* the image is used as a pattern background, and so will not be scaled by
-     theme (is this good ??) *)
-  let p = Image.create "images/chl.png" in
-  let box = W.box ~border ~background:(Style.Image p) () in
+  let box = W.box ~style:round_image_box () in
   let layout = L.flat_of_w [b;td;box] in
   (* L.animate layout (Anim.show ~duration:600 (100)); *)
   let board = make [] [layout] in
@@ -113,9 +133,7 @@ let desc4 = "rounded box; the whole layout is animated"
 let example4 () =
   let b1 = W.check_box () in
   let b2 = W.check_box () in
-  let border = Style.(border ~radius:25
-                        (line ~color:Draw.(transp red) ~width:0 ~style:Solid ())) in (* try width=0 to see no antialias.. *)
-  let box = W.box ~border ~background:(Style.color_bg Draw.(transp blue)) () in
+  let box = W.box ~style:round_blue_box () in
   let layout = L.flat_of_w [b1;box;b2] in
   (* L.animate layout (Anim.translate 300 300); *)
   L.animate_x layout (Avar.fromto 300 0);
@@ -127,9 +145,10 @@ let desc5 = "We pack two layouts in a (horizontal) flat. Layouts have names (pre
 let example5 () =
   let b1 = W.check_box () in
   let b2 = W.check_box () in
-  let box = W.box () in
+  let box = W.box ~style:round_blue_box () in
   let l1 = L.flat_of_w ~name:"Button 1 and the Box" [b1;box] in
-  let l2 = L.resident ~name:"Button 2" ~draggable:true b2 in (* compare with (= no margin) *)
+  let l2 = L.resident ~name:"Button 2" ~draggable:true b2 in
+  (* compare with (= no margin) *)
   (* let l2 = L.resident canvas b2 in *)
 
   let layout = L.flat ~name:"The main pack" [l1;l2] in
@@ -292,7 +311,7 @@ let example16 () =
   let fg = Draw.(opaque black) in
   let bg_off = Style.color_bg Draw.none in
   (* let bg_on = Style.color_bg Draw.(opaque blue) in *)
-  let bg_over = Style.color_bg Draw.(opaque grey) in
+  let bg_over = Style.opaque_bg Draw.grey in
   let d = W.button ~bg_off (* ~bg_on *) ~bg_over ~kind:Button.Switch
       ~label_on:(Label.icon ~fg "train")
       ~label_off:(Label.icon ~fg:(Draw.(lighter (lighter fg))) "train")
@@ -303,7 +322,8 @@ let example16 () =
 
 let desc17 = "a simple image at original pixel size"
 let example17 () =
-  let img = W.image (*~w:300*) ~noscale:true ~bg:Draw.(opaque white) "images/chl.png" in
+  let img = W.image (*~w:300*) ~noscale:true ~bg:Draw.(opaque white)
+      "images/chl.png" in
   let layout = L.flat_of_w [img] in
   let board = make [] [layout] in
   run board
@@ -462,19 +482,16 @@ let example24 () =
 
 let desc25 = "a menu bar"
 let example25 () =
-
   (* First we define a dummy layout, just to see how the menu will cover it.*)
-  let border = Style.(border ~radius:25
-                        (line ~color:Draw.(opaque red) ~width:6 ~style:Solid ())) in
-  let box = W.box ~border ~background:(Style.color_bg Draw.(transp blue)) ~w:400 ~h:300 () in
+  let box = W.box ~style:round_blue_box ~w:400 ~h:300 () in
   let menu_placeholder = L.empty ~w:400 ~h:40 () in
   let main = L.tower
-               [menu_placeholder;
-                L.superpose
-                  [L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
-                            L.empty ~w:0 ~h:100 ();
-                            L.resident (W.check_box ())];
-                   L.flat_of_w [box]]] in
+      [menu_placeholder;
+       L.superpose
+         [L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
+                   L.empty ~w:0 ~h:100 ();
+                   L.resident (W.check_box ())];
+          L.flat_of_w [box]]] in
   (* : recall that for the moment, the first item in the list of rooms gets
      focus before the next ones (bug, we should change, this is not usual) *)
 
@@ -515,16 +532,77 @@ let example25 () =
                   content = Tower submenu3 } in
 
     (* Now we define the complete menu bar: *)
-    bar ~dst:main [file; menu2; about]
+    add_bar ~dst:main [file; menu2; about]
   in
   let layout = L.tower ~margins:0
-                 ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
+      ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
+  let board = make [] [layout] in
+  run board
+
+let desc25bis = "a menu bar (technical variant: as a layout)"
+let example25bis () =
+  (* This variant is slightly simpler because we directly insert the bar as a
+     normal layout, but makes it difficult for the menu actions to access the
+     house -- cf the "About" action in example25. TODO add a refresh at
+     startup. *)
+
+  let box = W.box ~style:round_blue_box ~w:400 ~h:300 () in
+  (* Now we construct the menu... *)
+  let my_bar =
+    let open Menu in
+    let action1 () = print_endline "Action = Item 1" in
+    let action2 () = print_endline "Action = Item 2" in
+
+    (* We define the About entry: *)
+    let about () = print_endline "This is Bogue example 25:\n\nA menu bar.." in
+    let about =  { label = Text "About..."; content = Action about } in
+
+    (* We define the File menu: *)
+    let save () = print_endline "Saving..." in
+    let save = { label = Text "Save"; content = Action save } in
+    let quit () = print_endline "Quitting."; raise Bogue.Exit in
+    let quit = { label = Text "Quit"; content = Action quit } in
+    let file_menu = [save; quit] in
+    let file = { label = Text "File";
+                 content = Tower file_menu} in
+
+    (* We define another menu with two submenus: *)
+    (* It is ok to re-use an entry or an action because everything is immutable
+       here. *)
+    let label1 = { label = Text "Copy of action 1";
+                   content = Action action1 } in
+    let label2 = { label = Text "Entry with action 2";
+                   content = Action action2 } in
+    let submenu = [ label1; label2 ] in
+    let submenu2 = (List.concat [submenu;
+                                 [{ label = Text "submenu";
+                                    content = Tower submenu }]]) in
+    let submenu3 = List.concat [submenu2; [separator];
+                                [{ label = Text "submenu2";
+                                   content = Tower submenu2 }]] in
+    let menu2 = { label = Text "This a long menu title";
+                  content = Tower submenu3 } in
+
+    (* Now we define the complete menu bar: *)
+    bar [file; menu2; about]
+  in
+
+  let main = L.tower
+      [my_bar;
+       L.superpose
+         [L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
+                   L.empty ~w:0 ~h:100 ();
+                   L.resident (W.check_box ())];
+          L.flat_of_w [box]]] in
+
+  let layout = L.tower ~margins:0
+      ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
   let board = make [] [layout] in
   run board
 
 let desc26 = "the mouse enter/leave event"
 let example26 () =
-  let box = W.box ~w:200 () in
+  let box = W.box ~w:200 ~style:shadow_box () in
   let room = L.resident box in
   let l = W.label "Put the mouse over the box" in
   let action_enter _ w2 _ = print_endline "action_enter";
@@ -547,9 +625,7 @@ let desc26bis = "the mouse enter/leave event + box shadow"
 let example26bis () =
   (* same as example26, here one uses l as a global variable, and no thread *)
   (* Which one is the best?? *)
-  let background = Style.color_bg Draw.(opaque grey) in
-  let shadow = Style.shadow () in
-  let box = W.box ~w:200 ~shadow ~background () in
+  let box = W.box ~w:200 ~style:shadow_box () in
   let room = L.resident box in
   let l = W.label "Put the mouse over the box" in
   let enter _ = print_endline "action_enter";
@@ -581,7 +657,6 @@ let example27 () =
   (* L.scroll_to ~duration:2000 300 long; *)
   let board = make [] [layout] in
   print_endline (Print.layout_down container);
-
   run board
 
 let desc28 = "select list + Timeout"
@@ -593,12 +668,14 @@ let example28 () =
   let select_fruit = Select.create fruits 2 in
   let layout = L.tower [L.flat [l; select; select_fruit]; box] in
   let board = make [] [layout] in
-  let _ = Timeout.add 5000 (fun () -> print_endline "HELLO!---------------------") in
+  let _ = Timeout.add 5000
+      (fun () -> print_endline "HELLO!---------------------") in
   run board
 
 let desc29 = "radiolist"
 let example29 () =
-  let radio = Radiolist.vertical [|"only one can be selected"; "AAA"; "BBB"; "CCC"|] in
+  let radio = Radiolist.vertical
+      [|"only one can be selected"; "AAA"; "BBB"; "CCC"|] in
   let board = make [] [Radiolist.layout radio] in
   run board
 
@@ -634,8 +711,9 @@ let example31 () =
   let generate i = L.resident ~h:(sizes.(i)) (W.label europe.(i)) in
   let long = Long_list.create ~w:300 ~h:400 ~generate
       ~length:(Array.length europe) ~max_memory:700000 () in
-  (* max_memory = 700000 is chosen to force the algo to do some garbage
-     collection, but in most cases max_memory can be much larger *)
+  (* The optional argument max_memory = 700000 is chosen here to force the algo
+     to do some garbage collection, but in most cases max_memory can be much
+     larger. *)
   let board = make [] [long] in
   run board
 
@@ -778,11 +856,7 @@ let example37 () =
     ignore (Mixer.play_chunk mixer sound) in
   W.on_click ~click b;
   let td = W.text_display lorem in
-  let border = Style.(border ~radius:10
-                        (line ~color:Draw.(opaque grey) ~width:3 ~style:Solid ())) in
-
-  let p = Image.create "images/chl.png" in
-  let box = W.box ~border ~background:(Style.Image p) () in
+  let box = W.box ~style:round_image_box () in
   let layout = L.flat_of_w [b;td;box] in
   let board = make [] [layout] in
   Mixer.unpause mixer;
@@ -799,10 +873,11 @@ let example38 () =
   (* one can load an svg image as a background; it will be repeated as a pattern
      to fill the box: *)
   let bg = Image.create_from_svg ~width:300 ~height:100 "images/w3c-logo-white.svg" in
-  let box = W.box ~w:300 ~h:300 ~background:(Style.Image bg) () in
+  let style = Style.(create ~background:(Image bg) ()) in
+  let box = W.box ~w:300 ~h:300 ~style () in
 
-  (* one can load an svg image as a widget; it will be scaled to fit the
-     size: *)
+  (* one can load an svg image as a widget; it will be scaled to fit the size:
+     *)
   let img = W.image_from_svg ~h:300 ~bg:Draw.(opaque red)
       "images/koala.svg" in
 
@@ -872,10 +947,11 @@ let example40 () =
   let b1 = W.check_box () in
   let l = W.text_display ~w:100 ~h:80 "Click on the button to rearrange layout"
           |> L.resident in
-  let border = Style.(border ~radius:5
-                        (line ~color:Draw.(transp red) ~width:0 ~style:Solid ())) in
-  let box = W.box ~border
-      ~background:(Style.gradient ~angle:45. Draw.[opaque sandybrown; opaque cornsilk]) () in
+  let style = let open Style in
+    create ~border:(mk_border ~radius:5 no_line)
+      ~background:(gradient ~angle:45. Draw.[opaque sandybrown; opaque cornsilk])
+      () in
+  let box = W.box ~style () in
   let layout = L.tower [L.resident b1;L.resident box;l] in
   let bigger = L.flat [layout; L.empty ~w:200 ~h:200 ()] in
   L.setx layout 0; (* this is a way to disable automatic resizing *)
@@ -897,8 +973,8 @@ let example41 () =
   let title = W.label ~size:32 ~fg:(Draw.(opaque (find_color "firebrick")))
       "The Black Hole Game"
               |> L.resident in
-  let border = Style.(border (line ~color:Draw.(opaque grey) ~width:3 ~style:Solid ())) in
-  let bg = Box.create ~border () in
+  let style = Style.(create ~border:(mk_border thick_grey_line) ()) in
+  let bg = Box.create ~style () in
   let fg = Draw.(opaque white) in
   let make_btn x y text =
     let l = W.label ~fg text in
@@ -941,7 +1017,7 @@ let example43 () =
   let top = W.label "TOP" in
   let l = W.label "We snapshot this pack:" in
   let b = W.check_box () in
-  let box = W.box () in
+  let box = W.box ~style:round_image_box () in
   let background = L.bg_color in
   let room = L.tower ~background
       [ L.resident l;
@@ -980,12 +1056,13 @@ let example44 () =
 
 let desc45 = "layout shadow"
 let example45 () =
-  let shadow = Style.shadow () in
+  let shadow = Style.mk_shadow () in
   let background = Style.color_bg Draw.(transp blue) in
-  let b = W.box ~shadow ~background ~w:50 ~h:50 () in (* OK *)
+  let style = Style.create ~shadow ~background () in
+  let b = W.box ~style ~w:50 ~h:50 () in (* OK *)
   let bg = L.color_bg Draw.(transp green) in
   let l = L.flat ~margins:50 ~shadow ~background:bg [L.resident b] in(* BUG *)
-  let b2 = Box.create ~shadow ~background ~width:50 ~height:50 () in
+  let b2 = Box.create ~style ~width:50 ~height:50 () in
   let l2 = L.flat ~margins:50 ~shadow ~background:(L.box_bg b2)
              [L.empty ~w:50 ~h:50 ()] in
   let large = L.flat ~margins:60 [l; l2] in
@@ -1048,6 +1125,7 @@ let _ =
                     "23bis", (example23bis, desc23bis) ;
                     "24", (example24, desc24) ;
                     "25", (example25, desc25) ;
+                    "25bis", (example25bis, desc25bis) ;
                     "26", (example26, desc26) ;
                     "26bis", (example26bis, desc26bis) ;
                     "27", (example27, desc27) ;

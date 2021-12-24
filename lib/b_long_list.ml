@@ -2,42 +2,45 @@
    given region, with scroll bar when necessary, and memory management: only a
    limited number of items are kept alive in memory *)
 
-(* there is no data (variable) attached to a long list. Data management should
+(* There is no data (variable) attached to a long list. Data management should
    be implemented by the user, for instance via widgets, cf example 34. Cf also
    table.ml *)
 
-(* l'interaction utilisateur vient uniquement de la barre de scrolling (slider).
-On utilise donc le TVar, comme dans les scrolling habituels (Layout.clip).
-Cependant ici la variation de cette variable doit entraîner d'autres
-modifications.
+(* L'interaction utilisateur vient uniquement de la barre de scrolling (slider).
+   On utilise donc le TVar, comme dans les scrolling habituels (Layout.clip).
+   Cependant ici la variation de cette variable doit entraîner d'autres
+   modifications.
 
 * D'une part on est lié au voffset du layout principal (avec Tvar, car si le
-  voffset est changé par ailleurs (ex une animation) il faut que la barre de
-  scrolling change aussi)
+   voffset est changé par ailleurs (ex une animation) il faut que la barre de
+   scrolling change aussi)
 
 * D'autre part le voffset du Layout doit être calculé en fonction de la position
-  actuelle de la Longue Liste. Peut-être pas de façon bidirectionnelle (sauf si
-  on autorise l'utilisateur à modifier directement la position de la Longue
-  Liste).
+   actuelle de la Longue Liste. Peut-être pas de façon bidirectionnelle (sauf si
+   on autorise l'utilisateur à modifier directement la position de la Longue
+   Liste).
 
 * Le principe de base est
 
 1. le layout généré (room) a en gros 5 (= factor) fois la hauteur de l'élément
-  voulu (de façon à pouvoir déjà scroller un peu sans générer de nouvelle
-  entrées, soit 2 avant, 2 après. Peut-être augmenter le chiffre 5 ?
+   voulu (de façon à pouvoir déjà scroller un peu sans générer de nouvelle
+   entrées, soit 2 avant, 2 après. Peut-être augmenter le chiffre 5 ?
 
 2. on a une taille mémoire à ne pas dépasser: on supprime les textures des
-  entrées déjà calculées si on dépasse cette taille. La mémoire utilisée est
-  calculée seulement par la surface (en pixels²) des textures. Ça dépend du
-  scaling imposé par le thème, donc on utilise Layout.get_physical_size.
+   entrées déjà calculées si on dépasse cette taille. La mémoire utilisée est
+   calculée seulement par la surface (en pixels²) des textures. Ça dépend du
+   scaling imposé par le thème, donc on utilise Layout.get_physical_size.
 
 Le layout virtuel qui contiendrait l'ensemble de la liste possède une hauteur
-qu'il est important de connaître, pour ajuster la position de la barre de
-scrolling, mais qu'on ne connaît pas au début, puisqu'on ne veut pas générer
-toutes les entrées d'un coup. On va commencer par estimer cette hauteur totale
-en faisant la moyenne des hauteurs de chaque entrée calculée, multipliée par le
-nombre d'entrées.
+   qu'il est important de connaître, pour ajuster la position de la barre de
+   scrolling, mais qu'on ne connaît pas au début, puisqu'on ne veut pas générer
+   toutes les entrées d'un coup. On va commencer par estimer cette hauteur
+   totale en faisant la moyenne des hauteurs de chaque entrée calculée,
+   multipliée par le nombre d'entrées.
 
+*)
+
+(*
                        ________________
                     ^ |                |       ^
                     | |  virtual (ll)  |       |
@@ -64,16 +67,16 @@ nombre d'entrées.
                     | |                |
                     v |________________|
 
-contraint: voffset <= 0 and -voffset + display.height  <= layout.height
+constraint: voffset <= 0 and -voffset + display.height  <= layout.height
 warning: slider is from bottom to top: 0 = bottom position
 
  *)
 
 
 (* TODO bug d'affichage lorsqu'on change de room, certaines anciennes entrées
-ont une mauvaise géométrie et d'affichent par dessous les nouvelles.  Un
-Trigger.push_redraw ???; dans Layout.set_rooms permettrait de corriger ça, mais
-ce n'est certainement pas le mieux... *)
+   ont une mauvaise géométrie et d'affichent par dessous les nouvelles.  Un
+   Trigger.push_redraw ???; dans Layout.set_rooms permettrait de corriger ça,
+   mais ce n'est certainement pas le mieux... *)
 
 (* TODO BUG deal with resizing layout to include more/less rows in the
    container. Its works at startup but as soon as we scroll it stops working *)
@@ -343,18 +346,20 @@ let update_voffset container dv =
                animation... *)
   then Layout.shift_voffset container dv
 
-(* given the required new value offset for of ll.offset we do all the necessary
-   side-effects: changing the container voffset and possibly compute a new
-   room.  *)
+(* Given the required new value offset for of ll.offset we do all the necessary
+   side-effects: changing the container voffset and possibly compute a new room.
+   *)
 let update_room ll container o =
   let room, active_bg =
     let open Layout in
     match container.content with
     | Rooms [superp] ->
-       (match superp.content with
-        | Rooms [room; active_bg] -> room, active_bg
-        | _ -> failwith "The container should contain a single layout with a list of 2 rooms !")
-    | _ -> failwith "The container should contain a single layout with a list of 2 rooms !"
+      (match superp.content with
+       | Rooms [room; active_bg] -> room, active_bg
+       | _ -> failwith "The container should contain a single layout with a list \
+                        of 2 rooms!")
+    | _ -> failwith "The container should contain a single layout with a list of \
+                     2 rooms!"
   in
   let h = Layout.height container in
   let ll_height = total_height ll in
@@ -366,88 +371,101 @@ let update_room ll container o =
     (* we need to shift both ll.offset and o; this can happen after mouse wheel
        scroll *)
     then let offset = offset + ll.container_voffset - voffset in
-         Avar.set (Var.get ll.offset) offset;
-         let o = o + ll.container_voffset - voffset in
-         ll.container_voffset <- voffset;
-         offset, o
+      Avar.set (Var.get ll.offset) offset;
+      let o = o + ll.container_voffset - voffset in
+      ll.container_voffset <- voffset;
+      offset, o
     else offset, o in
 
-  Var.protect_fn ll.offset (fun _ ->
+  Var.protect_do ll.offset (fun () ->
       let voffset2 = voffset + offset - o in
       if ((voffset2+scroll_margin < 0) || (ll.first = 0)) &&
-           ((h-voffset2+scroll_margin < Layout.height room) || (ll.last = ll.length-1))
+         ((h-voffset2+scroll_margin < Layout.height room) ||
+          (ll.last = ll.length-1))
       then begin (* then the room is still usable *)
-          (* in case of equality voffset2 = 0 or voffset2 = ... , one should still
-       do the update except at very top or bottom of list, in order to allow
-       mouse wheel scroll to go past the computed room. *)
-          update_voffset container (voffset2 - voffset);  (* = offset - o *)
-          (* ==> the new value of the container voffset is voffset2 *)
-          Var.release Layout.(container.geometry.voffset);
-          ll.container_voffset <- voffset2;
-        end
+        (* in case of equality voffset2 = 0 or voffset2 = ... , one should still
+           do the update except at very top or bottom of list, in order to allow
+           mouse wheel scroll to go past the computed room. *)
+        update_voffset container (voffset2 - voffset);  (* = offset - o *)
+        (* ==> the new value of the container voffset is voffset2 *)
+        Var.release Layout.(container.geometry.voffset);
+        ll.container_voffset <- voffset2;
+      end
       else begin
-          let room' = (* need to compute a new room *)
-            printd debug_memory "UPDATE LONG_LIST [%d,%d] => newoffset=%d oldoffset=%d voffset=%d voffset2=%d (approx)height=%d, rendered_height=%d, room.height=%d, MEM=[%d,%d] " ll.first ll.last o offset voffset voffset2 ll_height ll.rendered_height (Layout.height room) ll.first_mem ll.last_mem;
-            if voffset2+scroll_margin >= 0 (* we need to compute upwards *)
-            then begin
-                let direction = Up in
-                let add_h = max ((ll.rendered_height - h) / 2 - scroll_margin) (voffset2+scroll_margin) in
-                let add_h = min (offset + voffset2) add_h in
-                let dh, i_first = addup_entries ll ~start:(ll.first-1) ~height:add_h direction in
-                let room', _ = compute_room ~height:ll.rendered_height
-                                 ll (i_first+1) direction in
-                (* Avar.set (Var.get ll.offset) o; *) (* redundant with tvar... *)
-                let new_voffset = voffset2 - dh in
-                update_voffset container (new_voffset - voffset);
-                Var.release Layout.(container.geometry.voffset);
-                ll.container_voffset <- new_voffset;
-                room'
-              end
-            else begin
-                let direction = Down in
-                let excess_below = (h-voffset2+scroll_margin-Layout.height room) in
-                (* TODO should we make sure we don't exceed ll_height ? but this
-           should be taken care of by addup_entries *)
-                let dh_min, _ = addup_entries ll ~start:(ll.last+1)
-                                  ~height:excess_below direction in
-                let wanted_dh = max dh_min ((ll.rendered_height - h)/2 - scroll_margin) in
-                (* since we want to add wanted_dh pixels below, we need to remove
-           approx same amout above: so we need to compute the new ll.first *)
-                let dh, i_first = addup_entries ll ~start:ll.first
-                                    ~height:wanted_dh direction in
-                let room', _ = compute_room ~height:ll.rendered_height
-                                 ll i_first direction in
-                (* Avar.set (Var.get ll.offset) o; *)
-                let new_voffset = voffset2 + dh in
-                update_voffset container (new_voffset - voffset);
-                Var.release Layout.(container.geometry.voffset);
-                ll.container_voffset <- new_voffset;
-                room'
-              end
-          in
-          printd debug_graphics "Room for Long_list is replaced with new range [%d,%d]" ll.first ll.last;
-          (* finally we replace the old room by the new one *)
-          let active_bg' = Widget.empty ~w:(Layout.width container) ~h:(Layout.height room') () in
-          (* TODO we could also keed the old active_bg and just change its size... *)
-          (* remark don't use kill_rooms on room or container, because it would also
-       kill the entries that are kept in the ll.array. *)
-          (* we replace rooms immediately, not waiting for sync, because the slider
-       will likely call again this function before rendering (rendering a slider
-       involves a call to the Tvar), and then it should have the new
-       room. Otherwise we sometimes have artifacts when the old room interferes
-       with the new one (and some entries are displayed on top of each other,
-       probably because their geometry is not updated correctly). The problem is
-       that the scrollbar is on the right, so it is naturally rendered *after*
-       the room... too bad *)
-          Layout.(set_rooms ~sync:false container [superpose [room'; resident active_bg']]);
-          Layout.fix_content container;
-          Layout.set_height container h;
-          (* Sync.push (fun () -> Layout.detach room; Layout.kill room); *) (* ne
-                                                                         sert à rien ? et en plus fait bugguer board.mouse_focus *)
-          List.iter Layout.send_to_cemetery [room; active_bg];
-          (* TODO the house of room should also be killed (removed from the table) *)
-        end)
-
+        let room' = (* need to compute a new room *)
+          printd debug_memory
+            "UPDATE LONG_LIST [%d,%d] => newoffset=%d oldoffset=%d voffset=%d \
+             voffset2=%d (approx)height=%d, rendered_height=%d, room.height=%d, \
+             MEM=[%d,%d] " ll.first ll.last o offset voffset voffset2
+            ll_height ll.rendered_height (Layout.height room)
+            ll.first_mem ll.last_mem;
+          if voffset2+scroll_margin >= 0 (* we need to compute upwards *)
+          then begin
+            let direction = Up in
+            let add_h = max ((ll.rendered_height - h) / 2 - scroll_margin)
+                (voffset2+scroll_margin) in
+            let add_h = min (offset + voffset2) add_h in
+            let dh, i_first = addup_entries ll ~start:(ll.first-1)
+                ~height:add_h direction in
+            let room', _ = compute_room ~height:ll.rendered_height
+                ll (i_first+1) direction in
+            (* Avar.set (Var.get ll.offset) o; *) (* redundant with tvar... *)
+            let new_voffset = voffset2 - dh in
+            update_voffset container (new_voffset - voffset);
+            Var.release Layout.(container.geometry.voffset);
+            ll.container_voffset <- new_voffset;
+            room'
+          end
+          else begin
+            let direction = Down in
+            let excess_below = (h-voffset2+scroll_margin-Layout.height room) in
+            (* TODO should we make sure we don't exceed ll_height ? but this
+               should be taken care of by addup_entries *)
+            let dh_min, _ = addup_entries ll ~start:(ll.last+1)
+                ~height:excess_below direction in
+            let wanted_dh = max dh_min ((ll.rendered_height - h)/2 - scroll_margin) in
+            (* since we want to add wanted_dh pixels below, we need to remove
+               approx same amout above: so we need to compute the new ll.first *)
+            let dh, i_first = addup_entries ll ~start:ll.first
+                ~height:wanted_dh direction in
+            let room', _ = compute_room ~height:ll.rendered_height
+                ll i_first direction in
+            (* Avar.set (Var.get ll.offset) o; *)
+            let new_voffset = voffset2 + dh in
+            update_voffset container (new_voffset - voffset);
+            Var.release Layout.(container.geometry.voffset);
+            ll.container_voffset <- new_voffset;
+            room'
+          end
+        in
+        printd debug_graphics
+          "Room for Long_list is replaced with new range [%d,%d]"
+          ll.first ll.last;
+        (* finally we replace the old room by the new one *)
+        let active_bg' = Widget.empty ~w:(Layout.width container)
+            ~h:(Layout.height room') () in
+        (* TODO we could also keed the old active_bg and just change its
+           size... *)
+        (* Remark: don't use kill_rooms on room or container, because it would
+           also kill the entries that are kept in the ll.array. *)
+        (* We replace rooms immediately, not waiting for sync, because the
+           slider will likely call again this function before rendering
+           (rendering a slider involves a call to the Tvar), and then it should
+           have the new room. Otherwise we sometimes have artifacts when the old
+           room interferes with the new one (and some entries are displayed on
+           top of each other, probably because their geometry is not updated
+           correctly). The problem is that the scrollbar is on the right, so it
+           is naturally rendered *after* the room... too bad *)
+        Layout.(set_rooms ~sync:false container
+                  [superpose [room'; resident active_bg']]);
+        Layout.fix_content container;
+        Layout.set_height container h;
+        (* Sync.push (fun () -> Layout.detach room; Layout.kill room); *)
+        (* ne sert à rien ? et en plus fait bugguer board.mouse_focus *)
+        List.iter Layout.send_to_cemetery [room; active_bg];
+        (* TODO the house of room should also be killed (removed from the table)
+        *)
+      end)
 
 let create ~w ~h ~length ?(first=0) ~generate ?height_fn
     ?(cleanup=Layout.delete_textures) ?max_memory ?(linear=true)
@@ -512,13 +530,17 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
   in
   let room, i_final = compute_room ~height:rendered_height ll first Down in
   let ll_height = total_height ll in
-  printd debug_memory "Long list of height %d was initialized with %d entries (%d..%d) ouf of %d and height=%d, rendered_height=%d, approx. total height is %d"
-    h (i_final+1-first) first i_final ll.length (Layout.height room) ll.rendered_height ll_height;
+  printd debug_memory
+    "Long list of height %d was initialized with %d entries (%d..%d) ouf of %d \
+     and height=%d, rendered_height=%d, approx. total height is %d"
+    h (i_final+1-first) first i_final ll.length (Layout.height room)
+    ll.rendered_height ll_height;
   (* cf comments in Layout.clip *)
   let active_bg = Widget.empty ~w ~h:(Layout.height room) () in
-  let container = Layout.(tower ~name:"long_list container"
-                            ~sep:0 ~hmargin:0 ~vmargin:0
-                            [superpose [room; resident ~name:"active_bg" active_bg]]) in
+  let container =
+    Layout.(tower ~name:"long_list container"
+              ~sep:0 ~hmargin:0 ~vmargin:0
+              [superpose [room; resident ~name:"active_bg" active_bg]]) in
   Layout.fix_content container;
   Layout.set_size container (w,h);
   Layout.set_clip container; (* this allows the mouse wheel to change the
@@ -555,7 +577,7 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
              let o = round (float (tt_height - h) *. (ss) /. lf) in
              update_room ll container o;
              Avar.var o) in
-    (* not that in the definition of this Tvar the container is a global
+    (* note that in the definition of this Tvar the container is a global
        variable. Thus it should not be destroyed. However it should be ok to
        modify its contents *)
     let slider = Widget.slider ~kind:Slider.Vertical ~length:h ~step:1
@@ -570,6 +592,7 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
       clicked_value := None in
     let c2 = Widget.connect_main slider slider on_release Trigger.buttons_up in
     Widget.add_connection slider c2;
-    let bar = Layout.(resident ~background:(Solid Draw.scrollbar_color) slider) in
+    let bar = Layout.(resident
+                        ~background:(color_bg Draw.scrollbar_color) slider) in
     Layout.(flat ~name:"long_list" ~sep:0 ~hmargin:0 ~vmargin:0 [container; bar])
   end

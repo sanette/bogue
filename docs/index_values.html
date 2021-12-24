@@ -34,6 +34,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Menu.html#VALadd_bar">add_bar</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
+<td><div class="info">
+<p>Creation of a menu bar in the <code class="code">dst</code> layout, with drop-down submenus.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALadd_connection">add_connection</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p>Registers the connection with the widget.</p>
@@ -78,13 +84,14 @@
 <tr><td align="left"><div>B</div></td></tr>
 <tr><td><a href="Bogue.Menu.html#VALbar">bar</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td><div class="info">
-<p>Creation of a menu bar in the <code class="code">dst</code> layout, with drop-down submenus.</p>
+<p>Return a menu layout that will be installed with <a href="Bogue.Menu.html#VALadd_bar"><code class="code"><span class="constructor">Menu</span>.add_bar</code></a> into the top
+     house at startup.</p>
 
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALbg_color">bg_color</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>This is the value of the current theme's BG_COLOR.</p>
+<p>This is the background constructed from the current theme's BG_COLOR.</p>
 
 </div>
 </td></tr>
@@ -94,8 +101,6 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALbold">bold</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
-<tr><td><a href="Bogue.Style.html#VALborder">border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
-<td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALbox">box</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p>Create a Box widget, which simply displays a rectangle, optionally with
@@ -104,7 +109,11 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALbox_bg">box_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Construct a background from the given <code class="code"><span class="constructor">Box</span></code>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALbutton">button</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Mouse.html#VALbutton_pos">button_pos</a> [<a href="Bogue.Mouse.html">Bogue.Mouse</a>]</td>
@@ -149,7 +158,11 @@
 <tr><td><a href="Bogue.Mixer.html#VALclose">close</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALcolor_bg">color_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Construct a background from an RGBA color.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Style.html#VALcolor_bg">color_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALconnect">connect</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -208,6 +221,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Style.html#VALcreate">create</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Image.html#VALcreate">create</a> [<a href="Bogue.Image.html">Bogue.Image</a>]</td>
 <td><div class="info">
 <p><code class="code">create&nbsp;<span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code>.</p>
@@ -292,6 +307,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Style.html#VALempty">empty</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALevent_kind">event_kind</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Union of <a href="Bogue.Trigger.html#TYPEsdl_event"><code class="code"><span class="constructor">Trigger</span>.sdl_event</code></a> and <a href="Bogue.Trigger.html#TYPEbogue_event"><code class="code"><span class="constructor">Trigger</span>.bogue_event</code></a></p>
@@ -377,6 +394,12 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_content">get_content</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALget_frame">get_frame</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td><div class="info">
+<p>Number of displayed frames since startup.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALget_index">get_index</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_label">get_label</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -396,6 +419,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Layout.html#VALget_rooms">get_rooms</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_size">get_size</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p><code class="code">get_size&nbsp;l</code> is equivalent to <code class="code">(width&nbsp;l,&nbsp;height&nbsp;l)</code></p>
@@ -442,6 +467,8 @@
 <tr><td><a href="Bogue.Draw.html#VALgrey">grey</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td align="left"><div>H</div></td></tr>
+<tr><td><a href="Bogue.Layout.html#VALhas_resident">has_resident</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALheight">height</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Space.html#VALhfill">hfill</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
@@ -578,8 +605,6 @@
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALlighter">lighter</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
-<tr><td><a href="Bogue.Style.html#VALline">line</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
-<td></td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALload_chunk">load_chunk</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td><div class="info">
 <p>Load a WAV file.</p>
@@ -624,6 +649,12 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Selection.html#VALmem">mem</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALmk_border">mk_border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALmk_line">mk_line</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALmk_shadow">mk_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALmouse_enter">mouse_enter</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>The <code class="code">mouse_enter</code> event is triggered when the pointer (mouse motion, or
@@ -665,7 +696,13 @@
 <tr><td align="left"><div>O</div></td></tr>
 <tr><td><a href="Bogue.Table.html#VALof_array">of_array</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALof_bg">of_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALof_border">of_border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Table.html#VALof_list">of_list</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALof_shadow">of_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALon_click">on_click</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
@@ -688,6 +725,14 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALopaque">opaque</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Layout.html#VALopaque_bg">opaque_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Construct a background from a RGB (ie non-transparent) color.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Style.html#VALopaque_bg">opaque_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALoscillate">oscillate</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
@@ -814,7 +859,7 @@
 <tr><td><a href="Bogue.Layout.html#VALreplace_room">replace_room</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Replace "room" by "by" inside "house" in lieu and place of the intial
-   room.</p>
+     room.</p>
 
 </div>
 </td></tr>
@@ -951,8 +996,6 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALsety">sety</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
-<tr><td><a href="Bogue.Style.html#VALshadow">shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
-<td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALshould_exit">should_exit</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Tell if the current thread should exit.</p>
@@ -1021,6 +1064,12 @@
 </td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALstrikethrough">strikethrough</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Layout.html#VALstyle_bg">style_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Construct a background from the given <code class="code"><span class="constructor">Style</span></code>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALsuperpose">superpose</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Create a new layout by superposing a list of layouts without changing
@@ -1157,6 +1206,12 @@
 <tr><td><a href="Bogue.Style.html#VALvgradient">vgradient</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td align="left"><div>W</div></td></tr>
+<tr><td><a href="Bogue.Trigger.html#VALwait_for">wait_for</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
+<td><div class="info">
+<p>SDL Misc</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Draw.html#VALwhite">white</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALwidget">widget</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -1182,6 +1237,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Style.html#VALwith_bg">with_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALwith_border">with_border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Style.html#VALwith_shadow">with_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
 <tr><td align="left"><div>X</div></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALxpos">xpos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">

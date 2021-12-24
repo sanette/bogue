@@ -51,7 +51,7 @@ let release v =
 
 (* Execute an action on the given variable if it is not locked by *another*
    thread. Can be used in recursions. *)
-let protect_fn v action =
+let protect_do v action =
   let was_free = Mutex.try_lock v.mutex in
   if was_free then begin (* this should be the vast majority of cases *)
       (* The variable is now locked *)
@@ -75,6 +75,9 @@ let protect_fn v action =
       release v;
       result
     end
+
+let protect_fn v f =
+  protect_do v (fun () -> f v.data)
 
 (* usually we don't need to protect when getting the value. (But if the value
    itself is a reference, then one should explicitely protect the target when
@@ -139,8 +142,7 @@ let set_init i f =
   set i.var None
 
 let init_get i =
-  protect_fn i.var (fun () ->
-      match unsafe_get i.var with
+  protect_fn i.var (function
       | None -> let data = i.init () in set i.var (Some data); data
       | Some d -> d)
 

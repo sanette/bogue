@@ -76,7 +76,7 @@
 <code><span id="TYPEELTentry.content">content</span>&nbsp;: <code class="type"><a href="Bogue.Menu.html#TYPEcontent">content</a></code>;</code></td>
 
 </tr></table>
-<code>}</code>
+}
 
 
 
@@ -140,19 +140,26 @@
 
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEcontent">content</a> -> <a href="Bogue.Menu.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEcontent">content</a> -> <a href="Bogue.Menu.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Generic menu creation, inserted in the <code class="code">dst</code> layout.</p>
 </div>
 </div>
 
-<pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> unit</code></pre><div class="info ">
+<pre><span id="VALadd_bar"><span class="keyword">val</span> add_bar</span> : <code class="type">dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Menu.html#TYPEentry">entry</a> list -> unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Creation of a menu bar in the <code class="code">dst</code> layout, with drop-down submenus. <code class="code">bar<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst&nbsp;entries</code> inserts a layout which contains the menu bar into the top of
      the <code class="code">dst</code> layout (so, some room should be provided). The <code class="code">dst</code> layout
      should be big enough to contain the submenus. Any item flowing out of <code class="code">dst</code>
      will not get focus.</p>
+</div>
+</div>
+
+<pre><span id="VALbar"><span class="keyword">val</span> bar</span> : <code class="type"><a href="Bogue.Menu.html#TYPEentry">entry</a> list -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a menu layout that will be installed with <a href="Bogue.Menu.html#VALadd_bar"><code class="code"><span class="constructor">Menu</span>.add_bar</code></a> into the top
+     house at startup.</p>
 </div>
 </div>
 

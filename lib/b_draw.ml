@@ -146,7 +146,7 @@ let rec create_texture_from_surface renderer surface =
      incr textures_in_memory;
      t
 
-let create_system_cursor = memo Sdl.create_system_cursor
+let create_system_cursor = memo ~name:"cursor" Sdl.create_system_cursor
 
 let set_system_cursor sdl_cursor =
   Sdl.set_cursor (Some (go (create_system_cursor sdl_cursor)))
@@ -172,8 +172,8 @@ let rec open_font file size =
       printd debug_io "Loading font %s (%u)" file size;
       match Tsdl_ttf.Ttf.open_font file size with
       | Result.Ok f ->
-         Var.protect_fn font_cache (fun () ->
-             Hashtbl.add (Var.unsafe_get font_cache) (file,size) f;
+         Var.protect_fn font_cache (fun fc ->
+             Hashtbl.add fc (file,size) f;
              f);
       | Result.Error _ ->  (* use default font if error *)
          if file = Theme.label_font
@@ -259,15 +259,15 @@ let destroy_textures () =
    If a widget is not used anymore, it is necessary to call forget_texture. *)
 (* This is thread-safe. *)
 let forget_texture tex =
-  Var.protect_fn textures_to_destroy (fun () ->
-      Queue.push tex (Var.get textures_to_destroy))
+  Var.protect_fn textures_to_destroy (fun queue ->
+      Queue.push tex queue)
 
 (* prints some memory info *)
 let memory_info () =
   let open Printf in
   printf
     "Memory info:\n Textures: %d\n Surfaces: %d \nThreads: %d\nSystem RAM: \
-     %u\t Allocated kbytes: %02f\n"
+     %uMb\t Allocated kbytes: %02f\n"
     !textures_in_memory
     !surfaces_in_memory
     !threads_created
@@ -457,10 +457,8 @@ let find_color c =
     try List.assoc c colors
     with
     | Not_found ->
-
       printd debug_error "Color '%s' unknown" c;
       grey
-    | e -> raise e
 
 (* alpha=0 means totally transparent, alpha=1 means totally opaque *)
 let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * int *) color =
@@ -625,13 +623,13 @@ let apply_offset ?src ?dst voffset tex =
     else Some (Sdl.Rect.create ~x:0 ~y:0 ~w ~h:(h+vo)),
          Some (Sdl.Rect.create ~x ~y:(y-vo) ~w ~h:(h+vo))
 
-(* prepare a blit *)
+(* Prepare a blit *)
 let make_blit ?src ?dst ?clip ?transform ?(voffset=0) canvas to_layer tex =
   let transform = default_fn transform make_transform in
   let src, dst = apply_offset ?src ?dst voffset tex in
   { src; dst; clip; rndr = canvas.renderer; texture = tex; transform; to_layer }
 
-(* saves the blit into its layer *)
+(* Saves the blit into its layer *)
 (* Warning: not thread safe (uses Queues) *)
 (* don't call this when rendering with render_blits *)
 let blit_to_layer blit =
@@ -641,10 +639,11 @@ let blit_to_layer blit =
   let queue = Chain.value blit.to_layer in
   Queue.add blit queue
 
-(* render a blit onscreen *)
+(* Render a blit onscreen *)
 (* WARNING: this does NOT free the texture, because often we want to keep it for
-   re-use. In case of a one-time texture, use forget_texture before calling
-   make_blit. *)
+   re-use. In case of a one-time texture, use [forget_texture] before calling
+   make_blit, or [unload_blit] after creating the blit: that's ok, because the
+   texture will be destroyed only after rendering. *)
 let render_blit blit =
   (* if no transform = go (Sdl.render_copy ?src:blit.src ?dst:blit.dst blit.rndr
      blit.texture) *)
@@ -686,6 +685,9 @@ let render_all_layers (layer : layer) =
 (* TODO it could be convenient (for a probably very small cost) to render the
    blits onto a target texture instead of directly to the renderer, so that we
    could do image processing (blur...) more easily *)
+
+let unload_blit b =
+  forget_texture b.texture
 
 (**********)
 
@@ -1001,7 +1003,7 @@ let generate_background window renderer pattern =
     target
   end
 
-(* use [update_background] to recreate the main background, typically when
+(* Use [update_background] to recreate the main background, typically when
    window size has changed. For a simple clear, use [clear_canvas] *)
 let update_background canvas =
   printd debug_graphics "Update background";
@@ -2033,7 +2035,7 @@ let center_tex ?(horiz=true) ?(verti=true) renderer tex x y w h =
 (* new version for layers. If clip is true and the texture is larger than the
    geometry, we do not center, instead we align from the origin. *)
 (* TODO use voffset *)
-let center_tex_to_layer ?(horiz=true) ?(verti=true) ?(clip=true)
+let center_tex_to_layer ?(horiz=Center) ?(verti=true) ?(clip=true)
       canvas layer tex g =
   let tw, th = tex_size tex in
   let w, h = if clip then imin tw g.w, imin th g.h else tw, th in
@@ -2042,7 +2044,10 @@ let center_tex_to_layer ?(horiz=true) ?(verti=true) ?(clip=true)
     then None
     else Some (Sdl.Rect.create ~x:0 ~y:0 ~w ~h) in
   (* we center the texture *)
-  let x = if horiz then center g.x g.w w else g.x in
+  let x = match horiz with
+    | Center -> center g.x g.w w
+    | Min -> g.x
+    | Max -> g.x + g.w - w in
   let y = if verti then center g.y g.h h else g.y in
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
   make_blit ~voffset:g.voffset ?src ~dst canvas layer tex

@@ -131,16 +131,22 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
            being in different houses, so we have to recode the resize
            function. If the menu is too big, we add a scrollbar. Note that,
            currently, this has the effect of hiding the shadow. TODO: correct
-           this...*)
+           this... TODO?[see Layout.here(++)] currently if the menu is small
+           enough, we don't add a scrollbar, and hence the scrollbar will not
+           magically happen if we shrink the window...*)
         let new_room = Layout.relocate ~scroll:true
                          ~dst:(Layout.top_house tmp_dst) room in
-        let resize _ =
+        let resize (_w, h) =
           let open Layout in
           let keep_resize = true in
           let x,y = compute_pos menu_layout in
-          let h = height menu_layout in
+          let hm = height menu_layout in
           setx ~keep_resize new_room x;
-          sety ~keep_resize new_room (y+h) in
+          sety ~keep_resize new_room (y+hm);
+          (* if h-y-hm > height new_room
+           * then print_endline "One could enlarge menu!!"; *)
+          set_height ~keep_resize new_room (imin (height room) (h-y-hm))
+        in
         new_room.Layout.resize <- resize;
 
         (* We expand the screen to full size: *)

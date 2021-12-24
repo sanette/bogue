@@ -32,16 +32,23 @@ module Style = B_style
 module Box = B_box
 module Slider = B_slider
 
-type background = (* TODO instead we should keep track of how the box was created... in case we want to recreate (eg. use it for another window... ?) *)
+type background =
+  (* TODO instead we should keep track of how the box was created... in case we
+     want to recreate (eg. use it for another window... ?) *)
   (* TODO use Style.background ? Cependant Style est antérieur (et utilisé par)
      à Box... *)
-  | Solid of Draw.color
+  | Style of Style.t
   | Box of Box.t
 
 let color_bg color =
-  Solid color
+  Style (Style.(of_bg (color_bg color)))
 
-let bg_color = color_bg Draw.(opaque bg_color)
+let opaque_bg color = color_bg Draw.(opaque color)
+
+let bg_color = opaque_bg @@ Draw.find_color Theme.bg_color
+
+let style_bg s =
+  Style s
 
 let box_bg b =
   Box b
@@ -405,7 +412,7 @@ let has_resident layout =
 let create = create_unsafe ~set_house:true
 
 (* the dummy room is only used to search the Weak table *)
-let dummy_room = create (geometry ()) (Rooms [])
+let dummy_room = create ~name:"dummy" (geometry ()) (Rooms [])
 
 let of_id_unsafe id : room =
   try WHash.find rooms_wtable {dummy_room with id} with
@@ -496,6 +503,8 @@ let widget layout =
      raise Not_found
   (* or, return the first available widget with next_widget ? *)
   | Resident w -> w
+
+let get_resident = widget
 
 (* return the first resident widget with show=true inside the layout, or
    Not_found *)
@@ -623,9 +632,9 @@ let delete_background room =
     (fun b ->
       let () =
         room.background <-
-          if !debug then Some (Solid Draw.(opaque red)) else None in
+          if !debug then Some (opaque_bg Draw.red) else None in
       match b with
-      | Solid _ -> ()
+      | Style s -> Style.unload s
       | Box b -> Box.unload b)
 
 (* this can be used to force recreating the background, for instance after
@@ -633,22 +642,21 @@ let delete_background room =
 let unload_background room =
   do_option room.background (function
       | Box b -> Box.unload b
-      | Solid _ -> ())
+      | Style s -> Style.unload s) (* maybe not necessary *)
 
 (* force compute background at current size. Canvas must be created *)
 let compute_background ?(mustlock = true) room =
   do_option room.background (
-      fun bg ->
+    fun bg ->
       let g = room.current_geom in
       Sdl.log "COMPUTE BG w=%u h=%u" g.w g.h;
       let box = match bg with
-        | Solid c ->
-           let b = Box.(create ~width:g.w ~height:g.h
-                          ~background:(Style.Solid c) ()) in
-           if mustlock then lock room;
-           room.background <- (Some (Box b));
-           if mustlock then unlock room;
-           b
+        | Style style ->
+          let b = Box.(create ~width:g.w ~height:g.h ~style ()) in
+          if mustlock then lock room;
+          room.background <- (Some (Box b));
+          if mustlock then unlock room;
+          b
         | Box b -> Box.unload b; b in
       ignore (Box.display (get_canvas room) (get_layer room) box
                 (Draw.scale_geom (to_draw_geom g))))
@@ -1462,24 +1470,24 @@ let check_layer_error room house =
    contents of the layers; it's supposed to be done before the blits are
    computed (when all layers should contain empty queues). The new copy get an
    empty queue anyways.*)
-let move_to_stack dst_room room =
-  if not (same_stack room dst_room)
+let move_to_stack ~dst room =
+  if not (same_stack room dst)
   then begin
-      let dst = get_layer dst_room in
+    let dst_layer = get_layer dst in
       printd debug_board "Moving layer of %s into that of %s (stack:%u)"
-        (sprint_id room) (sprint_id dst_room) (Chain.get_stack_id dst);
-      room.layer <- Chain.copy_into ~dst (get_layer room);
+        (sprint_id room) (sprint_id dst) (Chain.get_stack_id dst_layer);
+      room.layer <- Chain.copy_into ~dst:dst_layer (get_layer room);
       Chain.replace room.layer (Draw.new_layer ())
     end
 
 (* Move the room layer and the layers of all inhabitants to the dst layer *)
-let move_all_to_stack dst_room room =
-  iter (move_to_stack dst_room) room
+let move_all_to_stack ~dst room =
+  iter (move_to_stack ~dst) room
 
 (* move all layers contained in [room] into the same stack as the [room]
    layer. *)
 let unify_layer_stack room =
-  move_all_to_stack room room
+  move_all_to_stack ~dst:room room
 
 let set_new_stack win =
   if is_top win then begin
@@ -1532,7 +1540,8 @@ let detach_rooms layout =
      list_iter rooms (fun r ->
          if r.house <> None then
            (r.house <- None;
-            printd debug_warning "Room %s was detached from House %s" (sprint_id r) (sprint_id layout)))
+            printd debug_warning "Room %s was detached from House %s..."
+              (sprint_id r) (sprint_id layout)))
 
 (* Detach a room from its house. See detach_rooms *)
 let detach room =
@@ -1541,56 +1550,88 @@ let detach room =
     | None -> printd debug_error "Cannot detach because room %s has no house"
                 (sprint_id room)
     | Some h ->
-       lock h;
-       room.house <- None;
-       let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
-       h.content <- Rooms rooms;
-       printd debug_warning "Room %s was detached from House %s."
-         (sprint_id room) (sprint_id h);
-       unlock h in
+      lock h;
+      room.house <- None;
+      let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
+      h.content <- Rooms rooms;
+      printd debug_warning "Room %s was detached from House %s."
+        (sprint_id room) (sprint_id h);
+      unlock h in
   unlock room
 
-(* modify the layout content by setting new rooms *)
-(* old ones are *not* freed, but they are *detached* from house *)
-(* Note that setting rooms that are already there is legal. Then they are not
-   detached, of course. *)
+(* Sets the required fields for [room] to be a room of [dst], but does not
+   install it within the rooms list. This has to be done separately. See for
+   instance [add_room] or [replace_room]. *)
+let attach ~dst room =
+  room.house <- Some dst;
+  move_to_stack ~dst room;
+  (* if there is a canvas in layout, we copy it to all rooms *)
+  do_option dst.canvas (global_set_canvas ~mustlock:false room)
+
+(* Check if [room] can be added to the content of [dst]. If [already = true] we
+   accept to add a room in a house that already contains it... (this is used
+   when we want to re-order rooms). If [loop_error = false] it doesn't raise an
+   error when room = dst, we just return false. *)
+let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
+  if equal room dst
+  then begin
+    printd debug_error "Cannot add room %s to itself!" (sprint_id room);
+    if loop_error then invalid_arg "add_room"
+    else false
+    (* equivalent to (not ((not loop_error) || raise ...)) *)
+  end else match room.house with
+    | Some h when equal h dst ->
+      printd ((if already then debug_warning else debug_error) + debug_board)
+        "Room %s already belongs to %s." (sprint_id room) (sprint_id dst);
+      already
+    | Some h ->
+      printd (debug_error + debug_board)
+        "Room %s should not be added to %s because it belongs to another house \
+         (%s). We do it anyway." (sprint_id room) (sprint_id dst) (sprint_id h);
+      true
+    | None -> true
+
+(* Modify the layout content by setting new rooms *)
+(* Old ones are *not* freed, but they are *detached* from house *)
+(* Note that setting rooms that are already there is legal (can be used to
+   change the order). Then they are not detached, of course. *)
 (* With sync=false, this is highly non thread safe. Locking layout is not enough
    (or, we should lock all layouts in the main loop too... Therefore, it is
    better to set sync=true, which delays the execution to Sync (the main loop
    Queue) *)
+(* mutualize with [add_room, replace_room] ?*)
 let set_rooms layout ?(sync=true) rooms =
   match layout.content with
   | Resident _ ->
-     printd debug_error
-       "Cannot transform a leaf (Resident #%u) to a node (Rooms) because the \
-        resident widget would be lost" layout.id
+    printd debug_error
+      "Cannot transform a leaf (Resident #%u) to a node (Rooms) because the \
+       resident widget would be lost" layout.id
   | Rooms old_rooms ->
-     (if sync then Sync.push else run)
-       (fun () ->
+    (if sync then Sync.push else run)
+      (fun () ->
          list_iter rooms (fun r ->
-             if !debug && mem equal r old_rooms
-             then printd debug_warning
-                    "Trying to insert a room (%s) that is already there \
-                     (%s). But we can do this, no problem."
-                    (sprint_id r) (sprint_id layout)
-             else r.house <- Some layout;
-             move_to_stack layout r;
-             if !debug then check_layer_error r layout; (* not useful *)
-             (* if there is a canvas in layout, we copy it to all rooms *)
-             do_option layout.canvas (global_set_canvas ~mustlock:false r));
+             if ok_to_add_room ~already:true ~dst:layout r
+             then begin
+               if !debug && mem equal r old_rooms
+               then printd (debug_board + debug_warning)
+                   "Trying to insert a room (%s) that is already there (%s). We \
+                    leave it there, no problem."
+                   (sprint_id r) (sprint_id layout)
+               else attach ~dst:layout r
+             end);
 
          (* Now we rescan the list to detach unused rooms. This could have been
             done in the first iteration, but there is a [if !debug] there,
             so... *)
          list_iter old_rooms
            (fun r ->
-             if not (mem equal r rooms) then detach r);
+              if not (mem equal r rooms) then detach r);
          (* detach_rooms layout; *) (* we don't detach because some orphans may
                                        want to survive longer than you
                                        think... see WARNING in 'kill' *)
          layout.content <- Rooms rooms;
-       (*fit_content layout*)
-       )
+         (*fit_content layout*)
+      )
 (* Hum. the adjust should NOT be done at this point, because display didn't
    happen yet, hence the current_geometry is not updated. Morover there is no
    way to know the 'sep' optional argument *)
@@ -1632,42 +1673,40 @@ let copy ~src ~dst =
 (* warning: the room should NOT already belong to some house. *)
 (* TODO: write a "remove_room" function *)
 let add_room ?valign ?halign ~dst room =
-  (* check oversize. But this should not happen. The user should not rely on
-     this. If the added room is too large, beware that nothing outside of the
-     geometry of the destination room will never have mouse focus (mouse focus
-     is detected per house, and THEN into the children rooms. *)
-  if room.house <> None
-  then printd debug_error "Room %s should not be added to %s because it already \
-                           belongs to a house." (sprint_id room) (sprint_id dst);
-  check_layer_error room dst;
-  lock dst;
-  lock room;
-  let wmax = (getx room) + (width room) in
-  if wmax > width dst
-  then (printd debug_error "The attached Room #%u is too wide" room.id;
-       (*set_width dst wmax*));
-  let hmax = (gety room) + (height room) in
-  if hmax > height dst
-  then (printd debug_error "The attached Room #%u is too tall" room.id;
-       (*set_height dst hmax*));
+  if ok_to_add_room ~dst room then begin
+    check_layer_error room dst;
+    let rooms = get_rooms dst in
+    (* we cannot add room to layout which already contains a Resident *)
+    lock dst;
+    lock room;
+    (* We now check oversize. But this should not happen. The user should not
+       rely on this. If the added room is too large, beware that nothing outside
+       of the geometry of the destination room will never have mouse focus
+       (mouse focus is detected per house, and THEN into the children rooms. *)
+    let wmax = (getx room) + (width room) in
+    if wmax > width dst
+    then (printd debug_error "The attached Room #%u is too wide" room.id;
+          (*set_width dst wmax*));
+    let hmax = (gety room) + (height room) in
+    if hmax > height dst
+    then (printd debug_error "The attached Room #%u is too tall" room.id;
+          (*set_height dst hmax*));
 
-  let x = default_lazy (map_option halign (fun a ->
-                            Draw.align a 0 (width dst) (width room)))
-            (lazy (getx room)) in
-  let y = default_lazy (map_option valign (fun a ->
-                            Draw.align a 0 (height dst) (height room)))
-            (lazy (gety room)) in
-  setx room x;
-  sety room y;
-  room.house <- Some dst;
-  do_option dst.canvas (global_set_canvas ~mustlock:false room);
+    let x = default_lazy (map_option halign (fun a ->
+        Draw.align a 0 (width dst) (width room)))
+        (lazy (getx room)) in
+    let y = default_lazy (map_option valign (fun a ->
+        Draw.align a 0 (height dst) (height room)))
+        (lazy (gety room)) in
+    setx room x;
+    sety room y;
+    attach ~dst room;
 
-  let rooms = get_rooms dst in
-  (* we cannot add room to layout which already contains a Resident *)
-  dst.content <- Rooms (List.rev (room :: (List.rev rooms)));
-  (*  fit_content dst;; *)
-  unlock dst;
-  unlock room
+    dst.content <- Rooms (List.rev (room :: (List.rev rooms)));
+    (*  fit_content dst;; *)
+    unlock dst;
+    unlock room
+  end
 
 let set_layer ?(debug = !debug) room layer =
   lock room;
@@ -1714,7 +1753,7 @@ let hbox = flat
 (* Construct a flat directly from a list of widgets that we convert to
    Residents. By default it uses smaller margins than [flat]. *)
 let flat_of_w ?name ?(sep = Theme.room_margin) ?h ?align ?background ?widget_bg
-      ?canvas ?scale_content widgets =
+    ?canvas ?scale_content widgets =
   let rooms =
     List.map (fun wg ->
         let name = map_option name (fun s -> "Resident of [" ^ s ^ "]") in
@@ -1764,8 +1803,9 @@ let tower_of_w_old ?name ?(sep = Theme.room_margin) ?w ?align
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
 let tower ?name ?(sep = Theme.room_margin/2) ?margins
-      ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin)
-      ?align ?(adjust = Fit) ?background ?shadow ?canvas ?clip ?(scale_content=true) rooms =
+    ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin)
+    ?align ?(adjust = Fit) ?background ?shadow ?canvas
+    ?clip ?(scale_content=true) rooms =
   (* List.iter (set_canvas canvas) rooms; TODO *)
   let sep, hmargin, vmargin = match margins with
     | Some m -> m,m,m
@@ -1774,12 +1814,12 @@ let tower ?name ?(sep = Theme.room_margin/2) ?margins
     match list with
     | [] -> (x, y - sep + vmargin)
     | r::rest ->
-       setx r hmargin;
-       sety r y;
-       loop rest (max x ((width r) + 2*hmargin)) (y + sep + (height r)) in
+      setx r hmargin;
+      sety r y;
+      loop rest (max x ((width r) + 2*hmargin)) (y + sep + (height r)) in
   let w,h = loop rooms hmargin vmargin in
   let layout = create ~adjust ?name ?background ?shadow ?clip
-                 (geometry ~w ~h ()) (Rooms rooms) ?canvas in
+      (geometry ~w ~h ()) (Rooms rooms) ?canvas in
   do_option align (fun align -> h_align ~align layout hmargin (w-2*hmargin));
   if clip = None && scale_content then scale_resize_list (w,h) rooms else fix_content layout;
   (* TODO ce n'est pas la peine de scaler la largeur si elle ne dépasse pas le
@@ -1789,7 +1829,7 @@ let tower ?name ?(sep = Theme.room_margin/2) ?margins
 (* Construct a tower directly from a list of widgets that we convert to
    Residents. *)
 let tower_of_w ?name ?(sep = Theme.room_margin) ?w ?align ?background ?widget_bg
-      ?canvas ?scale_content widgets =
+    ?canvas ?scale_content widgets =
   let rooms =
     List.map (fun wg ->
         let name = map_option name (fun s -> "Resident of [" ^ s ^ "]") in
@@ -2220,8 +2260,8 @@ let follow_mouse ?dx ?dy ?modifierx ?modifiery room =
 (* Clip a room inside a smaller container and make it scrollable, and optionally
    add a scrollbar widget (which should appear only when necessary). Currently
    only vertical scrolling is implemented.  *)
-let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false) ?(scrollbar_width = 10)
-      ~h room =
+let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false)
+    ?(scrollbar_width = 10) ~h room =
   (* iter_rooms disable_resize room; *)
   let name = (default room.name "") ^ ":clip" in
   if w <> None
@@ -2236,62 +2276,62 @@ let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false) ?(scrollbar_wid
      this is superfluous... *)
   let layer = get_layer room in
   let container = tower ~margins:0 ~clip:true
-                    [superpose [room; resident ~layer active_bg]] in
+      [superpose [room; resident ~layer active_bg]] in
   (* The container should be a room with a unique subroom (and the active
      background); the subroom can then be scrolled with respect to the container
-   *)
+  *)
   set_size container (w,h);
 
   let result =
     if scrollbar
     then begin
-        (* We first initialize the bar layout with a dummy widget, so that the
-           var is able to use it. This is only useful if the height of the
-           container is modified after creation, for instance when the user
-           resizes the window. *)
-        let bar = resident ~layer
-                    ~background:(Solid Draw.(lighter scrollbar_color))
-                    (Widget.empty ~w:10 ~h:10 ()) in
-        (* The scrollbar is a slider. Its Tvar takes the voffset value into the
-           slider value, between 0 and (height room - height container). 0
-           corresponds to the bottom position of the slider, so this means the
-           *largest* scroll (voffset is the most negative). *)
-        let var = Tvar.create container.geometry.voffset
-                    ~t_from:(fun vo ->
-                      let dh = height room - height bar in
-                      if dh <= 0 then 0 (* then the bar should be hidden *)
-                      else dh + Avar.get vo)
-                    ~t_to:(fun v ->
-                      let dh = height room - height bar in
-                      let v = imin v dh |> imax 0 in
-                      Avar.var (height bar - height room + v)) in
-        let wsli = Widget.slider ~kind:Slider.Vertical ~length:h
-                     ~thickness:scrollbar_width
-                     ~tick_size:(h * h / (height room))
-                     ~var (imax 0 (height room - h)) in
-        change_resident bar wsli;
-        if h >= (height room) then hide ~duration:0 bar;
-        let r = if scrollbar_inside
-                then (setx bar (w - width bar);
-                      set_layer bar (Chain.insert_after
-                                       (Chain.last (get_layer container))
-                                       (Draw.new_layer ()));
-                      (* TODO: is this a bit too much ?? We just want to make
-                         sure the scrollbar gets mouse focus. *)
-                      superpose ~name [container; bar])
-                else flat ~name ~margins:0 [container; bar] in
-        disable_resize bar;
-        (* We register a resize function that simultaneously sets the container
-           and the bar sizes. It will hide the bar when the container is large
-           enough to display the whole content. *)
-        container.resize <- (fun (w,h) ->
+      (* We first initialize the bar layout with a dummy widget, so that the
+         var is able to use it. This is only useful if the height of the
+         container is modified after creation, for instance when the user
+         resizes the window. *)
+      let bar = resident ~layer
+          ~background:(color_bg Draw.(lighter scrollbar_color))
+          (Widget.empty ~w:10 ~h:10 ()) in
+      (* The scrollbar is a slider. Its Tvar takes the voffset value into the
+         slider value, between 0 and (height room - height container). 0
+         corresponds to the bottom position of the slider, so this means the
+         *largest* scroll (voffset is the most negative). *)
+      let var = Tvar.create container.geometry.voffset
+          ~t_from:(fun vo ->
+              let dh = height room - height bar in
+              if dh <= 0 then 0 (* then the bar should be hidden *)
+              else dh + Avar.get vo)
+          ~t_to:(fun v ->
+              let dh = height room - height bar in
+              let v = imin v dh |> imax 0 in
+              Avar.var (height bar - height room + v)) in
+      let wsli = Widget.slider ~kind:Slider.Vertical ~length:h
+          ~thickness:scrollbar_width
+          ~tick_size:(h * h / (height room))
+          ~var (imax 0 (height room - h)) in
+      change_resident bar wsli;
+      if h >= (height room) then hide ~duration:0 bar;
+      let r = if scrollbar_inside
+        then (setx bar (w - width bar);
+              set_layer bar (Chain.insert_after
+                               (Chain.last (get_layer container))
+                               (Draw.new_layer ()));
+              (* TODO: is this a bit too much ?? We just want to make
+                 sure the scrollbar gets mouse focus. *)
+              superpose ~name [container; bar])
+        else flat ~name ~margins:0 [container; bar] in
+      disable_resize bar;
+      (* We register a resize function that simultaneously sets the container
+         and the bar sizes. It will hide the bar when the container is large
+         enough to display the whole content. *)
+      container.resize <- (fun (w,h) ->
           let keep_resize = true in
           set_height ~keep_resize bar h;
           if scrollbar_inside then set_size ~keep_resize container (w,h)
           else begin
-              set_size ~keep_resize container (w - width bar, h);
-              setx ~keep_resize bar (w - width bar)
-            end;
+            set_size ~keep_resize container (w - width bar, h);
+            setx ~keep_resize bar (w - width bar)
+          end;
           let dh = height room - height bar in
           let sli = Widget.get_slider wsli in
           if dh >= 1 then Slider.set_max sli dh
@@ -2302,14 +2342,14 @@ let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false) ?(scrollbar_wid
           let h = height bar in
           if height room <> 0
           then Slider.set_tick_size sli
-                 (imax (Slider.min_tick_size sli) (h * h / (height room)));
+              (imax (Slider.min_tick_size sli) (h * h / (height room)));
           let v = Slider.update_value sli; Slider.value sli in
           if v < 0 then Slider.set sli 0;
           if dh <= 0
           then rec_set_show false bar
           else rec_set_show true bar);
-        r
-      end
+      r
+    end
     else container in
 
   sety result y0;
@@ -2361,45 +2401,33 @@ let expand_width house =
       if w-x < 1 then printd debug_warning "Cannot expand_width because house x position is larger than width.";
       set_width room (w-x)) house
 
-(* replace "room" by "by" inside "house" in lieu and place of the intial
-   room. No size adjustments are made. Of course this is dangerous, because it
-   modifies both the house and "by". beware of circular dependencies... Of
-   course this assumes that "room" already belongs to "house". *)
+(* Replace "room" by "by" in lieu and place of the initial room. No size
+   adjustments are made. Of course this is dangerous, because it modifies both
+   the house and "by". See also [add_room]. *)
 (* TODO copy old (x,y) position *)
-let replace_room ?house ~by room =
-  match room.house, house with
-  | None, None -> printd debug_error
-                    "Cannot use \"replace_room\" because room %s \
-                     does not belong to a house." (sprint_id room)
-  | _, Some h
-  | Some h, None -> begin
-      printd debug_warning "Replacing room %s by room %s"
-        (sprint_id room) (sprint_id by);
-      lock h;
-      lock by;
-      let rooms_before_rev, rooms_after =
-        let rec loop rb = function
-          | [] ->
-            failwith "Room not found in the house, this should not happen!"
-          | r :: rest -> if equal r room
-            then rb, rest
-            else loop (r::rb) rest in
-        loop [] (get_rooms h) in
-      (* cf "set_rooms" *)
-      by.house <- Some h;
-      (*global_set_layer by room.layer; (* ok ??? *)*)
-      iter (fun r -> r.canvas <- room.canvas) by;
-      (* are there other things to copy ?? *)
-      h.content <-
-        Rooms (List.rev_append (by::rooms_before_rev) rooms_after);
-      unlock by;
-      unlock h
-    end
+let replace_room ~by room =
+  match room.house with
+  | None ->
+    printd debug_error
+      "Cannot use \"replace_room\" because room %s does not belong to a \
+       house."
+      (sprint_id room)
+  | Some h when ok_to_add_room ~dst:h room ->
+    printd debug_warning "Replacing room %s by room %s inside %s."
+      (sprint_id room) (sprint_id by) (sprint_id h);
+    detach room;
+    lock h;
+    lock by;
+    attach ~dst:h by;
+    h.content <- Rooms (list_replace (equal room) (get_rooms h) by);
+    unlock by;
+    unlock h
+  | _ -> printd (debug_board + debug_error) "Cannot replace room %s"
+           (sprint_id room)
 
 (* move a room to a new house, trying to keep the same visual
    position. Optionnally adding a scrollbar (in which case the returned layout
    is not the same as the original one). *)
-(* This does not NOT change layer, canvas... *)
 (* WARNING this doesn't take voffset into account, so it won't work if a 'hide'
    animation was used to the room. *)
 let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
@@ -2416,7 +2444,9 @@ let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
       printd debug_board "Relocate room : y2=%i y1=%i y0=%i room=%i \
                           dst=%i" y2 y1 y0 (height room) (height dst);
       if y2 <= height dst then room
-      else begin
+      else begin (* [here++] TODO If scroll=true it's probably better to use
+                    make clip anyway, just in case the size of the housr
+                    shrinks. *)
         (* sety room 0; *)
         make_clip ~h:(height dst - y1 + y0) ~scrollbar_inside:true
           ~scrollbar_width:4 room
@@ -2430,16 +2460,16 @@ let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
   unlock room;
   room2
 
-
+(********************)
 (** display section *)
+(********************)
 
 let debug_box ~color room x y =
   let w,h = Draw.scale_size (get_size room) in
   let x,y = Draw.scale_pos (x,y) in
   let bg = if room.mouse_focus then Some (Draw.lighter color) else None in
-  let rect = Draw.rect_to_layer ?bg ~color (get_canvas room) (get_layer room) (x,y) w h in
-  Draw.forget_texture rect.Draw.texture;
-  rect
+  Draw.rect_to_layer ?bg ~color (get_canvas room) (get_layer room)
+      (x,y) w h
 
 let scale_rect rect =
   Sdl.Rect.(create
@@ -2456,7 +2486,7 @@ let show_keyboard_focus room _transform rect =
   let layer = get_layer room in
   let canvas = get_canvas room in
   let blits = Draw.box_shadow ~offset:(0,0) ~size:(Theme.scale_int 3) ~fill:false
-                canvas layer (scale_rect rect) in
+      canvas layer (scale_rect rect) in
   List.iter Draw.blit_to_layer blits
 
 (** Display a room: *)
@@ -2472,111 +2502,113 @@ let display ?pos0 room =
        course, clip can be much bigger than r. *)
     if not r.show then ()
     else begin
-        let g = geom r in
-        let x = x0 + g.x
-        and y = y0 + g.y + h0
-        and voffset = g.voffset in
-        (* update current position, independent of clip *)
-        r.current_geom <- { g with x; y };
-        (*print_endline ("ALPHA=" ^ (string_of_float (Avar.old room.geometry.transform.alpha)));*)
-        let rect = Sdl.Rect.create ~x ~y ~w:g.w ~h:g.h in
+      let g = geom r in
+      let x = x0 + g.x
+      and y = y0 + g.y + h0
+      and voffset = g.voffset in
+      (* update current position, independent of clip *)
+      r.current_geom <- { g with x; y };
+      (*print_endline ("ALPHA=" ^ (string_of_float (Avar.old
+         room.geometry.transform.alpha)));*)
+      let rect = Sdl.Rect.create ~x ~y ~w:g.w ~h:g.h in
 
-        (* if there is a nonzero offset, we perform a new clip : this is used for
+      (* if there is a nonzero offset, we perform a new clip : this is used for
          "show/hide" animation *)
-        (* TODO clip should be enlarged in case of shadow *)
-        let clip = if (*voffset = 0*) not r.clip || !no_clip then clip0
-                   else Draw.intersect_rect clip0 (Some rect) in
-        let sclip = scale_clip clip in
-        match clip with
-        | Some clip_rect when not (Sdl.has_intersection clip_rect rect) ->
-           (r.hidden <- true;
-            printd debug_warning "Room #%u is hidden (y=%d)" r.id y)
-        (* Because of clip, the rendered size can be smaller than what the geom
-           says. *)
-        (* If the clip is empty, there is nothing to display. Warning: this
-           means that all children will be hidden, even if they happen to pop
-           out of this rect. *)
-        | _ -> begin
-            r.hidden <- false;
-            let transform =
-              let tr = get_transform r in
-              (* printd debug_board "TRANSFORM alpha=%f" tr.Draw.alpha; *)
-              let open Draw in
-              (* printd debug_board "COMPOSED TRANSFORM alpha=%f" (tr.alpha *. tr0.alpha); *)
-              (*{ tr0 with alpha = tr0.alpha *. tr.alpha } in*)
-              (* TODO: compose also rotations with centres, flips !! *)
-              compose_transform tr0 tr in
+      (* TODO clip should be enlarged in case of shadow *)
+      let clip = if (*voffset = 0*) not r.clip || !no_clip then clip0
+        else Draw.intersect_rect clip0 (Some rect) in
+      let sclip = scale_clip clip in
+      match clip with
+      | Some clip_rect when not (Sdl.has_intersection clip_rect rect) ->
+        (r.hidden <- true;
+         printd debug_warning "Room #%u is hidden (y=%d)" r.id y)
+      (* Because of clip, the rendered size can be smaller than what the geom
+         says. *)
+      (* If the clip is empty, there is nothing to display. Warning: this means
+         that all children will be hidden, even if they happen to pop out of
+         this rect. *)
+      | _ -> begin
+          r.hidden <- false;
+          let transform =
+            let tr = get_transform r in
+            (* printd debug_board "TRANSFORM alpha=%f" tr.Draw.alpha; *)
+            let open Draw in
+            (* printd debug_board "COMPOSED TRANSFORM alpha=%f" (tr.alpha *. tr0.alpha); *)
+            (*{ tr0 with alpha = tr0.alpha *. tr.alpha } in*)
+            (* TODO: compose also rotations with centres, flips !! *)
+            compose_transform tr0 tr in
 
-            (* background (cf compute_background)*)
-            let bg = map_option r.background (fun bg ->
-                         let box = match bg with
-                           | Solid c ->
-                              (* let c = Draw.random_color () in *)  (* DEBUG *)
-                              let b = Box.(create ~width:g.w ~height:g.h
-                                             ~background:(Style.Solid c)
-                                             ?shadow:r.shadow ()) in
-                              lock r;
-                              r.background <- (Some (Box b));
-                              unlock r;
-                              b
-                           | Box b -> b in
-                         let blits = Box.display (get_canvas r) (get_layer r) box
-                                       Draw.(scale_geom {x; y; w = g.w; h = g.h;
-                                                         voffset = - voffset}) in
-                         blits) in
-            (* !!! in case of shadow, the blits contains several elements!! *)
+          (* background (cf compute_background)*)
+          let bg = map_option r.background (fun bg ->
+              let box = match bg with
+                | Style style ->
+                  (* let c = Draw.random_color () in *)  (* DEBUG *)
+                  (* let style = Style.create ~background:(Style.Solid c)
+                   *     ?shadow:r.shadow () in *)
+                  let b = Box.(create ~width:g.w ~height:g.h ~style ()) in
+                  lock r;
+                  r.background <- (Some (Box b));
+                  unlock r;
+                  b
+                | Box b -> b in
+              let blits = Box.display (get_canvas r) (get_layer r) box
+                  Draw.(scale_geom {x; y; w = g.w; h = g.h;
+                                    voffset = - voffset}) in
+              blits) in
+          (* !!! in case of shadow, the blits contains several elements!! *)
 
-            if !debug && r.keyboard_focus = Some true
-            then show_keyboard_focus r transform rect;
+          if !debug && r.keyboard_focus = Some true
+          then show_keyboard_focus r transform rect;
 
-            begin match r.content with
+          begin match r.content with
             | Rooms h ->
-               (* We only draw the background. Make sure that the layer of the
-                  room r is at least as deep as the layers of the Rooms h *)
-               do_option bg
-                 (List.iter
-                    (fun blit ->
+              (* We only draw the background. Make sure that the layer of the
+                 room r is at least as deep as the layers of the Rooms h *)
+              do_option bg
+                (List.iter
+                   (fun blit ->
                       let open Draw in
                       let t = compose_transform transform blit.transform in
                       blit_to_layer { blit with clip = sclip; transform = t }));
-               if !draw_boxes then begin
-                   let rect = debug_box ~color:(0,0,255,200) r x y in
-                   let open Draw in
-                   let t = compose_transform transform rect.transform in
-                   blit_to_layer { rect with clip = sclip; transform = t }
-                 end;
-               List.iter (display_loop x y voffset clip transform) h
+              if !draw_boxes then begin
+                let rect = debug_box ~color:(0,0,255,200) r x y in
+                let open Draw in
+                let t = compose_transform transform rect.transform in
+                blit_to_layer { rect with clip = sclip; transform = t }
+              end;
+              List.iter (display_loop x y voffset clip transform) h
             | Resident w ->
-               let blits = Widget.display (get_canvas r) (get_layer r) w
-                             Draw.({x; y; w = g.w; h = g.h; voffset}) in
-               let blits = match bg with
-                 | None -> blits
-                 | Some b -> List.rev_append b blits in
+              let blits = Widget.display (get_canvas r) (get_layer r) w
+                  Draw.({x; y; w = g.w; h = g.h; voffset}) in
+              let blits = match bg with
+                | None -> blits
+                | Some b -> List.rev_append b blits in
 
-               (* debug boxes *)
-               let blits = if !draw_boxes
-                           then
-                             let color = (255,0,0,200) in
-                             let rect = debug_box ~color r x y in
-                             rect :: blits
-                           else blits in
+              (* debug boxes *)
+              let blits = if !draw_boxes
+                then
+                  let color = (255,0,0,200) in
+                  let rect = debug_box ~color r x y in
+                  rect :: blits
+                else blits in
 
-               List.iter
-                 (fun blit ->
+              List.iter
+                (fun blit ->
                    let open Draw in
                    let t = compose_transform transform blit.transform in
                    let clip = sclip in
                    blit_to_layer { blit with clip; transform = t }) blits
-            end;
-            if !draw_boxes  (* we print the room number at the end to make sure it's visible *)
-            then let label = B_label.create ~size:7 ~fg:(Draw.(transp blue))
-                               (sprint_id r) in
-                 let geom = Draw.scale_geom {Draw.x; y; w=g.w+1; h=g.h+1; voffset} in
-                 List.iter
-                   Draw.blit_to_layer
-                   (B_label.display (get_canvas r) (get_layer r) label geom)
-          end
-      end in
+          end;
+          if !draw_boxes (* we print the room number at the end to make sure
+                            it's visible *)
+          then let label = B_label.create ~size:7 ~fg:(Draw.(transp blue))
+                   (sprint_id r) in
+            let geom = Draw.scale_geom {Draw.x; y; w=g.w+1; h=g.h+1; voffset} in
+            let blits = B_label.display (get_canvas r) (get_layer r) label geom in
+            List.iter Draw.blit_to_layer blits;
+            List.iter Draw.unload_blit blits
+        end
+    end in
   display_loop x0 y0 0 None (Draw.make_transform ()) room
 
 let get_focus room =
@@ -2628,9 +2660,9 @@ let update_old room =
 let rec is_fresh room =
   match room.content with
   | Rooms list -> let rec loop = function
-    | [] -> true
-    | r::h -> if not (is_fresh r) then false
-      else loop h in
+      | [] -> true
+      | r::h -> if not (is_fresh r) then false
+        else loop h in
     loop list
   | Resident w -> Widget.is_fresh w
 
@@ -2648,7 +2680,7 @@ let room_has_anim room =
 let rec has_anim room =
   if !debug && (not room.show) && (room.hidden) && (room_has_anim room)
   then printd debug_error "Room %s has unfinished animation but it is not shown."
-         (sprint_id room);
+      (sprint_id room);
   room.show && (not room.hidden) &&
   (room_has_anim room ||
    match room.content with
@@ -2662,14 +2694,14 @@ let flip ?(clear=false) ?(present=true) layout =
   (* go (Sdl.set_render_target (renderer layout) None); *)
   if clear then Draw.clear_canvas (get_canvas layout);
   printd debug_graphics "Render layers";
-  Var.protect_fn Draw.current_layer (fun () ->
+  Var.protect_do Draw.current_layer (fun () ->
       (* : we assume that the layout layer is in the same component as the
          current_layer... TODO do better *)
       Draw.render_all_layers (get_layer layout));
   if present then begin
-      printd debug_graphics "Present";
-      Draw.(sdl_flip (renderer layout))
-    end
+    printd debug_graphics "Present";
+    Draw.(sdl_flip (renderer layout))
+  end
 
 (* prerender the layout to the layers *)
 let render layout =
@@ -2694,13 +2726,13 @@ let resize_from_window ?(flip=true) layout =
   let w', h' = get_size top in
   if (w',h') <> (w,h)
   then begin
-      (* TODO in rare occasions, it might happen that this test is different
-         from get_physical_size top <> Sdl.get_window_size win*)
-      printd debug_graphics "Resize (%d,%d) --> (%d,%d)" w' h' w h;
-      set_size ~keep_resize:true ~check_window:false top (w,h);
-      Draw.update_background (get_canvas top);
-      if flip then Draw.sdl_flip (renderer top)
-    end
+    (* TODO in rare occasions, it might happen that this test is different
+       from get_physical_size top <> Sdl.get_window_size win*)
+    printd debug_graphics "Resize (%d,%d) --> (%d,%d)" w' h' w h;
+    set_size ~keep_resize:true ~check_window:false top (w,h);
+    Draw.update_background (get_canvas top);
+    if flip then Draw.sdl_flip (renderer top)
+  end
 (* : somehow we need this intermediate flip so that the renderer takes into
     account the new size. Otherwise texture are still clipped to the old
     size... On the other hand it might flicker if triggered too quickly *)
@@ -2712,14 +2744,14 @@ let make_window ?window layout =
   let top = top_house layout in
   if not (equal layout top)
   then printd debug_error
-         "  The layout for creating a window should be the top layout";
+      "  The layout for creating a window should be the top layout";
   let w,h = get_physical_size top in
   let wmax, hmax = 4096, 4096 in
   (* = TODO ? instead clip to ri_max_texture_width,ri_max_texture_height ? *)
   if wmax < w || hmax < h
   then printd debug_error
-         "  The layout has size (%u,%u), which exceeds the max size (%u,%u)."
-         w h wmax hmax;
+      "  The layout has size (%u,%u), which exceeds the max size (%u,%u)."
+      w h wmax hmax;
   let w = min w wmax in
   let h = min h hmax in
   let x,y = get_window_pos layout in
@@ -2727,15 +2759,16 @@ let make_window ?window layout =
   global_set_canvas top canvas
 
 (* adjust the window size to the top layout *)
-(* This should enforced all the time *)
+(* This should be enforced all the time *)
 (* this is not executed immediately, but sent to Sync *)
 (* TODO move this directly to the render loop, since it has to be done anyway,
-   and show not be done more than once per step. *)
+   and should not be done more than once per step. *)
 let adjust_window ?(display=false) layout =
   Sync.push (fun () ->
       let top = top_house layout in
       if not (equal layout top)
-      then printd debug_error "The layout for resizing window should be the top layout";
+      then printd debug_error
+          "The layout for resizing window should be the top layout";
       let w,h = get_physical_size top in
       let win = window top in
       printd debug_graphics "SDL set window size %d x %d" w h;
@@ -2758,7 +2791,7 @@ let adjust_window ?(display=false) layout =
         render top;
         flip top
       end)
-  (*Draw.destroy_textures ();; *)
+(*Draw.destroy_textures ();; *)
 
 (* the display function we export *)
 (* NO we need pos for snapshot.ml *)
@@ -2823,12 +2856,12 @@ let top_focus x y t =
 (* TODO à fusionner avec le précédent pour retourner une paire ? *)
 (* TODO vérifier qu'on est dans le même calque (layer) *)
 let rec hover x y t =
-let g = to_current_geom t.geometry in
+  let g = to_current_geom t.geometry in
   if t.show && (inside_geom g (x,y)) then match t.content with
     | Resident _ -> Some t
     | Rooms h -> (match
-        list_check (fun r -> hover (x - g.x) (y - g.y) r) h
-      with
-        | None -> Some t
-        | o -> o)
+                    list_check (fun r -> hover (x - g.x) (y - g.y) r) h
+                  with
+                  | None -> Some t
+                  | o -> o)
   else None
