@@ -219,6 +219,7 @@ h1 a {
 /* line 187, ../sass/style.scss */
 h2 {
   font-size: 18pt;
+  font-weight: 450;
   margin-top: 2.2ex;
   margin-bottom: -5px;
   padding: 2px;
@@ -226,7 +227,7 @@ h2 {
   border-top: 1px solid #4aa69d;
 }
 
-/* line 195, ../sass/style.scss */
+/* line 196, ../sass/style.scss */
 h3 {
   font-size: 16pt;
   margin-top: 20px;
@@ -237,7 +238,7 @@ h3 {
   display: table;
 }
 
-/* line 204, ../sass/style.scss */
+/* line 205, ../sass/style.scss */
 h4, h5, h6 {
   font-size: 14pt;
   margin-top: 5px;
@@ -246,7 +247,7 @@ h4, h5, h6 {
   padding: 2px;
 }
 
-/* line 211, ../sass/style.scss */
+/* line 212, ../sass/style.scss */
 h5, h6 {
   text-align: right;
   font-size: inherit;
@@ -254,7 +255,7 @@ h5, h6 {
   margin: 0;
 }
 
-/* line 219, ../sass/style.scss */
+/* line 220, ../sass/style.scss */
 div.h7 {
   font-size: 20pt;
   border: 1px solid #000000;
@@ -264,7 +265,7 @@ div.h7 {
   padding: 2px;
 }
 
-/* line 227, ../sass/style.scss */
+/* line 228, ../sass/style.scss */
 div.h8 {
   font-size: 20pt;
   border: 1px solid #000000;
@@ -275,18 +276,18 @@ div.h8 {
   padding: 2px;
 }
 
-/* line 236, ../sass/style.scss */
+/* line 237, ../sass/style.scss */
 a {
   color: #7b6963;
   text-decoration: none;
 }
 
-/* line 240, ../sass/style.scss */
+/* line 241, ../sass/style.scss */
 a:hover {
   text-decoration: underline;
 }
 
-/* line 242, ../sass/style.scss */
+/* line 243, ../sass/style.scss */
 pre, .typetable {
   background-color: #f3eee68f;
   margin-bottom: 4px;
@@ -297,7 +298,7 @@ pre, .typetable {
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 249, ../sass/style.scss */
+/* line 250, ../sass/style.scss */
 pre {
   width: -moz-fit-content;
   width: -webkit-fit-content;
@@ -307,36 +308,36 @@ pre {
   margin-top: 0;
   white-space: pre-wrap;
 }
-/* line 257, ../sass/style.scss */
+/* line 258, ../sass/style.scss */
 pre a {
   color: black;
 }
 
-/* line 261, ../sass/style.scss */
+/* line 262, ../sass/style.scss */
 pre.verbatim, pre.codepre {
   border: 1px solid darkgrey;
 }
 
-/* line 264, ../sass/style.scss */
+/* line 265, ../sass/style.scss */
 .indextable {
   border: 1px #ddd solid;
   border-collapse: collapse;
 }
 
-/* line 268, ../sass/style.scss */
+/* line 269, ../sass/style.scss */
 .indextable td, .indextable th {
   border: 1px #ddd solid;
   min-width: 80px;
 }
 
-/* line 272, ../sass/style.scss */
+/* line 273, ../sass/style.scss */
 .indextable td.module {
   background-color: rgba(74, 166, 157, 0.3);
   padding-left: 2px;
   padding-right: 2px;
 }
 
-/* line 277, ../sass/style.scss */
+/* line 278, ../sass/style.scss */
 .indextable td.module a {
   color: #4E6272;
   text-decoration: none;
@@ -344,31 +345,31 @@ pre.verbatim, pre.codepre {
   width: 100%;
 }
 
-/* line 283, ../sass/style.scss */
+/* line 284, ../sass/style.scss */
 .indextable td.module a:hover {
   text-decoration: underline;
   background-color: transparent;
 }
 
-/* line 287, ../sass/style.scss */
+/* line 288, ../sass/style.scss */
 .deprecated {
   color: #888;
   font-style: italic;
 }
 
-/* line 291, ../sass/style.scss */
+/* line 292, ../sass/style.scss */
 .indextable tr td div.info {
   margin-left: 2px;
   margin-right: 2px;
 }
 
-/* line 295, ../sass/style.scss */
+/* line 296, ../sass/style.scss */
 ul.indexlist {
   margin-left: 0;
   padding-left: 0;
 }
 
-/* line 299, ../sass/style.scss */
+/* line 300, ../sass/style.scss */
 ul.indexlist li {
   list-style-type: none;
   margin-left: 0;
@@ -376,68 +377,89 @@ ul.indexlist li {
 }
 
 @media only screen and (max-width: 767px) {
-  /* line 306, ../sass/style.scss */
+  /* line 307, ../sass/style.scss */
   h1, h2, h3, h4, h5, h6, h7, h8, h9 {
     text-align: center;
   }
 }
 /* Graphes */
-/* line 313, ../sass/style.scss */
+/* line 314, ../sass/style.scss */
 #container, div.caption {
   width: 95%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 318, ../sass/style.scss */
+/* line 319, ../sass/style.scss */
 svg {
   background: #f3eee68f;
 }
-/* line 320, ../sass/style.scss */
+/* line 321, ../sass/style.scss */
 svg > g > polygon {
   fill: none;
 }
-/* line 323, ../sass/style.scss */
+/* line 324, ../sass/style.scss */
 svg ellipse {
   stroke: #4aa69d;
   fill: rgba(74, 166, 157, 0.3);
   transition: all 0.2s ease;
 }
-/* line 328, ../sass/style.scss */
+/* line 329, ../sass/style.scss */
 svg text {
   font: 12pt "Roboto Slab", sans-serif;
   fill: black;
 }
-/* line 333, ../sass/style.scss */
+/* line 334, ../sass/style.scss */
 svg g.edge path {
   stroke: #a24d25;
   transition: all 0.2s ease;
   stroke-width: 1px;
 }
-/* line 338, ../sass/style.scss */
+/* line 339, ../sass/style.scss */
 svg g.edge polygon {
   stroke: #d1371f;
   fill: #d1371f;
   transition: all 0.2s ease;
 }
-/* line 345, ../sass/style.scss */
+/* line 346, ../sass/style.scss */
 svg g.edge:hover path {
   stroke: #d1371f;
 }
-/* line 348, ../sass/style.scss */
+/* line 349, ../sass/style.scss */
 svg g.edge:hover path, svg g.edge:hover polygon {
   stroke-width: 5px;
 }
-/* line 354, ../sass/style.scss */
+/* line 355, ../sass/style.scss */
 svg g.edge.from path {
   stroke: #4aa69d;
 }
-/* line 357, ../sass/style.scss */
+/* line 358, ../sass/style.scss */
 svg g.edge.from polygon {
   stroke: #4aa69d;
   fill: #4aa69d;
 }
-/* line 363, ../sass/style.scss */
+/* line 364, ../sass/style.scss */
 svg g a:hover ellipse {
   stroke-width: 7px;
+}
+
+/* line 373, ../sass/style.scss */
+div.figure {
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+/* line 377, ../sass/style.scss */
+div.figure img {
+  max-width: 100%;
+}
+/* line 380, ../sass/style.scss */
+div.figure .caption {
+  text-align: center;
+  margin-top: -2em;
+}
+
+/* line 388, ../sass/style.scss */
+td img {
+  width: 100%;
 }

@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf8" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README</title>
+</head>
+<body>
+  <div style="float: right;">
+    <a href="https://github.com/sanette/bogue">Find bogue on
+      <img 
+	src="images/github.svg" 
+	alt="Github"
+	height="42px"
+	width="42px" style="vertical-align: middle;"/></a>
+  </div>
+<h1 id="bogue-bogue-icon">Bogue <img src="https://raw.githubusercontent.com/sanette/bogue/master/bogue-icon.png" alt="bogue-icon" /></h1>
+<p><em>Bogue</em> is a GUI (Graphical user interface) library for <a href="https://ocaml.org/">ocaml</a>, with animations, based on <a href="http://www.libsdl.org/">SDL2</a>.</p>
+<ul>
+<li>Can be used to add interactivity to any program.</li>
+<li>Can work within an already existing event loop, for instance to add GUI elements to a game.</li>
+<li>Uses the <strong>SDL2 renderer</strong> library, which makes it quite fast.</li>
+<li>Can deal with several windows.</li>
+<li><em>Bogue</em> is <strong>themable</strong>, and does not try to look like your desktop. Instead, it will look the same on every platform.</li>
+<li>Graphics output is scalable (without need to recompile), and hence easily adapts to <strong>Hi-DPI displays</strong>.</li>
+<li>Predefined animations (slide-in, fade-in, fade-out, rotate).</li>
+<li>Built-in audio mixer.</li>
+</ul>
+<p>Programming with <em>bogue</em> is easy if you’re used to GUIs with widgets, layouts, callbacks, and of course it has a functional flavor. ​It uses <strong><a href="https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html">Threads</a></strong> when non-blocking reactions are needed.</p>
+<h1 id="features">Features</h1>
+<h2 id="widgets">Widgets</h2>
+<p>Widgets are the building bricks, responsible for graphic elements that respond to events (mouse, touchscreen, keyboard, etc.).</p>
+<p>For a more “functional” use, they can be “connected” instead of reacting with callbacks (see examples).</p>
+<ul>
+<li>boxes with decorations (round corner, border, shadow, gradient background, image pattern)</li>
+<li>check box</li>
+<li>push button (with labels or images)</li>
+<li>rich text display (bold, italics, underline), any TTF font can be used.</li>
+<li>image (all usual formats, including SVG)</li>
+<li>slider (horizontal, vertical, or circular)</li>
+<li>text input with select and copy-paste</li>
+</ul>
+<h2 id="layouts">Layouts</h2>
+<p>widgets can be combined in various ways into layouts. For instance, a check box followed by a text label is a common layout.</p>
+<p>Several predefined layouts are available:</p>
+<ul>
+<li>sliders (horizontal, vertical, circular). Can be used as progress bars</li>
+<li>scrollable lists (that can easily handle a large number of elements, like one million)</li>
+<li>multi-column tables with sortable columns</li>
+<li>multiple tabs with slide-in animation</li>
+<li>modal popups</li>
+<li>various menus (menu bar, drop down menus with submenus)</li>
+<li>drop-down select lists</li>
+<li>radio lists</li>
+<li>automatic tooltips can be attached to any element</li>
+</ul>
+<p>Layouts can be <strong>animated</strong> (slide-in, transparency, rotation). All layouts can be automatically <strong>resized</strong> when the user resizes the window. <strong>Timeouts</strong> are available to execute arbitrary actions after a delay.</p>
+<h1 id="screenshots">Screenshots</h1>
+<table>
+<thead>
+<tr class="header">
+<th>demo, tab #1</th>
+<th>demo, tab #2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="tabs1.png" alt="demo1" /></td>
+<td><img src="tabs2.png" alt="demo2" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="videos">Videos</h2>
+<p><a href="https://www.youtube.com/watch?v=b7rBCctJ7Cw">randomize</a>, <a href="https://youtu.be/isFLxnDooL8">demo 1907</a></p>
+<h1 id="installation">Installation</h1>
+<h2 id="using-the-opam-package">Using the opam package</h2>
+<p>This is the easiest way unless you want to try out the development version.</p>
+<pre><code>opam install bogue</code></pre>
+<p>That’s it.</p>
+<h2 id="building-from-sources">Building from sources</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>You need a working <code>ocaml</code> installation with <code>opam</code>, see the <a href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make sure you have <code>dune</code>, <code>tsdl</code>, <code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
+<pre><code>opam install dune tsdl tsdl-image tsdl-ttf</code></pre>
+<h3 id="get-the-latest-source">Get the latest source</h3>
+<p>Download the <a href="https://github.com/sanette/bogue/archive/master.zip">git archive</a>, unzip it, cd into the <code>bogue-master</code> dir, and then:</p>
+<pre><code>dune build
+opam install .</code></pre>
+<h1 id="documentation">Documentation</h1>
+<p>It’s good to first have a look at Bogue’s <a href="http://sanette.github.io/bogue/Principles.html">general principles</a>.</p>
+<p>The public API can be found <a href="http://sanette.github.io/bogue/Bogue.html">here</a>.</p>
+<h1 id="examples">Examples</h1>
+<p>You should first try a <a href="http://sanette.github.io/bogue/Bogue.html#example">minimal example</a>.</p>
+<p>The <code>examples</code> directory contains more sophisticated examples. If you installed the <code>bogue</code> package with <code>opam</code> (as described above), these examples are available via the <code>boguex</code> program. For instance, run examples 34 and 41 by:</p>
+<pre><code>boguex 34 41</code></pre>
+<p>Type <code>boguex -h</code> to have the list of all examples.</p>
+<h1 id="a-minimal-app-using-bogue">A minimal app using Bogue</h1>
+<p>See <a href="https://github.com/sanette/randomize">here</a>.</p>
+  <div style="float: right;">
+    <a href="https://github.com/sanette/bogue">Find bogue on
+      <img 
+	src="images/github.svg" 
+	alt="Github"
+	height="42px"
+	width="42px" style="vertical-align: middle;"/></a>
+  </div>
+  
+<br></body></html>

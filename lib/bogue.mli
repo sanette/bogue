@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20211224
+@version 20211225
 
 @author Vu Ngoc San
 
@@ -790,11 +790,11 @@ end (* of Image *)
 module Style : sig
   type t
 
+  (** not implemented *)
   type line_style =
     | Solid
     | Dotted of (int * int)
-    (** not implemented *)
-                
+
   type line
   type border
   type shadow
@@ -806,15 +806,11 @@ module Style : sig
 
   val create : ?background:background -> ?border:border ->
     ?shadow:shadow -> unit -> t
+  val empty : t
+
   val of_bg : background -> t
   val of_border : border -> t
   val of_shadow : shadow -> t
-  val empty : t
-  val color_bg : Draw.color -> background
-  val opaque_bg : Draw.rgb -> background
-  val gradient : ?angle:float -> Draw.color list -> background
-  val hgradient : Draw.color list -> background
-  val vgradient : Draw.color list -> background
   val mk_line : ?color:Draw.color -> ?width:int ->
     ?style:line_style -> unit -> line
   val mk_border : ?radius:int -> line -> border
@@ -824,6 +820,12 @@ module Style : sig
   val with_border : border -> t -> t
   val with_shadow : shadow -> t -> t
 
+  val color_bg : Draw.color -> background
+  val opaque_bg : Draw.rgb -> background
+  val gradient : ?angle:float -> Draw.color list -> background
+  val hgradient : Draw.color list -> background
+  val vgradient : Draw.color list -> background
+  
 end (* of Style *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -2024,7 +2026,7 @@ v}
 
 A window should open which should look like this:
 
-{%html:<img src="minimal.png">%}
+{%html:<div class="figure"><img src="minimal.png"></div>%}
 
 You may also evaluate this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert
 

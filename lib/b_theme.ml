@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20211224"  (* see VERSION file *)
+let this_version = "20211226"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -106,7 +106,8 @@ let skip_comment buffer =
   | e -> print_endline "SCAN ERROR"; raise e
 
 (* Load variables from config file. Returns an association list. Most recent
-   entries are put first, and hence will be selected first by List.assoc.*)
+   entries are put first (ie. the order is the reverse of the order of the lines
+   in the file), and hence will be selected first by List.assoc.*)
 let load_vars config_file =
   let buffer = Scanf.Scanning.from_file config_file in
   let version = try
@@ -162,7 +163,7 @@ let load_theme_vars dir vars =
     | (name, value)::rest ->
        if name = "THEME"
        then
-         let theme_file = sub_file value "bogue.conf" in
+         let theme_file = sub_file value conf_file in
          let theme_vars = load_vars (sub_file dir theme_file) in
          (name, value) :: (List.rev_append newv (List.append theme_vars rest))
        else loop ((name, value)::newv) rest

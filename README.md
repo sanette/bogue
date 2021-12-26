@@ -1,18 +1,20 @@
 # Bogue ![bogue-icon](https://raw.githubusercontent.com/sanette/bogue/master/bogue-icon.png)
 
-_bogue_ is a GUI library for [ocaml](https://ocaml.org/), with
-animations, based on [SDL2](http://www.libsdl.org/).
+_Bogue_ is a GUI (Graphical user interface) library for
+[ocaml](https://ocaml.org/), with animations, based on
+[SDL2](http://www.libsdl.org/).
 
-This library can be used for games or for adding GUI elements to any
-ocaml program.
-
-It uses the __SDL2 renderer__ library, which makes it quite fast.
-
-It is __themable__, and does not try to look like your
-desktop. Instead, it will look the same on every platform.
-
-Graphics output is scalable, and hence easily adapts to __Hi-DPI
-displays__.
+* Can be used to add interactivity to any program.
+* Can work within an already existing event loop, for instance to add
+  GUI elements to a game.
+* Uses the __SDL2 renderer__ library, which makes it quite fast.
+* Can deal with several windows.
+* _Bogue_ is __themable__, and does not try to look like your
+  desktop. Instead, it will look the same on every platform.
+* Graphics output is scalable (without need to recompile), and hence
+  easily adapts to __Hi-DPI displays__.
+* Predefined animations (slide-in, fade-in, fade-out, rotate).
+* Built-in audio mixer.
 
 Programming with _bogue_ is easy if you're used to GUIs with widgets,
 layouts, callbacks, and of course it has a functional flavor.  ​It uses
@@ -26,15 +28,17 @@ when non-blocking reactions are needed.
 Widgets are the building bricks, responsible for graphic elements that
 respond to events (mouse, touchscreen, keyboard, etc.).
 
-For a more functional use, they can be "connected" (by pairs at this
-moment) instead of reacting with callbacks (see examples).
+For a more "functional" use, they can be "connected" instead of
+reacting with callbacks (see examples).
 
+* boxes with decorations (round corner, border, shadow, gradient
+  background, image pattern)
 * check box
 * push button (with labels or images)
-* rich text display
-* image (all usual formats)
+* rich text display (bold, italics, underline), any TTF font can be used.
+* image (all usual formats, including SVG)
 * slider (horizontal, vertical, or circular)
-* text input
+* text input with select and copy-paste
 
 ## Layouts
 
@@ -43,20 +47,28 @@ check box followed by a text label is a common layout.
 
 Several predefined layouts are available:
 
-* scrollable list (that can easily handle a large number of elements)
-* multi-column table
-* tabs
-* popup
+* sliders (horizontal, vertical, circular). Can be used as progress bars
+* scrollable lists (that can easily handle a large number of elements,
+  like one million)
+* multi-column tables with sortable columns
+* multiple tabs with slide-in animation
+* modal popups
 * various menus (menu bar, drop down menus with submenus)
-* select list
-* radio list
+* drop-down select lists
+* radio lists
+* automatic tooltips can be attached to any element
 
-Layouts can be __animated__ (slide-in, transparency, rotation)
-
+Layouts can be __animated__ (slide-in, transparency, rotation).  All
+layouts can be automatically __resized__ when the user resizes the
+window. __Timeouts__ are available to execute arbitrary actions after
+a delay.
 
 # Screenshots
 
-![demo](https://raw.githubusercontent.com/sanette/bogue/master/docs/images/bogue_demo-s.png)
+| demo, tab #1 | demo, tab #2 |
+|-----|-----|
+|![demo1](tabs1.png)| ![demo2](tabs2.png) |
+
 
 ## Videos
 
@@ -99,9 +111,8 @@ opam install .
 It's good to first have a look at Bogue's
 [general principles](http://sanette.github.io/bogue/Principles.html).
 
-A much more complete doc can be found
-[here](http://sanette.github.io/bogue/Bogue.html).  It does not cover
-all available features (yet), but it's already a good start.
+The public API can be found
+[here](http://sanette.github.io/bogue/Bogue.html).
 
 # Examples
 
