@@ -1,6 +1,15 @@
 (executable
  (name example)
- (modules (:standard \ toplevel_example))
+ (modules (:standard \ toplevel_example)); toplevel_example.ml should not be compiled
  (public_name boguex)
  (libraries bogue)
  (package bogue))
+
+; https://dune.readthedocs.io/en/stable/tests.html#cram-tests
+; The test is the file test.t
+(cram
+ (deps ./example.exe))
+
+(rule
+ (alias  runtest)
+ (action (run ./example.exe 00)))

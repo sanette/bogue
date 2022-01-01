@@ -1,4 +1,6 @@
-(** all sorts of examples *)
+(* All sorts of examples *)
+(* This file is part of BOGUE *)
+
 open Tsdl
 open Bogue
 open Main
@@ -70,6 +72,14 @@ let shadow_box = let open Style in
 (*************************)
 (* Here are the examples *)
 (*************************)
+
+let desc00 = "Bogue initialization without opening any window."
+let example00 () =
+  let _ = Timeout.add 1000 (fun () ->
+      print_endline "Hello world";
+      raise Exit) in
+  let board = make [] [] in
+  run board
 
 let desc0 = "Just a check button."
 let example0 () =
@@ -1095,66 +1105,67 @@ let example48 () =
   run (make [] [layout])
 
 let _ =
-  let examples = [  "0", (example0, desc0) ;
-                    "1h", (example1h, desc1h) ;
-                    "1v", (example1v, desc1v) ;
-                    "2", (example2, desc2) ;
-                    "3", (example3, desc3) ;
-                    "4", (example4, desc4) ;
-                    "5", (example5, desc5) ;
-                    "6", (example6, desc6) ;
-                    "7", (example7, desc7) ;
-                    "8", (example8, desc8) ;
-                    "9", (example9, desc9) ;
-                    "10", (example10, desc10) ;
-                    "11", (example11, desc11) ;
-                    "12", (example12, desc12) ;
-                    "13", (example13, desc13) ;
-                    "14", (example14, desc14) ;
-                    "15", (example15, desc15) ;
-                    "16", (example16, desc16) ;
-                    "17", (example17, desc17) ;
-                    "18", (example18, desc18) ;
-                    "19", (example19, desc19) ;
-                    "20", (example20, desc20) ;
-                    "21", (example21, desc21) ;
-                    "21bis", (example21bis, desc21bis) ;
-                    "21ter", (example21ter, desc21ter) ;
-                    "22", (example22, desc22) ;
-                    "23", (example23, desc23) ;
-                    "23bis", (example23bis, desc23bis) ;
-                    "24", (example24, desc24) ;
-                    "25", (example25, desc25) ;
-                    "25bis", (example25bis, desc25bis) ;
-                    "26", (example26, desc26) ;
-                    "26bis", (example26bis, desc26bis) ;
-                    "27", (example27, desc27) ;
-                    "28", (example28, desc28) ;
-                    "29", (example29, desc29) ;
-                    "30", (example30, desc30) ;
-                    "31", (example31, desc31) ;
-                    "32", (example32, desc32) ;
-                    "33", (example33, desc33) ;
-                    "34", (example34, desc34) ;
-                    "35", (example35, desc35) ;
-                    "35bis", (example35bis, desc35bis) ;
-                    "35ter", (example35ter, desc35ter) ;
-                    "36", (example36, desc36) ;
-                    "37", (example37, desc37) ;
-                    "38", (example38, desc38) ;
-                    "39", (example39, desc39) ;
-                    "39bis", (example39bis, desc39bis) ;
-                    "40", (example40, desc40) ;
-                    "41", (example41, desc41) ;
-                    "42", (example42, desc42) ;
-                    "43", (example43, desc43) ;
-                    "44", (example44, desc44) ;
-                    "45", (example45, desc45) ;
-                    "46", (example46, desc46) ;
-                    "47", (example47, desc47) ;
-                    "48", (example48, desc48) ;
-
-                 ] in
+  let examples = [
+    "00", (example00, desc00) ;
+    "0", (example0, desc0) ;
+    "1h", (example1h, desc1h) ;
+    "1v", (example1v, desc1v) ;
+    "2", (example2, desc2) ;
+    "3", (example3, desc3) ;
+    "4", (example4, desc4) ;
+    "5", (example5, desc5) ;
+    "6", (example6, desc6) ;
+    "7", (example7, desc7) ;
+    "8", (example8, desc8) ;
+    "9", (example9, desc9) ;
+    "10", (example10, desc10) ;
+    "11", (example11, desc11) ;
+    "12", (example12, desc12) ;
+    "13", (example13, desc13) ;
+    "14", (example14, desc14) ;
+    "15", (example15, desc15) ;
+    "16", (example16, desc16) ;
+    "17", (example17, desc17) ;
+    "18", (example18, desc18) ;
+    "19", (example19, desc19) ;
+    "20", (example20, desc20) ;
+    "21", (example21, desc21) ;
+    "21bis", (example21bis, desc21bis) ;
+    "21ter", (example21ter, desc21ter) ;
+    "22", (example22, desc22) ;
+    "23", (example23, desc23) ;
+    "23bis", (example23bis, desc23bis) ;
+    "24", (example24, desc24) ;
+    "25", (example25, desc25) ;
+    "25bis", (example25bis, desc25bis) ;
+    "26", (example26, desc26) ;
+    "26bis", (example26bis, desc26bis) ;
+    "27", (example27, desc27) ;
+    "28", (example28, desc28) ;
+    "29", (example29, desc29) ;
+    "30", (example30, desc30) ;
+    "31", (example31, desc31) ;
+    "32", (example32, desc32) ;
+    "33", (example33, desc33) ;
+    "34", (example34, desc34) ;
+    "35", (example35, desc35) ;
+    "35bis", (example35bis, desc35bis) ;
+    "35ter", (example35ter, desc35ter) ;
+    "36", (example36, desc36) ;
+    "37", (example37, desc37) ;
+    "38", (example38, desc38) ;
+    "39", (example39, desc39) ;
+    "39bis", (example39bis, desc39bis) ;
+    "40", (example40, desc40) ;
+    "41", (example41, desc41) ;
+    "42", (example42, desc42) ;
+    "43", (example43, desc43) ;
+    "44", (example44, desc44) ;
+    "45", (example45, desc45) ;
+    "46", (example46, desc46) ;
+    "47", (example47, desc47) ;
+    "48", (example48, desc48) ;
+  ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)
                |> List.filter (fun s -> s <> "-h") in
@@ -1162,7 +1173,7 @@ let _ =
   let to_run = if to_run == [] then all else to_run  in
   (* for instance to_run = [ "23"; "23bis" ] *)
   let exs = try (List.map (fun key -> key, List.assoc key examples) to_run)
-            with Not_found -> failwith "Cannot find requested example"
+    with Not_found -> failwith "Cannot find requested example"
   in
   List.iter (fun (key, (ex,de)) ->
       print_endline (key ^ " = " ^ de);
@@ -1181,5 +1192,5 @@ let _ =
   );
   Stdlib.exit 0
 
-              (* Attention le 16 ne marche pas après le 15: on reste bloqué sur
+(* Attention le 16 ne marche pas après le 15: on reste bloqué sur
    Thread: Waiting for locked variable to unlock...==> corrigé *)

@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20211225
+@version 20211229
 
 @author Vu Ngoc San
 
@@ -726,13 +726,18 @@ end (* of Avar *)
 {5 {{:graph-b_selection.html}Dependency graph}}
  *)
 module Selection : sig
-  type 'a t
-  type normalized
+  type t
 
-  val mem : 'a t -> int -> bool
-  val toggle : normalized t -> int -> normalized t
-  val sprint : 'a t -> string
-  val iter : (int -> unit) -> 'a t -> unit
+  val to_list : t -> (int * int) list
+  val of_list : (int * int) list -> t
+  val mem : t -> int -> bool
+  val toggle : t -> int -> t
+  val remove : t -> int -> t
+  val add : t -> int -> t
+  val union : t -> t -> t
+  val intersect : t -> t -> t
+  val sprint : t -> string
+  val iter : (int -> unit) -> t -> unit
 
 end (* of Selection *)
 
@@ -825,7 +830,7 @@ module Style : sig
   val gradient : ?angle:float -> Draw.color list -> background
   val hgradient : Draw.color list -> background
   val vgradient : Draw.color list -> background
-  
+
 end (* of Style *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -853,7 +858,8 @@ module Label : sig
      {!Widget.icon}. *)
 
   val set : t -> string -> unit
-  (** Modify the text of the label. *)
+  (** Modify the text of the label. Does nothing if the given text is already
+     the same as the label's previous text. *)
 
   val set_fg_color : t -> Draw.color -> unit
   (** Modify the color of the text. *)
@@ -1187,14 +1193,26 @@ let l = get_label w in
      [l], and connect them so that clicking on the text will also act on the
      check box. *)
 
-  (** {2 Generic functions on widgets} *)
+  (** {2 Generic functions on widgets}
+
+      These generic functions work on all types of widgets, and emit an error in
+     the log (without raising any exception) whenever the type of the argument
+     makes no sense for the function.
+
+      These functions are very handy, but sometimes can hide a bug. For instance
+     if you want to use [get_state t], while you know that [t] should always be
+     of type [Button], then it will help debugging to use instead the slightly
+     longer form {!Button.state}[ (get_button t)]. Indeed the latter will fail
+     if [t] happens not to be a Button.
+
+*)
 
   val get_state : t -> bool
-  (** query a boolean state. Works for Button and Check. *)
+  (** Query a boolean state. Works for Button and Check. *)
 
   val get_text : t -> string
-  (** Return the text of the widget. Works for Button, TextDisplay, Label,
-     and TextInput. *)
+  (** Return the text of the widget. Works for Button, TextDisplay, Label, and
+     TextInput. *)
 
   val size : t -> int * int
   (** If the widget is not rendered yet, a default size may be returned instead
@@ -1205,7 +1223,9 @@ let l = get_label w in
      and TextInput. *)
 
   (** {2 Conversions from the generic Widget type to the specialized inner type}
-     *)
+
+     These functions raise [Invalid_argument] whenever their argument is not of
+     the correct type.  *)
 
   val get_box : t -> Box.t
   val get_check : t -> Check.t
@@ -1214,6 +1234,13 @@ let l = get_label w in
   val get_slider : t -> Slider.t
   val get_text_display : t -> Text_display.t
   val get_text_input : t -> Text_input.t
+
+  (** {2 Generic actions} *)
+
+  val map_text : (string -> string) -> action
+  (** [map_text f] is a {!action} that replaces the text of the second widget
+     by [f] applied to the text of the first widget. *)
+
 end (* of Widget *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1465,6 +1492,10 @@ module Layout : sig
      lock it with a mutex. This does *not* always prevent from modifying it, but
      another [lock] statement will wait for the previous lock to be removed by
      {!unlock}. *)
+
+  val push_close : t -> unit
+  (** Emit the close-window event to the window containing the layout. This
+     should close the window at the next graphics frame. *)
 
 
   (** {2 Animations}
@@ -1883,7 +1914,7 @@ module Table : sig
 
   val create : ?w:int -> h:int -> ?row_height:int ->
     ?name:string ->
-    column list -> Layout.t * (Selection.normalized Selection.t, Selection.normalized Selection.t) Tvar.t
+    column list -> Layout.t * (Selection.t, Selection.t) Tvar.t
   (** @return a layout and a Tvar. The Tvar can be used to see which rows were
       selected by the user, and also to modify the selection if needed. *)
 
@@ -1893,7 +1924,7 @@ module Table : sig
     ?row_height:int ->
     ?name:string ->
     string list ->
-    string array array -> Layout.t * (Selection.normalized Selection.t, Selection.normalized Selection.t) Tvar.t
+    string array array -> Layout.t * (Selection.t, Selection.t) Tvar.t
 
   val of_list :
     ?w:int ->
@@ -1901,7 +1932,7 @@ module Table : sig
     ?widths:int option list ->
     ?row_height:int ->
     ?name:string ->
-    string list list -> Layout.t * (Selection.normalized Selection.t, Selection.normalized Selection.t) Tvar.t
+    string list list -> Layout.t * (Selection.t, Selection.t) Tvar.t
 
 end (* of Table *)
 

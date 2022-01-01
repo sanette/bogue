@@ -31,6 +31,7 @@ module Mouse = B_mouse
 module Style = B_style
 module Box = B_box
 module Slider = B_slider
+module Selection = B_selection
 
 type background =
   (* TODO instead we should keep track of how the box was created... in case we
@@ -459,6 +460,11 @@ let rec iter_widgets f room =
   | Resident w -> f w
   | Rooms list -> List.iter (iter_widgets f) list
 
+let map_widgets f room =
+  let list = ref [] in
+  iter_widgets (fun w -> list := (f w) :: !list) room;
+  !list
+
 (* iter the direct children *)
 let iter_rooms f house =
   match house.content with
@@ -519,6 +525,18 @@ let rec first_show_widget layout =
             | r::rest -> try first_show_widget r with Not_found -> loop rest in
           loop rooms
   else raise Not_found
+
+(* Return the list of all texts contained in the widgets *)
+let get_texts room =
+  map_widgets Widget.get_text room
+  |> List.filter (fun s -> s <> "")
+
+let get_text room =
+  get_resident room
+  |> Widget.get_text
+
+let set_text room text =
+  Widget.set_text (get_resident room) text
 
 (* only for debugging: *)
 (* check if rooms sent to cemetery have effectively been removed by GC *)
@@ -1265,6 +1283,15 @@ let claim_keyboard_focus r =
   else printd (debug_error + debug_board)
          "Cannot claim keyboard_focus on room %s without resident." (sprint_id r)
 
+(* Emit the close-window event to the window containing the layout *)
+let push_close r =
+  let id = Sdl.get_window_id (window r) in
+  let open Trigger in
+  let e = create_event E.window_event in
+  E.(set e window_window_id id);
+  E.(set e window_event_id window_event_close);
+  push_event e
+
 (* center vertically the rooms of the layout (first generation only) *)
 let v_center layout y0 h =
   match layout.content with
@@ -1667,8 +1694,8 @@ let copy ~src ~dst =
   unlock src;
   unlock dst
 
-(* Add a room to the dst layout content (END of the list). The resize function
-   of the room is cancelled. *)
+(* Add a room to the dst layout content (END of the list). This does *not*
+   enlarge the containing house. The resize function of the room is cancelled. *)
 (* This is used to add a pop-up *)
 (* warning: the room should NOT already belong to some house. *)
 (* TODO: write a "remove_room" function *)
@@ -1854,6 +1881,30 @@ let bounding_geometry = function
           rest in
     loop max_int max_int 0 0 rooms
 
+module Grid = struct
+
+  (* return a Selection.t corresponding to the vertical projections of the
+     bounding boxes of the rooms in the house. *)
+  let detect_rows ?(overlap = 1) house =
+    let vranges =
+      match house.content with
+      | Resident _ -> [(0, height house)]
+      | Rooms rooms -> List.map (fun r ->
+          let y = gety r in
+          (y, y + height r - overlap)) rooms in
+    Selection.of_list vranges
+
+  (* same for horizontal projections *)
+  let detect_columns ?(overlap = 1) house =
+    let hranges =
+      match house.content with
+      | Resident _ -> [(0, width house)]
+      | Rooms rooms -> List.map (fun r ->
+          let x = getx r in
+          (x, x + width r - overlap)) rooms in
+    Selection.of_list hranges
+
+end
 
 (* Superpose a list of rooms without changing their relative (x,y) positions.
    Unless specified by ~w ~h, the resulting layout has the *size* of the total
@@ -1862,15 +1913,15 @@ let bounding_geometry = function
    claimed. *)
 (* TODO it seems that only the first one gets focus... *)
 let superpose ?w ?h ?name ?background ?canvas ?(center=false)
-      ?(scale_content=true) rooms =
+    ?(scale_content=true) rooms =
   let x,y,bw,bh = bounding_geometry rooms in
   (* We translate the rooms: *)
   List.iter (fun r -> setx r (getx r - x); sety r (gety r - y)) rooms;
   let w = default w bw in
   let h = default h bh in
   if center then List.iter (fun r ->
-                     setx r (Draw.center (getx r) w (width r));
-                     sety r (Draw.center (gety r) h (height r))) rooms;
+      setx r (Draw.center (getx r) w (width r));
+      sety r (Draw.center (gety r) h (height r))) rooms;
   let geometry = geometry ~x ~y ~w ~h () in
   if scale_content then scale_resize_list (w,h) rooms
   else List.iter disable_resize rooms;

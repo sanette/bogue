@@ -60,7 +60,7 @@ type board = {
 let exit_on_escape = (Sdl.K.escape, Sdl.Kmod.none, fun (_ : board) -> raise Exit)
 
 let get_frame () = !Avar.frame
-    
+
 let get_layouts board =
   List.map Window.get_layout board.windows
 (* should be the same as getting the Rooms content of the windows_house *)
@@ -278,7 +278,8 @@ let window_of_event board ev =
     check_option ido (fun id ->
         list_check_ok (fun w -> id = Window.id w) board.windows)
   with Not_found ->
-    printd debug_error "Search window for event %s caused an error" (Trigger.sprint_ev ev);
+    printd debug_error "Search window for event %s caused an error"
+      (Trigger.sprint_ev ev);
     None
 
 (* detect layout under mouse, with top layer (= largest "depth") *)
@@ -746,6 +747,15 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
             | `Close ->
               printd (debug_board+debug_event) "Asking window to close";
               do_option (window_of_event board e) (remove_window board);
+              if board.windows = [] then begin
+                printd debug_board "No more windows. We quit.";
+                (* The `Quit` event seems to be emitted when the user clicks on
+                   the Close button of the last open window, but not when we
+                   delete windows manually. Hence we have to raise Exit.*)
+                (* TODO instead we should check if there are Sync actions of
+                   Timeouts waiting?*)
+                raise Exit
+              end
             | _ as enum ->
               printd debug_event "%s" (Trigger.window_event_name enum);
               do_option (window_of_event board e) (fun w ->
@@ -761,7 +771,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
                        activate a button.*) )
           end;
           (* TODO just display the corresponding window, not all of them *)
-        | `Quit -> raise Exit
+        | `Quit -> printd (debug_event+debug_board) "Quit event"; raise Exit
         | _ -> ()
       end);
 
@@ -995,7 +1005,7 @@ let run ?before_display ?after_display board =
 
   if not (Sync.execute 50) (* The first Sync is given more time *)
   then Trigger.flush (Trigger.sync_action); (* probably not useful *)
-      
+
   flip ~clear:true board;
 
   (* We send the startup_event to all widgets *)

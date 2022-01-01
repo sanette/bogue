@@ -1,8 +1,8 @@
 # Bogue ![bogue-icon](https://raw.githubusercontent.com/sanette/bogue/master/bogue-icon.png)
 
-_Bogue_ is a GUI (Graphical user interface) library for
-[ocaml](https://ocaml.org/), with animations, based on
-[SDL2](http://www.libsdl.org/).
+_Bogue_ is an all-purpose GUI (Graphical user interface) library for
+[ocaml](https://ocaml.org/), with animations, written from scratch in
+`ocaml`, based on [SDL2](http://www.libsdl.org/).
 
 * Can be used to add interactivity to any program.
 * Can work within an already existing event loop, for instance to add

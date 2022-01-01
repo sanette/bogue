@@ -39,9 +39,9 @@ let debug_code =
        (* + debug_graphics *)
        (* + debug_thread *)
        + debug_io
-       (* + debug_board *)
+       + debug_board
        + debug_memory
-       (* + debug_event *)
+       + debug_event
        + debug_custom)
 
 (* debug_code := !debug_code lor debug_thread;; *)

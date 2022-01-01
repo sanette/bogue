@@ -17,6 +17,7 @@
 <link title="Creation of combined widgets" rel="Section" href="#2_Creationofcombinedwidgets">
 <link title="Generic functions on widgets" rel="Section" href="#2_Genericfunctionsonwidgets">
 <link title="Conversions from the generic Widget type to the specialized inner type" rel="Section" href="#2_ConversionsfromthegenericWidgettypetothespecializedinnertype">
+<link title="Generic actions" rel="Section" href="#2_Genericactions">
 <link title="Predefined connections" rel="Subsection" href="#3_Predefinedconnections">
 <link title="Simple boxes (rectangles)" rel="Subsection" href="#3_Simpleboxesrectangles">
 <link title="Check boxes" rel="Subsection" href="#3_Checkboxes">
@@ -278,16 +279,26 @@
 </div>
 </div>
 <h3 id="2_Genericfunctionsonwidgets">Generic functions on widgets</h3>
+<p>These generic functions work on all types of widgets, and emit an error in
+     the log (without raising any exception) whenever the type of the argument
+     makes no sense for the function.</p>
+
+<p>These functions are very handy, but sometimes can hide a bug. For instance
+     if you want to use <code class="code">get_state&nbsp;t</code>, while you know that <code class="code">t</code> should always be
+     of type <code class="code"><span class="constructor">Button</span></code>, then it will help debugging to use instead the slightly
+     longer form <a href="Bogue.Button.html#VALstate"><code class="code"><span class="constructor">Button</span>.state</code></a><code class="code">&nbsp;(get_button&nbsp;t)</code>. Indeed the latter will fail
+     if <code class="code">t</code> happens not to be a Button.</p>
+
 <pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
 <div class="info-desc">
-<p>query a boolean state. Works for Button and Check.</p>
+<p>Query a boolean state. Works for Button and Check.</p>
 </div>
 </div>
 
 <pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string</code></pre><div class="info ">
 <div class="info-desc">
-<p>Return the text of the widget. Works for Button, TextDisplay, Label,
-     and TextInput.</p>
+<p>Return the text of the widget. Works for Button, TextDisplay, Label, and
+     TextInput.</p>
 </div>
 </div>
 
@@ -305,10 +316,20 @@
 </div>
 </div>
 <h3 id="2_ConversionsfromthegenericWidgettypetothespecializedinnertype">Conversions from the generic Widget type to the specialized inner type</h3>
+<p>These functions raise <code class="code"><span class="constructor">Invalid_argument</span></code> whenever their argument is not of
+     the correct type.</p>
+
 <pre><span id="VALget_box"><span class="keyword">val</span> get_box</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Box.html#TYPEt">Box.t</a></code></pre>
 <pre><span id="VALget_check"><span class="keyword">val</span> get_check</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Check.html#TYPEt">Check.t</a></code></pre>
 <pre><span id="VALget_label"><span class="keyword">val</span> get_label</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Label.html#TYPEt">Label.t</a></code></pre>
 <pre><span id="VALget_button"><span class="keyword">val</span> get_button</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Button.html#TYPEt">Button.t</a></code></pre>
 <pre><span id="VALget_slider"><span class="keyword">val</span> get_slider</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Slider.html#TYPEt">Slider.t</a></code></pre>
 <pre><span id="VALget_text_display"><span class="keyword">val</span> get_text_display</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Text_display.html#TYPEt">Text_display.t</a></code></pre>
-<pre><span id="VALget_text_input"><span class="keyword">val</span> get_text_input</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Text_input.html#TYPEt">Text_input.t</a></code></pre></body></html>
+<pre><span id="VALget_text_input"><span class="keyword">val</span> get_text_input</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Text_input.html#TYPEt">Text_input.t</a></code></pre><h3 id="2_Genericactions">Generic actions</h3>
+<pre><span id="VALmap_text"><span class="keyword">val</span> map_text</span> : <code class="type">(string -> string) -> <a href="Bogue.Widget.html#TYPEaction">action</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">map_text&nbsp;f</code> is a <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a> that replaces the text of the second widget
+     by <code class="code">f</code> applied to the text of the first widget.</p>
+</div>
+</div>
+</body></html>

@@ -42,7 +42,7 @@ type column_private = {
 type t = {
     length : int;
     data : column_private array;
-    selection : Selection.normalized Selection.t Var.t; (* selection of rows *)
+    selection : Selection.t Var.t; (* selection of rows *)
     mutable last_selected : int option;
     order : int array; (* we keep here the bijection ith entry --> jth displayed *)
     titles : Layout.t array;

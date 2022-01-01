@@ -26,8 +26,8 @@
 <p>It can be used for desktop applications, for games, or simply for debugging programs (modifying variables on-the-fly, printing output, etc.)</p>
 <h2 id="disclaimer">Disclaimer</h2>
 <ul>
-<li><p><em>This is an alpha release. There are known bugs, and it has not been tested for large and complex applications. Use at your own risk!</em></p></li>
-<li><p>On the other hand, if you are not scared by this dislaimer, <em>please try BOGUE!</em> We need your feedback to make this library better!</p></li>
+<li><p><em>The API is still subject to (small) changes.</em></p></li>
+<li><p>Use <a href="https://github.com/sanette/bogue/issues">github’s issues</a> if you need help.</p></li>
 <li><p>Distributed under <a href="https://en.wikipedia.org/wiki/ISC_license">ISC license</a>.</p></li>
 </ul>
 <h2 id="getting-started">Getting started</h2>
@@ -67,6 +67,10 @@
 <h3 id="the-demo-example">The <code>demo</code> example</h3>
 <p>Includes sliding tabs, check boxes, radio buttons, text-input connected to a text display, slider/progress bar, popup, image. See the <a href="https://www.youtube.com/watch?v=isFLxnDooL8">video</a>. Source code will be available soon.</p>
 <h3 id="bounce-an-electro-magnetic-game"><code>bounce</code>, an electro-magnetic game!</h3>
+<div class="figure">
+<img src="bounce.png" alt="Screenshot of the Bounce game." />
+<p class="caption">Screenshot of the Bounce game.</p>
+</div>
 <p>Play with gravity and magnetic field to try to control a bouncing ball (a classical charged particle with mass)! This app demonstrates how to use BOGUE’s <a href="Bogue.Avar.html">Animated variables</a>. No need to write a game loop! Source code will be soon here.</p>
 <h2 id="general-principles">General Principles</h2>
 <p>BOGUE is built around usual GUI notions (widgets, events, callbacks) but has some peculiarities that are good to know.</p>
@@ -82,15 +86,15 @@
 <a class="sourceLine" id="cb4-3" title="3"><span class="kw">module</span> L = Layout</a></code></pre></div>
 <p>Widgets use directly the SDL2 library to draw themselves. Here is the <strong>list of implemented widgets:</strong></p>
 <ul>
-<li><strong>Empty</strong>: draws nothing but can react to an event</li>
-<li><a href="Bogue.Box.html"><strong>Box</strong></a>: draws a rectangular texture (with possible borders and rounded corners)</li>
-<li><a href="Bogue.Label.html"><strong>Label</strong></a>: plain text display</li>
-<li><a href="Bogue.Image.html"><strong>Image</strong></a>: image read from a file (jpg, png, etc.)</li>
-<li><a href="Bogue.Check.html"><strong>Check</strong></a>: a check box</li>
-<li><a href="Bogue.Button.html"><strong>Button</strong></a>: a text or an icon that can be clicked</li>
-<li><a href="Bogue.Text_display.html"><strong>TextDisplay</strong></a>: text display with word wrapping and simple formatting (bold, italics, underline)</li>
-<li><a href="Bogue.Text_input.html"><strong>TextInput</strong></a>: let the user enter a one-line text</li>
-<li><a href="Bogue.Slider.html"><strong>Slider</strong></a>: linear or circular slider to let the user select a value between a range.</li>
+<li><a href="Bogue.Widget.html#3_Empty"><strong>Empty</strong></a>: draws nothing but can react to an event</li>
+<li><a href="Bogue.Widget.html#3_Simpleboxesrectangles"><strong>Box</strong></a>: draws a rectangular texture (with possible borders and rounded corners)</li>
+<li><a href="Bogue.Widget.html#3_Labelsoricons"><strong>Label</strong></a>: plain text display, or icons</li>
+<li><a href="Bogue.Widget.html#3_Image"><strong>Image</strong></a>: image read from a file (jpg, png, etc.)</li>
+<li><a href="Bogue.Widget.html#3_Checkboxes"><strong>Check</strong></a>: a check box</li>
+<li><a href="Bogue.Widget.html#3_Buttons"><strong>Button</strong></a>: a text or an icon that can be clicked</li>
+<li><a href="Bogue.Widget.html#3_Textdisplay"><strong>TextDisplay</strong></a>: text display with word wrapping and simple formatting (bold, italics, underline)</li>
+<li><a href="Bogue.Widget.html#3_Textinput"><strong>TextInput</strong></a>: let the user enter a one-line text</li>
+<li><a href="Bogue.Widget.html#3_Sliders"><strong>Slider</strong></a>: linear or circular slider to let the user select a value between a range.</li>
 </ul>
 <h4 id="widgets-and-connections">Widgets and connections</h4>
 <p>Widgets also carry the <em>logic</em> of the GUI. They respond to <em>events</em> and they can be <em>connected</em> to another widget.</p>

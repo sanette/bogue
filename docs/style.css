@@ -447,19 +447,20 @@ svg g a:hover ellipse {
 div.figure {
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
+  width: 90%;
+  max-width: 400px;
 }
-/* line 377, ../sass/style.scss */
+/* line 378, ../sass/style.scss */
 div.figure img {
   max-width: 100%;
 }
-/* line 380, ../sass/style.scss */
+/* line 381, ../sass/style.scss */
 div.figure .caption {
   text-align: center;
   margin-top: -2em;
 }
 
-/* line 388, ../sass/style.scss */
+/* line 389, ../sass/style.scss */
 td img {
   width: 100%;
 }

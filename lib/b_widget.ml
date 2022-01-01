@@ -36,7 +36,8 @@ type action_priority =
   | Forget (** discard the new action *)
   | Join (** execute the new after the first one has completed *)
   | Replace (** kill the first action (if possible) and execute the second one *)
-  | Main (** run in the main program. So this is blocking for all subsequent actions *)
+  | Main (** run in the main program. So this is blocking for all subsequent
+            actions *)
 
 type active = {
     thread : Thread.t;
@@ -177,7 +178,6 @@ let unload_texture w =
   | Slider s -> Slider.unload s
   | TextInput ti -> Text_input.unload ti
 
-
 let default_size w =
   match w.kind with
   | Empty e -> Empty.size e
@@ -311,38 +311,37 @@ let add_connection w c =
 let get_box w =
   match w.kind with
     | Box b -> b
-    | _ -> failwith "Expecting a box"
+    | _ -> invalid_arg "Expecting a box"
 
 let get_check w =
   match w.kind with
     | Check b -> b
-    | _ -> failwith "Expecting a check box"
+    | _ -> invalid_arg "Expecting a check box"
 
 let get_label w =
  match w.kind with
     | Label l -> l
-    | _ -> failwith "Expecting a label"
+    | _ -> invalid_arg "Expecting a label"
 
 let get_button w =
   match w.kind with
     | Button b -> b
-    | _ -> failwith "Expecting a button"
+    | _ -> invalid_arg "Expecting a button"
 
 let get_slider w =
  match w.kind with
     | Slider s -> s
-    | _ -> failwith "Expecting a slider"
+    | _ -> invalid_arg "Expecting a slider"
 
 let get_text_display w =
  match w.kind with
     | TextDisplay td -> td
-    | _ -> failwith "Expecting a text display"
-
+    | _ -> invalid_arg "Expecting a text display"
 
 let get_text_input w =
  match w.kind with
     | TextInput ti -> ti
-    | _ -> failwith "Expecting a text input"
+    | _ -> invalid_arg "Expecting a text input"
 
 (** creation of simple widgets *)
 let check_box ?state ?style () =
@@ -668,7 +667,7 @@ let remove_active_connections widget =
 
 (*******************)
 
-(* some widgets directly react to a click event to activate themselves. Some,
+(* Some widgets directly react to a click event to activate themselves. Some,
    like text_input, even react to the TAB key. In fact, keyboard_focus is
    treated globally by the main loop, therefore one could (should ?) rely on
    this function below instead of adding new reactions to TAB & click *)
@@ -684,11 +683,22 @@ let remove_keyboard_focus w =
   | Slider s -> Slider.unfocus s
   | _ -> ()
 
-
 let guess_unset_keyboard_focus w =
   match w.kind with
   | TextInput _ -> Some false
   | Slider _ -> Some false
   | _ -> None
-           (* TODO: buttons could have keyboard focus... to activate them with
-              TAB or ENTER or SPACE... *)
+(* TODO: buttons could have keyboard focus... to activate them with TAB or ENTER
+   or SPACE... *)
+
+(*************************)
+(* Some examples of "pure" actions (actions that don't depend on external
+   variables) *)
+
+let copy_text w1 w2 _ =
+  let text = get_text w1 in
+  set_text w2 text
+
+let map_text f w1 w2 _ =
+  let text = get_text w1 in
+  set_text w2 (f text)

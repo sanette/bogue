@@ -5,7 +5,7 @@ open B_utils
 module Layout = B_layout
 module Draw = B_draw
 module Chain = B_chain
-             
+
 type t =
   { layout : Layout.t;
     mutable is_fresh : bool;

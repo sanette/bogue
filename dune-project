@@ -1,6 +1,7 @@
 (lang dune 2.7)
+(cram enable)
 (name bogue)
-(version "20211226")
+(version "20220101")
 (generate_opam_files true)
 (license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
@@ -11,7 +12,7 @@
 (package
  (name bogue)
  (synopsis "GUI library for ocaml, with animations, based on SDL2")
- (description "bogue is a GUI library for ocaml, with animations, based on SDL2.
+ (description "Bogue is an all-purpose GUI library for ocaml, with animations, based on SDL2.
 
 This library can be used for games or for adding GUI elements to any
 ocaml program.

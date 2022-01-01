@@ -29,13 +29,16 @@
 </div>
 <hr width="100%">
 
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> </pre>
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="TYPEnormalized"><span class="keyword">type</span> <code class="type"></code>normalized</span> </pre>
-
-
-<pre><span id="VALmem"><span class="keyword">val</span> mem</span> : <code class="type">'a <a href="Bogue.Selection.html#TYPEt">t</a> -> int -> bool</code></pre>
-<pre><span id="VALtoggle"><span class="keyword">val</span> toggle</span> : <code class="type"><a href="Bogue.Selection.html#TYPEnormalized">normalized</a> <a href="Bogue.Selection.html#TYPEt">t</a> -><br>       int -> <a href="Bogue.Selection.html#TYPEnormalized">normalized</a> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
-<pre><span id="VALsprint"><span class="keyword">val</span> sprint</span> : <code class="type">'a <a href="Bogue.Selection.html#TYPEt">t</a> -> string</code></pre>
-<pre><span id="VALiter"><span class="keyword">val</span> iter</span> : <code class="type">(int -> unit) -> 'a <a href="Bogue.Selection.html#TYPEt">t</a> -> unit</code></pre></body></html>
+<pre><span id="VALto_list"><span class="keyword">val</span> to_list</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> (int * int) list</code></pre>
+<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">(int * int) list -> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
+<pre><span id="VALmem"><span class="keyword">val</span> mem</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> int -> bool</code></pre>
+<pre><span id="VALtoggle"><span class="keyword">val</span> toggle</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> int -> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
+<pre><span id="VALremove"><span class="keyword">val</span> remove</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> int -> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
+<pre><span id="VALadd"><span class="keyword">val</span> add</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> int -> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
+<pre><span id="VALunion"><span class="keyword">val</span> union</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> <a href="Bogue.Selection.html#TYPEt">t</a> -> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
+<pre><span id="VALintersect"><span class="keyword">val</span> intersect</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> <a href="Bogue.Selection.html#TYPEt">t</a> -> <a href="Bogue.Selection.html#TYPEt">t</a></code></pre>
+<pre><span id="VALsprint"><span class="keyword">val</span> sprint</span> : <code class="type"><a href="Bogue.Selection.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALiter"><span class="keyword">val</span> iter</span> : <code class="type">(int -> unit) -> <a href="Bogue.Selection.html#TYPEt">t</a> -> unit</code></pre></body></html>
