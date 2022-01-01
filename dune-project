@@ -1,5 +1,4 @@
 (lang dune 2.7)
-(cram enable)
 (name bogue)
 (version "20220101")
 (generate_opam_files true)
