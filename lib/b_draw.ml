@@ -784,14 +784,21 @@ let sdl_flip = Sdl.render_present
 let video_init () =
   if Sdl.was_init (Some Sdl.Init.video) = Sdl.Init.video
   then printd debug_graphics "SDL Video already initialized"
-  else (go (Sdl.init_sub_system Sdl.Init.video);
+  else begin
+    let () = match Sdl.init_sub_system Sdl.Init.video with
+      | Ok () ->
         printd debug_graphics "SDL Video initialized";
         at_cleanup (fun () ->
             printd debug_graphics "Quitting SDL Video";
             Sdl.quit_sub_system Sdl.Init.video);
-        if !icon = None
-        then icon := Some (sdl_image_load (Theme.current ^ "/bogue-icon.png"))
-       )
+      | Error (`Msg msg) ->
+        Sdl.log "%s" msg;
+        printd (debug_error+debug_graphics)
+          "SDL Video init failed with: %s\nYou will not be able to open any window." msg;
+        go (Sdl.init_sub_system Sdl.Init.nothing) in
+    if !icon = None
+    then icon := Some (sdl_image_load (Theme.current ^ "/bogue-icon.png"))
+  end
 
 let ttf_init () =
   let open Tsdl_ttf in
