@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20211229
+@version 20220102
 
 @author Vu Ngoc San
 
@@ -20,6 +20,15 @@
 
  For a quick start, see Bogue's {{:Principles.html}general principles}, and the
    minimal {{!example}example}.
+
+    The main modules are
+
+    - {!Main} (creating, running, and quitting your app),
+    - {!Layout} (arranging widgets to form sophisticated interfaces like table,
+    menus, etc.) and
+    - {!Widget} (the building blocks, like labels, buttons, etc.).
+
+   {!indexlist}
 
 
 *)
@@ -37,6 +46,10 @@ The only thing that [open Bogue] does is to bring these modules into your
 
 {[module W = Bogue.Widget
 module L = Bogue.Layout]}
+
+
+{%html:<br><br>%}
+
 *)
 
 
