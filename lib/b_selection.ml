@@ -182,7 +182,7 @@ let iter (f : int -> unit) sel =
 
 let sprint_entry (Range (i1,i2)) =
   if i1=i2 then string_of_int i1
-  else Printf.sprintf "%d-%d" i1 i2
+  else Printf.sprintf "%d..%d" i1 i2
 
 let sprint sel =
   List.map sprint_entry sel
@@ -191,7 +191,7 @@ let sprint sel =
 
 (****************)
 (* Some tests. Need #require "unix";; in the toplevel *)
-    
+
 
 (* Create a random normalized selection within the interval [0, maxi] with
    average start [maxi]/4, average [gap]+1 between ranges, and average [len]gth

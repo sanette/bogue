@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220102
+@version 20220103
 
 @author Vu Ngoc San
 
@@ -60,9 +60,11 @@ A number of variables can be modified from a configuration file. They are called
    Theme variables.
 
 - Each theme has its own directory under
-   [$HOME/.config/bogue/themes], in which there is a [bogue.conf] file where the
-   Theme variables are defined.
+  [$HOME/.config/bogue/themes], in which there is a [bogue.conf] file where the
+  Theme variables are defined.
 - The user config file [$HOME/.config/bogue.conf] overrides the theme files.
+- A [bogue.conf] file in the same directory as the executable overrides the other
+  config files.
 - The syntax of the config file is [VARIABLE = value], one entry per line.
   Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored.
   For instance:
@@ -224,16 +226,16 @@ module Time : sig
 
   val adaptive_fps : int -> (unit -> unit) * (unit -> unit)
   (** Create helper functions to help controlling the frame rate of the graphics
-     loop. This is only useful if you have your own graphics loop, and do not
-     use {!Main.run}.
+      loop. This is only useful if you have your own graphics loop, and do not
+      use {!Main.run}.
 
-     [adaptive_fps 60] returns two functions [start,fps]. The statement [start
-     ()] will start the timing. At each iteration of your loop, you should call
-     [fps ()], which will try to sleep long enough to achieve the desired 60FPS
-     rate. It works on average: if some frames take longer, it will shorten the
-     next frame to keep up. However, it tries to be nice to the CPU: even if one
-     is really too slow, it will guarantee a 5ms sleep to the CPU and {e not}
-     try to keep up. *)
+      [adaptive_fps 60] returns two functions [start,fps]. The statement [start ()]
+      will start the timing. At each iteration of your loop, you should call
+      [fps ()], which will try to sleep long enough to achieve the desired 60FPS
+      rate. It works on average: if some frames take longer, it will shorten the
+      next frame to keep up. However, it tries to be nice to the CPU: even if one
+      is really too slow, it will guarantee a 5ms sleep to the CPU and {e not}
+      try to keep up. *)
 
 end (* of Time *)
 
@@ -713,7 +715,7 @@ module Avar : sig
   (** {2 Avar information} *)
 
   val progress : 'a t -> float
-  (** [progress v] is a float in [0,1] giving the percentage of the animation
+  (** [progress v] is a float in \[0,1\] giving the percentage of the animation
      when the last [v.value] was computed. In case of infinite animation, this
      is just the elapsed Time (in ms). *)
 
@@ -736,11 +738,28 @@ end (* of Avar *)
 
 (** Unions of ranges of integers
 
+{3 Example} We define two sets, [s=[0..5; 10..20]] and [r=[4..15]],
+and we compute their union and intersection.
+
+{[
+open Bogue.Selection;;
+# let s = of_list [(0,5); (10,20)];;
+val s : t = <abstr>
+# sprint s;;
+- : string = "{0..5, 10..20}"
+# let r = of_list [(4,15)];;
+val r : t = <abstr>
+# sprint (union s r);;
+- : string = "{0..20}"
+# sprint (intersect s r);;
+- : string = "{4..5, 10..15}"
+]}
+
+
 {5 {{:graph-b_selection.html}Dependency graph}}
  *)
 module Selection : sig
   type t
-
   val to_list : t -> (int * int) list
   val of_list : (int * int) list -> t
   val mem : t -> int -> bool
@@ -1060,25 +1079,23 @@ let l = get_label w in
     | Main (** run in the main program. So this is blocking for all subsequent
               actions *)
 
-  val connect : t -> t -> action ->
-    ?priority:action_priority ->
+  val connect : t -> t -> action -> ?priority:action_priority ->
     ?update_target:bool -> ?join:connection -> Trigger.t list -> connection
   (** [connect source target action triggers] creates a connection from the
-     [source] widget to the [target] widget, but does not register it ({e this
-     may change in the future...}). Once it is registered (either by
-     {!Main.make} or {!add_connection}), and assuming that the layout containing
-     the source widget has {e focus}, then when an event [ev] matches one of the
-     [triggers] list, the [action] is executed with arguments [source target
-     ev].
+      [source] widget to the [target] widget, but does not register it ({e this
+      may change in the future...}). Once it is registered (either by
+      {!Main.make} or {!add_connection}), and assuming that the layout containing
+      the source widget has {e focus}, then when an event [ev] matches one of the
+      [triggers] list, the [action] is executed with arguments [source target ev].
 
-     @param priority indicates the desired priority policy. Default is [Forget].
+      @param priority indicates the desired priority policy. Default is [Forget].
 
-*)
+  *)
 
   val connect_main : t -> t -> action ->
     ?update_target:bool -> ?join:connection -> Trigger.t list -> connection
   (** Alias for [connect ~priority:Main]. Should be used for very fast actions
-     that can be run in the main thread. *)
+      that can be run in the main thread. *)
 
   val add_connection : t -> connection -> unit
   (** Registers the connection with the widget. This should systematically be
@@ -1837,11 +1854,11 @@ module Menu : sig
 (** Generic menu creation, inserted in the [dst] layout. *)
 
   val add_bar : dst:Layout.t -> entry list -> unit
-  (** Creation of a menu bar in the [dst] layout, with drop-down submenus. [bar
-     dst entries] inserts a layout which contains the menu bar into the top of
-     the [dst] layout (so, some room should be provided). The [dst] layout
-     should be big enough to contain the submenus. Any item flowing out of [dst]
-     will not get focus. *)
+  (** Creation of a menu bar in the [dst] layout, with drop-down submenus.
+      [bar dst entries] inserts a layout which contains the menu bar into the top of
+      the [dst] layout (so, some room should be provided). The [dst] layout
+      should be big enough to contain the submenus. Any item flowing out of [dst]
+      will not get focus. *)
 
   val bar : entry list -> Layout.t
   (** Return a menu layout that will be installed with {!add_bar} into the top

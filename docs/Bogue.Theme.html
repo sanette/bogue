@@ -29,9 +29,11 @@
 
 <ul>
 <li>Each theme has its own directory under
-   <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code>, in which there is a <code class="code">bogue.conf</code> file where the
-   Theme variables are defined.</li>
+  <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code>, in which there is a <code class="code">bogue.conf</code> file where the
+  Theme variables are defined.</li>
 <li>The user config file <code class="code">$<span class="constructor">HOME</span>/.config/bogue.conf</code> overrides the theme files.</li>
+<li>A <code class="code">bogue.conf</code> file in the same directory as the executable overrides the other
+  config files.</li>
 <li>The syntax of the config file is <code class="code"><span class="constructor">VARIABLE</span>&nbsp;=&nbsp;value</code>, one entry per line.
   Notice the spaces surroundind <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are ignored.
   For instance:

@@ -42,16 +42,16 @@
 <pre><span id="VALadaptive_fps"><span class="keyword">val</span> adaptive_fps</span> : <code class="type">int -> (unit -> unit) * (unit -> unit)</code></pre><div class="info ">
 <div class="info-desc">
 <p>Create helper functions to help controlling the frame rate of the graphics
-     loop. This is only useful if you have your own graphics loop, and do not
-     use <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.</p>
+      loop. This is only useful if you have your own graphics loop, and do not
+      use <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.</p>
 
-<p><code class="code">adaptive_fps&nbsp;60</code> returns two functions <code class="code">start,fps</code>. The statement <code class="code">start<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;()</code> will start the timing. At each iteration of your loop, you should call
-     <code class="code">fps&nbsp;()</code>, which will try to sleep long enough to achieve the desired 60FPS
-     rate. It works on average: if some frames take longer, it will shorten the
-     next frame to keep up. However, it tries to be nice to the CPU: even if one
-     is really too slow, it will guarantee a 5ms sleep to the CPU and <em>not</em>
-     try to keep up.</p>
+<p><code class="code">adaptive_fps&nbsp;60</code> returns two functions <code class="code">start,fps</code>. The statement <code class="code">start&nbsp;()</code>
+      will start the timing. At each iteration of your loop, you should call
+      <code class="code">fps&nbsp;()</code>, which will try to sleep long enough to achieve the desired 60FPS
+      rate. It works on average: if some frames take longer, it will shorten the
+      next frame to keep up. However, it tries to be nice to the CPU: even if one
+      is really too slow, it will guarantee a 5ms sleep to the CPU and <em>not</em>
+      try to keep up.</p>
 </div>
 </div>
 </body></html>

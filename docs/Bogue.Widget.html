@@ -145,12 +145,11 @@
 <pre><span id="VALconnect"><span class="keyword">val</span> connect</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
-     <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
-     may change in the future...</em>). Once it is registered (either by
-     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and assuming that the layout containing
-     the source widget has <em>focus</em>, then when an event <code class="code">ev</code> matches one of the
-     <code class="code">triggers</code> list, the <code class="code">action</code> is executed with arguments <code class="code">source&nbsp;target<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev</code>.</p>
+      <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
+      may change in the future...</em>). Once it is registered (either by
+      <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and assuming that the layout containing
+      the source widget has <em>focus</em>, then when an event <code class="code">ev</code> matches one of the
+      <code class="code">triggers</code> list, the <code class="code">action</code> is executed with arguments <code class="code">source&nbsp;target&nbsp;ev</code>.</p>
 </div>
 </div>
 <div class="param_info"><code class="code">priority</code> : indicates the desired priority policy. Default is <code class="code"><span class="constructor">Forget</span></code>.</div>
@@ -158,7 +157,7 @@
 <pre><span id="VALconnect_main"><span class="keyword">val</span> connect_main</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Alias for <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>. Should be used for very fast actions
-     that can be run in the main thread.</p>
+      that can be run in the main thread.</p>
 </div>
 </div>
 

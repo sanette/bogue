@@ -25,6 +25,21 @@
 <div class="info-desc">
 <p>Unions of ranges of integers</p>
 
+<h4 id="3_Example">Example</h4><p>We define two sets, <code class="code">s=[0..5;&nbsp;10..20]</code> and <code class="code">r=[4..15]</code>,
+and we compute their union and intersection.</p>
+
+<pre class="codepre"><code class="code"><span class="keyword">open</span> <span class="constructor">Bogue</span>.<span class="constructor">Selection</span>;;
+<span class="keywordsign">#</span> <span class="keyword">let</span> s = of_list [(0,5); (10,20)];;
+<span class="keyword">val</span> s : t = &lt;abstr&gt;
+<span class="keywordsign">#</span> sprint s;;
+- : string = <span class="string">"{0..5, 10..20}"</span>
+<span class="keywordsign">#</span> <span class="keyword">let</span> r = of_list [(4,15)];;
+<span class="keyword">val</span> r : t = &lt;abstr&gt;
+<span class="keywordsign">#</span> sprint (union s r);;
+- : string = <span class="string">"{0..20}"</span>
+<span class="keywordsign">#</span> sprint (intersect s r);;
+- : string = <span class="string">"{4..5, 10..15}"</span>
+</code></pre>
 <h6 id="5_graphbselectionhtmlDependencygraph"><a href="graph-b_selection.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">

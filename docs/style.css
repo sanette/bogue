@@ -151,78 +151,83 @@ td:first-child {
   margin-top: 4px;
   margin-left: 3em;
   margin-right: 3em;
+  margin-bottom: 1em;
 }
 
-/* line 142, ../sass/style.scss */
+/* line 143, ../sass/style.scss */
 .type, pre code.type, .code, p code, code.ocaml {
   color: #a24d25;
   font-family: 'Fira Mono', monospace;
 }
-/* line 145, ../sass/style.scss */
+/* line 146, ../sass/style.scss */
 .type a, pre code.type a, .code a, p code a, code.ocaml a {
   color: #a24d25;
 }
 
-/* line 149, ../sass/style.scss */
+/* line 150, ../sass/style.scss */
 code.ocaml a {
   color: #602e17;
 }
 
-/* line 159, ../sass/style.scss */
+/* line 160, ../sass/style.scss */
 code {
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 162, ../sass/style.scss */
+/* line 163, ../sass/style.scss */
 code.code {
   background: #c5dbe68f;
 }
 
-/* line 165, ../sass/style.scss */
+/* line 166, ../sass/style.scss */
 pre code.code {
   background: none;
 }
 
-/* line 168, ../sass/style.scss */
+/* line 169, ../sass/style.scss */
 .typetable {
   margin-left: 1em;
   border-style: hidden;
 }
 
-/* line 172, ../sass/style.scss */
+/* line 173, ../sass/style.scss */
 .paramstable {
   border-style: hidden;
   padding: 5pt 5pt;
 }
 
-/* line 178, ../sass/style.scss */
+/* line 179, ../sass/style.scss */
 td.typefieldcomment {
   font-size: smaller;
 }
+/* line 182, ../sass/style.scss */
+td.typefieldcomment p {
+  margin: 0;
+}
 
-/* line 181, ../sass/style.scss */
+/* line 185, ../sass/style.scss */
 div.sig_block {
   margin-left: 2em;
 }
 
-/* line 184, ../sass/style.scss */
+/* line 188, ../sass/style.scss */
 h1, h2, h3 {
   font-family: 'Fira Sans', sans-serif;
   font-weight: 500;
 }
 
-/* line 188, ../sass/style.scss */
+/* line 192, ../sass/style.scss */
 h1 {
   font-size: 20pt;
   padding-top: 7px;
   color: #7b6963;
 }
-/* line 193, ../sass/style.scss */
+/* line 197, ../sass/style.scss */
 h1 a {
   color: black;
 }
 
-/* line 197, ../sass/style.scss */
+/* line 201, ../sass/style.scss */
 h2 {
   font-size: 18pt;
   font-weight: 450;
@@ -233,7 +238,7 @@ h2 {
   border-top: 1px solid #43849d;
 }
 
-/* line 206, ../sass/style.scss */
+/* line 210, ../sass/style.scss */
 h3 {
   font-size: 16pt;
   margin-top: 30px;
@@ -244,7 +249,7 @@ h3 {
   display: table;
 }
 
-/* line 215, ../sass/style.scss */
+/* line 219, ../sass/style.scss */
 h4, h5, h6 {
   font-size: 14pt;
   margin-top: 5px;
@@ -253,7 +258,7 @@ h4, h5, h6 {
   padding: 2px;
 }
 
-/* line 222, ../sass/style.scss */
+/* line 226, ../sass/style.scss */
 h5, h6 {
   text-align: right;
   font-size: inherit;
@@ -261,7 +266,7 @@ h5, h6 {
   margin: 0;
 }
 
-/* line 230, ../sass/style.scss */
+/* line 234, ../sass/style.scss */
 div.h7 {
   font-size: 20pt;
   border: 1px solid #000000;
@@ -271,7 +276,7 @@ div.h7 {
   padding: 2px;
 }
 
-/* line 238, ../sass/style.scss */
+/* line 242, ../sass/style.scss */
 div.h8 {
   font-size: 20pt;
   border: 1px solid #000000;
@@ -282,18 +287,18 @@ div.h8 {
   padding: 2px;
 }
 
-/* line 247, ../sass/style.scss */
+/* line 251, ../sass/style.scss */
 a {
   color: #43849d;
   text-decoration: none;
 }
 
-/* line 251, ../sass/style.scss */
+/* line 255, ../sass/style.scss */
 a:hover {
   text-decoration: underline;
 }
 
-/* line 253, ../sass/style.scss */
+/* line 257, ../sass/style.scss */
 pre, .typetable {
   background-color: #c5dbe68f;
   margin-bottom: 4px;
@@ -304,7 +309,7 @@ pre, .typetable {
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 260, ../sass/style.scss */
+/* line 264, ../sass/style.scss */
 pre {
   width: -moz-fit-content;
   width: -webkit-fit-content;
@@ -314,36 +319,36 @@ pre {
   margin-top: 0;
   white-space: pre-wrap;
 }
-/* line 268, ../sass/style.scss */
+/* line 272, ../sass/style.scss */
 pre a {
   color: black;
 }
 
-/* line 272, ../sass/style.scss */
+/* line 276, ../sass/style.scss */
 pre.verbatim, pre.codepre {
   border: 1px solid darkgrey;
 }
 
-/* line 275, ../sass/style.scss */
+/* line 279, ../sass/style.scss */
 .indextable {
   border: 1px #ddd solid;
   border-collapse: collapse;
 }
 
-/* line 279, ../sass/style.scss */
+/* line 283, ../sass/style.scss */
 .indextable td, .indextable th {
   border: 1px #ddd solid;
   min-width: 80px;
 }
 
-/* line 283, ../sass/style.scss */
+/* line 287, ../sass/style.scss */
 .indextable td.module {
   background-color: rgba(74, 166, 157, 0.3);
   padding-left: 2px;
   padding-right: 2px;
 }
 
-/* line 288, ../sass/style.scss */
+/* line 292, ../sass/style.scss */
 .indextable td.module a {
   color: #4E6272;
   text-decoration: none;
@@ -351,31 +356,31 @@ pre.verbatim, pre.codepre {
   width: 100%;
 }
 
-/* line 294, ../sass/style.scss */
+/* line 298, ../sass/style.scss */
 .indextable td.module a:hover {
   text-decoration: underline;
   background-color: transparent;
 }
 
-/* line 298, ../sass/style.scss */
+/* line 302, ../sass/style.scss */
 .deprecated {
   color: #888;
   font-style: italic;
 }
 
-/* line 302, ../sass/style.scss */
+/* line 306, ../sass/style.scss */
 .indextable tr td div.info {
   margin-left: 2px;
   margin-right: 2px;
 }
 
-/* line 306, ../sass/style.scss */
+/* line 310, ../sass/style.scss */
 ul.indexlist {
   margin-left: 0;
   padding-left: 0;
 }
 
-/* line 310, ../sass/style.scss */
+/* line 314, ../sass/style.scss */
 ul.indexlist li {
   list-style-type: none;
   margin-left: 0;
@@ -383,90 +388,90 @@ ul.indexlist li {
 }
 
 @media only screen and (max-width: 767px) {
-  /* line 317, ../sass/style.scss */
+  /* line 321, ../sass/style.scss */
   h1, h2, h3, h4, h5, h6, h7, h8, h9 {
     text-align: center;
   }
 }
 /* Graphes */
-/* line 324, ../sass/style.scss */
+/* line 328, ../sass/style.scss */
 #container, div.caption {
   width: 95%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 329, ../sass/style.scss */
+/* line 333, ../sass/style.scss */
 svg {
   background: #c5dbe68f;
 }
-/* line 331, ../sass/style.scss */
+/* line 335, ../sass/style.scss */
 svg > g > polygon {
   fill: none;
 }
-/* line 334, ../sass/style.scss */
+/* line 338, ../sass/style.scss */
 svg ellipse {
   stroke: #4aa69d;
   fill: rgba(74, 166, 157, 0.3);
   transition: all 0.2s ease;
 }
-/* line 339, ../sass/style.scss */
+/* line 343, ../sass/style.scss */
 svg text {
   font: 12pt "Roboto Slab", sans-serif;
   fill: black;
 }
-/* line 344, ../sass/style.scss */
+/* line 348, ../sass/style.scss */
 svg g.edge path {
   stroke: #a24d25;
   transition: all 0.2s ease;
   stroke-width: 1px;
 }
-/* line 349, ../sass/style.scss */
+/* line 353, ../sass/style.scss */
 svg g.edge polygon {
   stroke: #d1371f;
   fill: #d1371f;
   transition: all 0.2s ease;
 }
-/* line 356, ../sass/style.scss */
+/* line 360, ../sass/style.scss */
 svg g.edge:hover path {
   stroke: #d1371f;
 }
-/* line 359, ../sass/style.scss */
+/* line 363, ../sass/style.scss */
 svg g.edge:hover path, svg g.edge:hover polygon {
   stroke-width: 5px;
 }
-/* line 365, ../sass/style.scss */
+/* line 369, ../sass/style.scss */
 svg g.edge.from path {
   stroke: #4aa69d;
 }
-/* line 368, ../sass/style.scss */
+/* line 372, ../sass/style.scss */
 svg g.edge.from polygon {
   stroke: #4aa69d;
   fill: #4aa69d;
 }
-/* line 374, ../sass/style.scss */
+/* line 378, ../sass/style.scss */
 svg g a:hover ellipse {
   stroke-width: 7px;
 }
 
-/* line 383, ../sass/style.scss */
+/* line 387, ../sass/style.scss */
 div.figure {
   margin-left: auto;
   margin-right: auto;
   width: 90%;
   max-width: 400px;
 }
-/* line 388, ../sass/style.scss */
+/* line 392, ../sass/style.scss */
 div.figure img {
   max-width: 100%;
 }
-/* line 391, ../sass/style.scss */
+/* line 395, ../sass/style.scss */
 div.figure .caption {
   text-align: center;
   margin-top: -2em;
 }
 
-/* line 399, ../sass/style.scss */
+/* line 403, ../sass/style.scss */
 td img {
   width: 100%;
 }
