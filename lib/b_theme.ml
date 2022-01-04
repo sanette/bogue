@@ -136,7 +136,7 @@ let load_vars config_file =
 let conf_file = "bogue.conf"
 
 (* We load all config files, in case of conflict, the first ones take
-   precedence. *)
+   precedence. The theme config file will be loaded afterwards, see below. *)
 let all_conf_files () = [
   conf_file;
   sub_file home ("." ^ conf_file);
@@ -149,26 +149,11 @@ let user_vars =
         try load_vars file with
         | _ (* TODO check correct exception *) ->
           printd (debug_error + debug_io) "Error loading config file %s." file; []
-      else [])
+      else (printd debug_io "Config file %s not found." file; []))
     (all_conf_files ())
   |> List.flatten
 
 let user_vars = ref user_vars
-
-(* Checks the (first) THEME entry in user's vars, and then loads & inserts the
-   theme variables *)
-let load_theme_vars dir vars =
-  let rec loop newv = function
-    | [] -> printd debug_io "No theme specified"; newv
-    | (name, value)::rest ->
-       if name = "THEME"
-       then
-         let theme_file = sub_file value conf_file in
-         let theme_vars = load_vars (sub_file dir theme_file) in
-         (name, value) :: (List.rev_append newv (List.append theme_vars rest))
-       else loop ((name, value)::newv) rest
-  in
-  loop [] vars
 
 let get_var s =
   try let v = List.assoc s !user_vars in
@@ -208,6 +193,27 @@ let get_float ?(default = 0.) s =
 let get_bool s =
   let b = get_var s in
   String.lowercase_ascii b = "true" || b = "1"
+
+let rev_insert_theme_vars theme_path vars rest =
+  let theme_vars = load_vars theme_path in
+  List.rev_append vars (List.append theme_vars rest)
+
+(* Checks the (first) THEME entry in user's vars, and then loads & inserts the
+   theme variables *)
+let load_theme_vars dir vars =
+  let rec loop newv = function
+    | [] ->
+      let value = get_var "THEME" in (* should be "default" *)
+      printd debug_io "No theme specified, using default=%s" value;
+      loop newv ["THEME", value]
+    | (name, value)::rest ->
+       if name = "THEME"
+       then
+         let theme_path = sub_file dir @@ sub_file value conf_file in
+         (name, value) :: (rev_insert_theme_vars theme_path newv rest)
+       else loop ((name, value)::newv) rest
+  in
+  loop [] vars
 
 let () =
   debug := get_bool "DEBUG";
@@ -271,7 +277,7 @@ let () = user_vars := load_theme_vars dir !user_vars
 let current = sub_file dir (get_var "THEME")
 
 let () =  print_endline
-    (Printf.sprintf "Loading Bogue %s with config dir %s " this_version current)
+    (Printf.sprintf "Loading Bogue %s with config dir %s" this_version current)
 
 let common = sub_file dir "common"
 let fonts_dir = sub_file common "fonts"
