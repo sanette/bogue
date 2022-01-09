@@ -23,7 +23,8 @@
 <li>you keep your frame rate;</li>
 <li>the events are sent to the GUI when it’s shown.</li>
 </ul>
-<p>Here is how to do it (see the full code here: <a href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a>). We will use an alias for Sdl.Event:</p>
+<p>Here is how to do it (see the full code here: <a href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a>. If you dowloaded BOGUE sources from github, you can run this example with <code>dune exec examples/embed/embed.exe</code>.)</p>
+<p>We will use an alias for Sdl.Event:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">module</span> E = Sdl.Event;;</a></code></pre></div>
 <ol style="list-style-type: decimal">
 <li><p>Do the SDL initialization (window, renderer) yourself.</p></li>

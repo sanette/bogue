@@ -30,6 +30,8 @@ type t = Sdl.event_type
 
 let event_names : (t,string) Hashtbl.t = Hashtbl.create 10
 
+let () = Hashtbl.add event_names E.mouse_motion "mouse_motion"
+
 (* this will be set by the main loop in Bogue *)
 let main_tread_id = ref (-1)
 
@@ -425,6 +427,7 @@ let copy_field e1 e2 field =
 let copy_fields e1 e2 fields =
   List.iter (copy_field e1 e2) fields
 
+(* pourquoi est-ce qu'on ne ferait pas juste un push/pop event ? *)
 let copy_event e =
   let e2 = E.create () in
   copy_fields e e2 common_fields;
@@ -523,13 +526,24 @@ let push_event ev =
   if not (go (Sdl.push_event ev))
   then printd debug_event "Warning: Event filtered"
 
-(** check if the event queue has at least n events *)
-let rec has_n_events n =
-  if n <= 0 then true
-  else (Sdl.poll_event None) && has_n_events (n-1)
+(* There seems to be a problem with [Sdl.poll_event None] on some platforms/SDL
+   versions: on the macOS VirtualBox with SDL 2.0.18, it returns false
+   positives. See https://discourse.libsdl.org/t/pollevent-inconsistency/34358/3
+   and the fix in
+   https://github.com/libsdl-org/SDL/commit/dca281e810263f1fbf9420c2988932b7700be1d4
+   Meanwhile, we avoid using [Sdl.poll_event None].  *)
+let has_no_event_old () =
+  not (Sdl.poll_event None)
 
 let has_no_event () =
-  not (Sdl.poll_event None)
+  let e = E.create () in
+  if Sdl.poll_event (Some e)
+  then begin
+    printd debug_event "Event remaining: %s" (sprint_ev e);
+    push_event e;
+    false
+  end
+  else true
 
 (** get the list of all events, and remove them from the queue *)
 (* the first of the list is the oldest, ie the one to be popped at the next
@@ -711,7 +725,8 @@ let nice_delay ev sec =
 let wait_value ?timeout ev var value =
   let t0 =  Unix.gettimeofday () in
   while not (Var.get var = value) &&
-        (default (map_option timeout (fun t -> Unix.gettimeofday () < t +. t0)) true)
+        (default (map_option timeout
+                    (fun t -> Unix.gettimeofday () < t +. t0)) true)
         && not (should_exit ev)
   do
     Thread.delay 0.003;
@@ -955,4 +970,3 @@ let ctrl_shift_pressed () =
 let mouse_left_button_pressed () =
   let m, _ = Sdl.get_mouse_state () in
   Int32.logand m Sdl.Button.lmask = Sdl.Button.lmask
-  

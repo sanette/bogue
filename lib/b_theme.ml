@@ -1,5 +1,5 @@
 (* b_theme.ml : theme variables *)
-(* This file is part of BOGUE. San Vu Ngoc, 2019 *)
+(* This file is part of BOGUE.  *)
 open B_utils
 module Utf8 = B_utf8
 
@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220104"  (* see VERSION file *)
+let this_version = "20220109"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -33,17 +33,18 @@ let default_vars = [
     "DIR", "";
     (* The chosen theme: *)
     "THEME", "default"; (* It must be a subdirectory of DIR: *)
-    (* The window background image: *)
-    "BACKGROUND", "file:background.png"; (* if is starts with "/" it is an absolute path. Otherwise, it is a file path inside THEME. *)
+    (* The window background image (eg: "file:background.png") or color: *)
+    "BACKGROUND", "color:white"; (* if is starts with "/" it is an absolute path. Otherwise, it is a file path inside THEME. *)
     (* This background color should be clearly visible over the BACKGROUND *)
     "BG_COLOR", "lightsteelblue";
     (* Color for active or inactive button *)
     "BUTTON_COLOR_ON", "darkturquoise";
     "BUTTON_COLOR_OFF", "steelblue";
-    (* The "checked" image: either image or fa icon, eg. "fa:check-square-o" *)
-    "CHECK_ON", "check_on.png";
-    (* The "unchecked" image: (eg: "fa:square-o") *)
-    "CHECK_OFF", "check_off.png";
+    (* The "checked" image: either image (eg. "check_on.png") or fa icon,
+       eg. "fa:check-square-o" *)
+    "CHECK_ON", "fa:check-square-o";
+    (* The "unchecked" image: (eg: "check_off.png") *)
+    "CHECK_OFF", "fa:square-o";
     (* The cursor color for text input: *)
     "CURSOR_COLOR", "#2a7da2"; (* a color identifier. Either a name like "black" or a RGB code as "#FE01BC" *)
     (* Color for unimportant things that should not be so visible *)
@@ -156,21 +157,19 @@ let user_vars =
 let user_vars = ref user_vars
 
 let get_var s =
-  try let v = List.assoc s !user_vars in
-    printd debug_warning "Using %s=%s" s v;
-    v
-  with
-  | Not_found -> begin
-      try let v = List.assoc s default_vars in
-        printd debug_warning
-          "User variable '%s' not found in config. Using default '%s'" s v; v
-      with
-      | Not_found ->
-        printd debug_error "Variable '%s' not found. Prepare for a crash." s;
-        ""
-      | e -> raise e;
-    end
-  | e -> raise e
+  let v = try Sys.getenv ("BOGUE_" ^ s) with
+    | Not_found ->
+      try List.assoc s !user_vars with
+      | Not_found -> begin
+          printd debug_warning
+            "User variable '%s' not found in config." s;
+          try List.assoc s default_vars with
+          | Not_found ->
+            printd debug_error "Variable '%s' not found. Prepare for a crash." s;
+            ""
+        end in
+  printd debug_warning "Using %s=%s" s v;
+  v
 
 let get_int ?(default = 0) s =
   let v = get_var s in
@@ -281,28 +280,6 @@ let () =  print_endline
 
 let common = sub_file dir "common"
 let fonts_dir = sub_file common "fonts"
-let default_dpi = 110
-
-(* try to obtain the monitor's DPI on linux systems. Does not work with multiple
-   monitors *)
-let get_dpi () =
-  try
-    let proc = Unix.open_process_in
-        "xdpyinfo | grep resolution | awk '{print $2}'" in
-    let res = input_line proc in
-    match Unix.close_process_in proc with
-    | Unix.WEXITED 0 ->
-      let i = String.index res 'x' in
-      let dpi =int_of_string (String.sub res 0 i) in
-      printd debug_graphics "Detected DPI=%u" dpi;
-      Some dpi
-    | _ -> printd debug_warning
-             "Cannot get monitor's DPI from [%s]. Using 110." res;
-      None
-  with
-  | _ -> printd debug_warning
-           "Cannot get monitor's DPI from xdpyinfo. Using 110.";
-    None
 
 (* A file starting with "/" is considered a global path, otherwise it will be
    searched in the current directory, or if it does not exist, in the current
@@ -362,15 +339,7 @@ let mono_font = get_font_path (get_var "MONO_FONT")
 let room_margin = get_int ~default:10 "ROOM_MARGIN"
 let fa_dir = sub_file common (get_var "FA_DIR")
 let fa_font = sub_file fa_dir "fonts/fontawesome-webfont.ttf"
-let scale = let s = get_float ~default:0. "SCALE" in
-  if s > 0. then s
-  else (* choose a reasonable scale. Probably not OK in case of multiple monitors. *)
-    let dpi = default (get_dpi ()) default_dpi in
-    let s = if dpi <= 110 then 1. else (float dpi /. 110.) in
-    printd debug_warning "Using SCALE=%f" s;
-    s
-
-
+let scale = ref (get_float ~default:0. "SCALE")
 let fa_font_size = 18
 
 (** some standard (?) UTF8 symbols *)
@@ -380,19 +349,19 @@ let symbols = [
 ]
 
 let scale_int i =
-  round (scale *. float i)
+  round (!scale *. float i)
 
 let unscale_int i =
-  round (float i /. scale)
+  round (float i /. !scale)
 
 let unscale_f x =
-  x /. scale
+  x /. !scale
 
 let scale_from_float x =
-  round (scale *. x)
+  round (!scale *. x)
 
 let unscale_to_float i =
-  scale *. (float i)
+  !scale *. (float i)
 
 (** font awesome variables *)
 let load_fa_variables () =

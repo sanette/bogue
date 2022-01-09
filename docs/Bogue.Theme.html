@@ -24,7 +24,7 @@
 <div class="info-desc">
 <p>Theming variables</p>
 
-<p>A number of variables can be modified from a configuration file. They are called
+<p>A number of variables can be modified from a configuration file (or environement variables). They are called
    Theme variables.</p>
 
 <ul>
@@ -87,6 +87,10 @@
 </ul>
 <p>All variables with "COLOR" in their name can be specified either with RGB hexadecimal like <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>, or with a standard html name like <code class="code">darkturquoise</code>, see <a href="https://www.rapidtables.com/web/color/html-color-codes.html">this color table</a>.</p>
 
+<p>All variables can be overriden by setting the corresponding
+<b>environment variables b</b>, prepending "BOGUE_". For instance:</p>
+<pre class="codepre"><code class="code">export <span class="constructor">BOGUE_SCALE</span>=2.5
+</code></pre>
 <h6 id="5_graphbthemehtmlDependencygraph"><a href="graph-b_theme.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">

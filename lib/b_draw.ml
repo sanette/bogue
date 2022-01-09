@@ -781,6 +781,41 @@ let quit () =
 
 let sdl_flip = Sdl.render_present
 
+let default_dpi = 110
+
+let get_dpi () =
+  match Sdl.get_display_dpi 0 with
+  | Ok (x,_,_) -> Some (round x)
+  | Error (`Msg m) ->
+    printd (debug_error+debug_graphics)
+      "SDL get DPI error: %s" m;
+    try
+      (* Try to obtain the monitor's DPI on linux systems. Does not work with
+         multiple monitors. *)
+      let proc = Unix.open_process_in
+          "xdpyinfo | grep resolution | awk '{print $2}'" in
+      let res = input_line proc in
+      match Unix.close_process_in proc with
+      | Unix.WEXITED 0 ->
+        let i = String.index res 'x' in
+        let dpi =int_of_string (String.sub res 0 i) in
+        printd debug_graphics "Detected DPI=%u" dpi;
+        Some dpi
+      | _ -> printd debug_warning
+               "Cannot get monitor's DPI from [%s]." res;
+        None
+    with
+    | _ -> printd debug_warning
+             "Cannot get monitor's DPI from xdpyinfo.";
+      None
+
+(* Choose a reasonable scale. Probably not OK in case of multiple monitors. *)
+let detect_set_scale () =
+    let dpi = default (get_dpi ()) default_dpi in
+    let s = if dpi <= 110 then 1. else (float dpi /. (float default_dpi)) in
+    printd (debug_graphics+debug_warning) "Using SCALE=%f" s;
+    Theme.scale := s
+
 let video_init () =
   if Sdl.was_init (Some Sdl.Init.video) = Sdl.Init.video
   then printd debug_graphics "SDL Video already initialized"
@@ -788,6 +823,7 @@ let video_init () =
     let () = match Sdl.init_sub_system Sdl.Init.video with
       | Ok () ->
         printd debug_graphics "SDL Video initialized";
+        if !Theme.scale = 0. then detect_set_scale ();
         at_cleanup (fun () ->
             printd debug_graphics "Quitting SDL Video";
             Sdl.quit_sub_system Sdl.Init.video);
@@ -1075,7 +1111,10 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
     | Some win -> match Sdl.get_renderer win with
                   | Ok w -> printd debug_graphics "Using existing renderer"; w
                   | Error _ ->
-                     go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
+                    go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
+  go (Sdl.render_set_scale renderer 1. 1.); (* TODO check if this is necessary
+                                               (not on my HiDPI linux, but maybe
+                                               for macos) *)
   let ri = go (Sdl.get_renderer_info renderer) in
   let ww, wh = Sdl.get_window_size win in
   printd debug_graphics "Window size = (%u,%u)" ww wh;

@@ -36,6 +36,18 @@ opam install .</code></pre>
 <pre><code>opam install tsdl.0.9.6</code></pre>
 <p>and <strong>then</strong> you may:</p>
 <pre><code>opam install bogue</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="sdl-couldnt-find-matching-glx-visual">SDL: Couldn’t find matching GLX visual</h3>
+<p>When running in a VirtualBox environment, sometimes SDL fails with <code>Couldn't find matching GLX visual</code></p>
+<p>It can usually be solved with</p>
+<pre><code>export SDL_VIDEO_X11_VISUALID=</code></pre>
+<h3 id="too-small">Too small!</h3>
+<p>If everything looks too small, it means that your screen DPI was not correctly detected. Just create a <code>bogue.conf</code> file with the following content:</p>
+<pre><code>### BOGUE version SOMEVERSION
+
+SCALE = 2.5
+</code></pre>
+<p>(the <code>SOMEVERSION</code> can be anything. Of course, you can adjust the “2.5” to whatever scale you need.)</p>
   <div style="float: right;">
     <a href="https://github.com/sanette/bogue">Find bogue on
       <img 

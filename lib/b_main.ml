@@ -549,6 +549,8 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   in
   Trigger.flush (E.finger_motion);
   Trigger.flush (E.mouse_motion); (* to avoid lag when there are too many events *)
+  (* TODO should we follow SDL advice http://wiki.libsdl.org/SDL_PollEvent and
+     first loop to treat all events before rendering graphics? *)
   (* from this point there is no need to keep several events for redrawing
      the same window. TODO ?? BUT keeping one might still be necessary ? *)
   (* Note: we will need some small delay to grab new events after
@@ -866,7 +868,8 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
           printd debug_disable "MOTION anim=%b no_event=%b"
             anim has_no_event;
           if not board.mouse_alive then board.mouse_alive <- true;
-          if has_no_event && not (Trigger.mm_pressed e) then check_mouse_motion board
+          if has_no_event && not (Trigger.mm_pressed e)
+          then check_mouse_motion board
         (* In most situations, when the button is pressed, we don't want to lose
            the initial focus, and we don't want to activate anything else. There
            is one (common) exception: when clicking a menu entry, we would like

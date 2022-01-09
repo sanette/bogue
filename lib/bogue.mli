@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220103
+@version 20220109
 
 @author Vu Ngoc San
 
@@ -56,7 +56,7 @@ module L = Bogue.Layout]}
 
 (** Theming variables
 
-A number of variables can be modified from a configuration file. They are called
+A number of variables can be modified from a configuration file (or environement variables). They are called
    Theme variables.
 
 - Each theme has its own directory under
@@ -117,6 +117,12 @@ Here is the list of Theme variables:
 - [TEXT_FONT_SIZE]
 
 All variables with "COLOR" in their name can be specified either with RGB hexadecimal like [#00CED1], or with a standard html name like [darkturquoise], see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color table}.
+
+All variables can be overriden by setting the corresponding
+{b environment variables b}, prepending "BOGUE_". For instance:
+{[
+export BOGUE_SCALE=2.5
+]}
 
 {5 {{:graph-b_theme.html}Dependency graph}} *)
 module Theme : sig
