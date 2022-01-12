@@ -36,7 +36,7 @@ let debug_disable = 512 (* use this to disable the debug message *)
 let debug_code =
   ref (debug_error
        + debug_warning
-       (* + debug_graphics *)
+       + debug_graphics
        (* + debug_thread *)
        + debug_io
        + debug_board

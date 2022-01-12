@@ -733,9 +733,9 @@ let adjust_window_size l =
   else if l.canvas <> None
   then let w,h = get_physical_size l in
        let win = window l in
-       if (w,h) <> Sdl.get_window_size win
+       if (w,h) <> Draw.get_window_size win
        then begin
-           Sdl.set_window_size win ~w ~h;
+           Draw.set_window_size win ~w ~h;
            Trigger.(push_event (create_event E.window_event_resized))
          end
        else printd debug_graphics
@@ -1360,7 +1360,8 @@ let empty ?name ?background ~w ~h () =
   let geometry = geometry ~w ~h () in
   create ?name ?background geometry (Rooms [])
 
-(* simple resize function that scales the room with respect to the given original house size (w,h) *)
+(* Simple resize function that scales the room with respect to the given
+   original house size (w,h) *)
 let scale_resize ?(scale_width=true) ?(scale_height=true)
       ?(scale_x=true) ?(scale_y=true) (w,h) r =
   let x = xpos r in
@@ -2772,13 +2773,13 @@ let resize_from_window ?(flip=true) layout =
   if not (equal layout top)
   then printd debug_error "The layout for resizing window should be the top \
                            layout";
-  let w,h = Sdl.get_window_size (window top)
+  let w,h = Draw.get_window_size (window top)
             |> Draw.unscale_pos in
   let w', h' = get_size top in
   if (w',h') <> (w,h)
   then begin
     (* TODO in rare occasions, it might happen that this test is different
-       from get_physical_size top <> Sdl.get_window_size win*)
+       from get_physical_size top <> Draw.get_window_size win*)
     printd debug_graphics "Resize (%d,%d) --> (%d,%d)" w' h' w h;
     set_size ~keep_resize:true ~check_window:false top (w,h);
     Draw.update_background (get_canvas top);
@@ -2823,7 +2824,7 @@ let adjust_window ?(display=false) layout =
       let w,h = get_physical_size top in
       let win = window top in
       printd debug_graphics "SDL set window size %d x %d" w h;
-      Sdl.set_window_size win ~w ~h;
+      Draw.set_window_size win ~w ~h;
 
 
       (* resize ~flip:display top; *)

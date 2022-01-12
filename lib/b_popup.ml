@@ -218,7 +218,7 @@ let tooltip ?background ?(position = Below) text ~target widget layout =
         | Above -> x, y-(height tooltip)-2
         | LeftOf -> x-(width tooltip)-2, y
         | RightOf -> x+(width target)+2, y
-        | Mouse -> let x,y = Trigger.mouse_pos () in (x+8,y+8) in
+        | Mouse -> let x,y = Mouse.pos () in (x+8,y+8) in
       sety tooltip y';
       setx tooltip x';
       tooltip.show <- true;
