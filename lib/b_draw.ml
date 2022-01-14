@@ -15,7 +15,7 @@ type texture = Sdl.texture
 
 type fill =
   | Pattern of texture
-  | Solid of color;;
+  | Solid of color
 
 (* the list of textures available to the canvas *)
 type textures = { (* use hashtbl ? *)
@@ -331,11 +331,6 @@ type canvas = {
 (* There should be one (and only one) canvas per window *)
 let canvas_equal c1 c2 =
   c1.window = c2.window
-
-(** get the canvas window size *)
-let window_size canvas =
-  Sdl.get_window_size canvas.window
-(* difference with SDL_GetRendererOutputSize ? *)
 
 (** test if window is shown *)
 let window_is_shown w =
@@ -782,6 +777,33 @@ let quit () =
 let sdl_flip = Sdl.render_present
 
 let default_dpi = 110
+let dpi_xscale = ref 1.
+let dpi_yscale = ref 1.
+let dpi_rescalex x = round (float x *. !dpi_xscale)
+let dpi_rescaley y = round (float y *. !dpi_yscale)
+let dpi_rescale (x,y) =
+  (round (float x *. !dpi_xscale), round (float y *. !dpi_yscale))
+
+(* This takes the "High-DPI" pixels as reported by the OS (iOS or MacOS) and
+   return the BOGUE logical pixels. *)
+let dpi_unscale_pos (x,y) =
+  round (!dpi_xscale *. float x /. !Theme.scale),
+  round (!dpi_yscale *. float y /. !Theme.scale)
+
+(* Get the window size in true physical pixels *)
+let get_window_size win =
+  dpi_rescale (Sdl.get_window_size win)
+
+let set_window_size win ~w ~h =
+  Sdl.set_window_size win ~w:(round (float w /. !dpi_xscale))
+      ~h:(round (float h /. !dpi_yscale))
+
+let get_window_position win =
+  dpi_rescale (Sdl.get_window_position win)
+    
+(** get the canvas window size *)
+let window_size canvas =
+  get_window_size canvas.window
 
 let get_dpi () =
   match Sdl.get_display_dpi 0 with
@@ -884,7 +906,7 @@ let load_image_or_fa ?(fg = opaque menu_hl_color) renderer path =
   then let fa = String.(sub path 3 (length path - 3)) in
     let fa_font = open_font Theme.fa_font Theme.(scale_int fa_font_size) in
     ttf_texture renderer fa_font (Theme.fa_symbol fa) (create_color fg)
-  else load_image renderer path;; (* TODO SCALE texture with Theme *)
+  else load_image renderer path (* TODO SCALE texture with Theme *)
 
 (* convert a string (like Theme.background) to a fill *)
   (* "file:themes/paper/paper.png" *)
@@ -905,9 +927,10 @@ let svg_loader =
   if which "rsvg-convert" <> None then "rsvg-convert"
   else if which "rsvg" <> None then "rsvg"
   else begin
-      printd (debug_warning + debug_io) "Cannot find rsvg converter. You will not be able to load SVG images.";
-      ""
-    end
+    printd (debug_warning + debug_io)
+      "Cannot find rsvg converter. You will not be able to load SVG images.";
+    ""
+  end
 
 (* load svg using rsvg from command-line. Return name of output png file *)
 (* rsvg -w 1024 -h 1024 input.svg -o output.png *)
@@ -994,7 +1017,7 @@ let push_target ?(clear=true) ?(bg=none) renderer target =
   (* go (Sdl.render_set_clip_rect renderer None); *)
   set_color renderer bg;
   if clear then go (Sdl.render_clear renderer);
-  clip, old_target, color;; (* TODO include the renderer here *)
+  clip, old_target, color (* TODO include the renderer here *)
 
 (** restore the settings saved by "push_target" *)
 let pop_target renderer (clip, old_target, (r,g,b,a)) =
@@ -1038,7 +1061,7 @@ let generate_background window renderer pattern =
         None)
   else begin
     let w,h = (* go (Sdl.get_renderer_output_size renderer) *)
-      Sdl.get_window_size window
+      get_window_size window
     in
     let target = Some (create_target renderer w h) in
     printd debug_graphics "Creating background (%d,%d)" w h;
@@ -1092,9 +1115,21 @@ let load_textures window renderer fill = (* use hashtbl ? *)
     radio_off;
     background }
 
-(** Sdl init *)
-(* return a new canvas. A canvas has the physical size in pixels of the
-   rendering window, ie after scaling. *)
+(* Sdl init. [w,h] is the physical size of the window in pixels. In case of
+   High-DPI mode, SDL might actually produce a larger window. We need to correct
+   this, because we have our own DPI engine.
+
+   See https://wiki.libsdl.org/SDL_CreateWindow:
+
+   «If the window is created with the SDL_WINDOW_ALLOW_HIGHDPI flag, its size in
+   pixels may differ from its size in screen coordinates on platforms with
+   high-DPI support (e.g. iOS and macOS). Use SDL_GetWindowSize() to query the
+   client area's size in screen coordinates, and SDL_GL_GetDrawableSize() or
+   SDL_GetRendererOutputSize() to query the drawable size in pixels.»
+
+*)
+(* This function returns a new canvas. A canvas has the physical size in pixels
+   of the rendering window, ie after scaling. *)
 (* if an Sdl window is provided, we try to use it... *)
 let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   video_init ();
@@ -1102,24 +1137,30 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
   let win = default_lazy window
-              (lazy (go (Sdl.create_window ?x ?y ~w ~h name Sdl.Window.((*fullscreen_desktop*) windowed + resizable + hidden + opengl + allow_highdpi)))) in
+      (lazy (go (Sdl.create_window ?x ?y ~w ~h name
+                   Sdl.Window.(windowed + resizable + hidden + opengl + allow_highdpi)))) in
   do_option !icon (Sdl.set_window_icon win);
   let px = Sdl.get_window_pixel_format win in
   printd debug_graphics "Window pixel format = %s" (Sdl.get_pixel_format_name px);
   let renderer = match window with
     | None -> go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win)
     | Some win -> match Sdl.get_renderer win with
-                  | Ok w -> printd debug_graphics "Using existing renderer"; w
-                  | Error _ ->
-                    go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
-  go (Sdl.render_set_scale renderer 1. 1.); (* TODO check if this is necessary
-                                               (not on my HiDPI linux, but maybe
-                                               for macos) *)
+      | Ok w -> printd debug_graphics "Using existing renderer"; w
+      | Error _ ->
+        go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
+  let rw, rh = go (Sdl.get_renderer_output_size renderer) in
+  if (rw, rh) <> (w,h) then begin
+    dpi_xscale := float rw /. float w;
+    dpi_yscale := float rh /. float h;
+    printd (debug_graphics+debug_warning)
+      "This display imposes a hard scaling of (%f,%f)." !dpi_xscale !dpi_yscale;
+    set_window_size win ~w ~h
+  end;
   let ri = go (Sdl.get_renderer_info renderer) in
   let ww, wh = Sdl.get_window_size win in
-  printd debug_graphics "Window size = (%u,%u)" ww wh;
+  printd debug_graphics "Window size (SDL) = (%u,%u)" ww wh;
   let wx, wy = Sdl.get_window_position win in
-  printd debug_graphics "Window position = (%d,%d)" wx wy;
+  printd debug_graphics "Window position (SDL) = (%d,%d)" wx wy;
   printd debug_graphics "Renderer name = %s" ri.Sdl.ri_name;
   let rw, rh = go(Sdl.get_renderer_output_size renderer) in
   printd debug_graphics "Renderer size = (%u,%u)" rw rh;
@@ -1130,14 +1171,14 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
 
   (* set dummy solid background in case of new window *)
   if window = None then begin
-      set_color renderer (opaque red);
-      go (Sdl.render_clear renderer)
-    end;
+    set_color renderer (opaque red);
+    go (Sdl.render_clear renderer)
+  end;
 
   printd debug_graphics "Canvas created";
 
   let fill = default_lazy fill
-               (lazy (fill_of_string renderer Theme.background)) in
+      (lazy (fill_of_string renderer Theme.background)) in
   let textures = load_textures win renderer fill in
   { renderer;
     window = win;
@@ -1262,7 +1303,7 @@ let ring_tex_old renderer ?(bg = opaque grey) ~radius ~width x y =
     forget_texture tex;
     target
   end
-  else failwith "Render target not supported. TODO";; (* TODO *)
+  else failwith "Render target not supported. TODO" (* TODO *)
 
 
 (*           |                                          y

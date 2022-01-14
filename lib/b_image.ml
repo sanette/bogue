@@ -1,4 +1,5 @@
-(** a simple image display *)
+(* A simple image display widget *)
+(* This file is part of BOGUE *)
 
 module Theme = B_theme
 module Var = B_var

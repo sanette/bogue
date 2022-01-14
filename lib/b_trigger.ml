@@ -759,9 +759,9 @@ let startup_event () = create_event startup
 
 let is_mouse_at_rest = ref false
 
+(* Get mouse position in OS pixels *)
 let mouse_pos () =
-  let _, (x,y) = Sdl.get_mouse_state () in
-    Theme.(unscale_int x, unscale_int y)
+  snd (Sdl.get_mouse_state ())
 
 (* check if mouse didn't move for a while *)
 (* TODO use get_touch_finger *)

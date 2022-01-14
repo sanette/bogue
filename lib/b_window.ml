@@ -37,7 +37,7 @@ let window w =
 
 (* physical size *)
 let size w =
-  Sdl.get_window_size (window w)
+  Draw.get_window_size (window w)
 
 let get_canvas w =
   Layout.get_canvas w.layout
