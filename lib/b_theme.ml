@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220114"  (* see VERSION file *)
+let this_version = "20220115"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -89,12 +89,12 @@ let id x = x
 
 let sub_file = Filename.concat
 
-(* some global environment variables *)
+(* Some global environment variables *)
 let home = Sys.getenv "HOME"
 
+(* Home config directory *)
 let conf = try Sys.getenv "XDG_CONFIG_HOME" with
   | Not_found -> sub_file home ".config"
-  | e -> raise e
 
 let skip_comment buffer =
   let rec loop () =
@@ -198,7 +198,7 @@ let rev_insert_theme_vars theme_path vars rest =
   List.rev_append vars (List.append theme_vars rest)
 
 (* Checks the (first) THEME entry in user's vars, and then loads & inserts the
-   theme variables *)
+   theme variables. If there is no THEME entry, we add ("THEME", "default"). *)
 let load_theme_vars dir vars =
   let rec loop newv = function
     | [] ->
@@ -223,16 +223,12 @@ let () =
     log_channel := open_out log_file
   end
 
-(* we try to locate the theme dir *)
-(* by default it is in .config/bogue/themes. For a first run, it probably
-   doesn't exist, so we copy it from the system lib dir *)
+(* We try to locate the theme dir. *)
+(* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes *)
 let dir =
   let dir = get_var "DIR" in
   if Sys.file_exists dir && Sys.is_directory dir
   then dir
-  (* TODO Bogue should look for the theme in `~/.opam/bogue/share/bogue/themes/`
-     in case `~/.config/bogue/themes/` does not exist. Use `opam config var
-     prefix`/bogue/themes. See https://github.com/sanette/bogue/issues/3 *)
   else let config = sub_file conf "bogue/themes" in
     if Sys.file_exists config && Sys.is_directory config
     then if dir = ""
@@ -245,14 +241,12 @@ let dir =
         config
       end
     else try
-        (* TODO use `opam config var prefix` instead of ocamlfind to remove
-           ocamlfind dependency. *)
-        let system = Unix.open_process_in "ocamlfind query bogue" in
+        let system = Unix.open_process_in "opam var share" in
         let res = input_line system in
         match Unix.close_process_in system with
         | Unix.WEXITED 0 ->
           let sp = Printf.sprintf in
-          let dir = sp "%s/../../share/bogue/themes" res in
+          let dir = sp "%s/bogue/themes" res in
           if Sys.file_exists dir && Sys.is_directory dir
           then dir else begin
             printd debug_error "(FATAL) Cannot create user configuration file.";
@@ -281,12 +275,16 @@ let () =  print_endline
 let common = sub_file dir "common"
 let fonts_dir = sub_file common "fonts"
 
-(* A file starting with "/" is considered a global path, otherwise it will be
+(* A file starting with "/" is considered a global path. If the file starts with
+   "%", that char is replaced by the shared bogue dir/. Otherwise it will be
    searched in the current directory, or if it does not exist, in the current
    theme directory. *)
 let get_path file =
-  if file = "" then failwith "Filename empty";
+  if file = "" then invalid_arg "[get_path]: filename empty";
   if file.[0] = '/' then file
+  else if file.[0] = '%'
+  then let file = String.sub file 1 (String.length file - 1) in
+    (sub_file (Filename.dirname dir) file)
   else if Sys.file_exists file
   then file
   else (printd debug_io "File %S does not exist in current dir %s"

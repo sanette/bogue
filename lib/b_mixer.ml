@@ -6,6 +6,7 @@ open Bigarray
 open B_utils (* can easily make this independent of Utils if needed *)
 open Tsdl
 module Time = B_time
+module Theme = B_theme
 
 type audio_spec = (*(int, Bigarray.int16_signed_elt)*) Sdl.audio_spec
 
@@ -400,6 +401,7 @@ let stretch f1 f2 sound =
 
 let load_chunk mixer filename =
   let open Sdl in
+  let filename = Theme.get_path filename in
   let file = go (rw_from_file filename "rb") in
   let audio_spec, sound =
     let rec loop i =
@@ -518,29 +520,35 @@ let test () =
   Gc.compact ();
   let devname = init () in
   let mixer = create_mixer devname in
-  let chunk2 = load_chunk mixer "../tests/audio/sia.wav" in
+  let chunk2 = load_chunk mixer "%assets/audio/sia.wav" in
 
-  let chunk3 = load_chunk mixer "../tests/audio/sample.wav" in
+  let chunk3 = load_chunk mixer "%assets/audio/sample.wav" in
   (* 22050 Hz, converted to 2 channels 1ms, stretched in 35-47ms *)
 
-  let chunk1 = load_chunk mixer "../tests/audio/chunk.wav" in
+  let chunk1 = load_chunk mixer "%assets/audio/chunk.wav" in
   (* 16000 Hz, stretched in < 6ms *)
 
   Gc.compact (); (* this makes it crash with original tsdl 0.9.1 *)
   unpause mixer;
+  print_endline "Playing music...";
   let sia = play_chunk ~volume:0.8 mixer chunk2 in
   Sdl.delay 1000l;
+  print_endline "Adding repeated sound on top...";
   let _ = play_chunk ~repeat:(Repeat 5) mixer chunk1 in
   Sdl.delay 5000l;
+  print_endline "Switching to another tune...";
   do_option sia (stop_track mixer);
   let _ = play_chunk ~volume:0.5 mixer chunk3 in
   Sdl.delay 1000l;
+  print_endline "Pausing...";
   pause mixer;
   Sdl.delay 1000l;
+  print_endline "Resuming...";
   unpause mixer;
   Sdl.delay 3000l;
 
   close mixer;
+  print_endline "Done!";
 
   (* DON'T FREE, it causes double free segfault next time you run
      test () and Gc.compact.

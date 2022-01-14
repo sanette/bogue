@@ -43,6 +43,7 @@ let europe = [|
   "Sweden";
   "United Kingdom" |]
 
+let image_file = "%assets/images/chl.png"
 
 (* We define some styles shared by several examples *)
 let sandybrown = Draw.find_color "sandybrown"
@@ -61,7 +62,7 @@ let round_image_box = let open Style in
   let border = mk_border ~radius:10 thick_grey_line in
   (* the image is used as a pattern background, and so will not be scaled by
      theme (is this good?) *)
-  let p = Image.create "images/chl.png" in
+  let p = Image.create image_file in
   create ~border ~background:(Image p) ()
 
 (* Grey with shadow *)
@@ -333,7 +334,7 @@ let example16 () =
 let desc17 = "a simple image at original pixel size"
 let example17 () =
   let img = W.image (*~w:300*) ~noscale:true ~bg:Draw.(opaque white)
-      "images/chl.png" in
+      image_file in
   let layout = L.flat_of_w [img] in
   let board = make [] [layout] in
   run board
@@ -341,8 +342,8 @@ let example17 () =
 (* TODO *)
 let desc18 = "zoom_in and oscillate animations"
 let example18 () =
-  let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) "images/chl.png" in
-  let img2 = W.image ~w:250 ~h:300 ~bg:Draw.(opaque grey) "images/chl.png" in
+  let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) image_file in
+  let img2 = W.image ~w:250 ~h:300 ~bg:Draw.(opaque grey) image_file in
   let l1 = L.resident img1 in
   let l2 = L.resident img2 in
   let layout = L.flat [l1; l2] in
@@ -355,7 +356,7 @@ let example18 () =
 
 let desc19 = "tabs"
 let example19 () =
-  let img = W.image ~w:320 ~h:300 ~bg:Draw.(opaque white) "images/chl.png" in
+  let img = W.image ~w:320 ~h:300 ~bg:Draw.(opaque white) image_file in
   let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
   let b,l = W.check_box_with_label "you may click here too" in
   let tab1 = L.flat_of_w [img] in
@@ -368,8 +369,8 @@ let example19 () =
 
 let desc20 = "two images"
 let example20 () =
-  let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) "images/chl.png" in
-  let img2 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque grey) "images/chl.png" in
+  let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) image_file in
+  let img2 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque grey) image_file in
   let l1 = L.flat_of_w [img1] in
   let l2 = L.flat_of_w [img2] in
   (* this has no effct: L.animate_w l1 (Avar.fromto ~duration:600 10 300); *)
@@ -857,8 +858,8 @@ let desc37 = "playing sound when clicking"
 let example37 () =
   let devname = Mixer.init () in
   let mixer = Mixer.create_mixer devname in
-  let check_sound = Mixer.load_chunk mixer "../tests/audio/button.wav" in
-  let uncheck_sound = Mixer.load_chunk mixer "../tests/audio/swoosh.wav" in
+  let check_sound = Mixer.load_chunk mixer "%assets/audio/button.wav" in
+  let uncheck_sound = Mixer.load_chunk mixer "%assets/audio/swoosh.wav" in
   Mixer.change_volume 0.1 uncheck_sound;
   let b = W.check_box () in
   let click b =
