@@ -69,7 +69,7 @@ A number of variables can be modified from a configuration file (or environement
   Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored.
   For instance:
 {[
-# my bogue.conf
+## BOGUE version 20220115
 THEME = dark
 BACKGROUND = color:azure
 ]}
