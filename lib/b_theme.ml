@@ -224,7 +224,17 @@ let () =
   end
 
 (* We try to locate the theme dir. *)
-(* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes *)
+(* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes
+
+
+   WARNING, when installing from a tmp dir and running `dune build @install
+   @runtest` (which is what the ocaml-ci does when submitting a new opam
+   version), then `ocamlfind query bogue` will return
+   "tmp/bogue-20220115/_build/install/default/lib/bogue", which is good (the
+   assets are installed in ../../share/), while `opam var share` returns
+   "/home/essai/.opam/4.08.1/share" which is not good because the assets are not
+   installed there yet. This is a problem only for dune testing. Once `opam
+   install .` is done, it should work.  *)
 let dir =
   let dir = get_var "DIR" in
   if Sys.file_exists dir && Sys.is_directory dir
@@ -241,19 +251,21 @@ let dir =
         config
       end
     else try
-        let system = Unix.open_process_in "opam var share" in
+        let system = Unix.open_process_in "ocamlfind query bogue" in
         let res = input_line system in
         match Unix.close_process_in system with
         | Unix.WEXITED 0 ->
-          let sp = Printf.sprintf in
-          let dir = sp "%s/bogue/themes" res in
+          let res = Filename.(dirname @@ dirname res) in
+          let dir = Printf.sprintf "%s/share/bogue/themes" res in
           if Sys.file_exists dir && Sys.is_directory dir
           then dir else begin
-            printd debug_error "(FATAL) Cannot create user configuration file.";
+            printd debug_error "(FATAL) Cannot find themes directory";
+            print_endline "Cannot find themes dir";
             raise Not_found
           end
         | _ -> printd debug_error
                  "(FATAL) Cannot find a usable bogue configuration directory";
+          print_endline "Cannot find bogue lib directory";
           raise Not_found
       with
       | End_of_file ->
