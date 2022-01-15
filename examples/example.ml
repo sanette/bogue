@@ -979,7 +979,7 @@ let example40 () =
 
 let desc41 = "game (fake)"
 let example41 () =
-  let image = W.image ~w:1024 ~h:768 "images/nasa_black_hole_cygx1_ill.jpg" in
+  let image = W.image ~w:1024 ~h:768 "%assets/images/nasa_black_hole_cygx1_ill.jpg" in
   let image = L.flat ~name:"image" [L.resident image] in
   let title = W.label ~size:32 ~fg:(Draw.(opaque (find_color "firebrick")))
       "The Black Hole Game"
