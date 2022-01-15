@@ -1,6 +1,7 @@
 (executable
  (name example)
- (modules (:standard \ toplevel_example)); toplevel_example.ml should not be compiled
+ (modules (:standard \ toplevel_example))
+ ; toplevel_example.ml should not be compiled
  (public_name boguex)
  (libraries bogue)
  (package bogue))

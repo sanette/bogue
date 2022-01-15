@@ -80,11 +80,11 @@ let prev = function
   | Some t -> t.prev
 
 let value = function
-  | None -> raise Not_found
+  | None -> invalid_arg "Empty chain has no value"
   | Some a -> a.value
 
 let depth = function
-  | None -> raise Not_found
+  | None -> invalid_arg "Empty chain has not depth"
   | Some a -> a.depth
 
 let rec first = function
@@ -116,7 +116,7 @@ let compare_elements x1 x2 =
 let compare t1 t2 =
   match t1, t2 with
   | Some x1, Some x2 -> compare_elements x1 x2
-  | _ -> raise Not_found
+  | _ -> invalid_arg "Cannot compare with empty chain"
 
 let (==) t1 t2 =
   compare t1 t2 = 0
@@ -205,14 +205,14 @@ let insert_before t value =
 
 let replace t value =
   match t with
-  | None -> raise Not_found
+  | None -> invalid_arg "Cannot set value to empty Chain"
   | Some a -> a.value <- value
 
 (* [remove t] removes the element pointed by t in the stack and returns the next
    element. Then [t] becomes isolated and should be discarded. *)
 (* not used *)
 let remove = function
-  | None -> raise Not_found
+  | None -> invalid_arg "Cannot remove element of empty Chain"
   | Some a ->
      do_option a.prev (fun p -> p.next <- a.next);
      do_option a.next (fun n -> n.prev <- a.prev);

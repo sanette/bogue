@@ -180,6 +180,7 @@ let rec open_font file size =
          then begin
              printd (debug_io + debug_error)
                "(FATAL) default font %s (%u) cannot be loaded" file size;
+             print_endline "Font not found";
              raise Not_found
            end
          else begin
