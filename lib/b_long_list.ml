@@ -102,8 +102,8 @@ type entry = | Void
 type direction = | Up
                  | Down
 
-let factor = 5;; (* ok ? factor > 1 to ensure smoother scrolling *)
-let min_tick_size = 10;; (* scrollbar handle min size *)
+let factor = 5 (* ok? factor > 1 to ensure smoother scrolling *)
+let min_tick_size = 10 (* scrollbar handle min size *)
 let scroll_margin = 70
 (* we try to keep at least this amount of pixels above and below the clipped
    layout in order to allow normal mouse wheel scroll *)
@@ -228,9 +228,9 @@ let reduce_memory ll direction =
           else if j <= ll.first_mem then update_first_mem ll j;
           ll.used_memory <- ll.used_memory - mem;
           if ll.used_memory > mm then loop j' next
-          (* TODO use a factor eg 3/4 to reduce more memory at once ? but then
-              make sure that (3/4)memory is enough to avoid deleting currently
-              viewed items... *)
+          (* TODO use a factor eg 3/4 to reduce more memory at once? but then
+             make sure that (3/4)memory is enough to avoid deleting currently
+             viewed items... *)
         end
   in
   match direction with
@@ -363,7 +363,7 @@ let update_room ll container o =
   in
   let h = Layout.height container in
   let ll_height = total_height ll in
-  Var.protect Layout.(container.geometry.voffset); (* useful ? *)
+  Var.protect Layout.(container.geometry.voffset); (* useful? *)
   let offset = Avar.get (Var.get ll.offset) in
   let voffset = Layout.get_voffset container in
   let offset, o =

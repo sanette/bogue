@@ -48,7 +48,7 @@ let execute_one e w =
   if w.Widget.wid = Trigger.get_update_wid e
   then (
     Widget.wake_up_all e w;
-    Trigger.push_redraw (Widget.id w) (* OK ?? *)
+    Trigger.push_redraw (Widget.id w) (* OK?? *)
   )
 
 let execute e =

@@ -15,7 +15,7 @@ open B_utils
 module Var = B_var
 module Trigger =  B_trigger
 
-(* just to keep track of created threads... not used ? *)
+(* just to keep track of created threads... not used? *)
 let threads_created = Var.create []
 
 let add_thread t =
@@ -70,7 +70,7 @@ let of_value x =
 
 let send_event_var_changed v =
   Trigger.push_var_changed v.id
-(* do we really need to send several such events ? maybe only one is enough, and
+(* Do we really need to send several such events? maybe only one is enough, and
    the user code is not used. Another option would be to store in var.events the
    var_id ... *)
 
@@ -101,7 +101,7 @@ let value v =
 let apply f v =
   let x = f (value v) in
   let update _ _ = f (value v) in
-  let events = Trigger.var_changed :: v.events in (* or already there ? *)
+  let events = Trigger.var_changed :: v.events in (* or already there? *)
   create ~update ~events x
 
 (* this should be called with every new event in the mainloop. *)

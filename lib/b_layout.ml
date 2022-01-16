@@ -36,8 +36,8 @@ module Selection = B_selection
 type background =
   (* TODO instead we should keep track of how the box was created... in case we
      want to recreate (eg. use it for another window... ?) *)
-  (* TODO use Style.background ? Cependant Style est antérieur (et utilisé par)
-     à Box... *)
+  (* TODO use Style.background? Cependant Style est antérieur (et utilisé par) à
+     Box... *)
   | Style of Style.t
   | Box of Box.t
 
@@ -117,12 +117,12 @@ and room = {
        the others), but maybe that would be heavier *)
     mutable thread_id : int;
     adjust : adjust;
-    (* should we adjust the size of this room to fit its content ? *)
+    (* should we adjust the size of this room to fit its content? *)
     (* not implemented yet *)
     mutable resize : ((int * int) -> unit);
     (* The [resize] function is called when the house changed size. (int * int)
        is the house size (w,h). *)
-    mutable show : bool; (* should we show this room ? *)
+    mutable show : bool; (* should we show this room? *)
     mutable hidden : bool;
     (* The [hidden] field is only useful when [t.show = true]. Then [t.hidden =
        true] if the layout is currently not displayed onscreen. (Upon creation,
@@ -177,15 +177,15 @@ and room = {
        set the house before defining it... It is our responsibility to make sure
        that the house really corresponds to the parent element, in order to
        avoid cycles etc. *)
-    (* cache : Sdlvideo.surface; *) (* ou texture ? mettre un cache pour
+    (* cache : Sdlvideo.surface; *) (* ou texture? mettre un cache pour
                                        accélerer l'affichage, plutôt que
                                        d'effacer tout à chaque itération ? *)
     mutable mouse_focus : bool; (* set interactively when has mouse focus *)
     mutable keyboard_focus : bool option;
     (* None = cannot have focus; Some b = has focus or not *)
-    (* TODO: should we move the keyboard_focus to the Widget ? A layout which
-     contains a Rooms list cannot really have keyboard_focus...and in fact it
-     will not be detected by 'next_keyboard' *)
+    (* TODO: should we move the keyboard_focus to the Widget? A layout which
+       contains a Rooms list cannot really have keyboard_focus...and in fact it
+       will not be detected by 'next_keyboard' *)
     (* TODO : mutable draggable : int option; *) (* None = not draggable; Some
                                                   delay = drag after delay (in ms) *)
     mutable draggable : bool;
@@ -259,7 +259,7 @@ let cemetery = ref []
 let send_to_cemetery room =
   cemetery := room.id :: !cemetery
 (* TODO: use GC.finalise to automatically unload (but not destroy) textures from
-   GCed layouts ? *)
+   GCed layout? *)
 (* (or maybe better for GCed widgets) *)
 
 let rec remove_wtable room =
@@ -285,7 +285,7 @@ let clear_wtable () = WHash.clear rooms_wtable
 (* this is where we store the reverse lookup: room.id ==> room *)
 (* of course the problem is to free this when rooms are not used anymore... to
    prevent a memory leak. *)
-(* TODO use weak tables (or Ephemerons ???) *)
+(* TODO use weak tables (or Ephemerons???) *)
 (* https://caml.inria.fr/pub/docs/manual-ocaml/libref/Weak.html *)
 
 (* let of_id id = *)
@@ -323,8 +323,8 @@ let g = room.geometry in [g.x; g.y; g.w; g.h; Var.get g.voffset]
 let current_geom ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) () : current_geom =
   { x; y; w; h; voffset}
 
-(* transform geometry into current_geom *)
-(* lock the layout ? *)
+(* Transform geometry into current_geom *)
+(* lock the layout? *)
 let to_current_geom (g : geometry) : current_geom =
   { x = Avar.get g.x;
     y = Avar.get g.y;
@@ -399,7 +399,7 @@ let create_unsafe
   (* We don't do this because who knows when the background texture will be
      destroyed.... maybe too late (after renderer was destroyed). TODO: what to
      do to make sure the background is destroyed if the layout is not used
-     anymore (and we don't destroy the renderer) ? Only solution I see is to add
+     anymore (and we don't destroy the renderer)? Only solution I see is to add
      the renderer information to the texture... *)
   printd debug_board "Layout %s created." (sprint_id room);
   room
@@ -507,7 +507,7 @@ let widget layout =
        "This room %s is a node, not a leaf: \
         it does not contain a resident widget" (sprint_id layout);
      raise Not_found
-  (* or, return the first available widget with next_widget ? *)
+  (* or, return the first available widget with next_widget? *)
   | Resident w -> w
 
 let get_resident = widget
@@ -863,7 +863,8 @@ let shift_voffset_generic vset l dv =
   if Avar.finished av
   then set_voffset l (Avar.get av + dv)
   else let av_new = Avar.apply (fun y -> y + dv) av in
-       (* let _ = Avar.get av_new in *) (* in order to start the animation. Useful ?? *)
+    (* let _ = Avar.get av_new in *)
+    (* in order to start the animation. Useful?? *)
        vset l.geometry.voffset av_new
 
 let shift_voffset = shift_voffset_generic Var.set
@@ -872,7 +873,7 @@ let shift_voffset = shift_voffset_generic Var.set
 let reset_pos l =
   lock l;
   let w,h = get_size l in
-  let g = geometry ~w ~h () in (* or modify l.geometry fields in-place ? *)
+  let g = geometry ~w ~h () in (* or modify l.geometry fields in-place? *)
   l.geometry <- g;
   l.current_geom <- to_current_geom g;
   unlock l
@@ -886,12 +887,12 @@ let get_window_pos layout =
 
 (* see get_window_pos. It should be set *after* Bogue.make and *before*
    Bogue.run. Otherwise it has possibly no effect, or perhaps causes some
-   glitches. TODO make a test to ensure this ?? *)
+   glitches. TODO make a test to ensure this?? *)
 let set_window_pos layout (x,y)=
   let g = layout.current_geom in
   layout.current_geom <- { g with x; y }
 
-(* lock l ? *)
+(* lock l? *)
 let get_transform l =
   let t = l.geometry.transform in
   let angle = Avar.get t.angle in
@@ -934,7 +935,8 @@ let rec rec_set_show b l =
   unlock l
 
 (** return absolute (x,y) position *)
-(* TODO optimize: test if x is up_to_date, then one can use current_geom instead ? *)
+(* TODO optimize: test if x is up_to_date, then one can use current_geom
+   instead? *)
 (* of course this test will fail for hidden rooms *)
 let compute_pos room =
   let rec loop x0 y0 r =
@@ -1627,7 +1629,7 @@ let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
    (or, we should lock all layouts in the main loop too... Therefore, it is
    better to set sync=true, which delays the execution to Sync (the main loop
    Queue) *)
-(* mutualize with [add_room, replace_room] ?*)
+(* mutualize with [add_room, replace_room]?*)
 let set_rooms layout ?(sync=true) rooms =
   match layout.content with
   | Resident _ ->
@@ -2708,7 +2710,7 @@ let update_old room =
   update_loop x0 y0 0 None room
 
 (** check is the room has some non-fresh components. *)
-(* optimize (Bogue) ? *)
+(* optimize (Bogue)? *)
 let rec is_fresh room =
   match room.content with
   | Rooms list -> let rec loop = function
@@ -2726,7 +2728,7 @@ let room_has_anim room =
   List.fold_left (fun b v -> b || (Avar.has_anim v))
     false (get_int_avars room)
 
-(* optimize (Bogue) ? *)
+(* optimize (Bogue)? *)
 (* TODO one could transfer it into Layout.display, which would return the anim
    status of what was displayed (and not what was hidden...) *)
 let rec has_anim room =

@@ -21,10 +21,11 @@ type 'a element =
   { id : int; (* [id] identifies the stack (connected component) *)
     mutable value : 'a;
     mutable depth : int;
-    (* [depth] (positive integer) is a redundant information, in order to get
-       faster comparison between chains. The rule is that the .next element must
-       have higher depth. A consequence is that the number of elements cannot
-       exceed max_int - 2 (here = 4611686018427387901) *)
+    (* [depth] (positive integer for non-empty Chain, zero for empty) is a
+       redundant information, in order to get faster comparison between
+       chains. The rule is that the .next element must have higher depth. A
+       consequence is that the number of elements cannot exceed max_int - 2
+       (here = 4611686018427387901) *)
     mutable prev : ('a element) option;
     mutable next : ('a element) option
   }
@@ -84,7 +85,7 @@ let value = function
   | Some a -> a.value
 
 let depth = function
-  | None -> invalid_arg "Empty chain has not depth"
+  | None -> 0
   | Some a -> a.depth
 
 let rec first = function
@@ -115,13 +116,16 @@ let compare_elements x1 x2 =
 
 let compare t1 t2 =
   match t1, t2 with
+  | None, None -> 0
+  | Some _, None -> 1
+  | None, Some _ -> -1
   | Some x1, Some x2 -> compare_elements x1 x2
-  | _ -> invalid_arg "Cannot compare with empty chain"
 
 let (==) t1 t2 =
   compare t1 t2 = 0
 
-(* t1 >. t2 if t1.depth > t2.depth. So ">" means "deeper than". *)
+(* t1 >. t2 if [depth t1 > depth t2] (when in the same stack). So ">" means
+   "deeper than". *)
 let (>.) t1 t2 =
   compare t1 t2 > 0
 
@@ -142,6 +146,9 @@ let size t =
     | None -> i
     | Some t -> loop t.next (i+1) in
   loop (first t) 0
+
+let is_empty t =
+  t = None
 
 (* redistribute depth values *)
 let evenize t =

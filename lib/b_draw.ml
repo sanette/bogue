@@ -287,7 +287,7 @@ let make_transform ?(angle = 0.) ?center ?(flip = Sdl.Flip.none)
 let compose_transform t1 t2 =
   if t2.angle = 0. && t2.alpha = 1. && t2.center = None &&
      t2.flip = Sdl.Flip.none
-  then t1 (* This test is not necessary; is it useful for speeding up ?  One
+  then t1 (* This test is not necessary; is it useful for speeding up?  One
              could check t1 too. *)
   else
     let angle = t1.angle +. t2.angle in
@@ -514,7 +514,7 @@ let mask renderer =
   depth,(r,g,b,a)
 
 let pixel_format_old = go (Sdl.alloc_format Sdl.Pixel.format_argb8888)
-(* TODO: init ? *)
+(* TODO: init? *)
 
 let color_to_int32 ?format surf (r,g,b,a) =
   (* Warning: the tsdl source says I should not use get_surface_format *)
@@ -730,7 +730,7 @@ let create_surface ?like:surf ?renderer ?color w h =
 
 let create_target ?(format = Sdl.Pixel.format_argb8888) renderer w h =
   create_texture renderer format Sdl.Texture.access_target ~w ~h
-(* should clear here ? this done in push_target *)
+(* should clear here? this done in push_target *)
 
 (* read pixel in surface with format_argb8888 *)
 (* TODO check bounds *)
@@ -1188,7 +1188,7 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
     gl_context = None;
   }
 
-(* rarely used... ? *)
+(* rarely used...? *)
 let clear_layers layer =
   Chain.iter (fun q ->
       if not (Queue.is_empty q)
@@ -1552,7 +1552,7 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
       go (Sdl.set_render_draw_color renderer r g b a0);
       line x0 x3 y;
 
-      (* now what are the next points ? *)
+      (* now what are the next points? *)
       let x1', e1' =
         if x1 < y then x1, 0.
         else
@@ -1711,7 +1711,7 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
       go (Sdl.set_render_draw_color renderer r g b a0);
       line x0 x3 y;
 
-      (* now what are the next points ? *)
+      (* now what are the next points? *)
       let x1', e1' =
         if x1 < y then x1, 0.
         else

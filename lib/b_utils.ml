@@ -3,7 +3,7 @@
    module anywhere. *)
 open Tsdl
 
-exception Sdl2_error of string
+exception Sdl_error of string
 
 let nop _ = ()
 
@@ -11,8 +11,8 @@ let debug =
   let d = try
       match Sys.getenv "BOGUE_DEBUG" |> String.capitalize_ascii with
       | "YES"
-        | "1"
-        | "TRUE" -> true
+      | "1"
+      | "TRUE" -> true
       | _ -> false
     with Not_found -> false (* set to false for production *)
        | e -> raise e in
@@ -80,7 +80,7 @@ let debug_to_string =
               loop (i lsr 1) (n+1) (s::list) in
   String.concat "; " (loop c 1 [])
 
-(** should we put this in a Var/Atomic ? *)
+(* Should we put this in a Var/Atomic? *)
 (* TODO: use this to reduce the number of lock if there is no thread *)
 let threads_created = ref 0
 
@@ -155,7 +155,7 @@ let fmax = Float.max
 let fmin = Float.min
 
 let go : 'a Tsdl.Sdl.result -> 'a = function
-  | Error _ -> failwith ("SDL ERROR: " ^ (Sdl.get_error ()))
+  | Error _ -> raise (Sdl_error ("SDL ERROR: " ^ (Sdl.get_error ())))
   | Ok r -> r
 
 (* List utilities *)

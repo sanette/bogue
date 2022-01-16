@@ -31,12 +31,12 @@ type kind =
   | Slider of Slider.t
   | TextInput of Text_input.t
 
-(** what to do when the same action (= same connection id) is already running ? *)
+(* What to do when the same action (= same connection id) is already running? *)
 type action_priority =
-  | Forget (** discard the new action *)
-  | Join (** execute the new after the first one has completed *)
-  | Replace (** kill the first action (if possible) and execute the second one *)
-  | Main (** run in the main program. So this is blocking for all subsequent
+  | Forget (* discard the new action *)
+  | Join (* execute the new after the first one has completed *)
+  | Replace (* kill the first action (if possible) and execute the second one *)
+  | Main (* run in the main program. So this is blocking for all subsequent
             actions *)
 
 type active = {
@@ -71,7 +71,7 @@ and t = {
      from and to the same widget. *)
   (* mutable à cause de définition cyclique *)
   wid : int;
-  mutable fresh : bool Var.t; (* is the display up-to-date ? *)
+  mutable fresh : bool Var.t; (* is the display up-to-date? *)
   (* not really used anymore. TODO: check if this flag is still used *)
   mutable room_id : int option;
   (* [room_id] will be filled by the room id when inserted in that room *)
@@ -105,7 +105,7 @@ end
 module WHash = Weak.Make(Hash)
 let widgets_wtable = WHash.create 100
 
-(* When to use this ??? *)
+(* When to use this??? *)
 (* in particular, when this function is called, the widget w in principle has
    already been removed from widgets_wtable *)
 let free w =
@@ -626,10 +626,10 @@ let wake_up event c =
   if List.mem (Trigger.of_event event) c.triggers then
     begin
       printd debug_thread "Activating connection #%d" c.id;
-      (* TODO add a more precise ~test before launching the thread ? *)
+      (* TODO add a more precise ~test before launching the thread? *)
       if c.priority = Main then c.action c.source c.target event
-      (* = direct action, no thread !. Should we still add it to the active list
-         ? *)
+      (* = direct action, no thread! Should we still add it to the active list?
+      *)
       else begin
         let action = fun w1 w2 ev ->
           c.action w1 w2 ev;
@@ -643,7 +643,7 @@ let wake_up event c =
             let action = fun w1 w2 ev -> (Thread.join a.thread; action w1 w2 ev) in
             add_action c action event
           | Replace, Some a -> begin
-              (*printd debug_thread "Killing connection #%d" a.connect_id;*)
+              (* printd debug_thread "Killing connection #%d" a.connect_id;*)
               (* Thread.kill a.thread; *) (* Thread.kill is in fact NOT
                                              implemented... ! *)
               terminate a;
@@ -669,7 +669,7 @@ let remove_active_connections widget =
 
 (* Some widgets directly react to a click event to activate themselves. Some,
    like text_input, even react to the TAB key. In fact, keyboard_focus is
-   treated globally by the main loop, therefore one could (should ?) rely on
+   treated globally by the main loop, therefore one could (should?) rely on
    this function below instead of adding new reactions to TAB & click *)
 let set_keyboard_focus w =
   match w.kind with

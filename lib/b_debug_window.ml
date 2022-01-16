@@ -18,7 +18,7 @@ let set code b =
 let create () =
   (* let save_layer = Draw.get_current_layer () in
    * Draw.use_new_layer (); *)
-  
+
   (* TODO this should be saved to the window, not global, otherwise layouts that
      are created after this but in an older window will be drawn on this layer,
      and thus not shown at all... *)
@@ -28,7 +28,8 @@ let create () =
 
   let action w _ _ =
     W.draw_boxes := W.get_state w in
-  let c_boxes = W.connect b b action [Sdl.Event.mouse_button_down; Sdl.Event.finger_down] in
+  let c_boxes = W.connect b b action
+      [Sdl.Event.mouse_button_down; Sdl.Event.finger_down] in
 
   let b = W.check_box ~state:!debug () in
   let l = W.label "Turn on debugging trace" in

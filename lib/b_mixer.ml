@@ -378,7 +378,7 @@ let stretch f1 f2 sound =
   (* we do a linear interpolation *)
   let l1 = Array1.dim sound / ch in
   let l2 = if l1 mod e1 = 0 then l1 * e2 / e1 else e2 * (l1 / e1 + 1) in
-  (* we want l2 to be a multiple of e2 (not necessary ?) *)
+  (* we want l2 to be a multiple of e2 (not necessary?) *)
   printd debug_io "Stretching %u => %u (%u => %u), size=%u" f1 f2 e1 e2 (ch * l2);
   let output = Array1.create int16_signed c_layout (ch * l2) in
   Array1.fill output 0;

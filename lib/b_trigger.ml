@@ -7,13 +7,12 @@
 (* It is not clear to me if a thread is authorized to *send* an event
    to SDL *)
 
-(* WARNING: just loading this module will execute some Sdl functions (bad ?).
+(* WARNING: just loading this module will execute some Sdl functions (bad?).
    Thus, it will initialize SDL *)
 
 open Tsdl
 open B_utils
 module E = Sdl.Event
-module Theme = B_theme
 module Var = B_var
 open Result
 
@@ -633,7 +632,7 @@ let widget_id = E.user_code
    - the mouse_motion event is treated
    - the mouse leaves the widget and enters another one: we trigger a new mouse_enter
    (it is easy to do this in case of animation, because then there is a "long"
-   FPS wait in the loop... change this ?)
+   FPS wait in the loop... change this?)
 
    - end of the loop. Now we have two mouse_enter events in the queue.
 
@@ -820,7 +819,7 @@ let rec wait_event ?(action = nop) e =
 let mm_pressed ev =
   Int32.logand E.(get ev mouse_motion_state) (Sdl.Button.lmask) <> 0l
 
-(* maybe all the window_id field in fact are the same int ? *)
+(* Maybe all the window_id field in fact are the same int? *)
 let window_id ev =
   match event_kind ev with
   | `Key_down
@@ -851,12 +850,13 @@ let window_id ev =
 (* treatment of clicks *)
 (***********************)
 
-(* we just copy the Sdl event structure *)
+(* We just copy the Sdl event structure *)
 type bc_static =
-    { window_id : int;
-      button_which : Tsdl.Sdl.uint32; (* the mouse instance id, or SDL_TOUCH_MOUSEID; see Remarks for details *)
-      button_button  : Tsdl.Sdl.uint8
-    }
+  { window_id : int;
+    button_which : Tsdl.Sdl.uint32;
+    (* the mouse instance id, or SDL_TOUCH_MOUSEID; see Remarks for details *)
+    button_button  : Tsdl.Sdl.uint8
+  }
 
 type bc_dynamic =
     { mutable timestamp : int; (* Warning!  not Tsdl.Sdl.uint32 *)

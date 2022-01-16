@@ -1,5 +1,5 @@
 (** put a sublayout on top of the main layout *)
-(* recall that "on top" means "insert_after" layer; change ? *)
+(* recall that "on top" means "insert_after" layer; change? *)
 
 (* TODO implement the resize function *)
 
@@ -20,7 +20,7 @@ let new_layer_above base =
 
 (* search top_layer inside the layout. *)
 (* use the global toplayer instead (Chain.last) or at least the top_layer of the
-   whole connected component ? (top_layer (Layout.top_house layout)). In fact
+   whole connected component? (top_layer (Layout.top_house layout)). In fact
    since the top_house is supposed to contain all the graphics of the window,
    and there is one layer chain per window, the two choices should give the same
    answer. Thus it's better to use Chain.last layer. OK see below ... *)

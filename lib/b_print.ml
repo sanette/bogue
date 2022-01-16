@@ -64,12 +64,16 @@ let style s =
 
 let background = function
   | L.Style s -> style s
-  | L.Box _ -> "Box";;
+  | L.Box _ -> "Box"
+
+let layer_depth l =
+  if Chain.is_empty l then "None"
+  else string_of_int (Chain.depth l)
 
 let rec layout_up ?(indent = "") r =
 let list = [
   sprintf "\n%s┏━ Layout %s\n" indent (L.sprint_id r);
-  sprintf "%s┃ layer: %d\n" indent (Chain.depth (r.L.layer));
+  sprintf "%s┃ layer: %s\n" indent (layer_depth r.L.layer);
   sprintf "%s┃ current geometry: %s\n" indent (geometry r.L.current_geom);
   sprintf "%s┃ background: %s\n" indent (option background r.L.background);
   sprintf "%s┃ content: %s\n" indent (content r.L.content);
