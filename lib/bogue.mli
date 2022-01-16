@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220115
+@version 20220116
 
 @author Vu Ngoc San
 
@@ -56,32 +56,56 @@ module L = Bogue.Layout]}
 
 (** Theming variables
 
-A number of variables can be modified from a configuration file (or environement variables). They are called
-   Theme variables.
+    A number of variables control the appearance of your Bogue application. They are called {%html:<a href="#path">Theme variables</a>%}.
+ They take effect when you start your application up (no need to recompile).
+For quick experimentation, they can be modified as environment variables, for instance:
+{v
+export BOGUE_SCALE=2.5
+v}
+They can also be saved in configuration files, and you may organize as many config files as you want into {e themes}.
 
-- Each theme has its own directory under
-  [$HOME/.config/bogue/themes], in which there is a [bogue.conf] file where the
+{3:config Where are the config files?}
+
+The config files are all called [bogue.conf]. Several locations are used.
+    Upon installing Bogue, a system wide Bogue share directory is created. If you used an {b opam} install, this will be
+{v
+$(opam var share)/bogue
+v}
+The share directory contains a [themes] directory, which itself contains a [default] dir.
+This where the default configuration file, resides.
+
+However, {b if you want to modify the themes}, it is advisable to create your own Bogue share dir.
+    This personal Bogue dir should be [$(XDG_CONFIG_HOME)/bogue].
+    (If [$XDG_CONFIG_HOME] is not defined in your system, you may use [$HOME/.config/bogue]).
+So, this is what you can do for creating your personal Bogue dir for the first time:
+{v
+cp -r $(opam var share)/bogue $HOME/.config/bogue
+v}
+
+
+- Each theme has its own directory inside the Bogue share dir, in which there is a  [bogue.conf] file where the
   Theme variables are defined.
-- The user config file [$HOME/.config/bogue.conf] overrides the theme files.
+- A global user config file [$HOME/.config/bogue/bogue.conf] overrides
+  the theme files.
 - A [bogue.conf] file in the same directory as the executable overrides the other
   config files.
 - The syntax of the config file is [VARIABLE = value], one entry per line.
   Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored.
   For instance:
-{[
+{v
 ## BOGUE version 20220115
 THEME = dark
 BACKGROUND = color:azure
-]}
+v}
 
-Here is the list of Theme variables:
+    The first line <code>## BOGUE version XXX</code> is compulsory.
+
+{3:list Here is the list of Theme variables:}
 
 - [BACKGROUND]: the default background for all windows. It can be a color
   (eg. [color:darkturquoise] or [color:#00CED1]), or an image file
-  (eg. [file:myimage.png]).
-  In the latter case, the file is searched in the current theme's directory,
-  unless the file string starts with [/], in which case it should be an
-  absolute path (eg. [file:/home/alice/myimage.png]).
+    (eg. [file:myimage.png]). See {%html:<a href="#path">below</a>%}
+     for how to specify paths.
 - [BG_COLOR]: A background color (eg. [darkturquoise], or [#00CED1])
   that is used by default by some widgets/layouts.
   It should be clearly visible over the [BACKGROUND].
@@ -115,14 +139,38 @@ Here is the list of Theme variables:
 - [TEXT_COLOR]: color of standard text displays.
 - [TEXT_FONT]
 - [TEXT_FONT_SIZE]
+- [THEME]: the name of the theme to use.
+  It should be the name of the directory within the [themes] dir.
+  As soon as this variable is set, all variables from that theme
+  are loaded and override previously defined variables.
+  If not specified, the default theme is initially loaded.
 
 All variables with "COLOR" in their name can be specified either with RGB hexadecimal like [#00CED1], or with a standard html name like [darkturquoise], see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color table}.
 
 All variables can be overriden by setting the corresponding
-{b environment variables b}, prepending "BOGUE_". For instance:
-{[
-export BOGUE_SCALE=2.5
-]}
+environment variables, prepending "BOGUE_". For instance:
+{v
+export BOGUE_LABEL_COLOR=forestgreen
+v}
+
+{%HTML:<br>%}
+
+
+{2:path How to load assets (images, sounds, etc.)}
+
+When specifying a file to load, for instance
+{v
+BACKGROUND = file:background.png
+v}
+you need to specify where the file should be searched. Here are the rules:
+
+First, the file is searched in current directory,
+    then in the current theme's directory (for instance [$HOME/.config/bogue/themes/default]),
+unless the file string starts with [/], in which case it should be an
+absolute path (eg. [file:/home/alice/myimage.png]).
+Finally, if the file string starts with [%], for instance [file:%assets/images/bob.png],
+then the [%] char is replaced by the Bogue dir, for instance [file:/home/bob/.config/bogue/assets/images/bob.png].
+
 
 {5 {{:graph-b_theme.html}Dependency graph}} *)
 module Theme : sig
@@ -744,7 +792,9 @@ end (* of Avar *)
 
 (** Unions of ranges of integers
 
-{3 Example} We define two sets, [s=[0..5; 10..20]] and [r=[4..15]],
+{3:selection_example Example}
+
+We define two sets, [s=[0..5; 10..20]] and [r=[4..15]],
 and we compute their union and intersection.
 
 {[

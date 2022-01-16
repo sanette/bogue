@@ -24,33 +24,44 @@
 <div class="info-desc">
 <p>Theming variables</p>
 
-<p>A number of variables can be modified from a configuration file (or environement variables). They are called
-   Theme variables.</p>
+<p>A number of variables control the appearance of your Bogue application. They are called <a href="#path">Theme variables</a>.
+ They take effect when you start your application up (no need to recompile).
+For quick experimentation, they can be modified as environment variables, for instance:</p>
+<pre class="verbatim">export BOGUE_SCALE=2.5</pre><p>They can also be saved in configuration files, and you may organize as many config files as you want into <em>themes</em>.</p>
 
+<h4 id="config">Where are the config files?</h4>
+<p>The config files are all called <code class="code">bogue.conf</code>. Several locations are used.
+    Upon installing Bogue, a system wide Bogue share directory is created. If you used an <b>opam</b> install, this will be</p>
+<pre class="verbatim">$(opam var share)/bogue</pre><p>The share directory contains a <code class="code">themes</code> directory, which itself contains a <code class="code">default</code> dir.
+This where the default configuration file, resides.</p>
+
+<p>However, <b>if you want to modify the themes</b>, it is advisable to create your own Bogue share dir.
+    This personal Bogue dir should be <code class="code">$(<span class="constructor">XDG_CONFIG_HOME</span>)/bogue</code>.
+    (If <code class="code">$<span class="constructor">XDG_CONFIG_HOME</span></code> is not defined in your system, you may use <code class="code">$<span class="constructor">HOME</span>/.config/bogue</code>).
+So, this is what you can do for creating your personal Bogue dir for the first time:</p>
+<pre class="verbatim">cp -r $(opam var share)/bogue $HOME/.config/bogue</pre>
 <ul>
-<li>Each theme has its own directory under
-  <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code>, in which there is a <code class="code">bogue.conf</code> file where the
+<li>Each theme has its own directory inside the Bogue share dir, in which there is a  <code class="code">bogue.conf</code> file where the
   Theme variables are defined.</li>
-<li>The user config file <code class="code">$<span class="constructor">HOME</span>/.config/bogue.conf</code> overrides the theme files.</li>
+<li>A global user config file <code class="code">$<span class="constructor">HOME</span>/.config/bogue/bogue.conf</code> overrides
+  the theme files.</li>
 <li>A <code class="code">bogue.conf</code> file in the same directory as the executable overrides the other
   config files.</li>
 <li>The syntax of the config file is <code class="code"><span class="constructor">VARIABLE</span>&nbsp;=&nbsp;value</code>, one entry per line.
   Notice the spaces surroundind <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are ignored.
   For instance:
-<pre class="codepre"><code class="code"><span class="keywordsign">#</span><span class="keywordsign">#</span> <span class="constructor">BOGUE</span> version 20220115
-<span class="constructor">THEME</span> = dark
-<span class="constructor">BACKGROUND</span> = color:azure
-</code></pre></li>
+<pre class="verbatim">## BOGUE version 20220115
+THEME = dark
+BACKGROUND = color:azure</pre></li>
 </ul>
-<p>Here is the list of Theme variables:</p>
+<p>The first line <code class="code"><span class="keywordsign">#</span><span class="keywordsign">#</span>&nbsp;<span class="constructor">BOGUE</span>&nbsp;version&nbsp;<span class="constructor">XXX</span></code> is compulsory.</p>
 
+<h4 id="list">Here is the list of Theme variables:</h4>
 <ul>
 <li><code class="code"><span class="constructor">BACKGROUND</span></code>: the default background for all windows. It can be a color
   (eg. <code class="code">color:darkturquoise</code> or <code class="code">color:<span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>), or an image file
-  (eg. <code class="code">file:myimage.png</code>).
-  In the latter case, the file is searched in the current theme's directory,
-  unless the file string starts with <code class="code">/</code>, in which case it should be an
-  absolute path (eg. <code class="code">file:/home/alice/myimage.png</code>).</li>
+    (eg. <code class="code">file:myimage.png</code>). See <a href="#path">below</a>
+     for how to specify paths.</li>
 <li><code class="code"><span class="constructor">BG_COLOR</span></code>: A background color (eg. <code class="code">darkturquoise</code>, or <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>)
   that is used by default by some widgets/layouts.
   It should be clearly visible over the <code class="code"><span class="constructor">BACKGROUND</span></code>.</li>
@@ -84,13 +95,30 @@
 <li><code class="code"><span class="constructor">TEXT_COLOR</span></code>: color of standard text displays.</li>
 <li><code class="code"><span class="constructor">TEXT_FONT</span></code></li>
 <li><code class="code"><span class="constructor">TEXT_FONT_SIZE</span></code></li>
+<li><code class="code"><span class="constructor">THEME</span></code>: the name of the theme to use.
+  It should be the name of the directory within the <code class="code">themes</code> dir.
+  As soon as this variable is set, all variables from that theme
+  are loaded and override previously defined variables.
+  If not specified, the default theme is initially loaded.</li>
 </ul>
 <p>All variables with "COLOR" in their name can be specified either with RGB hexadecimal like <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>, or with a standard html name like <code class="code">darkturquoise</code>, see <a href="https://www.rapidtables.com/web/color/html-color-codes.html">this color table</a>.</p>
 
 <p>All variables can be overriden by setting the corresponding
-<b>environment variables b</b>, prepending "BOGUE_". For instance:</p>
-<pre class="codepre"><code class="code">export <span class="constructor">BOGUE_SCALE</span>=2.5
-</code></pre>
+environment variables, prepending "BOGUE_". For instance:</p>
+<pre class="verbatim">export BOGUE_LABEL_COLOR=forestgreen</pre>
+<p><br></p>
+
+<h3 id="path">How to load assets (images, sounds, etc.)</h3>
+<p>When specifying a file to load, for instance</p>
+<pre class="verbatim">BACKGROUND = file:background.png</pre><p>you need to specify where the file should be searched. Here are the rules:</p>
+
+<p>First, the file is searched in current directory,
+    then in the current theme's directory (for instance <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes/default</code>),
+unless the file string starts with <code class="code">/</code>, in which case it should be an
+absolute path (eg. <code class="code">file:/home/alice/myimage.png</code>).
+Finally, if the file string starts with <code class="code">%</code>, for instance <code class="code">file:%assets/images/bob.png</code>,
+then the <code class="code">%</code> char is replaced by the Bogue dir, for instance <code class="code">file:/home/bob/.config/bogue/assets/images/bob.png</code>.</p>
+
 <h6 id="5_graphbthemehtmlDependencygraph"><a href="graph-b_theme.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
