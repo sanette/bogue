@@ -883,14 +883,14 @@ let example38 () =
 
   (* one can load an svg image as a background; it will be repeated as a pattern
      to fill the box: *)
-  let bg = Image.create_from_svg ~width:300 ~height:100 "images/w3c-logo-white.svg" in
+  let bg = Image.create_from_svg ~width:300 ~height:100 "%assets/images/w3c-logo-white.svg" in
   let style = Style.(create ~background:(Image bg) ()) in
   let box = W.box ~w:300 ~h:300 ~style () in
 
   (* one can load an svg image as a widget; it will be scaled to fit the size:
      *)
   let img = W.image_from_svg ~h:300 ~bg:Draw.(opaque red)
-      "images/koala.svg" in
+      "%assets/images/koala.svg" in
 
   let layout = L.flat_of_w [box; img] in
   let board = make [] [layout] in
