@@ -1,31 +1,31 @@
-open Tsdl;;
-open B_utils;;
+open Tsdl
+open B_utils
 
 type t = int (* 1/1000 sec *)
 
-let (+) t1 t2 = t1 + t2;;
+let (+) t1 t2 = t1 + t2
 
-let (-) t1 t2 = t1 - t2;;
+let (-) t1 t2 = t1 - t2
 
-let add t1 t2 = t1 + t2;;
+let add t1 t2 = t1 + t2
 
-let length t1 t2 = t2 - t1;;
+let length t1 t2 = t2 - t1
 
 let compare (t1 : t) (t2 : t) =
-  Stdlib.compare t1 t2;;
+  Stdlib.compare t1 t2
 
 let (>>) (t1 : t) (t2 : t) =
-  t1 > t2;;
+  t1 > t2
 
-let float t = float t;;
+let float t = float t
 
 (* Do not use ! it is NOT nice to other threads *)
 let delay_old d = Sdl.delay (Int32.of_int d);; (* attention ça freeze si c'est négatif *)
 
 (* we use this instead *)
-let delay x = Thread.delay (float x /. 1000.);;
+let delay x = Thread.delay (float x /. 1000.)
 
-let now () : t = Int32.to_int (Sdl.get_ticks ());;
+let now () : t = Int32.to_int (Sdl.get_ticks ())
 
 let make_fps () =
   let start = ref 0 in
@@ -37,7 +37,7 @@ let make_fps () =
         printd debug_graphics "FPS:%u (round_trip=%u)\n" (1000 / (round_trip + wait)) round_trip;
         delay wait;
         start := now ();
-      end;;
+      end
 
 let adaptive_fps fps =
   let start = ref 0 in
@@ -74,4 +74,4 @@ let adaptive_fps fps =
       then (printd debug_graphics "Reset FPS counter";
             frame := 1;
             total_wait := 0;
-            start := now ());;
+            start := now ())

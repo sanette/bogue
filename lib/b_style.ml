@@ -1,3 +1,4 @@
+(* This file is part of BOGUE *)
 (* Style is used to describe background, border, shadow in an immutable way. Box
    uses this, Layout uses this in addition to a Box field for caching the
    computation.  *)
@@ -23,7 +24,7 @@ type border = {
   down : line;
   left : line;
   right : line;
-  radius : int option
+  radius : int option (* int should be enough since 0 means None *)
 }
 
 type gradient =
@@ -91,6 +92,9 @@ let unload t =
   | Solid _ -> ()
   | Gradient _ -> ()
 
+let image_bg image =
+  Image image
+
 let color_bg color =
   Solid color
 
@@ -115,12 +119,16 @@ let mk_line ?(color = Draw.(opaque black)) ?(width = 1)
     ?(style : line_style = Solid) () =
   { color; width; style }
 
+let mk_radius radius =
+  if radius = Some 0 then None else radius
+
 let mk_border ?radius line =
-  { up = line; down = line; left = line; right = line; radius }
+  { up = line; down = line; left = line; right = line;
+    radius = mk_radius radius }
 
 let mk_shadow ?(offset = (1,3)) ?(size = 3) ?(width = 6) ?radius () : shadow =
   { size;
     offset;
-    radius;
+    radius = mk_radius radius;
     width
   }

@@ -17,6 +17,7 @@
   ("../share/assets/images/koala.svg" as "assets/images/koala.svg")
   ("../share/assets/images/nasa_black_hole_cygx1_ill.jpg" as "assets/images/nasa_black_hole_cygx1_ill.jpg")
   ("../share/assets/images/chl.png" as "assets/images/chl.png")
+  ("../share/assets/README.txt" as "assets/README.txt")
   ("../share/themes/default/bogue.conf" as "themes/default/bogue.conf")
   ("../share/themes/default/bogue-icon.png" as "themes/default/bogue-icon.png")
   ("../share/themes/common/colors/html-color-codes.htm" as "themes/common/colors/html-color-codes.htm")

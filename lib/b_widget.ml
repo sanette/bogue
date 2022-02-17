@@ -13,6 +13,7 @@ module Draw = B_draw
 module Empty = B_empty
 module Image = B_image
 module Box = B_box
+module Sdl_area = B_sdl_area
 module Label = B_label
 module Button = B_button
 module Slider = B_slider
@@ -30,6 +31,7 @@ type kind =
   | Image of Image.t
   | Slider of Slider.t
   | TextInput of Text_input.t
+  | SdlArea of Sdl_area.t
 
 (* What to do when the same action (= same connection id) is already running? *)
 type action_priority =
@@ -120,6 +122,7 @@ let free w =
   | Label l -> Label.free l
   | Slider s -> Slider.free s
   | TextInput ti -> Text_input.free ti
+  | SdlArea a -> Sdl_area.free a
 
 let is_fresh w = Var.get w.fresh
 
@@ -177,6 +180,7 @@ let unload_texture w =
   | Label l -> Label.unload l
   | Slider s -> Slider.unload s
   | TextInput ti -> Text_input.unload ti
+  | SdlArea a -> Sdl_area.unload a
 
 let default_size w =
   match w.kind with
@@ -189,6 +193,7 @@ let default_size w =
   | Button b -> Button.size b
   | Slider s -> Slider.size s
   | TextInput ti -> Text_input.size ti
+  | SdlArea a -> Sdl_area.size a
 
 let size = default_size
 
@@ -203,6 +208,7 @@ let resize w size =
   | Image i -> Image.resize size i
   | Slider s -> Slider.resize size s
   | TextInput ti -> Text_input.resize size ti
+  | SdlArea a -> Sdl_area.resize size a
 
 let get_cursor w =
   default w.cursor
@@ -211,6 +217,7 @@ let get_cursor w =
      | Box _
      | Label _
      | TextDisplay _
+     | SdlArea _
      | Image _ -> go (Draw.create_system_cursor Sdl.System_cursor.arrow)
      | Button _
      | Check _
@@ -231,9 +238,12 @@ let display canvas layer w geom =
     Box.display canvas layer b geom
   | Check b -> printd debug_board "check button: %b" (Check.state b);
     Check.display canvas layer b geom
+  | SdlArea a -> printd debug_board "render SDL area";
+    Sdl_area.display w.wid canvas layer a geom
   | Button b -> printd debug_board "button [%s]" (Button.text b);
     Button.display canvas layer b geom
-  | TextDisplay td -> printd debug_board "text display: %s" (Text_display.text td);
+  | TextDisplay td ->
+    printd debug_board "text display: %s" (Text_display.text td);
     Text_display.display canvas layer td geom
   | Image img -> printd debug_board "image: %s" (Var.get img.Image.file);
     Image.display canvas layer img geom
@@ -343,6 +353,11 @@ let get_text_input w =
     | TextInput ti -> ti
     | _ -> invalid_arg "Expecting a text input"
 
+let get_sdl_area w =
+  match w.kind with
+  | SdlArea a -> a
+  | _ -> invalid_arg "Expecting an Sdl_area"
+
 (** creation of simple widgets *)
 let check_box ?state ?style () =
   let b = create_empty  (Check (Check.create ?state ?style ())) in
@@ -379,6 +394,9 @@ let html text =
 
 let box ?w ?h ?style () =
   create_empty (Box (Box.create ?width:w ?height:h ?style ()))
+
+let sdl_area ~w ~h ?style () =
+  create_empty (SdlArea (Sdl_area.create ~width:w ~height:h ?style ()))
 
 let label ?size ?fg ?font ?align text =
   create_empty (Label (Label.create ?size ?fg ?font ?align text))

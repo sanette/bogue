@@ -37,7 +37,7 @@ let default_background = Style.Solid Draw.(opaque pale_grey)
 let default_border = Style.(mk_border {
     color = Draw.(opaque grey);
     width = 1;
-    style = Solid });; (* not used *)
+    style = Solid }) (* not used *)
 
 let create ?width ?height ?style () =
   let style = default_fn style (Style.create) in
@@ -47,15 +47,16 @@ let create ?width ?height ?style () =
     size = (default width w), (default height h)
   }
 
+let unload_texture b =
+  match Var.get b.render with
+  | None -> ()
+  | Some tex -> begin
+      Draw.forget_texture tex;
+      Var.set b.render None
+    end
+
 let unload b =
-  let () =
-    match Var.get b.render with
-    | None -> ()
-    | Some tex -> begin
-        Draw.forget_texture tex;
-        Var.set b.render None
-      end
-  in
+  unload_texture b;
   Style.unload b.style
 
 let set_style b style =
@@ -129,7 +130,7 @@ let display canvas layer b g =
       (* TODO unite with do_option b.border *)
       let tex = match Style.get_border b.style with
         | Some ({ Style.radius = Some radius; _ } as b) ->
-          let thick = imax 0 ((Theme.scale_int b.Style.down.Style.width) -1) in
+          let thick = imax 0 ((Theme.scale_int b.Style.down.Style.width) - 1) in
           (* avec ou sans le "-1" sont acceptables. "avec" crée un petit liseré
              entre les deux couleurs transparentes. "sans" laisse un peu trop de
              "transparent" aux coins. Si on évite les bordures transparentes (ce

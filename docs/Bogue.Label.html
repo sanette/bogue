@@ -40,14 +40,14 @@
 <pre><span id="TYPEstyle"><span class="keyword">type</span> <code class="type"></code>style</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -><br>       ?font:<a href="Bogue.Label.html#TYPEfont">font</a> -><br>       ?style:<a href="Bogue.Label.html#TYPEstyle">style</a> -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -> string -> <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -&gt;<br>       ?font:<a href="Bogue.Label.html#TYPEfont">font</a> -&gt;<br>       ?style:<a href="Bogue.Label.html#TYPEstyle">style</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt; string -&gt; <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a new <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a>. Most of the tit of the time, you'd rather want to create a
      <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> by using <a href="Bogue.Widget.html#VALlabel"><code class="code"><span class="constructor">Widget</span>.label</code></a>.</p>
 </div>
 </div>
 
-<pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -> ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -&gt; ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a> using the name of a
      <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> symbol.  Most
@@ -56,20 +56,20 @@
 </div>
 </div>
 
-<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
+<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -&gt; string -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Modify the text of the label. Does nothing if the given text is already
      the same as the label's previous text.</p>
 </div>
 </div>
 
-<pre><span id="VALset_fg_color"><span class="keyword">val</span> set_fg_color</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> <a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALset_fg_color"><span class="keyword">val</span> set_fg_color</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Modify the color of the text.</p>
 </div>
 </div>
 
-<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Label.html#TYPEt">t</a> -&gt; int * int</code></pre><div class="info ">
 <div class="info-desc">
 <p>Return the logical size (w,h).
       Warning, a +/- 1 error can be observed due to rounding.</p>

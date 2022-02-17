@@ -27,6 +27,7 @@ module Selection = B_selection
 module Image = B_image
 module Style = B_style
 module Box = B_box
+module Sdl_area = B_sdl_area
 module Label = B_label
 module Button = B_button
 module Slider = B_slider

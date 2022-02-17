@@ -27,6 +27,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALadd">add</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p><code class="code">add&nbsp;area&nbsp;~name&nbsp;f</code> adds the arbitrary command <code class="code">f</code> to the render queue.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Selection.html#VALadd">add</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Timeout.html#VALadd">add</a> [<a href="Bogue.Timeout.html">Bogue.Timeout</a>]</td>
@@ -45,6 +51,18 @@
 <tr><td><a href="Bogue.Widget.html#VALadd_connection">add_connection</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p>Registers the connection with the widget.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALadd_element">add_element</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Append the element to the end of the command queue.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALadd_get">add_get</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.Sdl_area.html#VALadd"><code class="code"><span class="constructor">Sdl_area</span>.add</code></a>, but returns the corresponding <a href="Bogue.Sdl_area.html#TYPEdraw_element"><code class="code"><span class="constructor">Sdl_area</span>.draw_element</code></a>.</p>
 
 </div>
 </td></tr>
@@ -157,6 +175,19 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Draw.html#VALcircle">circle</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td><div class="info">
+<p><code class="code">circle&nbsp;renderer&nbsp;~width&nbsp;color&nbsp;x0&nbsp;y0&nbsp;radius</code> draws a circle with given line
+      thickness, centered at <code class="code">(x0,y0)</code>, with given <code class="code">radius</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALclear">clear</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Clear the area (this removes all commands from the render queue).</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALclose">close</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALcolor_bg">color_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -210,6 +241,12 @@
 <tr><td><a href="Bogue.Snapshot.html#VALcreate">create</a> [<a href="Bogue.Snapshot.html">Bogue.Snapshot</a>]</td>
 <td><div class="info">
 <p>Should be called from the main thread only.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALcreate">create</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Create an empty SDL area.</p>
 
 </div>
 </td></tr>
@@ -293,8 +330,27 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Utils.html#VALdefault">default</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALdisable">disable</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Mark an element for skipping its execution.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Utils.html#VALdo_option">do_option</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALdraw_circle">draw_circle</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALdraw_line">draw_line</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALdraw_rectangle">draw_rectangle</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALdrawing_size">drawing_size</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Size in physical pixels of the target SDL texture on which you can
+      draw.</p>
+
+</div>
+</td></tr>
 <tr><td align="left"><div>E</div></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALempty">empty</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
@@ -311,6 +367,12 @@
 </td></tr>
 <tr><td><a href="Bogue.Style.html#VALempty">empty</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALenable">enable</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>See <a href="Bogue.Sdl_area.html#VALdisable"><code class="code"><span class="constructor">Sdl_area</span>.disable</code></a>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALevent_kind">event_kind</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Union of <a href="Bogue.Trigger.html#TYPEsdl_event"><code class="code"><span class="constructor">Trigger</span>.sdl_event</code></a> and <a href="Bogue.Trigger.html#TYPEbogue_event"><code class="code"><span class="constructor">Trigger</span>.bogue_event</code></a></p>
@@ -423,6 +485,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_rooms">get_rooms</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Widget.html#VALget_sdl_area">get_sdl_area</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_size">get_size</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p><code class="code">get_size&nbsp;l</code> is equivalent to <code class="code">(width&nbsp;l,&nbsp;height&nbsp;l)</code></p>
@@ -469,6 +533,12 @@
 <tr><td><a href="Bogue.Draw.html#VALgrey">grey</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td align="left"><div>H</div></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALhas_element">has_element</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Check whether the element belongs to the command queue.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALhas_resident">has_resident</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALheight">height</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -491,8 +561,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALhtml">html</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
-<p>Display basic html text by interpreting the following tags: &lt;em&gt;,&lt;/em&gt;,
-     <b>,</b>, &lt;strong&gt;,&lt;/strong&gt;, &lt;p&gt;,&lt;/p&gt;, &lt;br&gt;</p>
+<p>Display basic html text by interpreting the following tags:
+      <code class="code">&lt;em&gt;,&lt;/em&gt;,&nbsp;&lt;b&gt;,&lt;/b&gt;,&nbsp;&lt;strong&gt;,&lt;/strong&gt;,&nbsp;&lt;p&gt;,&lt;/p&gt;,&nbsp;&lt;br&gt;</code></p>
 
 </div>
 </td></tr>
@@ -517,6 +587,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Style.html#VALimage_bg">image_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALimage_from_svg">image_from_svg</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p>Requires <code class="code">rsvg</code>.</p>
@@ -846,8 +918,17 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>R</div></td></tr>
+<tr><td><a href="Bogue.Draw.html#VALrandom_color">random_color</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALraw">raw</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Draw.html#VALrectangle">rectangle</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td><div class="info">
+<p><code class="code">rectangle&nbsp;renderer&nbsp;color&nbsp;~thick&nbsp;~w&nbsp;~h&nbsp;x&nbsp;y</code> draws a rectangle with given
+     line thickness.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Draw.html#VALred">red</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALreflat">reflat</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -865,6 +946,12 @@
 </td></tr>
 <tr><td><a href="Bogue.Selection.html#VALremove">remove</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALremove_element">remove_element</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Remove the <a href="Bogue.Sdl_area.html#TYPEdraw_element"><code class="code"><span class="constructor">Sdl_area</span>.draw_element</code></a> from the command queue.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Utils.html#VALremove_option">remove_option</a> [<a href="Bogue.Utils.html">Bogue.Utils</a>]</td>
 <td><div class="info">
 <p>Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.</p>
@@ -922,6 +1009,12 @@
 <tr><td><a href="Bogue.Theme.html#VALscale_int">scale_int</a> [<a href="Bogue.Theme.html">Bogue.Theme</a>]</td>
 <td><div class="info">
 <p>Conversion: Bogue dimension -&gt; hardware pixel dimension.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Widget.html#VALsdl_area">sdl_area</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td><div class="info">
+<p>See <a href="Bogue.Sdl_area.html#VALcreate"><code class="code"><span class="constructor">Sdl_area</span>.create</code></a> regarding the size <code class="code">(w,h)</code>.</p>
 
 </div>
 </td></tr>
@@ -1179,6 +1272,12 @@
 <tr><td><a href="Bogue.Widget.html#VALupdate">update</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p><code class="code">update&nbsp;w</code> asks the widget <code class="code">w</code> to refresh at next frame.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Sdl_area.html#VALupdate">update</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
+<td><div class="info">
+<p>Force the area to be re-drawn at the next graphics frame.</p>
 
 </div>
 </td></tr>

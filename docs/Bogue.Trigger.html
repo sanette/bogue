@@ -116,7 +116,7 @@
 </div>
 </div>
 <h3 id="2_Usingeventsforterminatingthreads">Using events for terminating threads</h3>
-<pre><span id="VALshould_exit"><span class="keyword">val</span> should_exit</span> : <code class="type">Tsdl.Sdl.event -> bool</code></pre><div class="info ">
+<pre><span id="VALshould_exit"><span class="keyword">val</span> should_exit</span> : <code class="type">Tsdl.Sdl.event -&gt; bool</code></pre><div class="info ">
 <div class="info-desc">
 <p>Tell if the current thread should exit. This should only be called within
      a widget action. The event should be the event passed to the action
@@ -125,21 +125,21 @@
 </div>
 </div>
 
-<pre><span id="VALwill_exit"><span class="keyword">val</span> will_exit</span> : <code class="type">Tsdl.Sdl.event -> unit</code></pre><div class="info ">
+<pre><span id="VALwill_exit"><span class="keyword">val</span> will_exit</span> : <code class="type">Tsdl.Sdl.event -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>A nice thread should do this just before terminating. May be suppressed in
       future versions.</p>
 </div>
 </div>
 
-<pre><span id="VALnice_delay"><span class="keyword">val</span> nice_delay</span> : <code class="type">Tsdl.Sdl.event -> float -> unit</code></pre><div class="info ">
+<pre><span id="VALnice_delay"><span class="keyword">val</span> nice_delay</span> : <code class="type">Tsdl.Sdl.event -&gt; float -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">nice_delay&nbsp;ev&nbsp;t</code> Wait during a delay (<code class="code">t</code> seconds), but quit anyway when
      <a href="Bogue.Trigger.html#VALshould_exit"><code class="code"><span class="constructor">Trigger</span>.should_exit</code></a><code class="code">&nbsp;ev</code> is true.</p>
 </div>
 </div>
 
-<pre><span id="VALpush_quit"><span class="keyword">val</span> push_quit</span> : <code class="type">unit -> unit</code></pre><div class="info ">
+<pre><span id="VALpush_quit"><span class="keyword">val</span> push_quit</span> : <code class="type">unit -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Send the SDL_QUIT event, as if the user clicked on the close button of the
      last existing window. It will in principle raise the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a>
@@ -147,7 +147,7 @@
 </div>
 </div>
 
-<pre><span id="VALwait_for"><span class="keyword">val</span> wait_for</span> : <code class="type">?timeout:float -> ?ev:Tsdl.Sdl.event -> (unit -> bool) -> unit</code></pre><div class="info ">
+<pre><span id="VALwait_for"><span class="keyword">val</span> wait_for</span> : <code class="type">?timeout:float -&gt; ?ev:Tsdl.Sdl.event -&gt; (unit -&gt; bool) -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <h3 id="2_SDLMisc">SDL Misc</h3></div>
 </div>
@@ -158,7 +158,7 @@
 <pre><span id="TYPEbogue_event"><span class="keyword">type</span> <code class="type"></code>bogue_event</span> = <code class="type">[ `Bogue_full_click<br>       | `Bogue_keyboard_focus<br>       | `Bogue_mouse_at_rest<br>       | `Bogue_mouse_enter<br>       | `Bogue_mouse_focus<br>       | `Bogue_mouse_leave<br>       | `Bogue_redraw<br>       | `Bogue_startup<br>       | `Bogue_stop<br>       | `Bogue_stopped<br>       | `Bogue_sync_action<br>       | `Bogue_update<br>       | `Bogue_var_changed ]</code> </pre>
 
 
-<pre><span id="VALevent_kind"><span class="keyword">val</span> event_kind</span> : <code class="type">Tsdl.Sdl.event -><br>       [ `App_did_enter_background<br>       | `App_did_enter_foreground<br>       | `App_low_memory<br>       | `App_terminating<br>       | `App_will_enter_background<br>       | `App_will_enter_foreground<br>       | `Bogue_full_click<br>       | `Bogue_keyboard_focus<br>       | `Bogue_mouse_at_rest<br>       | `Bogue_mouse_enter<br>       | `Bogue_mouse_focus<br>       | `Bogue_mouse_leave<br>       | `Bogue_redraw<br>       | `Bogue_startup<br>       | `Bogue_stop<br>       | `Bogue_stopped<br>       | `Bogue_sync_action<br>       | `Bogue_update<br>       | `Bogue_var_changed<br>       | `Clipboard_update<br>       | `Controller_axis_motion<br>       | `Controller_button_down<br>       | `Controller_button_up<br>       | `Controller_device_added<br>       | `Controller_device_remapped<br>       | `Controller_device_removed<br>       | `Display_event<br>       | `Dollar_gesture<br>       | `Dollar_record<br>       | `Drop_file<br>       | `Finger_down<br>       | `Finger_motion<br>       | `Finger_up<br>       | `Joy_axis_motion<br>       | `Joy_ball_motion<br>       | `Joy_button_down<br>       | `Joy_button_up<br>       | `Joy_device_added<br>       | `Joy_device_removed<br>       | `Joy_hat_motion<br>       | `Key_down<br>       | `Key_up<br>       | `Mouse_button_down<br>       | `Mouse_button_up<br>       | `Mouse_motion<br>       | `Mouse_wheel<br>       | `Multi_gesture<br>       | `Quit<br>       | `Sensor_update<br>       | `Sys_wm_event<br>       | `Text_editing<br>       | `Text_input<br>       | `Unknown of int<br>       | `User_event<br>       | `Window_event ]</code></pre><div class="info ">
+<pre><span id="VALevent_kind"><span class="keyword">val</span> event_kind</span> : <code class="type">Tsdl.Sdl.event -&gt;<br>       [ `App_did_enter_background<br>       | `App_did_enter_foreground<br>       | `App_low_memory<br>       | `App_terminating<br>       | `App_will_enter_background<br>       | `App_will_enter_foreground<br>       | `Bogue_full_click<br>       | `Bogue_keyboard_focus<br>       | `Bogue_mouse_at_rest<br>       | `Bogue_mouse_enter<br>       | `Bogue_mouse_focus<br>       | `Bogue_mouse_leave<br>       | `Bogue_redraw<br>       | `Bogue_startup<br>       | `Bogue_stop<br>       | `Bogue_stopped<br>       | `Bogue_sync_action<br>       | `Bogue_update<br>       | `Bogue_var_changed<br>       | `Clipboard_update<br>       | `Controller_axis_motion<br>       | `Controller_button_down<br>       | `Controller_button_up<br>       | `Controller_device_added<br>       | `Controller_device_remapped<br>       | `Controller_device_removed<br>       | `Display_event<br>       | `Dollar_gesture<br>       | `Dollar_record<br>       | `Drop_file<br>       | `Finger_down<br>       | `Finger_motion<br>       | `Finger_up<br>       | `Joy_axis_motion<br>       | `Joy_ball_motion<br>       | `Joy_button_down<br>       | `Joy_button_up<br>       | `Joy_device_added<br>       | `Joy_device_removed<br>       | `Joy_hat_motion<br>       | `Key_down<br>       | `Key_up<br>       | `Mouse_button_down<br>       | `Mouse_button_up<br>       | `Mouse_motion<br>       | `Mouse_wheel<br>       | `Multi_gesture<br>       | `Quit<br>       | `Sensor_update<br>       | `Sys_wm_event<br>       | `Text_editing<br>       | `Text_input<br>       | `Unknown of int<br>       | `User_event<br>       | `Window_event ]</code></pre><div class="info ">
 <div class="info-desc">
 <p>Union of <a href="Bogue.Trigger.html#TYPEsdl_event"><code class="code"><span class="constructor">Trigger</span>.sdl_event</code></a> and <a href="Bogue.Trigger.html#TYPEbogue_event"><code class="code"><span class="constructor">Trigger</span>.bogue_event</code></a></p>
 </div>

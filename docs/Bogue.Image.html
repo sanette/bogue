@@ -32,7 +32,7 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?width:int -><br>       ?height:int -><br>       ?noscale:bool -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?width:int -&gt;<br>       ?height:int -&gt;<br>       ?noscale:bool -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">create&nbsp;<span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code>. The actual load
      occurs only once, on the first time the image widget is effectively
@@ -48,7 +48,7 @@
      pixel size. By default, <code class="code">noscale=<span class="keyword">false</span></code> and the image is scaled using the
      <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a> <code class="code"><span class="constructor">SCALE</span></code> variable.</div>
 
-<pre><span id="VALcreate_from_svg"><span class="keyword">val</span> create_from_svg</span> : <code class="type">?width:int -> ?height:int -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate_from_svg"><span class="keyword">val</span> create_from_svg</span> : <code class="type">?width:int -&gt; ?height:int -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Load an svg image. This requires the <code class="code">rsvg</code> or <code class="code">rsvg-convert</code> program.</p>
 

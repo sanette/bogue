@@ -39,6 +39,7 @@ reacting with callbacks (see examples).
 * image (all usual formats, including SVG)
 * slider (horizontal, vertical, or circular)
 * text input with select and copy-paste
+* SDL area for free drawing with the whole SDL Renderer API
 
 ## Layouts
 

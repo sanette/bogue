@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Box.html">
+<link rel="next" href="Bogue.Widget.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Drawing functions" rel="Section" href="#2_Drawingfunctions">
+<link title="Draw elements" rel="Section" href="#2_Drawelements">
+<title>Bogue.Sdl_area</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Box.html" title="Bogue.Box">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Widget.html" title="Bogue.Widget">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Sdl_area.html">Bogue.Sdl_area</a></h1>
+
+<pre><span id="MODULESdl_area"><span class="keyword">module</span> Sdl_area</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Sdl_area.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>SDL Area widget</p>
+
+<p>You can use an Sdl_area widget to draw whatever you want using all the power
+   of the
+   <a href="https://erratique.ch/software/tsdl/doc/Tsdl/Sdl/index.html#renderers">SDL
+   renderer API</a>.</p>
+
+<p>Technically, an Sdl_area widget contains an SDL texture and sets it as a <em>   render target</em>.</p>
+
+<p>SDL commands are sent to the Sdl_area using <a href="Bogue.Sdl_area.html#VALadd"><code class="code"><span class="constructor">Sdl_area</span>.add</code></a> (and stored in a command
+   queue). You can also use <a href="Bogue.Sdl_area.html#VALadd_get"><code class="code"><span class="constructor">Sdl_area</span>.add_get</code></a> in order to get a handle on the command
+   in case you reserve the possibility to remove the command with
+   <a href="Bogue.Sdl_area.html#VALremove_element"><code class="code"><span class="constructor">Sdl_area</span>.remove_element</code></a>.</p>
+
+<h6 id="5_graphbsdlareahtmlDependencygraph"><a href="graph-b_sdl_area.html">Dependency graph</a></h6></div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">width:int -&gt;<br>       height:int -&gt;<br>       ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -&gt; ?timeout:int -&gt; unit -&gt; <a href="Bogue.Sdl_area.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create an empty SDL area. Note that the given size <code class="code">(width,height)</code> is the
+      <em>logical</em> pixel size of the area. The physical size, to be used for most
+      SDL rendering functions, can be obtained with <a href="Bogue.Sdl_area.html#VALdrawing_size"><code class="code"><span class="constructor">Sdl_area</span>.drawing_size</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALdrawing_size"><span class="keyword">val</span> drawing_size</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; int * int</code></pre><div class="info ">
+<div class="info-desc">
+<p>Size in physical pixels of the target SDL texture on which you can
+      draw.</p>
+</div>
+</div>
+
+<pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Force the area to be re-drawn at the next graphics frame.</p>
+</div>
+</div>
+
+<pre><span id="VALclear"><span class="keyword">val</span> clear</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Clear the area (this removes all commands from the render queue).</p>
+</div>
+</div>
+
+<pre><span id="VALadd"><span class="keyword">val</span> add</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; ?name:string -&gt; (Tsdl.Sdl.renderer -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">add&nbsp;area&nbsp;~name&nbsp;f</code> adds the arbitrary command <code class="code">f</code> to the render queue.
+     The command should be fast, otherwise it will block the UI when the queue
+     is executed. For long drawings, it's better to split them into many
+     commands. If you need the possibility to remove a command later, use
+     <a href="Bogue.Sdl_area.html#VALadd_get"><code class="code"><span class="constructor">Sdl_area</span>.add_get</code></a> instead.</p>
+</div>
+</div>
+<h3 id="2_Drawingfunctions">Drawing functions</h3>
+<p>Shortcuts to some <a href="Bogue.Draw.html#drawing_functions">
+      drawing functions</a> from the <a href="Bogue.Draw.html"><code class="code"><span class="constructor">Draw</span></code></a> module.</p>
+
+<p>For more sophisticated shapes (and faster rendering), consider using the
+      <a href="https://github.com/fccm/tsdl-gfx">tsdl_gfx</a> external library.</p>
+
+<pre><span id="VALdraw_line"><span class="keyword">val</span> draw_line</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt;<br>       color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; thick:int -&gt; int * int -&gt; int * int -&gt; unit</code></pre>
+<pre><span id="VALdraw_rectangle"><span class="keyword">val</span> draw_rectangle</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt;<br>       color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; thick:int -&gt; w:int -&gt; h:int -&gt; int * int -&gt; unit</code></pre>
+<pre><span id="VALdraw_circle"><span class="keyword">val</span> draw_circle</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt;<br>       color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; thick:int -&gt; radius:int -&gt; int * int -&gt; unit</code></pre><h3 id="2_Drawelements">Draw elements</h3>
+<p>The command queue can be manipulated. An element of this queue is called a
+      <code class="code">draw_element</code>.</p>
+
+<pre><span id="TYPEdraw_element"><span class="keyword">type</span> <code class="type"></code>draw_element</span> </pre>
+
+
+<pre><span id="VALadd_get"><span class="keyword">val</span> add_get</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt;<br>       ?name:string -&gt;<br>       ?disable:bool -&gt; (Tsdl.Sdl.renderer -&gt; unit) -&gt; <a href="Bogue.Sdl_area.html#TYPEdraw_element">draw_element</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Similar to <a href="Bogue.Sdl_area.html#VALadd"><code class="code"><span class="constructor">Sdl_area</span>.add</code></a>, but returns the corresponding <a href="Bogue.Sdl_area.html#TYPEdraw_element"><code class="code"><span class="constructor">Sdl_area</span>.draw_element</code></a>.  If
+     <code class="code">disable</code> is true, the command will not be executed.</p>
+</div>
+</div>
+
+<pre><span id="VALdisable"><span class="keyword">val</span> disable</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEdraw_element">draw_element</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Mark an element for skipping its execution.</p>
+</div>
+</div>
+
+<pre><span id="VALenable"><span class="keyword">val</span> enable</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEdraw_element">draw_element</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>See <a href="Bogue.Sdl_area.html#VALdisable"><code class="code"><span class="constructor">Sdl_area</span>.disable</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALremove_element"><span class="keyword">val</span> remove_element</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; <a href="Bogue.Sdl_area.html#TYPEdraw_element">draw_element</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Remove the <a href="Bogue.Sdl_area.html#TYPEdraw_element"><code class="code"><span class="constructor">Sdl_area</span>.draw_element</code></a> from the command queue.</p>
+</div>
+</div>
+
+<pre><span id="VALadd_element"><span class="keyword">val</span> add_element</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; <a href="Bogue.Sdl_area.html#TYPEdraw_element">draw_element</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Append the element to the end of the command queue.</p>
+</div>
+</div>
+
+<pre><span id="VALhas_element"><span class="keyword">val</span> has_element</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; <a href="Bogue.Sdl_area.html#TYPEdraw_element">draw_element</a> -&gt; bool</code></pre><div class="info ">
+<div class="info-desc">
+<p>Check whether the element belongs to the command queue.</p>
+</div>
+</div>
+</body></html>

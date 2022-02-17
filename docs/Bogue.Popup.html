@@ -29,7 +29,7 @@
 </div>
 <hr width="100%">
 
-<pre><span id="VALadd_screen"><span class="keyword">val</span> add_screen</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALadd_screen"><span class="keyword">val</span> add_screen</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Add a screen on top of the layout. This can be useful to make the whole
      layout clickable as a whole.</p>
@@ -39,7 +39,7 @@
 </ul>
 </div>
 
-<pre><span id="VALattach"><span class="keyword">val</span> attach</span> : <code class="type">?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?show:bool -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALattach"><span class="keyword">val</span> attach</span> : <code class="type">?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?show:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Generic modal type popup</p>
 
@@ -51,21 +51,21 @@
 </ul>
 </div>
 
-<pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -> ?h:int -> ?button:string -> string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?button:string -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with a text and a close button. By
      default, <code class="code">button=<span class="string">"Close"</span></code>.</p>
 </div>
 </div>
 
-<pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?yes:string -><br>       ?no:string -><br>       yes_action:(unit -> unit) -><br>       no_action:(unit -> unit) -> string -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?yes:string -&gt;<br>       ?no:string -&gt;<br>       yes_action:(unit -&gt; unit) -&gt;<br>       no_action:(unit -&gt; unit) -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with two yes/no buttons. By default,
       <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>.</p>
 </div>
 </div>
 
-<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?w:int -><br>       ?h:int -><br>       label1:string -><br>       label2:string -><br>       action1:(unit -> unit) -><br>       action2:(unit -> unit) -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
+<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre>
 <pre><code><span id="TYPEposition"><span class="keyword">type</span> <code class="type"></code>position</span> = </code></pre><table class="typetable">
 <tr>
 <td align="left" valign="top" >
@@ -105,7 +105,7 @@
 
 
 
-<pre><span id="VALtooltip"><span class="keyword">val</span> tooltip</span> : <code class="type">?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -><br>       ?position:<a href="Bogue.Popup.html#TYPEposition">position</a> -><br>       string -> target:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALtooltip"><span class="keyword">val</span> tooltip</span> : <code class="type">?background:<a href="Bogue.Layout.html#TYPEbackground">Layout.background</a> -&gt;<br>       ?position:<a href="Bogue.Popup.html#TYPEposition">position</a> -&gt;<br>       string -&gt; target:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">tooltip&nbsp;text&nbsp;~target&nbsp;widget&nbsp;layout</code> adds a tooltip which will appear on
      <code class="code">layout</code>, next to <code class="code">target</code> (which should be a sublayout of <code class="code">layout</code>), when

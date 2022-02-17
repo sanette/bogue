@@ -48,14 +48,14 @@
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTcolumn.rows">rows</span>&nbsp;: <code class="type">int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code>;</code></td>
+<code><span id="TYPEELTcolumn.rows">rows</span>&nbsp;: <code class="type">int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code>;</code></td>
 
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTcolumn.compare">compare</span>&nbsp;: <code class="type">(int -> int -> int) option</code>;</code></td>
+<code><span id="TYPEELTcolumn.compare">compare</span>&nbsp;: <code class="type">(int -&gt; int -&gt; int) option</code>;</code></td>
 
 </tr>
 <tr>
@@ -72,12 +72,12 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?w:int -><br>       h:int -><br>       ?row_height:int -><br>       ?name:string -><br>       <a href="Bogue.Table.html#TYPEcolumn">column</a> list -><br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       <a href="Bogue.Table.html#TYPEcolumn">column</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
 <ul class="info-attributes">
 <li><b>Returns</b> a layout and a Tvar. The Tvar can be used to see which rows were
       selected by the user, and also to modify the selection if needed.</li>
 </ul>
 </div>
 
-<pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">?w:int -><br>       h:int -><br>       ?widths:int option list -><br>       ?row_height:int -><br>       ?name:string -><br>       string list -><br>       string array array -><br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre>
-<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">?w:int -><br>       h:int -><br>       ?widths:int option list -><br>       ?row_height:int -><br>       ?name:string -><br>       string list list -><br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre></body></html>
+<pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list -&gt;<br>       string array array -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre>
+<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre></body></html>

@@ -63,7 +63,7 @@ let round_image_box = let open Style in
   (* the image is used as a pattern background, and so will not be scaled by
      theme (is this good?) *)
   let p = Image.create image_file in
-  create ~border ~background:(Image p) ()
+  create ~border ~background:(image_bg p) ()
 
 (* Grey with shadow *)
 let shadow_box = let open Style in
@@ -103,8 +103,10 @@ let desc1v = "Rich text and vertical layout sliding from right."
 let example1v () =
   let b = W.check_box () in
   let h = 50 in
-  let title = W.rich_text ~size:20 ~h:30 Text_display.(page [para "Text samples"]) in
-  let td = W.rich_text ~h Text_display.(page [underline (para "Original:"); example]) in
+  let title = W.rich_text ~size:20 ~h:30
+      Text_display.(page [para "Text samples"]) in
+  let td = W.rich_text ~h
+      Text_display.(page [underline (para "Original:"); example]) in
   let td_normal = W.rich_text ~h
       (let open Text_display in
        [underline (para "Force normal style:"); normal example]) in
@@ -879,16 +881,17 @@ let example37 () =
 let desc38 = "load SVG at different sizes"
 let example38 () =
   (* SVGs are loaded at optimal resolution, which means that the Theme.scale is
-     taken into account *)
+     taken into account. *)
 
-  (* one can load an svg image as a background; it will be repeated as a pattern
+  (* One can load an svg image as a background; it will be repeated as a pattern
      to fill the box: *)
-  let bg = Image.create_from_svg ~width:300 ~height:100 "%assets/images/w3c-logo-white.svg" in
-  let style = Style.(create ~background:(Image bg) ()) in
+  let bg = Image.create_from_svg ~width:300 ~height:100
+      "%assets/images/w3c-logo-white.svg" in
+  let style = Style.(of_bg (image_bg bg)) in
   let box = W.box ~w:300 ~h:300 ~style () in
 
   (* one can load an svg image as a widget; it will be scaled to fit the size:
-     *)
+  *)
   let img = W.image_from_svg ~h:300 ~bg:Draw.(opaque red)
       "%assets/images/koala.svg" in
 
@@ -1105,6 +1108,79 @@ let example48 () =
   let _ = Timeout.add 5000 (fun () -> L.set_size layout (200, 200)) in
   run (make [] [layout])
 
+let desc49 = "SDL area which adapts to resizing"
+let example49 () =
+  let a = W.sdl_area ~w:500 ~h:200 ~style:round_blue_box () in
+  let area = W.get_sdl_area a in
+
+  (* We draw a diagonal line and a centered thick rectangle. *)
+  let draw renderer =
+    let w,h = Sdl_area.drawing_size area in
+    Draw.rectangle renderer Draw.(opaque blue)
+      ~w:(w/2) ~h:(h/2) ~thick:20 (w/4) (h/4);
+    match Sdl.render_draw_line renderer 0 0 w h with
+    | Error (`Msg m) -> print_endline ("SDL ERROR: " ^ m)
+    | Ok () -> print_endline "Line rendered"
+  in
+
+  (* We draw a thick circle *)
+  let circle renderer =
+    let w,h = Sdl_area.drawing_size area in
+    Draw.circle renderer Draw.(opaque black) ~thick:20 (3*w/4) (h/4) (h/2)
+  in
+
+  (* We can remove/add the circle by clicking on a check box. *)
+  let element = Sdl_area.add_get ~name:"circle" area circle in
+  let b,l = W.check_box_with_label "circle" in
+  W.set_check_state b true;
+  List.iter (W.on_click ~click:(fun _ ->
+      if W.get_state b
+      then begin
+        Sdl_area.enable element;
+        if not (Sdl_area.has_element area element)
+        then (print_endline "new circle"; Sdl_area.add_element area element)
+      end
+      else Sdl_area.disable element;
+      Sdl_area.update area)) [b;l];
+
+  (* Clear button *)
+  let cb = W.button "Clear" in
+  W.on_click cb ~click:(fun _ ->
+      Sdl_area.clear area;
+      W.set_check_state b false);
+
+  Sdl_area.add area draw;
+  let options = L.flat ~align:Draw.Center
+      [(L.flat_of_w [b;l]);
+       Space.hfill ();
+       L.resident cb] in
+  Space.full_width options;
+
+  let layout = L.tower
+      [options;
+       L.resident a] in
+  run (make [] [layout])
+
+let desc50 = "SDL area with many (and slow) drawings"
+let example50 () =
+  let a = W.sdl_area ~w:500 ~h:200 () in
+  let area = W.get_sdl_area a in
+  let w,h = Sdl_area.drawing_size area in
+  let random_circle () =
+    let radius = Random.int 100 + 1 in
+    let thick = Random.int radius in
+    let color = Draw.random_color () in
+    let x = Random.int w in
+    let y = Random.int h in
+    Sdl_area.draw_circle area ~color ~thick ~radius (x, y)
+  in
+  for _ = 0 to 500 do
+    random_circle ()
+  done;
+
+  let layout = L.resident a in
+  run (make [] [layout])
+
 let _ =
   let examples = [
     "00", (example00, desc00) ;
@@ -1166,6 +1242,8 @@ let _ =
     "46", (example46, desc46) ;
     "47", (example47, desc47) ;
     "48", (example48, desc48) ;
+    "49", (example49, desc49) ;
+    "50", (example50, desc50) ;
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)

@@ -389,6 +389,7 @@ let scale_geom g =
     w=(scale_int g.w); h=(scale_int g.h);
     voffset=(scale_int g.voffset) }
 
+(* From Bogue logical pixels to OS pixels *)
 let scale_pos (x,y) =
   (Theme.scale_int x, Theme.scale_int y)
 
@@ -782,6 +783,8 @@ let dpi_xscale = ref 1.
 let dpi_yscale = ref 1.
 let dpi_rescalex x = round (float x *. !dpi_xscale)
 let dpi_rescaley y = round (float y *. !dpi_yscale)
+
+(* From OS pixels to true physical pixels *)
 let dpi_rescale (x,y) =
   (round (float x *. !dpi_xscale), round (float y *. !dpi_yscale))
 
@@ -1029,27 +1032,26 @@ let pop_target renderer (clip, old_target, (r,g,b,a)) =
 (* fill Some target with a pattern. If target is None, use the default target *)
 (* WARNING: the render-target method does NOT work if the window is hidden *)
 let fill_pattern ?rect renderer target pattern =
-  let x0,y0,w,h = match rect with
-    | None -> let w,h = (match target with
-                         | None -> go (Sdl.get_renderer_output_size renderer)
-                         | Some tex -> tex_size tex)
-              in (0,0,w,h)
+  let x0, y0, w, h = match rect with
+    | None -> let w,h = match target with
+        | None -> go (Sdl.get_renderer_output_size renderer)
+        | Some tex -> tex_size tex
+      in (0,0,w,h)
     | Some r -> Sdl.Rect.(x r, y r, w r, h r) in
-  printd debug_graphics "Target size (%d,%d, %d,%d)" x0 y0 w h;
+  printd debug_graphics "Target size (%i,%i; %i,%i)" x0 y0 w h;
   let pw, ph = tex_size pattern in
   let save_target = map_option target (push_target renderer) in
   (* Is push_target necessary? it's done in b_box.ml *)
   let rec loop x y =
-    printd debug_graphics "LOOP (%d,%d)" x y;
+    printd debug_graphics "LOOP (%i,%i)" x y;
     if x >= x0 + w then loop x0 (y + ph)
     else if y >= y0 + h then ()
     else let rw = min pw (x0 + w - x) in
-         let rh = min ph (y0 + h - y) in
-         (* BUG upside-down ??? *)
-         let src = Sdl.Rect.create ~x:0 ~y:0 ~w:rw ~h:rh in
-         let dst = Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
-         go (Sdl.render_copy ~src ~dst renderer pattern);
-         loop (x + pw) y in
+      let rh = min ph (y0 + h - y) in
+      let src = Sdl.Rect.create ~x:0 ~y:0 ~w:rw ~h:rh in
+      let dst = Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
+      go (Sdl.render_copy ~src ~dst renderer pattern);
+      loop (x + pw) y in
   loop x0 y0;
   do_option save_target (pop_target renderer)
 
@@ -1575,7 +1577,7 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
 (* in this version, we can choose which one of the 8 octants to draw. But recall
    that some of them are "closed" (odd numbers) and the other are "open" (even
    numbers), and the "open" ones are of course slightly smaller *)
-(* the octants parameter is an 8bits integers corresponding to the 8 octants *)
+(* the octants parameter is an 8bits integer corresponding to the 8 octants *)
 (* WARNING: if radius1 = 0, (camembert) the center will always be drawn *)
 (* Of course, the antialias=false version could be written separately to be much
    faster *)
@@ -1584,9 +1586,9 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
   (*go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);*)
   let alpha0 = float a0 in
   (* TODO if radius1 = radius2 appeler circle *)
-  let radius1,radius2 = if radius1 <= radius2
-    then radius1,radius2
-    else radius2,radius1 in
+  let radius1, radius2 = if radius1 <= radius2
+    then radius1, radius2
+    else radius2, radius1 in
 
   let noalpha a = if a = 0 then 0 else a0 in
 
@@ -1731,13 +1733,12 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
   in
   loop radius1 0. radius2 0. 0
 
-
-let circle renderer ?(width=1) color x0 y0 radius =
-  if width > 0
-  then if width = 1 then circle renderer color x0 y0 radius
+let circle renderer ?(thick=1) color x0 y0 radius =
+  if thick > 0
+  then if thick = 1 then circle renderer color x0 y0 radius
     else
-      let radius1 = radius - width/2 in
-      let radius2 = radius1 + width - 1 in
+      let radius1 = radius - thick + 1 in
+      let radius2 = radius in
       annulus renderer color x0 y0 ~radius1 ~radius2
 
 (* we draw a filled circle by calling annulus with radius1 = 0. Not optimal
@@ -1747,7 +1748,7 @@ let disc renderer color x0 y0 radius =
 
 
 (* a simple rectangle with uniform thickness inside (w,h) *)
-let rectangle renderer color ~thick ~w ~h x y =
+let rectangle renderer color ?(thick=1) ~w ~h x y =
   if thick <= 0 then printd draw_error "rectangle thickness must be positive"
   else begin
       let bg = color in
@@ -1794,7 +1795,9 @@ let rounded_box renderer color ?(antialias=true) ~w ~h ~radius ~thick x0 y0 =
   if thick <> 0 then begin
     let bg = color in
     let radius = imax 0 (imin radius (imin (w/2 - 2) (h/2 -2))) in
-    let width = imin thick (radius) in (* we don't allow radius+1 so that the center of the circle is not drawn by annulus_octants *)
+    let width = imin thick radius in
+    (* we don't allow radius+1 so that the center of the circle is not drawn by
+       annulus_octants *)
     let x = x0 + radius + 1 in
     let y = y0 + radius + 1 in
     let lw = w - 2*radius - 1 in
@@ -1804,7 +1807,8 @@ let rounded_box renderer color ?(antialias=true) ~w ~h ~radius ~thick x0 y0 =
     box renderer ~bg x0 y width lh; (* left *)
     box renderer ~bg (x0+w-width) (y-1) width lh; (* right *)
     if thick > radius (* need to fill more inside *)
-    then rectangle renderer bg ~thick:(thick - radius) (x-1) (y-1) ~w:(lw+1) ~h:(lh+1);
+    then rectangle renderer bg ~thick:(thick - radius) (x-1) (y-1)
+        ~w:(lw+1) ~h:(lh+1);
 
     (* draw corners *)
     let x1 = x0+w-radius-1
@@ -1823,12 +1827,12 @@ let rounded_box renderer color ?(antialias=true) ~w ~h ~radius ~thick x0 y0 =
       ~octants:(4+8) (x-1) y1 radius0 radius;
 
     (* draw the four centers *)
-      if thick > radius then begin
-        go (Sdl.render_draw_point renderer (x-1) (y-1));
-        go (Sdl.render_draw_point renderer (x1) (y-1));
-        go (Sdl.render_draw_point renderer (x1) (y1));
-        go (Sdl.render_draw_point renderer (x-1) (y1))
-      end
+    if thick > radius then begin
+      go (Sdl.render_draw_point renderer (x-1) (y-1));
+      go (Sdl.render_draw_point renderer (x1) (y-1));
+      go (Sdl.render_draw_point renderer (x1) (y1));
+      go (Sdl.render_draw_point renderer (x-1) (y1))
+    end
   end
 
 let filled_rounded_box renderer color ?(antialias=true) ~w ~h ~radius x0 y0 =
@@ -2387,8 +2391,10 @@ let get_texture_pixels renderer texture =
   let pitch = w * tex_bytes_per_pixel in
   let target = create_target ~format renderer w h in
   let push = push_target renderer target in
-  go(Sdl.render_copy_ex renderer texture 0. None Sdl.Flip.vertical);
-  (* = there is a bug in SDL; the RenderRead pixels are upside-down... *)
+  go(Sdl.render_copy renderer texture);
+  (* Note: there was a bug in some versions of SDL; the RenderRead pixels were
+     upside-down.  We would have to use: go(Sdl.render_copy_ex renderer texture
+     0. None Sdl.Flip.vertical); *)
   go(Sdl.render_read_pixels renderer None (Some format) pixels pitch);
   pop_target renderer push;
   pixels, pitch, go(Sdl.pixel_format_enum_to_masks format)
@@ -2419,10 +2425,10 @@ let land_texture renderer mask texture =
   let pitch = w' * tex_bytes_per_pixel in
   let target = create_target ~format renderer w' h' in
   let push = push_target renderer target in
-  go(Sdl.render_copy_ex ~src:rect renderer texture 0. None Sdl.Flip.vertical); (* There is a bug in SDL; the RenderRead pixels are upside-down... *)
+  go(Sdl.render_copy ~src:rect renderer texture);
   go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixels pitch);
   go (Sdl.render_clear renderer);
-  go(Sdl.render_copy_ex ~src:rect renderer mask 0. None Sdl.Flip.vertical); (* IDEM *)
+  go(Sdl.render_copy ~src:rect renderer mask);
   go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixelsm pitch);
   pop_target renderer push;
   let t = Unix.gettimeofday () in
@@ -2478,12 +2484,10 @@ let mask_texture ~mask renderer texture =
   let format = Sdl.Pixel.format_argb8888 in
   let target = create_target ~format renderer w' h' in
   let push = push_target renderer target in
-  go(Sdl.render_copy_ex ~src:rect renderer texture 0. None Sdl.Flip.vertical);
-  (* There is a bug in SDL; the RenderRead pixels are upside-down... *)
+  go(Sdl.render_copy ~src:rect renderer texture);
   go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixels pitch);
   go(Sdl.render_clear renderer);
-  go(Sdl.render_copy_ex ~src:rect renderer mask 0. None Sdl.Flip.vertical);
-  (* IDEM *)
+  go(Sdl.render_copy ~src:rect renderer mask);
   go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixelsm pitch);
   pop_target renderer push;
   let t = Unix.gettimeofday () in

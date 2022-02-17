@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220116
+@version 20220217
 
 @author Vu Ngoc San
 
@@ -573,12 +573,13 @@ end (* of Sync *)
 
 (** Low-level graphics and colors
 
-This module is internally used for low-level graphics and a thin layer over Tsdl.
+This module is internally used for low-level graphics and a thin layer over
+   Tsdl.
 
-The public API is mainly useful for Color management.
+The public API is mainly useful for Color management. There are also some helper
+   functions for drawing into an {!Sdl_area}.
 
-{5 {{:graph-b_draw.html}Dependency graph}}
-*)
+{5 {{:graph-b_draw.html}Dependency graph}} *)
 module Draw: sig
   type canvas
   (** Contains the hardware information for drawing (SDL renderer and window). *)
@@ -629,6 +630,7 @@ module Draw: sig
   val lighter : color -> color
   val darker : color -> color
   val set_alpha : int -> rgb -> color
+  val random_color : unit -> color
   val find_color : string -> rgb
   (** Convert a string of the form ["grey"] or ["#FE01BC"] to a rgb code
      [(r,g,b)]. Color names are taken from
@@ -640,6 +642,21 @@ module Draw: sig
 
   val set_color : Tsdl.Sdl.renderer -> color -> unit
   (** Equivalent to [Sdl.set_render_draw_color]. *)
+
+  (** {2:drawing_functions Drawing functions}
+
+      These functions can be used to draw onto an {!Sdl_area.t}. *)
+
+  val rectangle : Tsdl.Sdl.renderer -> color ->
+    ?thick:int -> w:int -> h:int -> int -> int -> unit
+  (** [rectangle renderer color ~thick ~w ~h x y] draws a rectangle with given
+     line thickness. The coordinate of the top left corner is [(x0,y0)]. The
+     size (including the thick line) is [(w,h)]. *)
+
+  val circle : Tsdl.Sdl.renderer ->
+    ?thick:int -> color -> int -> int -> int -> unit
+  (** [circle renderer ~width color x0 y0 radius] draws a circle with given line
+      thickness, centered at [(x0,y0)], with given [radius]. *)
 
   (** {2 Layers} *)
 
@@ -904,20 +921,29 @@ module Style : sig
   val of_bg : background -> t
   val of_border : border -> t
   val of_shadow : shadow -> t
-  val mk_line : ?color:Draw.color -> ?width:int ->
-    ?style:line_style -> unit -> line
-  val mk_border : ?radius:int -> line -> border
-  val mk_shadow : ?offset:int * int -> ?size:int -> ?width:int ->
-    ?radius:int -> unit -> shadow
   val with_bg : background -> t -> t
   val with_border : border -> t -> t
   val with_shadow : shadow -> t -> t
 
+  (** {2 Constructing backgrounds} *)
+
   val color_bg : Draw.color -> background
   val opaque_bg : Draw.rgb -> background
+  val image_bg : Image.t -> background
   val gradient : ?angle:float -> Draw.color list -> background
   val hgradient : Draw.color list -> background
   val vgradient : Draw.color list -> background
+
+    (** {2 Constructing borders} *)
+
+  val mk_line : ?color:Draw.color -> ?width:int ->
+    ?style:line_style -> unit -> line
+  val mk_border : ?radius:int -> line -> border
+
+  (** {2 Constructing shadows} *)
+
+  val mk_shadow : ?offset:int * int -> ?size:int -> ?width:int ->
+    ?radius:int -> unit -> shadow
 
 end (* of Style *)
 
@@ -1083,6 +1109,94 @@ end (* of Box *)
 
 (* ---------------------------------------------------------------------------- *)
 
+(** SDL Area widget
+
+    You can use an Sdl_area widget to draw whatever you want using all the power
+   of the
+   {{:https://erratique.ch/software/tsdl/doc/Tsdl/Sdl/index.html#renderers}SDL
+   renderer API}.
+
+    Technically, an Sdl_area widget contains an SDL texture and sets it as a {e
+   render target}.
+
+    SDL commands are sent to the Sdl_area using {!add} (and stored in a command
+   queue). You can also use {!add_get} in order to get a handle on the command
+   in case you reserve the possibility to remove the command with
+   {!remove_element}.
+
+{5 {{:graph-b_sdl_area.html}Dependency graph}} *)
+module Sdl_area : sig
+  type t
+
+  val create : width:int -> height:int ->
+    ?style:Style.t -> ?timeout:int -> unit -> t
+  (** Create an empty SDL area. Note that the given size [(width,height)] is the
+      {e logical} pixel size of the area. The physical size, to be used for most
+      SDL rendering functions, can be obtained with {!drawing_size}. *)
+
+  val drawing_size : t -> (int * int)
+  (** Size in physical pixels of the target SDL texture on which you can
+      draw. *)
+
+  val update : t -> unit
+  (** Force the area to be re-drawn at the next graphics frame. *)
+
+  val clear : t -> unit
+  (** Clear the area (this removes all commands from the render queue). *)
+
+  val add : t -> ?name:string -> (Tsdl.Sdl.renderer -> unit) -> unit
+  (** [add area ~name f] adds the arbitrary command [f] to the render queue.
+     The command should be fast, otherwise it will block the UI when the queue
+     is executed. For long drawings, it's better to split them into many
+     commands. If you need the possibility to remove a command later, use
+     {!add_get} instead. *)
+
+  (** {2 Drawing functions}
+
+      Shortcuts to some {%html:<a href="Bogue.Draw.html#drawing_functions">
+      drawing functions</a>%} from the {!Draw} module.
+
+      For more sophisticated shapes (and faster rendering), consider using the
+      {{:https://github.com/fccm/tsdl-gfx}tsdl_gfx} external library.  *)
+
+  val draw_line : t -> color:Draw.color -> thick:int ->
+    int * int -> int * int -> unit
+  val draw_rectangle : t -> color:Draw.color -> thick:int ->
+    w:int -> h:int -> int * int -> unit
+  val draw_circle : t -> color:Draw.color -> thick:int -> radius:int ->
+    int * int -> unit
+
+  (** {2 Draw elements}
+
+      The command queue can be manipulated. An element of this queue is called a
+      [draw_element].  *)
+
+  type draw_element
+
+  val add_get : t -> ?name:string -> ?disable:bool -> (Tsdl.Sdl.renderer -> unit)
+    -> draw_element
+  (** Similar to {!add}, but returns the corresponding {!draw_element}.  If
+     [disable] is true, the command will not be executed. *)
+
+  val disable : draw_element -> unit
+  (** Mark an element for skipping its execution. *)
+
+  val enable : draw_element -> unit
+  (** See {!disable}. *)
+
+  val remove_element : t -> draw_element -> unit
+  (** Remove the {!draw_element} from the command queue. *)
+
+  val add_element : t -> draw_element -> unit
+  (** Append the element to the end of the command queue. *)
+
+  val has_element : t -> draw_element -> bool
+  (** Check whether the element belongs to the command queue. *)
+
+end (* of Sdl_area *)
+
+(* ---------------------------------------------------------------------------- *)
+
 (** Creating widgets and giving life to them
 
 Widgets are simple graphic elements that can react to user interaction. They are
@@ -1193,7 +1307,7 @@ let l = get_label w in
   (** {3 Simple boxes (rectangles)} *)
 
   val box :
-    ?w:int -> ?h:int -> ?style:Style.t -> unit -> t
+     ?w:int -> ?h:int -> ?style:Style.t -> unit -> t
   (** Create a Box widget, which simply displays a rectangle, optionally with
      rounded corners and drop shadow. It is often used for the background of a
      group of widgets (i.e. a {!Layout.t}). *)
@@ -1212,8 +1326,8 @@ let l = get_label w in
   val verbatim : string -> t
 
   val html : string -> t
-  (** Display basic html text by interpreting the following tags: <em>,</em>,
-     <b>,</b>, <strong>,</strong>, <p>,</p>, <br> *)
+  (** Display basic html text by interpreting the following tags:
+      [<em>,</em>, <b>,</b>, <strong>,</strong>, <p>,</p>, <br>] *)
 
   (** {3 Labels or icons} *)
 
@@ -1272,6 +1386,12 @@ let l = get_label w in
   (** Create a slider that executes an action each time the local value of the
      slider is modified by the user. *)
 
+  (** {3 Sdl Area} You can use an Sdl_area widget to draw whatever you want
+     using all the power of the SDL Renderer API. *)
+
+  val sdl_area : w:int -> h:int -> ?style:Style.t -> unit -> t
+  (** See {!Sdl_area.create} regarding the size [(w,h)]. *)
+
   (** {2 Creation of combined widgets} *)
 
   val check_box_with_label : string -> t * t
@@ -1320,6 +1440,7 @@ let l = get_label w in
   val get_slider : t -> Slider.t
   val get_text_display : t -> Text_display.t
   val get_text_input : t -> Text_input.t
+  val get_sdl_area : t -> Sdl_area.t
 
   (** {2 Generic actions} *)
 
