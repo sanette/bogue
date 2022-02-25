@@ -186,13 +186,17 @@ let remove_first_match f q =
   | Nil -> raise End_reached
 
 (* Slow. only for debugging *)
-let length q =
+let length_from cell =
   let rec loop i cell =
     match cell with
     | Nil -> i
     | Cons { content = _; next } ->
       loop (i+1) next in
-  loop 0 q.first
+  loop 0 cell
+
+let total_length q = length_from q.first
+
+let length q = length_from q.current
 
 let test () =
   let q = of_list [1;2;3] in

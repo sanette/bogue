@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220217
+@version 20220225
 
 @author Vu Ngoc San
 
@@ -1112,17 +1112,17 @@ end (* of Box *)
 (** SDL Area widget
 
     You can use an Sdl_area widget to draw whatever you want using all the power
-   of the
-   {{:https://erratique.ch/software/tsdl/doc/Tsdl/Sdl/index.html#renderers}SDL
-   renderer API}.
+    of the
+    {{:https://erratique.ch/software/tsdl/doc/Tsdl/Sdl/index.html#renderers}SDL
+    renderer API}.
 
     Technically, an Sdl_area widget contains an SDL texture and sets it as a {e
-   render target}.
+    render target}.
 
     SDL commands are sent to the Sdl_area using {!add} (and stored in a command
-   queue). You can also use {!add_get} in order to get a handle on the command
-   in case you reserve the possibility to remove the command with
-   {!remove_element}.
+    queue). You can also use {!add_get} in order to get a handle on the command
+    in case you reserve the possibility to remove the command with
+    {!remove_element}.
 
 {5 {{:graph-b_sdl_area.html}Dependency graph}} *)
 module Sdl_area : sig
@@ -1136,7 +1136,8 @@ module Sdl_area : sig
 
   val drawing_size : t -> (int * int)
   (** Size in physical pixels of the target SDL texture on which you can
-      draw. *)
+     draw. You may also use [Tsdl.Sdl.get_renderer_output_size], if used inside
+     the Sdl_area command queue. *)
 
   val update : t -> unit
   (** Force the area to be re-drawn at the next graphics frame. *)
@@ -1157,14 +1158,26 @@ module Sdl_area : sig
       drawing functions</a>%} from the {!Draw} module.
 
       For more sophisticated shapes (and faster rendering), consider using the
-      {{:https://github.com/fccm/tsdl-gfx}tsdl_gfx} external library.  *)
+      {{:https://github.com/fccm/tsdl-gfx}tsdl_gfx} external library or,
+      better, the companion {{:https://github.com/sanette/bogue-cairo}bogue-cairo} library.  *)
 
   val draw_line : t -> color:Draw.color -> thick:int ->
     int * int -> int * int -> unit
+  (** [draw_line c ~color ~thick (x1, y1) (x2, y2)] draws a line of given
+      [color] and [thick]ness from point [(x1, y1)] to point [(x2, y2)]. *)
+
   val draw_rectangle : t -> color:Draw.color -> thick:int ->
     w:int -> h:int -> int * int -> unit
+  (** [draw_rectangle c ~color ~thick ~w ~h x0 y0] draws a rectangle of the
+        given line thickness {e inside} the box of top-left coordinates [(x0,
+        y0)], width [w] and height [h]. *)
+
   val draw_circle : t -> color:Draw.color -> thick:int -> radius:int ->
     int * int -> unit
+  (** [draw_circle c ~color ~thick ~radius (x0, y0)] draws a circle of the given
+      line [thick]ness and [color] {e inside} the disc of center coordinates
+      [(x0, y0)] and given [radius]. *)
+
 
   (** {2 Draw elements}
 
@@ -1192,6 +1205,12 @@ module Sdl_area : sig
 
   val has_element : t -> draw_element -> bool
   (** Check whether the element belongs to the command queue. *)
+
+  (** {2 Direct access to the texture} *)
+
+  val get_texture : t -> Tsdl.Sdl.texture option
+
+  val set_texture : t -> Tsdl.Sdl.texture -> unit
 
 end (* of Sdl_area *)
 

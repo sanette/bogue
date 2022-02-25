@@ -1161,7 +1161,7 @@ let example49 () =
        L.resident a] in
   run (make [] [layout])
 
-let desc50 = "SDL area with many (and slow) drawings"
+let desc50 = "SDL area with many (and slow) circles"
 let example50 () =
   let a = W.sdl_area ~w:500 ~h:200 () in
   let area = W.get_sdl_area a in
@@ -1176,6 +1176,27 @@ let example50 () =
   in
   for _ = 0 to 500 do
     random_circle ()
+  done;
+
+  let layout = L.resident a in
+  run (make [] [layout])
+
+let desc51 = "SDL area with lines "
+let example51 () =
+  let a = W.sdl_area ~w:500 ~h:500 () in
+  let area = W.get_sdl_area a in
+  let w,h = Sdl_area.drawing_size area in
+  let random_line () =
+    let thick = Random.int 50 + 1 in
+    let color = Draw.random_color () in
+    let x0 = Random.int w in
+    let y0 = Random.int h in
+    let x1 = Random.int w in
+    let y1 = Random.int h in
+    Sdl_area.draw_line area ~color ~thick (x0, y0) (x1, y1)
+  in
+  for _ = 0 to 200 do
+    random_line ()
   done;
 
   let layout = L.resident a in
@@ -1244,6 +1265,7 @@ let _ =
     "48", (example48, desc48) ;
     "49", (example49, desc49) ;
     "50", (example50, desc50) ;
+    "51", (example51, desc51) ;
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)
@@ -1254,7 +1276,7 @@ let _ =
   let exs = try (List.map (fun key -> key, List.assoc key examples) to_run)
     with Not_found -> failwith "Cannot find requested example"
   in
-  List.iter (fun (key, (ex,de)) ->
+  List.iter (fun (key, (ex, de)) ->
       print_endline (key ^ " = " ^ de);
       if not help then ex ()) exs;
 

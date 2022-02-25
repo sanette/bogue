@@ -63,13 +63,9 @@ let free area =
 (* Add the element to the sheet *)
 let add_element area el =
   Var.protect_fn area.sheet (fun q ->
-      printd debug_custom "Adding element %s to the SDL Area. Initial length is \
-                           %u."
-        (sprint el) (Flow.length q);
+      printd debug_custom "Adding element %s to the SDL Area." (sprint el);
       Flow.add el q;
-      Flow.rewind q; (* we do this here just to avoid calling [update] *)
-      printd debug_custom "Adding element %s to the SDL Area. Length is now %u."
-        (sprint el) (Flow.length q));
+      Flow.rewind q; (* we do this here just to avoid calling [update] *));
   area.update <- true
 
 (* Add a drawing function to the sheet and return the corresponding element. The
@@ -131,11 +127,20 @@ let draw_rectangle area ~color ~thick ~w ~h (x, y) =
       Draw.rectangle renderer color ~w ~h ~thick x y)
 
 let draw_line area ~color ~thick (x0, y0) (x1, y1) =
-  add area (fun renderer ->
+  if thick = 1
+  then add area (fun renderer ->
       Draw.set_color renderer color;
-      go (Tsdl.Sdl.render_draw_line renderer x0 y0 x1 y1);
-      if thick <> 1 then printd (debug_warning + debug_graphics)
-          "Thick lines are not implemented yet")
+      go (Tsdl.Sdl.render_draw_line renderer x0 y0 x1 y1))
+  else add area (Draw.line ~color ~thick ~x0 ~y0 ~x1 ~y1)
+
+(* Direct access to the texture *)
+
+let get_texture area =
+  Var.get area.box.render
+
+let set_texture area texture =
+  Var.set area.box.render (Some texture);
+  area.update <- false
 
 (************* display ***********)
 

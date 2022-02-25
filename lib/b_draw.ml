@@ -804,7 +804,7 @@ let set_window_size win ~w ~h =
 
 let get_window_position win =
   dpi_rescale (Sdl.get_window_position win)
-    
+
 (** get the canvas window size *)
 let window_size canvas =
   get_window_size canvas.window
@@ -1013,7 +1013,7 @@ let push_target ?(clear=true) ?(bg=none) renderer target =
   let clip = if Sdl.render_is_clip_enabled renderer
              then Some (Sdl.render_get_clip_rect renderer)
              else None in
-  let color = go(Sdl.get_render_draw_color renderer) in
+  let color = go (Sdl.get_render_draw_color renderer) in
   let old_target = Sdl.get_render_target renderer in
   (* now switch to the new target *)
   go (Sdl.set_texture_blend_mode target Sdl.Blend.mode_blend);
@@ -1235,8 +1235,7 @@ let rect_to_layer ?color ?bg canvas layer (x,y) w h =
   make_blit ~dst canvas layer target
 
 
-(* like the hand of a clock. It was used to draw a ring, below (ring_tex_old) by
-   rotating the ray *)
+(* Like the hand of a clock. *)
 (* if not specified, the thickness is computed to that the full disc of correct
    radius is filled when rotating the hand with 180*radius/100 steps of angle
    2pi/steps. If thickness is specified (and is large), then rotating the ray
@@ -1271,42 +1270,15 @@ let make_ray renderer ~bg ~radius ~width ?thickness x y =
 (* draw the "ray" (radius) on the renderer *)
 let ray renderer ?(bg = opaque black) ~radius ~width ?thickness ~angle x y =
   let tex, center, dst, _ = make_ray renderer ?thickness ~bg ~radius ~width x y in
-  go(Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none)
+    go(Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none)
 
 let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thickness ~angle x y =
-  let tex, center, dst, _ = make_ray canvas.renderer ?thickness ~bg ~radius ~width x y in
+  let tex, center, dst, _ = make_ray canvas.renderer
+      ?thickness ~bg ~radius ~width x y in
   let transform = make_transform ~angle ~center () in
   (* { flip = Sdl.Flip.none; angle; center = Some center; alpha = 255 } in *)
   forget_texture tex;
   make_blit ?voffset ~dst ~transform canvas layer tex
-
-(* draw a ring *)
-let ring_old renderer ?(bg = opaque grey) ~radius ~width x y =
-  let tex, center, dst, steps = make_ray renderer ~bg ~radius ~width x y in
-  let di = 360. /. (float steps) in
-  for i = 0 to steps do
-    let a = di *. float i in
-    go(Sdl.render_copy_ex renderer ~dst tex a (Some center) Sdl.Flip.none);
-  done
-
-(* draw a ring on a texture, and return the texture *)
-let ring_tex_old renderer ?(bg = opaque grey) ~radius ~width x y =
-  let tex, center, _, steps = make_ray renderer ~bg ~radius ~width x y in
-  let di = 360. /. (float steps) in
-  if Sdl.render_target_supported renderer then begin
-    let w,h =  tex_size tex in
-    let dst_ray = Sdl.Rect.create ~x:radius ~y:(radius - h/2) ~w ~h in
-    let target = create_target renderer (2*radius+1) (2*radius+1) in (* 1 pixel margin around the ring *)
-    let push = push_target renderer target in
-    for i = 0 to steps do
-      let a = di *. float i in
-      go(Sdl.render_copy_ex renderer ~dst:dst_ray tex a (Some center) Sdl.Flip.none);
-    done;
-    pop_target renderer push;
-    forget_texture tex;
-    target
-  end
-  else failwith "Render target not supported. TODO" (* TODO *)
 
 
 (*           |                                          y
@@ -1439,7 +1411,7 @@ let sdl_draw_vline renderer x y0 y1 =
 
 (* draw a filled annulus between radius1 and radius2 (inclusive) *)
 let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
-  (*go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);*)
+  go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);
   let alpha0 = float a0 in
   (* TODO if radius1 = radius2 appeler circle *)
   let radius1,radius2 = if radius1 <= radius2
@@ -2163,6 +2135,39 @@ let norm (x,y) =
 let dist (x,y) (x0,y0) =
   norm (x-x0, y-y0)
 
+let make_hline ?(thick=1) renderer ~color ~x0 ~x1 ~y =
+  let x0, x1 = if x0 < x1 then x0, x1 else x1, x0 in
+  let y = y - thick/2 in
+  let w, h = x1 - x0, thick in
+  let tex = texture ~color renderer ~w ~h in
+  let rect = Sdl.Rect.create ~x:x0 ~y ~w ~h in
+  tex, rect
+
+let make_vline ?(thick=1) renderer ~color ~x ~y0 ~y1 =
+  let y0, y1 = if y0 < y1 then y0, y1 else y1, y0 in
+  let x = x - thick/2 in
+  let h, w = y1 - y0, thick in
+  let tex = texture ~color renderer ~w ~h in
+  let rect = Sdl.Rect.create ~x ~y:y0 ~w ~h in
+  tex, rect
+
+(* Draw line. Somewhat brutal algorithm: we draw a horizontal line and rotate
+   it. It is actually quite fast but there is no antialiasing. *)
+let line ?(thick=1) renderer ~color ~x0 ~y0 ~x1 ~y1 =
+  if y0 = y1
+  then let tex, dst = make_hline ~thick renderer ~color ~x0 ~x1 ~y:y0 in
+    go (Sdl.render_copy ~dst renderer tex)
+  else if x0 = x1
+  then let tex, dst = make_vline ~thick renderer ~color ~x:x0 ~y0 ~y1 in
+    go (Sdl.render_copy ~dst renderer tex)
+  else let w = round (dist (x0,y0) (x1,y1)) in
+    let tex = texture ~color renderer ~w ~h:thick in
+    let center = Sdl.Point.create ~x:0 ~y:(thick/2) in
+    (* = center coordinates relative to the dst rect below *)
+    let dst = Sdl.Rect.create ~x:x0 ~y:(y0 - thick/2) ~w ~h:thick in
+    let angle = 180. *. atan2 (float (y1 - y0)) (float (x1 - x0)) /. pi in
+    go (Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none)
+
 (** intersection of rectangles; None means no clipping = the whole texture *)
 (* if the intersection is empty, we return a rect with zero area. This can be
    tested with Sdl.rect_empty *)
@@ -2425,12 +2430,16 @@ let land_texture renderer mask texture =
   let pitch = w' * tex_bytes_per_pixel in
   let target = create_target ~format renderer w' h' in
   let push = push_target renderer target in
-  go(Sdl.render_copy ~src:rect renderer texture);
-  go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixels pitch);
+
+  let t = Unix.gettimeofday () in
+  go (Sdl.render_copy ~src:rect renderer texture);
+  go (Sdl.render_read_pixels renderer (Some rect) (Some format) pixels pitch);
   go (Sdl.render_clear renderer);
-  go(Sdl.render_copy ~src:rect renderer mask);
-  go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixelsm pitch);
+  go (Sdl.render_copy ~src:rect renderer mask);
+  go (Sdl.render_read_pixels renderer (Some rect) (Some format) pixelsm pitch);
   pop_target renderer push;
+  printd debug_graphics "READ pixels time: %f" (Unix.gettimeofday () -. t);
+
   let t = Unix.gettimeofday () in
   let n = Array1.dim pixels in
   for i = 0 to n - 1 do
@@ -2438,8 +2447,8 @@ let land_texture renderer mask texture =
     let pm = Array1.unsafe_get pixelsm i in
     Array1.unsafe_set pixels i (p land pm);
   done;
-  printd debug_graphics "Loop time: %f" (Unix.gettimeofday () -. t);
-  go(Sdl.update_texture target (Some rect) pixels pitch);
+  printd debug_graphics "LAND Loop time: %f" (Unix.gettimeofday () -. t);
+  go (Sdl.update_texture target (Some rect) pixels pitch);
   target
 
 
@@ -2484,12 +2493,19 @@ let mask_texture ~mask renderer texture =
   let format = Sdl.Pixel.format_argb8888 in
   let target = create_target ~format renderer w' h' in
   let push = push_target renderer target in
+
+  let t = Unix.gettimeofday () in
   go(Sdl.render_copy ~src:rect renderer texture);
   go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixels pitch);
   go(Sdl.render_clear renderer);
   go(Sdl.render_copy ~src:rect renderer mask);
   go(Sdl.render_read_pixels renderer (Some rect) (Some format) pixelsm pitch);
   pop_target renderer push;
+  printd debug_graphics "READ pixels Loop time: %f" (Unix.gettimeofday () -. t);
+  (* The block above is indeed VERY slow: takes more than TWICE the time of the
+     for-loop below!  Up to 0.04sec for a full-screen texture 3000x2000. We
+     should find another way.  *)
+
   let t = Unix.gettimeofday () in
   let n = Array1.dim pixels / tex_bytes_per_pixel in
   (* amask=0xff000000 *)
@@ -2504,7 +2520,7 @@ let mask_texture ~mask renderer texture =
       Array1.unsafe_set pixels (4*i+2) 255
     end;
   done;
-  printd debug_graphics "Loop time: %f" (Unix.gettimeofday () -. t);
+  printd debug_graphics "MASK Loop time: %f" (Unix.gettimeofday () -. t);
   go(Sdl.update_texture target (Some rect) pixels pitch);
   target
 
