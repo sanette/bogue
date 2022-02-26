@@ -779,6 +779,11 @@ let quit () =
 let sdl_flip = Sdl.render_present
 
 let default_dpi = 110
+
+(* The variables [dpi_x/yscale] will be updated at initialization. On MacOS and
+   iOS they can be larger than 1, meaning that the user resolution reported by
+   the OS is in fact lower than the true pixel resolution. BOGUE will use the
+   true pixel resolution in order to produce sharp graphics. *)
 let dpi_xscale = ref 1.
 let dpi_yscale = ref 1.
 let dpi_rescalex x = round (float x *. !dpi_xscale)
@@ -793,6 +798,10 @@ let dpi_rescale (x,y) =
 let dpi_unscale_pos (x,y) =
   round (!dpi_xscale *. float x /. !Theme.scale),
   round (!dpi_yscale *. float y /. !Theme.scale)
+
+(** From BOGUE logical pixels to physical pixels *)
+let to_pixels (x,y) =
+  dpi_rescale (scale_pos (x,y))  (* TODO inline *)
 
 (* Get the window size in true physical pixels *)
 let get_window_size win =
@@ -1141,7 +1150,8 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
   let win = default_lazy window
       (lazy (go (Sdl.create_window ?x ?y ~w ~h name
-                   Sdl.Window.(windowed + resizable + hidden + opengl + allow_highdpi)))) in
+                   Sdl.Window.(windowed + resizable + hidden +
+                               opengl + allow_highdpi)))) in
   do_option !icon (Sdl.set_window_icon win);
   let px = Sdl.get_window_pixel_format win in
   printd debug_graphics "Window pixel format = %s" (Sdl.get_pixel_format_name px);
@@ -2481,7 +2491,7 @@ https://stackoverflow.com/questions/45781683/how-to-get-correct-sourceover-alpha
 let mask_texture ~mask renderer texture =
   let w,h = tex_size texture in
   let wm,hm = tex_size mask in
-  let w' = min wm w and h' = min hm h in
+  let w' = imin wm w and h' = imin hm h in
   let rect = Sdl.Rect.create ~x:0 ~y:0 ~w:w' ~h:h' in
   let open Bigarray in
   let tex_bytes_per_pixel = 4 in
@@ -2522,6 +2532,24 @@ let mask_texture ~mask renderer texture =
   done;
   printd debug_graphics "MASK Loop time: %f" (Unix.gettimeofday () -. t);
   go(Sdl.update_texture target (Some rect) pixels pitch);
+  target
+
+(* This "fast" version is not equivalent to [mask_texture]: here the alpha
+   component of the original texture is lost: we only keep the alpha component
+   of the mask. The mask should be black and contain only alpha. This operation
+   will merge the Alpha from the mask with the RGB from the texture. *)
+let fast_mask_texture renderer ~mask texture =
+  let w,h = tex_size texture in
+  let wm,hm = tex_size mask in
+  let w' = imin wm w and h' = imin hm h in
+  let rect = Sdl.Rect.create ~x:0 ~y:0 ~w:w' ~h:h' in
+  let target = create_target renderer w' h' in
+  let push = push_target ~clear:true ~bg:none renderer target in
+  go (Sdl.set_texture_blend_mode mask Sdl.Blend.mode_none);
+  go (Sdl.render_copy ~src:rect renderer mask);
+  go (Sdl.set_texture_blend_mode texture Sdl.Blend.mode_add);
+  go (Sdl.render_copy ~src:rect renderer texture);
+  pop_target renderer push;
   target
 
 (* cheap blur by zooming *) (* not used yet *)

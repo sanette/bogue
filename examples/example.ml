@@ -52,17 +52,17 @@ let no_line = Style.mk_line ~width:0 ()
 let thick_grey_line = Style.mk_line ~color:Draw.(opaque grey)
     ~width:3 ~style:Solid ()
 
-(* Round corner without border line *)
+(* Round corner without border line. *)
 let round_blue_box = let open Style in
-  let border = mk_border ~radius:25 no_line in
-  create ~border ~background:(color_bg Draw.(transp blue)) ()
+  let border = mk_border ~radius:25 thick_grey_line in
+  create ~border ~background:(color_bg Draw.(opaque @@ find_color "lightblue")) ()
 
 (* Image pattern with rounded corner and thick grey border line *)
 let round_image_box = let open Style in
   let border = mk_border ~radius:10 thick_grey_line in
   (* the image is used as a pattern background, and so will not be scaled by
      theme (is this good?) *)
-  let p = Image.create image_file in
+  let p = Image.create ~bg:Draw.(opaque white) image_file in
   create ~border ~background:(image_bg p) ()
 
 (* Grey with shadow *)
@@ -345,7 +345,7 @@ let example17 () =
 let desc18 = "zoom_in and oscillate animations"
 let example18 () =
   let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) image_file in
-  let img2 = W.image ~w:250 ~h:300 ~bg:Draw.(opaque grey) image_file in
+  let img2 = W.image ~w:250 ~h:300 ~bg:Draw.(opaque cyan) image_file in
   let l1 = L.resident img1 in
   let l2 = L.resident img2 in
   let layout = L.flat [l1; l2] in
@@ -892,7 +892,7 @@ let example38 () =
 
   (* one can load an svg image as a widget; it will be scaled to fit the size:
   *)
-  let img = W.image_from_svg ~h:300 ~bg:Draw.(opaque red)
+  let img = W.image_from_svg ~h:300 ~bg:Draw.(opaque @@ find_color "darkseagreen")
       "%assets/images/koala.svg" in
 
   let layout = L.flat_of_w [box; img] in

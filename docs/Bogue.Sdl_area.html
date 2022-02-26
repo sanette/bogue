@@ -12,7 +12,7 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Drawing functions" rel="Section" href="#2_Drawingfunctions">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Drawing functions and utilities" rel="Section" href="#2_Drawingfunctionsandutilities">
 <link title="Draw elements" rel="Section" href="#2_Drawelements">
 <link title="Direct access to the texture" rel="Section" href="#2_Directaccesstothetexture">
 <title>Bogue.Sdl_area</title>
@@ -55,14 +55,6 @@
 </div>
 </div>
 
-<pre><span id="VALdrawing_size"><span class="keyword">val</span> drawing_size</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; int * int</code></pre><div class="info ">
-<div class="info-desc">
-<p>Size in physical pixels of the target SDL texture on which you can
-     draw. You may also use <code class="code"><span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.get_renderer_output_size</code>, if used inside
-     the Sdl_area command queue.</p>
-</div>
-</div>
-
 <pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Force the area to be re-drawn at the next graphics frame.</p>
@@ -84,13 +76,28 @@
      <a href="Bogue.Sdl_area.html#VALadd_get"><code class="code"><span class="constructor">Sdl_area</span>.add_get</code></a> instead.</p>
 </div>
 </div>
-<h3 id="2_Drawingfunctions">Drawing functions</h3>
+<h3 id="2_Drawingfunctionsandutilities">Drawing functions and utilities</h3>
 <p>Shortcuts to some <a href="Bogue.Draw.html#drawing_functions">
       drawing functions</a> from the <a href="Bogue.Draw.html"><code class="code"><span class="constructor">Draw</span></code></a> module.</p>
 
 <p>For more sophisticated shapes (and faster rendering), consider using the
       <a href="https://github.com/fccm/tsdl-gfx">tsdl_gfx</a> external library or,
       better, the companion <a href="https://github.com/sanette/bogue-cairo">bogue-cairo</a> library.</p>
+
+<pre><span id="VALdrawing_size"><span class="keyword">val</span> drawing_size</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt; int * int</code></pre><div class="info ">
+<div class="info-desc">
+<p>Size in physical pixels of the target SDL texture on which you can
+     draw. You may also use <code class="code"><span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.get_renderer_output_size</code>, if used inside
+      the Sdl_area command queue.</p>
+</div>
+</div>
+
+<pre><span id="VALto_pixels"><span class="keyword">val</span> to_pixels</span> : <code class="type">int * int -&gt; int * int</code></pre><div class="info ">
+<div class="info-desc">
+<p>Convert BOGUE logical coordinates into pixel coordinates usable for the
+     SDL area.</p>
+</div>
+</div>
 
 <pre><span id="VALdraw_line"><span class="keyword">val</span> draw_line</span> : <code class="type"><a href="Bogue.Sdl_area.html#TYPEt">t</a> -&gt;<br>       color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; thick:int -&gt; int * int -&gt; int * int -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">

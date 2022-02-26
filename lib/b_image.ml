@@ -4,6 +4,8 @@
 module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
+open B_utils
+open Tsdl
 
 type resize =  (* not implemented *)
   | Crop of int (* cut the image at origin x *)
@@ -21,7 +23,7 @@ type t =
     ysize : resize; (* NOT used anymore. control the height of the image  .. *)
     xpos : Draw.align; (* NOT used anymore. horizontal centering *)
     ypos : Draw.align; (* NOT used anymore. vertical ... *)
-    background : Draw.color;
+    background : Draw.color option;
     render : (Draw.texture option) Var.t;
   }
 
@@ -36,8 +38,7 @@ let resize _size _i =
  * performing scale (size / scale), thus we loose some units due to integer
    rounding. To be exact, we should keep a flag "original size" and modify the
    blit to use exact size *)
-let create ?width ?height ?(noscale = false)
-    ?(bg = Draw.(opaque black)) file =
+let create ?width ?height ?(noscale = false) ?bg file =
   let width, height = match width, height with
     | Some w, Some h -> (w,h)
     | _ -> begin let (w0,h0) = Draw.image_size file in
@@ -62,8 +63,8 @@ let create ?width ?height ?(noscale = false)
 
 (* NOTE (SDL_image >= 2.0.2) is able to directly load SVG. HOWEVER, it currently
    it doesn't scale the image, so it's not recommended. *)
-let create_from_svg ?width ?height ?(bg = Draw.(opaque black)) file =
-  create ?width ?height ~bg (Draw.convert_svg ?w:width ?h:height file)
+let create_from_svg ?width ?height ?bg file =
+  create ?width ?height ?bg (Draw.convert_svg ?w:width ?h:height file)
 
 let unload img =
   match Var.get img.render with
@@ -104,9 +105,19 @@ let display canvas layer img g =
       (* Var.set img.render (Some tex); *)
       (* tex *)
       let tex = Draw.load_image canvas.renderer file in
+      let tex = match img.background with
+        | Some bg -> (* we blend the image on the bkg *)
+          let w, h = tex_size tex in
+          let target = create_target canvas.renderer w h in
+          let push = push_target ~clear:true ~bg canvas.renderer target in
+          go (Sdl.set_texture_blend_mode tex Sdl.Blend.mode_blend);
+          go (Sdl.render_copy canvas.renderer tex);
+          pop_target canvas.renderer push;
+          target
+        | None -> tex in
       Var.set img.render (Some tex);
       tex
-      (* TODO render on background *)
+
 
       (* it is better to render first the image at full resolution and then
          scale it, in case we later use some zoom animation. If one has a zoom

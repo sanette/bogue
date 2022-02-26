@@ -112,8 +112,9 @@ let drawing_size area =
   match Var.get area.box.render with
   | Some t -> Draw.tex_size t
   | None -> Box.size area.box
-            |> Draw.scale_pos
-            |> Draw.dpi_rescale
+            |> Draw.to_pixels
+
+let to_pixels = Draw.to_pixels
 
 (* Convenient shortcuts to some Draw functions. Downside: they cannot adapt
    easily to resizing the area. See example 49. *)

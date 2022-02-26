@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220225
+@version 20220226
 
 @author Vu Ngoc San
 
@@ -939,6 +939,10 @@ module Style : sig
   val mk_line : ?color:Draw.color -> ?width:int ->
     ?style:line_style -> unit -> line
   val mk_border : ?radius:int -> line -> border
+  (** Note: currently, a border with positive [radius] is not compatible with a
+     transparent background. *)
+  (* One could optionaly make it possible by using [mask_texture] instead of
+     [fast_mask_texture] in box.ml *)
 
   (** {2 Constructing shadows} *)
 
@@ -1134,11 +1138,6 @@ module Sdl_area : sig
       {e logical} pixel size of the area. The physical size, to be used for most
       SDL rendering functions, can be obtained with {!drawing_size}. *)
 
-  val drawing_size : t -> (int * int)
-  (** Size in physical pixels of the target SDL texture on which you can
-     draw. You may also use [Tsdl.Sdl.get_renderer_output_size], if used inside
-     the Sdl_area command queue. *)
-
   val update : t -> unit
   (** Force the area to be re-drawn at the next graphics frame. *)
 
@@ -1152,7 +1151,7 @@ module Sdl_area : sig
      commands. If you need the possibility to remove a command later, use
      {!add_get} instead. *)
 
-  (** {2 Drawing functions}
+  (** {2 Drawing functions and utilities}
 
       Shortcuts to some {%html:<a href="Bogue.Draw.html#drawing_functions">
       drawing functions</a>%} from the {!Draw} module.
@@ -1160,6 +1159,15 @@ module Sdl_area : sig
       For more sophisticated shapes (and faster rendering), consider using the
       {{:https://github.com/fccm/tsdl-gfx}tsdl_gfx} external library or,
       better, the companion {{:https://github.com/sanette/bogue-cairo}bogue-cairo} library.  *)
+
+  val drawing_size : t -> (int * int)
+  (** Size in physical pixels of the target SDL texture on which you can
+     draw. You may also use [Tsdl.Sdl.get_renderer_output_size], if used inside
+      the Sdl_area command queue. *)
+
+  val to_pixels : (int * int) -> (int * int)
+  (** Convert BOGUE logical coordinates into pixel coordinates usable for the
+     SDL area. *)
 
   val draw_line : t -> color:Draw.color -> thick:int ->
     int * int -> int * int -> unit

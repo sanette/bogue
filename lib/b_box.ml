@@ -129,7 +129,7 @@ let display canvas layer b g =
       (* need to clip in case of rounded corners *)
       (* TODO unite with do_option b.border *)
       let tex = match Style.get_border b.style with
-        | Some ({ Style.radius = Some radius; _ } as b) ->
+        | Some ({ Style.radius = Some radius; _ } as b) when radius > 0 ->
           let thick = imax 0 ((Theme.scale_int b.Style.down.Style.width) - 1) in
           (* avec ou sans le "-1" sont acceptables. "avec" crée un petit liseré
              entre les deux couleurs transparentes. "sans" laisse un peu trop de
@@ -148,16 +148,19 @@ let display canvas layer b g =
           let radius = max 0 (Theme.scale_int radius - thick) in
           (* TODO treat case line width < 0 *)
           let shape = create_target canvas.renderer g.w g.h in
-          let bg = set_alpha 0 cyan in
+          let bg = set_alpha 0 black in
+          (* any fully transparent color will do as long as we don't blend onto
+             the resulting texture. *)
           let save_target = push_target ~clear:true ~bg canvas.renderer shape in
           go (Sdl.set_render_draw_blend_mode canvas.renderer Sdl.Blend.mode_none);
-          filled_rounded_box ~antialias:true canvas.renderer (opaque green)
-            (* any opaque color will do *)
+          filled_rounded_box ~antialias:true canvas.renderer (opaque black)
+            (* for [mask_texture], any opaque color will do, but for
+               [fast_mask_texture] we need black.  *)
             ~w:(g.w-2*thick) ~h:(g.h-2*thick) ~radius (thick) (thick);
           (* TODO check if this works when Solid background has alpha channel
              and thick = 0 ... *)
           pop_target canvas.renderer save_target;
-          let t = mask_texture ~mask:shape canvas.renderer target in
+          let t = fast_mask_texture ~mask:shape canvas.renderer target in
           forget_texture target;
           forget_texture shape;
           t

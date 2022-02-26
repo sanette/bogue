@@ -115,5 +115,11 @@
 <pre><span id="VALhgradient"><span class="keyword">val</span> hgradient</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
 <pre><span id="VALvgradient"><span class="keyword">val</span> vgradient</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre><h3 id="2_Constructingborders">Constructing borders</h3>
 <pre><span id="VALmk_line"><span class="keyword">val</span> mk_line</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?width:int -&gt; ?style:<a href="Bogue.Style.html#TYPEline_style">line_style</a> -&gt; unit -&gt; <a href="Bogue.Style.html#TYPEline">line</a></code></pre>
-<pre><span id="VALmk_border"><span class="keyword">val</span> mk_border</span> : <code class="type">?radius:int -&gt; <a href="Bogue.Style.html#TYPEline">line</a> -&gt; <a href="Bogue.Style.html#TYPEborder">border</a></code></pre><h3 id="2_Constructingshadows">Constructing shadows</h3>
+<pre><span id="VALmk_border"><span class="keyword">val</span> mk_border</span> : <code class="type">?radius:int -&gt; <a href="Bogue.Style.html#TYPEline">line</a> -&gt; <a href="Bogue.Style.html#TYPEborder">border</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Note: currently, a border with positive <code class="code">radius</code> is not compatible with a
+     transparent background.</p>
+</div>
+</div>
+<h3 id="2_Constructingshadows">Constructing shadows</h3>
 <pre><span id="VALmk_shadow"><span class="keyword">val</span> mk_shadow</span> : <code class="type">?offset:int * int -&gt;<br>       ?size:int -&gt; ?width:int -&gt; ?radius:int -&gt; unit -&gt; <a href="Bogue.Style.html#TYPEshadow">shadow</a></code></pre></body></html>
