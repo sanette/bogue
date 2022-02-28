@@ -177,8 +177,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALcircle">circle</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
-<p><code class="code">circle&nbsp;renderer&nbsp;~width&nbsp;color&nbsp;x0&nbsp;y0&nbsp;radius</code> draws a circle with given line
-      thickness, centered at <code class="code">(x0,y0)</code>, with given <code class="code">radius</code>.</p>
+<p><code class="code">circle&nbsp;renderer&nbsp;~width&nbsp;~color&nbsp;~radius&nbsp;~x&nbsp;~y</code> draws a circle with given
+     line thickness, centered at <code class="code">(x,y)</code>, with given <code class="code">radius</code>.</p>
 
 </div>
 </td></tr>
@@ -700,6 +700,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALlighter">lighter</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Draw.html#VALline">line</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALload_chunk">load_chunk</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td><div class="info">
 <p>Load a WAV file.</p>
@@ -948,8 +950,8 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALrectangle">rectangle</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
-<p><code class="code">rectangle&nbsp;renderer&nbsp;color&nbsp;~thick&nbsp;~w&nbsp;~h&nbsp;x&nbsp;y</code> draws a rectangle with given
-     line thickness.</p>
+<p><code class="code">rectangle&nbsp;renderer&nbsp;~color&nbsp;~thick&nbsp;~w&nbsp;~h&nbsp;~x&nbsp;~y</code> draws a rectangle with
+     given line thickness.</p>
 
 </div>
 </td></tr>
@@ -1238,6 +1240,12 @@
 <td><div class="info">
 <p>Convert BOGUE logical coordinates into pixel coordinates usable for the
      SDL area.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Draw.html#VALto_pixels">to_pixels</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td><div class="info">
+<p>Convert BOGUE logical coordinates into hardware pixel coordinates.</p>
 
 </div>
 </td></tr>

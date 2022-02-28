@@ -423,16 +423,17 @@ let cyan = (0,255,255)
 let yellow = (255,255,0)
 let sienna = (160,82,45)
 let none = (0,0,0,0)
-let colors = [ "black", black;
-               "grey", grey;
-               "pale_grey", pale_grey;
-               "dark_grey", dark_grey;
-               "white", white;
-               "red", red;
-               "blue", blue;
-               "green", green;
-               "sienna", sienna
-             ]
+let colors =
+  [ "black", black;
+    "grey", grey;
+    "pale_grey", pale_grey;
+    "dark_grey", dark_grey;
+    "white", white;
+    "red", red;
+    "blue", blue;
+    "green", green;
+    "sienna", sienna
+  ]
 
 let colors = List.flatten [colors; Theme.color_names]
 (* we add all colors from: *)
@@ -1715,13 +1716,13 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
   in
   loop radius1 0. radius2 0. 0
 
-let circle renderer ?(thick=1) color x0 y0 radius =
+let circle ?(thick=1) renderer ~color ~radius ~x ~y =
   if thick > 0
-  then if thick = 1 then circle renderer color x0 y0 radius
+  then if thick = 1 then circle renderer color x y radius
     else
       let radius1 = radius - thick + 1 in
       let radius2 = radius in
-      annulus renderer color x0 y0 ~radius1 ~radius2
+      annulus renderer color x y ~radius1 ~radius2
 
 (* we draw a filled circle by calling annulus with radius1 = 0. Not optimal
    (could reduce the number of lines drawn) but not too far. *)
@@ -1730,8 +1731,9 @@ let disc renderer color x0 y0 radius =
 
 
 (* a simple rectangle with uniform thickness inside (w,h) *)
-let rectangle renderer color ?(thick=1) ~w ~h x y =
+let rectangle ?(thick=1) renderer ~color ~w ~h ~x ~y =
   if thick <= 0 then printd draw_error "rectangle thickness must be positive"
+  else if thick = 1 then draw_rect ~color renderer (x,y) w h
   else begin
       let bg = color in
       let width_up, width_down, width_left, width_right =
@@ -1744,8 +1746,10 @@ let rectangle renderer color ?(thick=1) ~w ~h x y =
         else 0,0, w/2, w - w/2 in
       box renderer ~bg x y w width_up; (* top *)
       box renderer ~bg x (y+h-width_down) w width_down; (* bottom *)
-      box renderer ~bg x (y+width_down) width_left (h-width_down-width_up); (* left *)
-      box renderer ~bg (x+w-width_right) (y+width_down) width_right (h-width_down-width_up); (* right *)
+      box renderer ~bg x (y+width_down) width_left
+        (h-width_down-width_up); (* left *)
+      box renderer ~bg (x+w-width_right) (y+width_down) width_right
+        (h-width_down-width_up); (* right *)
     end
 
 (* Draw rounded box of size (w,h) *)
@@ -1789,7 +1793,7 @@ let rounded_box renderer color ?(antialias=true) ~w ~h ~radius ~thick x0 y0 =
     box renderer ~bg x0 y width lh; (* left *)
     box renderer ~bg (x0+w-width) (y-1) width lh; (* right *)
     if thick > radius (* need to fill more inside *)
-    then rectangle renderer bg ~thick:(thick - radius) (x-1) (y-1)
+    then rectangle renderer ~color:bg ~thick:(thick - radius) ~x:(x-1) ~y:(y-1)
         ~w:(lw+1) ~h:(lh+1);
 
     (* draw corners *)
@@ -2166,17 +2170,24 @@ let make_vline ?(thick=1) renderer ~color ~x ~y0 ~y1 =
 let line ?(thick=1) renderer ~color ~x0 ~y0 ~x1 ~y1 =
   if y0 = y1
   then let tex, dst = make_hline ~thick renderer ~color ~x0 ~x1 ~y:y0 in
-    go (Sdl.render_copy ~dst renderer tex)
+    begin
+      go (Sdl.render_copy ~dst renderer tex);
+      forget_texture tex
+    end
   else if x0 = x1
   then let tex, dst = make_vline ~thick renderer ~color ~x:x0 ~y0 ~y1 in
-    go (Sdl.render_copy ~dst renderer tex)
+    begin
+      go (Sdl.render_copy ~dst renderer tex);
+      forget_texture tex
+    end
   else let w = round (dist (x0,y0) (x1,y1)) in
     let tex = texture ~color renderer ~w ~h:thick in
     let center = Sdl.Point.create ~x:0 ~y:(thick/2) in
     (* = center coordinates relative to the dst rect below *)
     let dst = Sdl.Rect.create ~x:x0 ~y:(y0 - thick/2) ~w ~h:thick in
     let angle = 180. *. atan2 (float (y1 - y0)) (float (x1 - x0)) /. pi in
-    go (Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none)
+    go (Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none);
+    forget_texture tex
 
 (** intersection of rectangles; None means no clipping = the whole texture *)
 (* if the intersection is empty, we return a rect with zero area. This can be

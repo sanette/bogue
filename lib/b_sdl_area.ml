@@ -120,12 +120,10 @@ let to_pixels = Draw.to_pixels
    easily to resizing the area. See example 49. *)
 
 let draw_circle area ~color ~thick ~radius (x, y) =
-  add area (fun renderer ->
-      Draw.circle renderer color ~thick x y radius)
+  add area (Draw.circle ~color ~thick ~radius ~x ~y)
 
 let draw_rectangle area ~color ~thick ~w ~h (x, y) =
-  add area (fun renderer ->
-      Draw.rectangle renderer color ~w ~h ~thick x y)
+  add area (Draw.rectangle ~color ~w ~h ~thick ~x ~y)
 
 let draw_line area ~color ~thick (x0, y0) (x1, y1) =
   if thick = 1

@@ -113,6 +113,7 @@ let display canvas layer img g =
           go (Sdl.set_texture_blend_mode tex Sdl.Blend.mode_blend);
           go (Sdl.render_copy canvas.renderer tex);
           pop_target canvas.renderer push;
+          forget_texture tex;
           target
         | None -> tex in
       Var.set img.render (Some tex);

@@ -501,12 +501,13 @@ let example25 () =
   let main = L.tower
       [menu_placeholder;
        L.superpose
-         [L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
+         [L.flat_of_w [box];
+          L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
                    L.empty ~w:0 ~h:100 ();
                    L.resident (W.check_box ())];
-          L.flat_of_w [box]]] in
-  (* : recall that for the moment, the first item in the list of rooms gets
-     focus before the next ones (bug, we should change, this is not usual) *)
+         ]
+      ] in
+  (* : recall that the first item in the list of rooms is drawn first *)
 
   (* Now we construct the menu... *)
   let () =
@@ -603,10 +604,10 @@ let example25bis () =
   let main = L.tower
       [my_bar;
        L.superpose
-         [L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
+         [L.flat_of_w [box];
+          L.tower [L.flat_of_w [W.label "   Hello there"; W.check_box ()];
                    L.empty ~w:0 ~h:100 ();
-                   L.resident (W.check_box ())];
-          L.flat_of_w [box]]] in
+                   L.resident (W.check_box ())]]] in
 
   let layout = L.tower ~margins:0
       ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
@@ -767,9 +768,10 @@ let example34 () =
      their data separately if we want to use it... *)
   let data = Array.make length false in
   let w = 200 and h = 30 in
-  let generate i = let background = if i mod 2 = 0
-                     then Some (L.color_bg Draw.(transp (pale (pale green))))
-                     else None in
+  let generate i =
+    let background = if i mod 2 = 0
+      then Some (L.color_bg Draw.(transp (pale (pale green))))
+      else None in
     let state = data.(i) in
     let b = W.check_box ~state () in
     let click w = data.(i) <- W.get_state w in
@@ -1116,8 +1118,8 @@ let example49 () =
   (* We draw a diagonal line and a centered thick rectangle. *)
   let draw renderer =
     let w,h = Sdl_area.drawing_size area in
-    Draw.rectangle renderer Draw.(opaque blue)
-      ~w:(w/2) ~h:(h/2) ~thick:20 (w/4) (h/4);
+    Draw.rectangle renderer ~color:Draw.(opaque blue)
+      ~w:(w/2) ~h:(h/2) ~thick:20 ~x:(w/4) ~y:(h/4);
     match Sdl.render_draw_line renderer 0 0 w h with
     | Error (`Msg m) -> print_endline ("SDL ERROR: " ^ m)
     | Ok () -> print_endline "Line rendered"
@@ -1126,7 +1128,8 @@ let example49 () =
   (* We draw a thick circle *)
   let circle renderer =
     let w,h = Sdl_area.drawing_size area in
-    Draw.circle renderer Draw.(opaque black) ~thick:20 (3*w/4) (h/4) (h/2)
+    Draw.circle renderer ~color:Draw.(opaque black) ~thick:20 ~x:(3*w/4) ~y:(h/4)
+      ~radius:(h/2)
   in
 
   (* We can remove/add the circle by clicking on a check box. *)

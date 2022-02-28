@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220226
+@version 20220228
 
 @author Vu Ngoc San
 
@@ -647,16 +647,24 @@ module Draw: sig
 
       These functions can be used to draw onto an {!Sdl_area.t}. *)
 
-  val rectangle : Tsdl.Sdl.renderer -> color ->
-    ?thick:int -> w:int -> h:int -> int -> int -> unit
-  (** [rectangle renderer color ~thick ~w ~h x y] draws a rectangle with given
-     line thickness. The coordinate of the top left corner is [(x0,y0)]. The
-     size (including the thick line) is [(w,h)]. *)
+  val to_pixels : (int * int) -> (int * int)
+  (** Convert BOGUE logical coordinates into hardware pixel coordinates. This
+     takes into account both the {!Theme} [SCALE] and the high-dpi scaling of
+     some systems (mac OS retina, iOS). *)
 
-  val circle : Tsdl.Sdl.renderer ->
-    ?thick:int -> color -> int -> int -> int -> unit
-  (** [circle renderer ~width color x0 y0 radius] draws a circle with given line
-      thickness, centered at [(x0,y0)], with given [radius]. *)
+  val line : ?thick:int -> Tsdl.Sdl.renderer ->
+    color:color -> x0:int -> y0:int -> x1:int -> y1:int -> unit
+
+  val rectangle : ?thick:int -> Tsdl.Sdl.renderer -> color:color ->
+    w:int -> h:int -> x:int -> y:int -> unit
+  (** [rectangle renderer ~color ~thick ~w ~h ~x ~y] draws a rectangle with
+     given line thickness. The coordinate of the top left corner is
+     [(x,y)]. The size (including the thick line) is [(w,h)]. *)
+
+  val circle : ?thick:int -> Tsdl.Sdl.renderer ->
+    color:color -> radius:int -> x:int -> y:int -> unit
+  (** [circle renderer ~width ~color ~radius ~x ~y] draws a circle with given
+     line thickness, centered at [(x,y)], with given [radius]. *)
 
   (** {2 Layers} *)
 
@@ -1167,7 +1175,7 @@ module Sdl_area : sig
 
   val to_pixels : (int * int) -> (int * int)
   (** Convert BOGUE logical coordinates into pixel coordinates usable for the
-     SDL area. *)
+     SDL area. Same as {!Draw.to_pixels}. *)
 
   val draw_line : t -> color:Draw.color -> thick:int ->
     int * int -> int * int -> unit

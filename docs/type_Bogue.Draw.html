@@ -40,12 +40,19 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;find_color&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pale&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_color&nbsp;:&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.renderer&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_pixels&nbsp;:&nbsp;int&nbsp;*&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;line&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?thick:int&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.renderer&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;color:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;x0:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;y0:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;x1:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;y1:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;rectangle&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?thick:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.renderer&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?thick:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;h:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;color:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;h:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;x:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;y:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;circle&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?thick:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.renderer&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?thick:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;color:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;radius:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;x:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;y:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;layer<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;use_new_layer&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;align&nbsp;=&nbsp;<span class="constructor">Min</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Center</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Max</span><br>

@@ -2330,7 +2330,7 @@ let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false)
      this is superfluous... *)
   let layer = get_layer room in
   let container = tower ~margins:0 ~clip:true
-      [superpose [room; resident ~layer active_bg]] in
+      [superpose [resident ~layer active_bg; room]] in
   (* The container should be a room with a unique subroom (and the active
      background); the subroom can then be scrolled with respect to the container
   *)
@@ -2890,18 +2890,20 @@ let rec focus_list_old x y t =
 
 (* instead of the first one, get the complete list *)
 (* in each layer, the first element of the list has priority (TODO this is not
-   consistent with the fact that it is the last displayed) *)
+   consistent with the fact that it is the first displayed) *)
 (* cf remarks above *)
 let rec focus_list x y t =
   if t.show && (inside t (x,y)) then match t.content with
     | Resident _ -> [ t ]
-    | Rooms h -> List.flatten (List.map (fun r -> focus_list x y r) h)
+    | Rooms h -> List.flatten (List.rev_map (fun r -> focus_list x y r) h)
   else []
 
 (* get the focus element in the top layer *)
 let top_focus x y t =
   let flist = focus_list x y t in
-  printd debug_graphics "Number of layers detected under mouse: %u (%s)" (List.length flist) (String.concat " " (List.map (fun r -> "#" ^ (string_of_int r.id)) flist));
+  printd debug_graphics "Number of layers detected under mouse: %u (%s)"
+    (List.length flist)
+    (String.concat " " (List.map (fun r -> "#" ^ (string_of_int r.id)) flist));
   let compare r1 r2 = Chain.compare (get_layer r1) (get_layer r2) in
   list_max compare flist
 

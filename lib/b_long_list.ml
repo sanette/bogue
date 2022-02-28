@@ -457,7 +457,7 @@ let update_room ll container o =
            correctly). The problem is that the scrollbar is on the right, so it
            is naturally rendered *after* the room... too bad *)
         Layout.(set_rooms ~sync:false container
-                  [superpose [room'; resident active_bg']]);
+                  [superpose [resident active_bg'; room']]);
         Layout.fix_content container;
         Layout.set_height container h;
         (* Sync.push (fun () -> Layout.detach room; Layout.kill room); *)
@@ -540,7 +540,7 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
   let container =
     Layout.(tower ~name:"long_list container"
               ~sep:0 ~hmargin:0 ~vmargin:0
-              [superpose [room; resident ~name:"active_bg" active_bg]]) in
+              [superpose [resident ~name:"active_bg" active_bg; room]]) in
   Layout.fix_content container;
   Layout.set_size container (w,h);
   Layout.set_clip container; (* this allows the mouse wheel to change the

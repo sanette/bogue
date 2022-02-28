@@ -93,23 +93,24 @@ let make_title (c : column) =
   Layout.set_width layout w; (* not necessary in the case of sort_indicator *)
   let (_,h) = Widget.default_size label in
   let click_area = Widget.empty ~w ~h () in
-  let title = Layout.(superpose [resident click_area; layout]) in
+  let title = Layout.(superpose [layout; resident click_area]) in (*AAA*)
   title
 
 (* extracts the click_area widget from the title layout *)
-(* Warning: this depends on the way title is created in make_title *)
+(* Warning: this depends on the way title is created in make_title, see (*AAA*)
+   *)
 let get_area title =
   let open Layout in
   match title.content with
-  | Rooms [area; _] -> widget area
-  | _ -> failwith "table.ml: The title layout should contain [area;layout]"
+  | Rooms [_; area] -> widget area (* see AAA *)
+  | _ -> failwith "table.ml: The title layout should contain [layout; area]"
 
 (* extracts the sort_indicator widget from the title layout *)
 (* Warning: this depends on the way title is created in make_title *)
 let get_indicator title =
   let open Layout in
   match title.content with
-  | Rooms [_; { content = Rooms [_; _; sort_indicator]; _ }]
+  | Rooms [{ content = Rooms [_; _; sort_indicator]; _ }; _] (* see AAA *)
     -> Some (widget sort_indicator)
   | _ -> None
 
@@ -206,7 +207,7 @@ let make_long_list ~w ~h t  =
        Layout.set_background row (get_background t i ii);
       ) in
     Widget.on_click ~click click_area;
-    Layout.(superpose [ca; row])
+    Layout.(superpose [row; ca])
   in
   let height_fn _ = Some t.row_height in
   Long_list.create ~w ~h ~generate ~height_fn ~length:t.length ()
