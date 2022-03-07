@@ -165,6 +165,7 @@ let display wid canvas layer area g =
        main loop. *)
     let t0 = Time.now () in
     Var.protect_fn area.sheet (fun q ->
+        Tsdl.Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend) |> go;
         Flow.iter_until (fun el ->
             if not el.disable then begin
               printd debug_graphics "Executing SDL_Area element %s." (sprint el);

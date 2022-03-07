@@ -1,3 +1,11 @@
+(* Module Draw. This file is part of BOGUE
+
+San Vu Ngoc --2022
+
+Low-level graphics using SDL,
+layer mechanism, etc.
+
+*)
 open Printf
 open Tsdl
 open B_utils
@@ -390,7 +398,9 @@ let scale_geom g =
     voffset=(scale_int g.voffset) }
 
 (* From Bogue logical pixels to OS pixels *)
-let scale_pos (x,y) =
+(* TODO check whether @inline is really good. It can actually be bad. See also
+   below. *)
+let[@inline] scale_pos (x,y) =
   (Theme.scale_int x, Theme.scale_int y)
 
 let scale_size = scale_pos
@@ -787,11 +797,11 @@ let default_dpi = 110
    true pixel resolution in order to produce sharp graphics. *)
 let dpi_xscale = ref 1.
 let dpi_yscale = ref 1.
-let dpi_rescalex x = round (float x *. !dpi_xscale)
-let dpi_rescaley y = round (float y *. !dpi_yscale)
+let[@inline] dpi_rescalex x = round (float x *. !dpi_xscale)
+let[@inline] dpi_rescaley y = round (float y *. !dpi_yscale)
 
 (* From OS pixels to true physical pixels *)
-let dpi_rescale (x,y) =
+let[@inline] dpi_rescale (x,y) =
   (round (float x *. !dpi_xscale), round (float y *. !dpi_yscale))
 
 (* This takes the "High-DPI" pixels as reported by the OS (iOS or MacOS) and
@@ -801,7 +811,7 @@ let dpi_unscale_pos (x,y) =
   round (!dpi_yscale *. float y /. !Theme.scale)
 
 (** From BOGUE logical pixels to physical pixels *)
-let to_pixels (x,y) =
+let[@inline] to_pixels (x,y) =
   dpi_rescale (scale_pos (x,y))  (* TODO inline *)
 
 (* Get the window size in true physical pixels *)
@@ -1163,7 +1173,7 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
       | Error _ ->
         go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
   let rw, rh = go (Sdl.get_renderer_output_size renderer) in
-  if (rw, rh) <> (w,h) then begin
+  if window = None && (rw, rh) <> (w,h) then begin
     dpi_xscale := float rw /. float w;
     dpi_yscale := float rh /. float h;
     printd (debug_graphics+debug_warning)
@@ -1292,6 +1302,35 @@ let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thic
   make_blit ?voffset ~dst ~transform canvas layer tex
 
 
+(* The type for fast plot of points of the same color *)
+type point_buffer =
+  { ba : (int32, Bigarray.int32_elt) Sdl.bigarray;
+    mutable index : int;
+    len : int }
+
+(* Create buffer for n pixels *)
+let create_buffer n =
+  let ba = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (2*n) in
+  { ba; index = 0; len = 2*n }
+
+(* yes, it is unsafe, and can crash, but that's not "too bad" because
+   [render_buffer] will tell you if the index is out of bounds. *)
+let unsafe_add_point_to_buffer buffer x y =
+  Bigarray.Array1.unsafe_set buffer.ba buffer.index (Int32.of_int x);
+  buffer.index <- buffer.index + 1;
+  Bigarray.Array1.unsafe_set buffer.ba buffer.index (Int32.of_int y);
+  buffer.index <- buffer.index + 1
+
+let add_point_to_buffer buffer x y =
+  if buffer.index + 1 < buffer.len
+  then unsafe_add_point_to_buffer buffer x y
+  else failwith "Buffer index ouf of bounds"
+
+let render_buffer buffer renderer =
+  Sdl.render_draw_points_ba renderer
+    (Bigarray.Array1.sub buffer.ba 0 buffer.index) |> go
+
+
 (*           |                                          y
              |                \3 | 2/                   ^
              |              4  \ | /  1                 |
@@ -1314,13 +1353,13 @@ let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thic
 
 
 
-(* draw a circle on the renderer *)
+(* Draw a circle on the renderer. Most of the time you want to
+   [set_render_draw_blend_mode renderer Blend.mode_blend] before calling this
+   function.  *)
 (* cf experiments in circle.ml *)
+(* Nowadays a circle with only one-pixel width is not so useful. See
+   [annulus].*)
 let circle renderer (r,g,b,a0) x0 y0 radius =
-  (*go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);*)
-  (* TODO use set_color instead ? *)
-  (* TODO store points in a BigArray before rendering. BUT this would only work
-     if all points are of the same color...*)
 
   if radius = 0 then begin
     go (Sdl.set_render_draw_color renderer r g b a0);
@@ -1346,51 +1385,43 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
         let a = round (alpha *. alpha0) in
         let a' = round (alpha' *. alpha0) in
 
-        (* color A: *)
+        (* color A: *) (* TODO regrouper avec color A ci-dessous *)
         go (Sdl.set_render_draw_color renderer r g b a);
-        let pts = [
-          Sdl.Point.create ~x:(x0+x) ~y:(y0+y); (* octant 1 *)
-          Sdl.Point.create ~x:(x0-x) ~y:(y0-y); (* octant 5 *)
-          Sdl.Point.create ~x:(x0-y) ~y:(y0+x); (* octant 3 *)
-          Sdl.Point.create ~x:(x0+y) ~y:(y0-x)] in (* octant 7 *)
-        go (Sdl.render_draw_points renderer pts);
+        let bf = create_buffer 8 in
+        unsafe_add_point_to_buffer bf (x0+x) (y0+y); (* octant 1 *)
+        unsafe_add_point_to_buffer bf (x0-x) (y0-y); (* octant 5 *)
+        unsafe_add_point_to_buffer bf (x0-y) (y0+x); (* octant 3 *)
+        unsafe_add_point_to_buffer bf (x0+y) (y0-x); (* octant 7 *)
 
+        (* now we need to be careful avoiding repeated/missing pixels along the
+           diagonal x=y *)
+        if y <> 0 && y <> x then begin
+          unsafe_add_point_to_buffer bf (x0+y) (y0+x); (* octant 2 *)
+          unsafe_add_point_to_buffer bf (x0-x) (y0+y); (* octant 4 *)
+          unsafe_add_point_to_buffer bf (x0-y) (y0-x); (* octant 6 *)
+          unsafe_add_point_to_buffer bf (x0+x) (y0-y); (* octant 8 *)
+        end;
+        render_buffer bf renderer;
+
+        go (Sdl.set_render_draw_color renderer r g b a');
+        let bf = create_buffer 8 in
         if x' >= y then begin
           (* color A': *)
-          go (Sdl.set_render_draw_color renderer r g b a');
-          let pts = [
-            Sdl.Point.create ~x:(x0+x') ~y:(y0+y); (* octant 1 *)
-            Sdl.Point.create ~x:(x0-x') ~y:(y0-y); (* octant 5 *)
-            Sdl.Point.create ~x:(x0-y) ~y:(y0+x'); (* octant 3 *)
-            Sdl.Point.create ~x:(x0+y) ~y:(y0-x')] in (* octant 7 *)
-          go (Sdl.render_draw_points renderer pts);
+          unsafe_add_point_to_buffer bf (x0+x') (y0+y); (* octant 1 *)
+          unsafe_add_point_to_buffer bf (x0-x') (y0-y); (* octant 5 *)
+          unsafe_add_point_to_buffer bf (x0-y) (y0+x'); (* octant 3 *)
+          unsafe_add_point_to_buffer bf (x0+y) (y0-x'); (* octant 7 *)
         end;
 
         (* now we need to be careful avoiding repeated/missing pixels along the
            diagonal x=y *)
-        if y <> 0 then begin
-          if y <> x then begin
-            (* color A: *)
-            go (Sdl.set_render_draw_color renderer r g b a);
-            let pts = [
-              Sdl.Point.create ~x:(x0+y) ~y:(y0+x); (* octant 2 *)
-              Sdl.Point.create ~x:(x0-x) ~y:(y0+y); (* octant 4 *)
-              Sdl.Point.create ~x:(x0-y) ~y:(y0-x); (* octant 6 *)
-              Sdl.Point.create ~x:(x0+x) ~y:(y0-y)] in (* octant 8 *)
-            go (Sdl.render_draw_points renderer pts);
-          end;
-          if y <> x' then begin
-            (* color A': *)
-            go (Sdl.set_render_draw_color renderer r g b a');
-            let pts = [
-              Sdl.Point.create ~x:(x0+y) ~y:(y0+x'); (* octant 2 *)
-              Sdl.Point.create ~x:(x0-x') ~y:(y0+y); (* octant 4 *)
-              Sdl.Point.create ~x:(x0-y) ~y:(y0-x'); (* octant 6 *)
-              Sdl.Point.create ~x:(x0+x') ~y:(y0-y)] in (* octant 8 *)
-            go (Sdl.render_draw_points renderer pts);
-          end
+        if y <> 0 && y <> x' then begin
+          unsafe_add_point_to_buffer bf (x0+y) (y0+x'); (* octant 2 *)
+          unsafe_add_point_to_buffer bf (x0-x') (y0+y); (* octant 4 *)
+          unsafe_add_point_to_buffer bf (x0-y) (y0-x'); (* octant 6 *)
+          unsafe_add_point_to_buffer bf (x0+x') (y0-y); (* octant 8 *)
         end;
-
+        render_buffer bf renderer;
 
         (* now what is the next point ? *)
         let e1 = e +. float (2*y + 1) in
@@ -1402,82 +1433,85 @@ let circle renderer (r,g,b,a0) x0 y0 radius =
     in
     loop (radius,0) 0.
 
-let sdl_draw_hline renderer x0 x1 y =
+let buffer_draw_hline buffer x0 x1 y =
   (* Because of SDL bug, we cannot use Sdl.render_draw_line right now (SDL 2.0.10)
      see https://discourse.libsdl.org/t/sdl-renderdrawline-endpoint-inconsistency/22065/8 *)
   assert (x0 <= x1);
-  let rec loop list x =
-    if x > x1 then list
-    else loop ((Sdl.Point.create ~x ~y)::list) (x+1) in
-  go (Sdl.render_draw_points renderer (loop [] x0))
+  for x = x0 to x1 do
+    unsafe_add_point_to_buffer buffer x y
+  done
 
-let sdl_draw_vline renderer x y0 y1 =
+let buffer_draw_vline buffer x y0 y1 =
   (* Because of SDL bug, we cannot use Sdl.render_draw_line right now (SDL 2.0.10)
      see https://discourse.libsdl.org/t/sdl-renderdrawline-endpoint-inconsistency/22065/8 *)
   assert (y0 <= y1);
-  let rec loop list y =
-    if y > y1 then list
-    else loop ((Sdl.Point.create ~x ~y)::list) (y+1) in
-  go (Sdl.render_draw_points renderer (loop [] y0))
+  for y = y0 to y1 do
+    unsafe_add_point_to_buffer buffer x y
+  done
 
 (* draw a filled annulus between radius1 and radius2 (inclusive) *)
 let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
-  go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);
+  
   let alpha0 = float a0 in
   (* TODO if radius1 = radius2 appeler circle *)
   let radius1,radius2 = if radius1 <= radius2
     then radius1,radius2
     else radius2,radius1 in
 
-  let plot x y =
-    if (x,y) = (0,0) then go (Sdl.render_draw_point renderer xc yc)
-    else begin
-      let pts = [
-        Sdl.Point.create ~x:(xc+x) ~y:(yc+y); (* octant 1 *)
-        Sdl.Point.create ~x:(xc-x) ~y:(yc-y); (* octant 5 *)
-        Sdl.Point.create ~x:(xc-y) ~y:(yc+x); (* octant 3 *)
-        Sdl.Point.create ~x:(xc+y) ~y:(yc-x)] in (* octant 7 *)
-      go (Sdl.render_draw_points renderer pts);
-      (* Now we draw "plot y x" but careful about boundaries: *)
-      if y <> 0 && y <> x then begin
-        let pts = [
-          Sdl.Point.create ~x:(xc+y) ~y:(yc+x); (* octant 2 *)
-          Sdl.Point.create ~x:(xc-x) ~y:(yc+y); (* octant 4 *)
-          Sdl.Point.create ~x:(xc-y) ~y:(yc-x); (* octant 6 *)
-          Sdl.Point.create ~x:(xc+x) ~y:(yc-y)] in (* octant 8 *)
-        go (Sdl.render_draw_points renderer pts);
-      end
-    end in
+  (* A rough estimate of the necessary buffer size in pixels *)
+  let r1 = round (float radius1 /. 1.42) in
+  let n = 4*(radius2 - r1)*(radius2 + r1 + 1) in
+  (* 4r²+4r + 1 - 4x² - 4x - 1 = 4(r-x)(r+x) + 4(r-x) = 4(r-x)(r+x+1) *)
+  let buffer = create_buffer n in
 
+  (* plot will be called with various colors, we cannot use the global buffer *)
+  let plot x y =
+    if (x,y) = (0,0)
+    then go (Sdl.render_draw_point renderer xc yc)
+    else let b = create_buffer 8 in begin
+        unsafe_add_point_to_buffer b (xc+x) (yc+y); (* octant 1 *)
+        unsafe_add_point_to_buffer b (xc-x) (yc-y); (* octant 5 *)
+        unsafe_add_point_to_buffer b (xc-y) (yc+x); (* octant 3 *)
+        unsafe_add_point_to_buffer b (xc+y) (yc-x); (* octant 7 *)
+        (* Now we draw "plot y x" but careful about boundaries: *)
+        if y <> 0 && y <> x then begin
+          unsafe_add_point_to_buffer b (xc+y) (yc+x); (* octant 2 *)
+          unsafe_add_point_to_buffer b (xc-x) (yc+y); (* octant 4 *)
+          unsafe_add_point_to_buffer b (xc-y) (yc-x); (* octant 6 *)
+          unsafe_add_point_to_buffer b (xc+x) (yc-y); (* octant 8 *)
+        end;
+        render_buffer b renderer
+      end in
+
+  (* line will always be called with alpha a0, we can use a global buffer *)
   let line x0 x3 y =
     (* the center is treated separately *)
     let x0 = if (x0,y) = (0,0) then begin
-        go (Sdl.render_draw_point renderer xc yc);
+        unsafe_add_point_to_buffer buffer xc yc;
         1
       end else x0 in
     (* SDL doesn't want to draw a line of 1 pixel length... *)
-    if x0 = x3 then plot x0 y
+    if x0 = x3 then plot x0 y (* one could inline this and use buffer *)
     else if x0 < x3 then begin
-      sdl_draw_hline renderer (xc+x0) (xc+x3) (yc+y); (* 1 *)
-      sdl_draw_hline renderer (xc-x3) (xc-x0) (yc-y); (* 5 *)
-      sdl_draw_vline renderer (xc-y) (yc+x0) (yc+x3); (* 3 *)
-      sdl_draw_vline renderer (xc+y) (yc-x3) (yc-x0); (* 7 *)
+      buffer_draw_hline buffer (xc+x0) (xc+x3) (yc+y); (* 1 *)
+      buffer_draw_hline buffer (xc-x3) (xc-x0) (yc-y); (* 5 *)
+      buffer_draw_vline buffer (xc-y) (yc+x0) (yc+x3); (* 3 *)
+      buffer_draw_vline buffer (xc+y) (yc-x3) (yc-x0); (* 7 *)
       if y <> 0
       then
         let x0 = if y=x0 then x0+1 else x0 in
-        if x0 = x3 then
-          let pts = [
-            Sdl.Point.create ~x:(xc+y) ~y:(yc+x0); (* octant 2 *)
-            Sdl.Point.create ~x:(xc-x0) ~y:(yc+y); (* octant 4 *)
-            Sdl.Point.create ~x:(xc-y) ~y:(yc-x0); (* octant 6 *)
-            Sdl.Point.create ~x:(xc+x0) ~y:(yc-y)] in (* octant 8 *)
-          go (Sdl.render_draw_points renderer pts)
+        if x0 = x3 then begin
+          unsafe_add_point_to_buffer buffer (xc+y) (yc+x0); (* octant 2 *)
+          unsafe_add_point_to_buffer buffer (xc-x0) (yc+y); (* octant 4 *)
+          unsafe_add_point_to_buffer buffer (xc-y) (yc-x0); (* octant 6 *)
+          unsafe_add_point_to_buffer buffer (xc+x0) (yc-y) (* octant 8 *)
+        end
         else begin
           (* 2,4,6,8 *)
-          sdl_draw_vline renderer (xc+y) (yc+x0) (yc+x3);
-          sdl_draw_hline renderer (xc-x3) (xc-x0) (yc+y);
-          sdl_draw_vline renderer (xc-y) (yc-x3) (yc-x0);
-          sdl_draw_hline renderer (xc+x0) (xc+x3) (yc-y)
+          buffer_draw_vline buffer (xc+y) (yc+x0) (yc+x3);
+          buffer_draw_hline buffer (xc-x3) (xc-x0) (yc+y);
+          buffer_draw_vline buffer (xc-y) (yc-x3) (yc-x0);
+          buffer_draw_hline buffer (xc+x0) (xc+x3) (yc-y)
         end
     end in
 
@@ -1555,7 +1589,8 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
       loop x1' e1' x2' e2' (y+1)
     end
   in
-  loop radius1 0. radius2 0. 0
+  loop radius1 0. radius2 0. 0;
+  render_buffer buffer renderer
 
 (* in this version, we can choose which one of the 8 octants to draw. But recall
    that some of them are "closed" (odd numbers) and the other are "open" (even
@@ -1566,78 +1601,89 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
    faster *)
 let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
     xc yc radius1 radius2 =
-  (*go Sdl.(set_render_draw_blend_mode renderer Blend.mode_blend);*)
+  
   let alpha0 = float a0 in
   (* TODO if radius1 = radius2 appeler circle *)
   let radius1, radius2 = if radius1 <= radius2
     then radius1, radius2
     else radius2, radius1 in
 
+  (* A rough estimate of the necessary buffer size in pixels *)
+  let n_octants = octants land 1 + (octants lsr 1) land 1 +
+                  (octants lsr 2) land 1 + (octants lsr 3) land 1 +
+                  (octants lsr 4) land 1 + (octants lsr 5) land 1 +
+                  (octants lsr 6) land 1 + (octants lsr 7) land 1 in
+  let r1 = round (float radius1 /. 1.42) in
+  let n = 4*(radius2 - r1)*(radius2 + r1 + 1)/n_octants + 1 in
+  let buffer = create_buffer n in
+
   let noalpha a = if a = 0 then 0 else a0 in
 
   let plot x y =
     if (x,y) = (0,0) then go (Sdl.render_draw_point renderer xc yc)
-    else begin
+    else let b = create_buffer 8 in begin
       if octants land 1 = 1 then (* octant 1 *)
-        go (Sdl.render_draw_point renderer (xc+x) (yc+y));
+        unsafe_add_point_to_buffer b (xc+x) (yc+y);
       if octants land 16 = 16 then (* octant 5 *)
-        go (Sdl.render_draw_point renderer (xc-x) (yc-y));
+        unsafe_add_point_to_buffer b (xc-x) (yc-y);
       if octants land 4 = 4 then (* octant 3 *)
-        go (Sdl.render_draw_point renderer (xc-y) (yc+x));
+        unsafe_add_point_to_buffer b (xc-y) (yc+x);
       if octants land 64 = 64 then (* octant 7 *)
-        go (Sdl.render_draw_point renderer (xc+y) (yc-x));
+        unsafe_add_point_to_buffer b (xc+y) (yc-x);
       if y <> 0 && y <> x then begin (* same as "plot y x" *)
         if octants land 2 = 2 then (* octant 2 *)
-          go (Sdl.render_draw_point renderer (xc+y) (yc+x));
+          unsafe_add_point_to_buffer b (xc+y) (yc+x);
         if octants land 8 = 8 then (* octant 4 *)
-          go (Sdl.render_draw_point renderer (xc-x) (yc+y));
+          unsafe_add_point_to_buffer b (xc-x) (yc+y);
         if octants land 32 = 32 then (* octant 6 *)
-          go (Sdl.render_draw_point renderer (xc-y) (yc-x));
+          unsafe_add_point_to_buffer b (xc-y) (yc-x);
         if octants land 128 = 128 then (* octant 8 *)
-          go (Sdl.render_draw_point renderer (xc+x) (yc-y));
-      end
+          unsafe_add_point_to_buffer b (xc+x) (yc-y);
+      end;
+      render_buffer b renderer
     end in
 
+  (* Draw a line of the main color: with alpha=a0 *)
   let line x0 x3 y =
     (* the center is treated separately *)
     let x0 = if (x0,y) = (0,0) then begin
-        go (Sdl.render_draw_point renderer xc yc);
+        unsafe_add_point_to_buffer buffer xc yc;
         1
       end else x0 in
     (* SDL doesn't want to draw a line of 1 pixel length... *)
     if x0 = x3 then plot x0 y
     else if x0 < x3 then begin
       if octants land 1 = 1 then
-        sdl_draw_hline renderer (xc+x0) (xc+x3) (yc+y); (* 1 *)
+        buffer_draw_hline buffer (xc+x0) (xc+x3) (yc+y); (* 1 *)
       if octants land 16 = 16 then
-        sdl_draw_hline renderer (xc-x3) (xc-x0) (yc-y); (* 5 *)
+        buffer_draw_hline buffer (xc-x3) (xc-x0) (yc-y); (* 5 *)
       if octants land 4 = 4 then
-        sdl_draw_vline renderer (xc-y) (yc+x0) (yc+x3); (* 3 *)
+        buffer_draw_vline buffer (xc-y) (yc+x0) (yc+x3); (* 3 *)
       if octants land 64 = 64 then
-        sdl_draw_vline renderer (xc+y) (yc-x3) (yc-x0); (* 7 *)
+        buffer_draw_vline buffer (xc+y) (yc-x3) (yc-x0); (* 7 *)
       if y <> 0
       then
         let x0 = if y=x0 then x0+1 else x0 in
         if x0 = x3 then begin
           if octants land 2 = 2 then (* octant 2 *)
-            go (Sdl.render_draw_point renderer (xc+y) (yc+x0));
+            unsafe_add_point_to_buffer buffer (xc+y) (yc+x0);
           if octants land 8 = 8 then (* octant 4 *)
-            go (Sdl.render_draw_point renderer (xc-x0) (yc+y));
+            unsafe_add_point_to_buffer buffer (xc-x0) (yc+y);
           if octants land 32 = 32 then (* octant 6 *)
-            go (Sdl.render_draw_point renderer (xc-y) (yc-x0));
+            unsafe_add_point_to_buffer buffer (xc-y) (yc-x0);
           if octants land 128 = 128 then  (* octant 8 *)
-            go (Sdl.render_draw_point renderer (xc+x0) (yc-y))
+            unsafe_add_point_to_buffer buffer (xc+x0) (yc-y)
         end
         else begin
           (* 2,4,6,8 *)
           if octants land 2 = 2 then
-            sdl_draw_vline renderer (xc+y) (yc+x0) (yc+x3);
+            buffer_draw_vline buffer (xc+y) (yc+x0) (yc+x3);
           if octants land 8 = 8 then
-            sdl_draw_hline renderer (xc-x3) (xc-x0) (yc+y);
+            buffer_draw_hline buffer (xc-x3) (xc-x0) (yc+y);
           if octants land 32 = 32 then
-            sdl_draw_vline renderer (xc-y) (yc-x3) (yc-x0);
+            buffer_draw_vline buffer (xc-y) (yc-x3) (yc-x0);
           if octants land 128 = 128 then
-            sdl_draw_hline renderer (xc+x0) (xc+x3) (yc-y)
+            buffer_draw_hline buffer (xc+x0) (xc+x3) (yc-y)
         end
     end in
 
@@ -1714,7 +1760,8 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
       loop x1' e1' x2' e2' (y+1)
     end
   in
-  loop radius1 0. radius2 0. 0
+  loop radius1 0. radius2 0. 0;
+  render_buffer buffer renderer
 
 let circle ?(thick=1) renderer ~color ~radius ~x ~y =
   if thick > 0
@@ -1814,10 +1861,12 @@ let rounded_box renderer color ?(antialias=true) ~w ~h ~radius ~thick x0 y0 =
 
     (* draw the four centers *)
     if thick > radius then begin
-      go (Sdl.render_draw_point renderer (x-1) (y-1));
-      go (Sdl.render_draw_point renderer (x1) (y-1));
-      go (Sdl.render_draw_point renderer (x1) (y1));
-      go (Sdl.render_draw_point renderer (x-1) (y1))
+      let bf = create_buffer 4 in
+      unsafe_add_point_to_buffer bf (x-1) (y-1);
+      unsafe_add_point_to_buffer bf (x1) (y-1);
+      unsafe_add_point_to_buffer bf (x1) (y1);
+      unsafe_add_point_to_buffer bf (x-1) (y1);
+      render_buffer bf renderer
     end
   end
 

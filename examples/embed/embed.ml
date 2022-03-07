@@ -11,9 +11,10 @@ open Utils
 module W = Widget
 module L = Layout
 
-type tmprect = { rect : Sdl.rect;
-                 color : int * int * int;
-                 created : int }
+type tmprect = {
+  rect : Sdl.rect;
+  color : int * int * int;
+  created : int }
 
 let duration = 1000 (* lifetime of a rectangle *)
 let width = 400 (* width of window in Bogue units. *)
@@ -67,8 +68,8 @@ let main () =
   Sys.catch_break true;
   go(Sdl.init Sdl.Init.video);
   let w,h = Theme.(scale_int width, scale_int height) in
-  let win = go(Sdl.create_window ~w ~h
-                 "Test Window" Sdl.Window.windowed) in
+  let win = go(Sdl.create_window ~w ~h "Test Window"
+                 Sdl.Window.(windowed + allow_highdpi + opengl + resizable)) in
   let renderer = go(Sdl.create_renderer win) in
   (* very important: set blend mode: *)
   go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_blend);

@@ -18,11 +18,11 @@ open Result
 
 (* We initialize SDL with only the events subsystem *)
 let () =
-  go(Sdl.(init Init.nothing));
+  Sdl.(init Init.nothing) |> go;
   printd debug_warning "SDL initialized";
   let a,b,c = Sdl.get_version () in
   Sdl.log "Using SDL %u.%u.%u" a b c;
-  go(Sdl.(init_sub_system Init.events));
+  Sdl.(init_sub_system Init.events) |> go;
   printd debug_event "SDL Events initialized"
 
 type t = Sdl.event_type

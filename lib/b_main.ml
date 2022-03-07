@@ -920,10 +920,10 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   printd debug_graphics "---------- end of loop -----------";
   anim
 
-(* creates an SDL window for each top layout *)
-(* one can use predefined windows, they will be used by the layouts in the order
-   they appear in the list. If there are fewer windows than layouts, new windows
-   are created. If there are more, the excess is disregarded. *)
+(* Create an SDL window for each top layout. *)
+(* cone can use predefined windows, they will be used by the layouts in the
+   order they appear in the list. If there are fewer windows than layouts, new
+   windows are created. If there are more, the excess is disregarded. *)
 let make_sdl_windows ?windows board =
   match windows with
   | None -> List.iter Window.make_sdl_window board.windows
