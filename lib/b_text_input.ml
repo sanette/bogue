@@ -251,8 +251,7 @@ let last ti =
 (*** input ***)
 
 let activate ?(check=true) ti ev =
-  if (not check) || Sdl.Event.(get ev mouse_button_state) = Sdl.pressed
- (* = DIRTY trick, see bogue.ml *)
+  if (not check) || Sdl.Event.(get ev typ) = Trigger.full_click
   then begin
     printd debug_event "Activating text_input";
     Sdl.start_text_input ();
@@ -535,15 +534,13 @@ let button_down ti ev =
 
 (* This should be called on mouse_button_up *)
 let click ti ev =
-  if is_active ti then
-    (
-      if Trigger.was_double_click () then select_word ti
-      else begin
-        if Sdl.Event.(get ev mouse_button_state) = Sdl.pressed
-        (* = DIRTY trick, see bogue.ml *) then click_cursor ti ev;
-        ignore (make_selection ti)
-      end
-    )
+  if is_active ti then begin
+    if Trigger.was_double_click () then select_word ti
+    else begin
+      if Sdl.Event.(get ev typ) = Trigger.full_click then click_cursor ti ev;
+      ignore (make_selection ti)
+    end
+  end
   else activate ti ev
 
 let tab ti ev =

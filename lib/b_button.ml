@@ -12,6 +12,7 @@ module Draw = B_draw
 module Style = B_style
 module Box = B_box
 module Label = B_label
+module Trigger = B_trigger
 
 type kind =
   | Trigger (* one action when pressed. TODO, better to avoid name clash with
@@ -116,11 +117,11 @@ let release b =
 
 (* called by button_up in case of kind=Switch *)
 let switch b ev =
-  if Sdl.Event.(get ev mouse_button_state) = Sdl.pressed
-  (* = DIRTY trick, see bogue.ml *)
+  if Sdl.Event.(get ev typ) = Trigger.full_click
   then begin
     Var.set b.state (not (Var.get b.state));
-    printd debug_event "Switch button to [pressed=%b] [state=%b]" (is_pressed b) (Var.get b.state);
+    printd debug_event "Switch button to [pressed=%b] [state=%b]"
+      (is_pressed b) (Var.get b.state);
   end;
   Var.set b.pressed (Var.get b.state)
 

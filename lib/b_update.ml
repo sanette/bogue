@@ -1,4 +1,4 @@
-(* this is where we store the widgets that receive the update event *)
+(* This is where we store the widgets that receive the update event *)
 
 (* similar to Sync.ml but we make sure there is no repeated entries in the
    queue *)

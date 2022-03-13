@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220307
+@version 20220313
 
 @author Vu Ngoc San
 
@@ -1190,8 +1190,19 @@ module Sdl_area : sig
   val draw_circle : t -> color:Draw.color -> thick:int -> radius:int ->
     int * int -> unit
   (** [draw_circle c ~color ~thick ~radius (x0, y0)] draws a circle of the given
-      line [thick]ness and [color] {e inside} the disc of center coordinates
-      [(x0, y0)] and given [radius]. *)
+     line [thick]ness and [color] {e inside} the disc of center coordinates
+     [(x0, y0)] and given [radius].
+
+
+      An example of [draw_circle] is provided by Example #50 (it can be run from
+     the terminal with [boguex 50]), which produces the following picture:
+
+      {%html:<div class="figure"><img src="images/example50.png"></div>%}
+
+      The source code for all [boguex] examples is
+     {{:https://github.com/sanette/bogue/blob/master/examples/example.ml}here}.
+
+*)
 
 
   (** {2 Draw elements}

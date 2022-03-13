@@ -23,9 +23,18 @@ let add_map map (keycode, keymod, action) =
 
 let remove map pair = PairsMap.remove pair map
 
+(* Some seemingly inocuous modifiers may be pressed, for instance Num_lock, so
+   we need to check against the "useful" modifiers.  See
+   https://stackoverflow.com/questions/48706762/sdl-2-how-to-check-for-no-modifiers-keyboard-input
+   *)
+let mod_none = Sdl.Kmod.(ctrl lor shift lor alt lor gui)
+
 (* Return the action bound to the keycode, or None. *)
 let find map pair =
-  PairsMap.find_opt pair map
+  match PairsMap.find_opt pair map with
+  | Some r -> Some r
+  | None -> let c, m = pair in
+    PairsMap.find_opt (c, m land mod_none) map
 
 (* Add new entries from a list of triples (keycode, keymod, action) *)
 let add_list map alist =

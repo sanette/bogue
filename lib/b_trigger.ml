@@ -27,9 +27,28 @@ let () =
 
 type t = Sdl.event_type
 
-let event_names : (t,string) Hashtbl.t = Hashtbl.create 10
+let event_names : (t,string) Hashtbl.t = Hashtbl.create 20
 
-let () = Hashtbl.add event_names E.mouse_motion "mouse_motion"
+let name_list = [
+  E.finger_down, "finger_down";
+  E.finger_motion, "finger_motion";
+  E.finger_up, "finger_up";
+  E.key_down, "key_down";
+  E.key_up, "key_up";
+  E.mouse_button_down, "mouse_button_down";
+  E.mouse_button_up, "mouse_button_up";
+  E.mouse_motion, "mouse_motion";
+  E.mouse_wheel, "mouse_wheel";
+  E.sys_wm_event, "sys_wm_event";
+  E.text_editing, "text_editing";
+  E.text_input, "text_input";
+  E.display_event, "display_event";
+  E.window_event, "window_event"
+]
+
+let () =
+  List.iter (fun (e,n) -> Hashtbl.add event_names e n) name_list
+
 
 (* this will be set by the main loop in Bogue *)
 let main_tread_id = ref (-1)
@@ -46,12 +65,6 @@ let create_event t =
   let e = E.create () in
   E.(set e typ t);
   e
-
-(* some aliases *)
-
-let buttons_down = E.[mouse_button_down; finger_down]
-let buttons_up = E.[mouse_button_up; finger_up]
-let pointer_motion = E.[mouse_motion; finger_motion]
 
 (* we create new user types. The first one should be the predefined
    E.user_event *)
@@ -78,14 +91,14 @@ let full_click = new_event_type "full_click"
 
 let startup = new_event_type "startup"
 
-(* the var_changed event can be send to notify that some widget made a change to
+(* The var_changed event can be send to notify that some widget made a change to
    a global variable. This is used for instance in radiolist.ml *)
 let var_changed = new_event_type "var_changed"
 
-(* the update event can be used to trigger some actions when a widget is
-   updated, even if it doesn't get mouse focus. It is filtered early in bogue.ml
-   and not sent to the mouse_focus. At this point it is not clear whether we
-   need both var_changed and update *)
+(* The update event can be used to trigger some actions when a widget is
+   updated, even if it doesn't get mouse focus. It is filtered early in
+   b_main.ml and not sent to the mouse_focus. At this point it is not clear
+   whether we need both var_changed and update *)
 let update = new_event_type "update"
 
 let sync_action = new_event_type "sync_action"
@@ -96,9 +109,16 @@ let mouse_focus = new_event_type "mouse_focus"
 
 let not_used = new_event_type "not_used"
 
-(* this event is used by the main loop, and sometimes we need to send
-   it to other threads. In this case we create a new event for the
-   main loop, using renew_my_event below. *)
+(* some aliases *)
+
+let buttons_down = E.[mouse_button_down; finger_down]
+let buttons_up = E.[mouse_button_up; finger_up; full_click]
+let pointer_motion = E.[mouse_motion; finger_motion]
+
+
+(* This event is used by the main loop, and sometimes we need to send it to
+   other threads. In this case we create a new event for the main loop, using
+   renew_my_event below. *)
 let my_event = ref (E.create ())
 
 let renew_my_event () =
@@ -518,7 +538,7 @@ let sprint_ev ev =
   let t = E.(get ev typ) in
   let name = try sprintf " (%s)" (Hashtbl.find event_names t)
     with Not_found -> "" in
-  sprintf "%u%s" t name
+  sprintf "0x%x%s" t name
 
 let push_event ev =
   printd debug_event "Pushing event %s" (sprint_ev ev);
@@ -531,10 +551,16 @@ let push_event ev =
    and the fix in
    https://github.com/libsdl-org/SDL/commit/dca281e810263f1fbf9420c2988932b7700be1d4
    Meanwhile, we avoid using [Sdl.poll_event None].  *)
-let has_no_event_old () =
+let _has_no_event_old () =
   not (Sdl.poll_event None)
 
-let has_no_event () =
+(* SDL_PeepEvents is currently not bound by Tsdl unfortunately. *)
+(* We don't use this anymore, because for some reason (SDL 2.0.10) when the
+   event is 0x702 SDL_FINGERMOTION, [push_event] will push instead an event of
+   type 0x802 SDL_MULTIGESTURE, (even if we filter this out using
+   Sdl.set_event_state E.multi_gesture Sdl.disable !!).  This can easily cause
+   an accumulation of thousands of events in the main event_loop... !!  *)
+let _has_no_event_old () =
   let e = E.create () in
   if Sdl.poll_event (Some e)
   then begin
@@ -543,6 +569,9 @@ let has_no_event () =
     false
   end
   else true
+
+let has_no_event () =
+  Sdl.has_events E.first_event E.last_event |> not
 
 (** get the list of all events, and remove them from the queue *)
 (* the first of the list is the oldest, ie the one to be popped at the next
@@ -554,8 +583,7 @@ let get_all_events () =
     else List.rev list in
   loop []
 
-(** leave only those events that satisfy the filter test and return the
-    others *)
+(* Leave only those events that satisfy the filter test and return the others *)
 let filter_events filter =
   let filter = if !debug
     then fun ev -> let result = filter ev in
@@ -567,17 +595,19 @@ let filter_events filter =
   List.iter push_event keep;
   remove
 
-(* remove all events of this kind and return the last one (=most recent) *)
-(* not used *)
+(* Remove all events of this kind and return the last one (=most recent).
+   Warning: treating the last event without deleting other events changes the
+   logical order of emitted events.  *)
 let get_last kind =
   if Sdl.has_event kind
   then let remove = filter_events (fun ev -> E.(get ev typ) <> kind) in
-    Some (List.hd (List.rev remove)) (* TODO check remove <> empty *)
+    if remove = [] then failwith "[Trigger.get_last]: list should not be empty."
+    else Some (List.hd (List.rev remove))
   else None
 (* TODO optimize by using a get_all_events which does not do List.rev *)
 
 
-(** leave at most n events in the queue, can also filter *)
+(* Leave at most n events in the queue, can also filter *)
 (* this is brutal: we pop all events, and then push back only n *)
 (* if there is a filter, only those events that satisfy the filter are left in
    the queue *)
@@ -779,7 +809,13 @@ let check_mouse_rest =
       then t := None;
       Unix.gettimeofday () -. t0
 
-(** wait for next event. Returns the SAME event structure e (modified) *)
+(* Wait for next event. Returns the SAME event structure e (modified) *)
+(* Remark: (Sdl.wait_event (Some e); Some e) is supposed to to the job, but
+   (quoted from DOC) as of SDL 2.0, this function does not put the application's
+   process to sleep waiting for events; it polls for events in a loop
+   internally. This may change in the future to improve power savings. *)
+(* ME: as a result, it seems that Sdl.wait_event prevents other threads from
+   executing nicely *)
 let rec wait_event ?(action = nop) e =
   action ();
   if Sdl.poll_event (Some e) then e
@@ -795,26 +831,6 @@ let rec wait_event ?(action = nop) e =
     Thread.delay 0.01;
     wait_event ~action e
   end
-
-
-(* let redraw = 0;; *) (* redraw all *) (* TODO: select only a particular canvas *)
-(* let refresh = 1;; *) (* refresh widgets that are not fresh *)
-(* let full_click = 2;; *) (* NOT USED, see the DIRTY HACK in bogue.ml *)
-
-
-(* let add_user id = *)
-(*   let ev = user id in *)
-(*   printd debug_event "Add USER %d" id; *)
-(*   push_event ev;; *)
-
-
-(* (\* this one can be called by threads *\) *)
-(* let push_user_new id = *)
-(*   printd debug_event "Add USER %d" id; *)
-(*   Var.set my_user_event (Some id);; *)
-
-(* let user_code ev = *)
-(*   E.(get ev user_code);; *)
 
 let mm_pressed ev =
   Int32.logand E.(get ev mouse_motion_state) (Sdl.Button.lmask) <> 0l
@@ -900,15 +916,20 @@ let copy_from_event ev bc =
   bc.dynamic.button_x <- get ev mouse_button_x;
   bc.dynamic.button_y <- get ev mouse_button_y
 
-(* should be called on every button_down *)
-(* TODO for touch too... *)
+(* Should be called on every button_down. Remark: on my machine, any
+   SDL_FINGERDOWN is preceeded by SDL_MOUSEMOTION + SDL_MOUSEBUTTONDOWN (in this
+   order). *)
 let button_down ev =
+  flush E.mouse_button_down;
+  flush E.finger_down;
   printd debug_event "Mouse button down...";
   copy_from_event ev button_down_event
 
-(* should be called on every button_up *)
-(* TODO for touch too... *)
+(* Should be called on every button_up.  Remark: on my machine, any SDL_FINGERUP
+   is preceeded by SDL_MOUSEBUTTONUP *)
 let button_up ev =
+  flush E.mouse_button_up;
+  flush E.finger_up;
   let b_up = empty_click () in
   copy_from_event ev b_up;
   if b_up.static = button_down_event.static then

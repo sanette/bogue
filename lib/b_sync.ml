@@ -34,7 +34,7 @@ let option o future f =
       let x = future () in f x
     )
 
-(* returns true if some action was executed *)
+(* Returns true if some action was executed *)
 (* We assume that the whole process does not need to be mutex protected. It
    should be OK if other treads are adding to the Queue, as long as we (the main
    thread) are the only ones popping from the queue. *)

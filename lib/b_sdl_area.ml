@@ -7,6 +7,7 @@ module Draw = B_draw
 module Flow = B_flow
 module Time = B_time
 module Trigger = B_trigger
+module Theme = B_theme
 
 open B_utils
 
@@ -111,7 +112,15 @@ let resize size area =
 let drawing_size area =
   match Var.get area.box.render with
   | Some t -> Draw.tex_size t
-  | None -> Box.size area.box
+  | None ->
+    (* HACK: TODO put this "video_init" in a proper "init" function. It has to
+       be done before the user runs the main board and open window. However it
+       should (maybe) not be called in the (stupid?) case where no video is
+       required, see example00. Well, actually, video_init is currently called
+       later anyways, and this doesn't seem to prevent example00 to run on
+       computers without display... *)
+    if !Theme.scale = 0. then Draw.video_init ();
+    Box.size area.box
             |> Draw.to_pixels
 
 let to_pixels = Draw.to_pixels

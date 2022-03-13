@@ -49,7 +49,7 @@ type board = {
   mutable shortcuts: board Shortcut.t;
   (* Global keyboard shortcuts. TODO some shortcuts should be executed only on
      Key_up to avoid auto-repeat. => create 2 maps, shortcuts_down et
-     shortcuts_up . Or maybe all? *)
+     shortcuts_up. Or maybe all? *)
   mutable shortcut_pressed: bool;
   mutable mouse_alive: bool;
   (* True as soon as the mouse has moved. Because SDL will report position 0,0
@@ -108,18 +108,18 @@ let close_window_layout layout =
 let check_cemetery () =
   let nzombies = List.length !Layout.cemetery in
   if Layout.check_cemetery ()
-  then printd debug_memory "All zombies have been killed ! Congratulations !"
+  then printd debug_memory "All zombies have been killed! Congratulations!"
   else if !debug then begin
     printd debug_memory "==> Still some living deads around. Invoking GC";
     Gc.compact ();
     if Layout.check_cemetery ()
-    then printd debug_memory "All zombies have been killed ! Congratulations !"
+    then printd debug_memory "All zombies have been killed! Congratulations!"
     else printd debug_memory "Percentage of killed zombies = %u%% (out of %u)."
         (round (100. -. 100. *. (float (List.length !Layout.cemetery) /.
                                  (float nzombies)))) nzombies
   end
 
-(* call this to close everything. Don't use the layouts after this ! *)
+(* Call this to close everything. Don't use the layouts after this! *)
 (* However in principle you can run board again, and then the layouts are
    usable(?) *)
 let exit_board board =
@@ -161,7 +161,7 @@ let flip ?clear board =
   List.iter (Window.flip ?clear) board.windows;
   Draw.destroy_textures ()
 
-(** update window that was resized by user *)
+(** Update window that was resized by user *)
 let resize window =
   let layout = Window.get_layout window in
   if Window.size window <> Layout.get_physical_size layout
@@ -169,12 +169,14 @@ let resize window =
       printd debug_graphics "Resize window (Layout #%u)" layout.Layout.id;
       Layout.resize_from_window layout;
       Window.render window;
-      Window.flip window;
+      Window.flip window; (* Necessary? *)
       Window.to_refresh window;
       (* Window.set_fresh window; ?*)
       (* we remove all the window_event_exposed event: *)
       (* TODO: move this to the reaction to the exposed event only? *)
-      ignore (Trigger.filter_events (fun e -> E.(get e typ <> window_event || get e window_event_id <> window_event_exposed)));
+      ignore (Trigger.filter_events (fun e ->
+          E.(get e typ <> window_event ||
+             get e window_event_id <> window_event_exposed)));
       Thread.delay 0.1;
     end
 
@@ -202,12 +204,6 @@ let add_window board layout =
     (List.flatten (List.map Widget.connections (Layout.get_widgets layout)));
   Trigger.renew_my_event ();
   window
-
-let empty_events_old () =
-  Trigger.flush (E.mouse_motion)
-  (*Trigger.flush (E.window_event);;*)
-  (* Trigger.flush_events Trigger.redraw Trigger.refresh;; *)
-(* Remark we flush user events in display = when the whole layout is cleared *)
 
 let same_window w1 w2 = Sdl.(get_window_id w1 = get_window_id w2)
 
@@ -525,295 +521,333 @@ let add_debug_shortcuts shortcuts =
       Draw.memory_info ())
 
 let refresh_custom_windows board =
-  List.iter (fun w -> printd debug_board "BOGUE WINDOW=%b" w.Window.bogue;
-              if not w.Window.bogue then w.Window.is_fresh <- false)
+  List.iter (fun w ->
+      printd debug_board "BOGUE WINDOW=%b" w.Window.bogue;
+      if not w.Window.bogue then w.Window.is_fresh <- false)
     board.windows
+
+(* EVENT LOOP *)
+
+(* First: we treat the events that should be filtered or modified. This returns
+   the evo_layout that the layout (& widget) is authorized to treat
+   thereafter. Returning None means that widgets will never react to such
+   event. Currently all events are returned, except for the Update event. *)
+let filter_board_events board e =
+  let open E in
+  printd debug_event "1==> Filtering event type: %s" (Trigger.sprint_ev e);
+  match Trigger.event_kind e with
+  | `Mouse_motion ->
+    if Sdl.has_event E.mouse_motion then None else Some e
+  (* no use to treat mouse motion if there is another one in the queue.  TODO?
+     if really the system was slow to treat this, we could check if the 'count'
+     of the event loop is not too high. *)
+  | `Finger_motion ->
+    if Sdl.has_event E.finger_motion then None else Some e
+  (* idem *)
+  | `Bogue_keyboard_focus ->
+    (* we filter and treat only the last event *)
+    (* let e' = default (Trigger.get_last (Trigger.keyboard_focus)) e in *)
+    set_keyboard_focus board
+      (Layout.of_id_opt (get e user_code)
+         ~not_found:(fun () ->
+             printd debug_error "Room #%u pointed by event %s has disappeared"
+               (get e user_code) (Trigger.sprint_ev e)));
+    Some e (* ou None? *)
+  | `Bogue_mouse_focus ->
+    printd debug_event "Require Mouse FOCUS";
+    (* we filter and treat only the last event *)
+    (* let e' = default (Trigger.get_last (Trigger.mouse_focus)) e in *)
+    set_mouse_focus board (Layout.of_id_opt (get e user_code));
+    Some e
+  | `Bogue_mouse_enter ->
+    printd debug_event "Mouse ENTER";
+    (* by design, only one mouse_enter event can exist in the queue if there is
+       no mouse_leave. *)
+    Some e
+  | `Bogue_mouse_leave ->
+    printd debug_event "Mouse LEAVE";
+    (* by design, only one mouse_leave event can exist in the queue if there is
+       no mouse_enter. *)
+    Some e
+  | `Bogue_update ->
+    printd debug_event "Update";
+    Update.execute e;
+    None
+  | _ -> Some e
+
+
+(* Treat events that should be used before being sent to the layout & widget,
+   but without filtering *)
+let treat_layout_events board e =
+  let open E in
+  printd debug_event "2==> Treating event type: %s" (Trigger.sprint_ev e);
+  begin match Trigger.event_kind e with
+    | `Bogue_sync_action ->
+      (* This one should be executed before anything else. *)
+      (* We run the actions in the Queue, and stop if the Queue is empty or
+         time has exceeded 10ms *)
+      printd debug_event "Sync";
+      if not (Sync.execute 10)
+      then Trigger.flush (Trigger.sync_action) (* probably not useful *)
+    (* Here we treat key events that have priority over the widgets *)
+    | `Key_up -> board.shortcut_pressed <- false;
+      (* I assume auto-repeat will never trigger Key_up, but it seems that
+         it's not always the case... (can happen when a new window opens) *)
+    | `Key_down ->
+      let pair = get e keyboard_keycode, get e keyboard_keymod in
+      if not board.shortcut_pressed
+      then do_option (Shortcut.find board.shortcuts pair)
+          (fun a -> board.shortcut_pressed <- true; a board)
+    | `Mouse_button_down
+    | `Finger_down ->
+      Trigger.button_down e;
+      activate board (get_mouse_focus board)
+    | `Mouse_button_up
+    | `Finger_up ->
+      printd debug_event "Mouse button up !";
+      Trigger.button_up e;
+      if not !Trigger.too_fast
+      && (map2_option board.button_down (get_mouse_focus board) Layout.equal
+          = Some true
+          || map_option board.button_down Layout.has_keyboard_focus = Some true)
+      then begin
+        printd debug_event "full click";
+        Trigger.(push_event (full_click_event ()));
+        (* full click means that the press and released were done on the same
+           widget. It does not mean that the click was "quick". For this, check
+           Trigger.single_click. *)
+        (* Now we set keyboard_focus on "admissible" widgets: *)
+        do_option (get_mouse_focus board) (fun x ->
+            printd debug_board "Mouse focus: %d" x.Layout.id);
+        do_option board.keyboard_focus (fun x ->
+            printd debug_board "Keyboard focus: %d" x.Layout.id);
+        do_option board.button_down (fun x ->
+            printd debug_board "Button down on #%d" x.Layout.id;
+            Layout.set_keyboard_focus x);
+        board.keyboard_focus <- board.button_down (* OK?? *)
+      end
+    | `Mouse_wheel ->
+      (* TODO change. mouse_wheel should be captured by the widget itself. *)
+      do_option (get_mouse_focus board) (fun room ->
+          do_option (Layout.find_clip_house room)
+            (fun room ->
+               (* now we add up the number of wheel events in the queue. With
+                    a standard mouse wheel one can easily add up to 5
+                    events. With a touchpad, this can add up to 10 or more *)
+               let list = Trigger.filter_events (fun e ->
+                   Trigger.event_kind e <> `Mouse_wheel) in
+               let total = List.fold_left
+                   (fun s ev -> s + get ev mouse_wheel_y)
+                   E.(get e mouse_wheel_y) list in
+               printd debug_event "Total mouse wheels=%d" total;
+               let dy = - total * 50 in
+               Layout.scroll ~duration:500 dy room;
+               Trigger.push_var_changed room.Layout.id))
+    | `Window_event ->
+      let wid = get e window_event_id in
+      printd debug_event "Window event [%d]" wid;
+      (* Warning: on my system, resizing window by dragging the corner
+            does not trigger only 6 = resize, but triggers event 4=
+            "window_event_moved"... and sometimes 3=exposed *)
+      (* Some window events may come by pair; for instance if you
+             middle_click on the maximize button, it can trigger 10 (mouse
+             enter) and then 6 (resize). So the 6 should not be flushed
+             ! *)
+      begin
+        match window_event_enum wid with
+        (* | `Resized *)
+        (* https://wiki.libsdl.org/SDL_WindowEventID *)
+        | `Size_changed ->
+          printd debug_event "Size_changed => Resize to (%lu,%lu)"
+            (get e window_data1) (get e window_data2);
+          do_option (window_of_event board e) resize
+        | `Exposed ->
+          (* the exposed event is triggered by X11 when part of the
+             window is lost and should be re-rendered. Sometimes several
+             exposed events are triggered because they correspond to
+             several regions of the window. This seems to be unreachable
+             via SDL. *)
+          printd debug_event "Exposed";
+          (* for some reason, when the size changes quickly, Exposed is
+             triggered but not Resized nor `Size_changed...*)
+          do_option (window_of_event board e) (fun w ->
+              let l = Window.get_layout w in
+              if Window.size w <> Layout.get_physical_size l
+              then (Layout.resize_from_window ~flip:false l;
+                    Thread.delay 0.002); (* only to be nice *)
+              (* else Trigger.flush_but_n 8; *) (* DEBUG *)
+              (* the renderer changed, we need to recreate all
+                 textures *)
+              Window.to_refresh w)
+        | `Close ->
+          printd (debug_board+debug_event) "Asking window to close";
+          do_option (window_of_event board e) (remove_window board);
+          if board.windows = [] then begin
+            printd debug_board "No more windows. We quit.";
+            (* The `Quit` event seems to be emitted when the user clicks on
+               the Close button of the last open window, but not when we
+               delete windows manually. Hence we have to raise Exit.*)
+            (* TODO instead we should check if there are Sync actions of
+               Timeouts waiting?*)
+            raise Exit
+          end
+        | _ as enum ->
+          printd debug_event "%s" (Trigger.window_event_name enum);
+          do_option (window_of_event board e) (fun w ->
+              Window.to_refresh w;
+              check_mouse_motion board;
+              (* Otherwise we don't get mouse_leave when the mouse leaves the
+                   window. OK here ? *)
+              (* Warning: the behaviour of SDL seems to be the following:
+                   when the window has no focus and the user click on it,
+                   there is NO Button_down NEITHER Button_up event, instead
+                   there is a Window "Take_focus" event. We follow this
+                   here. It means that the user has to click a second time to
+                   activate a button.*) )
+      end;
+      (* TODO just display the corresponding window, not all of them *)
+    | `Quit -> printd (debug_event+debug_board) "Quit event"; raise Exit
+    | _ -> ()
+  end
+
+let filter_drag_and_drop_event board e =
+  match board.button_down with
+  | Some room -> if Layout.draggable room
+    then drag board e room (*Layout.drag_n_drop e room*)
+    else Some e
+  | None -> printd debug_board "No board.button_down"; Some e
+(* This happens for instance when you drag outside the SDL window and then
+   release mouse button. Still, the event will be treated by the original widget
+   below (in case of a keyboard_focus). *)
+
+(* The board can use the event that was filtered by the widget. Empty for the
+   moment. *)
+let treat_remaining_events _board e =
+  match Trigger.event_kind e with
+  (* For instance | `Key_down when E.(get e keyboard_keycode) = Sdl.K.tab -> tab board e *)
+  | _ -> ()
+
+(* What to do with the original event before flip. This should not modify
+   widgets, only update board status. *)
+let final_events board anim e =
+  match Trigger.event_kind e with
+  (* | `Mouse_motion when not anim && has_no_event ->
+   *   if not board.mouse_alive then board.mouse_alive <- true;
+   *   check_mouse_motion board; *)
+  (* do_option (window_of_event board e) do_display; *)
+  (* List.iter Window.to_refresh board.windows; *)
+  (* TODO? display? *)
+  (* = ou seulement ce qui a été (dé)sélectionné ? *)
+  | `Mouse_motion ->
+    if not (Sdl.has_event E.mouse_motion) then
+      (* we don't act if there is another mouse_motion queued. *)
+      begin
+      printd debug_disable "MOTION anim=%b"
+        anim;
+      if not board.mouse_alive then board.mouse_alive <- true;
+      if (* has_no_event && *) not (Trigger.mm_pressed e)
+      then check_mouse_motion board
+    end
+  (* In most situations, when the button is pressed, we don't want to lose the
+     initial focus, and we don't want to activate anything else. There is one
+     (common) exception: when clicking a menu entry, we would like to navigate
+     menus while mouse button is down. How to handle this particular case? If we
+     remove the mm_pressed test it works nicely for menus, but it not usual for
+     other things (like scroll bar). I don't see any other solution than adding
+     a new flag 'allow_focus_change_when_mm_pressed' somewhere... TODO? *)
+  | `Mouse_button_up
+  | `Finger_up ->
+    board.button_down <- None;
+    check_mouse_motion board
+  | `Window_event -> () (* done above *)
+  | `Bogue_redraw ->
+    (* Sometimes there are too many redraw events in the queue, this would cause
+       a noticeable delay if only one can be treated by iteration. Cf example
+       28/bis. Hence we leave at most one. Flushing all here is NOT recommended,
+       it can prevent the correct detection of new animations (ex: adding
+       sliding popups). *)
+    (* do_option Trigger.(get_last redraw) (fun ev -> Trigger.push_event ev); *)
+    if not anim then begin
+      printd debug_event "Redraw";
+      do_option (window_of_event board e) Window.to_refresh
+    end
+  (* board.mouse_focus <- (check_mouse_focus board); *)  (* ? *)
+  (* could use window_of_event instead *)
+  (* do_option board.mouse_focus Layout.set_focus *) (* ? *)
+  (* | `Unknown when not !anim && E.(get e typ) = Trigger.refresh -> *)
+  (*   printd debug_event "Refresh"; (\* not used anymore *\) *)
+  (* update board; *)
+  (* board.mouse_focus <- (check_mouse_focus board); *) (* ? *)
+  (* could use window_of_event instead *)
+  (* do_option board.mouse_focus Layout.set_focus *) (* ? *)
+  | `Bogue_mouse_at_rest ->
+    printd debug_event "Mouse AT REST"; (* TODO *)
+  | _ -> ()
+
+let max_events = 128
+
+let event_loop anim new_anim board =
+  (* let redraw_next = ref false in *)
+
+  let rec loop e count =
+    printd debug_event "Event loop %i" count;
+
+    (* Note, do not flush var_changed, it is used by radiolist.ml, cf. example30
+    *)
+    let evo_layout = filter_board_events board e in
+    do_option evo_layout (treat_layout_events board);
+
+    (* Second, the event is treated by the global layout for drag-and-drop,
+       and we return the evo_widget for the widgets *)
+    let evo_widget = check_option evo_layout (filter_drag_and_drop_event board)
+    in
+    (* Now, the widget has the event *)
+    (* note that the widget will usually emit a redraw event *)
+    do_option evo_widget (fun ev ->
+        do_option (target_widget board ev) (Widget.wake_up_all ev));
+    (* Now, the board again. *)
+    do_option evo_widget (treat_remaining_events board);
+
+    (* Finally we do final updates before flip with the original, unfiltered
+       event "e" *)
+    (* TODO we should not use 'e' if there is an anim, because it will be an
+       old event *)
+    final_events board anim e;
+    continue e (count + 1)
+
+  and continue e count =
+    if count > max_events
+    then begin
+      printd (debug_event + debug_error)
+        "Too many events accumulate. Maybe your system is too slow.";
+      Sdl.flush_events E.first_event E.last_event
+    end
+    else if Sdl.poll_event (Some e)
+    then loop e count
+    else if anim || new_anim
+    then printd debug_event
+        "Animation: we end the event loop, %i events processed." count
+        (* : we exit [event_loop] *)
+    else if count = 0
+    then loop (Trigger.wait_event ~action:Timeout.run e) count
+    (* While we wait for events, we execute the Timeout Queue. *)
+    else printd debug_event "No more events, %i events processed." count
+    (* exit the loop (we want to wait only once) *)
+  in
+
+  let e = !Trigger.my_event in
+  continue e 0
+
 
 (* [one_step] is what is executed during the main loop *)
 let one_step ?before_display anim (start_fps, fps) ?clear board =
   Timeout.run ();
-  let e = !Trigger.my_event in
-  (* if not (is_fresh board) then Trigger.(push_event redraw_event); (* useful?
-     *) *)
-  let evo = if anim
-  (* if there is an animation running, we should not wait for an event *)
-    then if Sdl.poll_event (Some e) then Some e else None
-    else (* (go (Sdl.wait_event (Some e)); Some e) *)
-      (* DOC: As of SDL 2.0, this function does not put the
-         application's process to sleep waiting for events; it polls for
-         events in a loop internally. This may change in the future to
-         improve power savings. *)
-      (* ME: as a result, it seems that Sdl.wait_event prevents other
-         threads from executing nicely *)
-      Some (Trigger.wait_event ~action:Timeout.run e)
-      (* While we wait for events, we execute the Timeout Queue. *)
-  in
-  Trigger.flush (E.finger_motion);
-  Trigger.flush (E.mouse_motion); (* to avoid lag when there are too many events *)
-  (* TODO should we follow SDL advice http://wiki.libsdl.org/SDL_PollEvent and
-     first loop to treat all events before rendering graphics? *)
-  (* from this point there is no need to keep several events for redrawing the
-     same window. TODO?? BUT keeping one might still be necessary? *)
-  (* Note: we will need some small delay to grab new events after
-     empty_events *)
-  (* Note, do not flush var_changed, it is used by radiolist.ml,
-     cf. example30 *)
+  let new_anim = has_anim board in
+  if new_anim && not anim then start_fps ();
+  event_loop anim new_anim board;
+  do_option before_display (fun f -> f ());
 
-  (* the new value of anim *)
-  (* TODO à réécrire *)
-  let anim = if has_anim board
-    then begin
-      if not anim then start_fps ();  (* we start a new animation sequence *)
-      true
-    end
-    else false in
-
-  (* We put here the events that should be filtered or modified. This
-     returns the evo_layout that the layout (& widget) is authorized to treat
-     thereafter. *)
-  let evo_layout =
-    check_option evo (fun e ->
-        let open E in
-        printd debug_event "== > Filtering event type: %s" (Trigger.sprint_ev e);
-        begin match Trigger.event_kind e with
-          | `Bogue_keyboard_focus ->
-            (* we filter and treat only the last event *)
-            let e' = default (Trigger.get_last (Trigger.keyboard_focus)) e in
-            set_keyboard_focus board
-              (Layout.of_id_opt (get e' user_code)
-                 ~not_found:(fun () ->
-                     printd debug_error "Room #%u pointed by event %s has disappeared"
-                       (get e' user_code) (Trigger.sprint_ev e')));
-            Some e' (* ou None? *)
-          | `Bogue_mouse_focus ->
-            printd debug_event "Require Mouse FOCUS";
-            (* we filter and treat only the last event *)
-            let e' = default (Trigger.get_last (Trigger.mouse_focus)) e in
-            set_mouse_focus board (Layout.of_id_opt (get e' user_code));
-            Some e'
-          | `Bogue_mouse_enter ->
-            printd debug_event "Mouse ENTER";
-            (* by design, only one mouse_enter event can exist in the queue. *)
-            evo
-          | `Bogue_mouse_leave ->
-            printd debug_event "Mouse LEAVE";
-            (* by design, only one mouse_leave event can exist in the queue. *)
-            evo
-          | `Bogue_update ->
-            printd debug_event "Update";
-            Update.execute e;
-            None
-          | _ -> evo
-        end)
-  in
-
-  (* Now we treat events that should be used before being sent to the layout
-     & widget, but without filtering *)
-  do_option evo_layout (fun e ->
-      let open E in
-      printd debug_event "== > Treating event type: %d" (get e typ);
-      begin match Trigger.event_kind e with
-        | `Bogue_sync_action ->
-          (* This one should be executed before anything else *)
-          (* we run the actions in the Queue, and stop if the Queue is empty
-                or time has exceeded 10ms *)
-          printd debug_event "Sync";
-          if not (Sync.execute 10)
-          then Trigger.flush (Trigger.sync_action) (* probably not useful *)
-        (* Here we treat key events that have priority over the widgets *)
-        (* | `Key_up when get e keyboard_keycode = Sdl.K.escape -> raise Exit *) (* TODO close sub-dialogs *)
-        | `Key_up -> board.shortcut_pressed <- false;
-          (* I assume auto-repeat will never trigger Key_up, but it seems that
-                 it's not always the case... (can happen when a new window opens) *)
-        | `Key_down ->
-          let pair = get e keyboard_keycode, get e keyboard_keymod in
-          if not board.shortcut_pressed
-          then do_option (Shortcut.find board.shortcuts pair)
-              (fun a -> board.shortcut_pressed <- true; a board)
-        (* | `Key_down when get e keyboard_keycode = Sdl.K.tab -> tab board *)
-        (* | `Key_down when get e keyboard_keycode = Sdl.K.i ->
-         *   if Trigger.ctrl_shift_pressed ()
-         *   then (print_endline "Mouse Focus Layout parents:";
-         *         print_endline Print.(option layout_up board.mouse_focus))
-         *   else if Trigger.ctrl_pressed ()
-         *   then (print_endline "Hover Layout children (don't trust this):";
-         *         print_endline Print.(option layout_down (check_mouse_hover board))) *)
-        (* | `Key_down when get e keyboard_keycode = Sdl.K.s (\* snapshot *\)
-         *               && Trigger.ctrl_shift_pressed () ->
-         *   Print.dump board.windows_house *)
-        (* | `Key_up when get e keyboard_keycode = Sdl.K.d
-         *             && Trigger.ctrl_shift_pressed () -> toggle_debug_window board
-         * | `Key_up when get e keyboard_keycode = Sdl.K.d
-         *             && Trigger.ctrl_pressed () -> debug := not !debug *)
-        (* | `Key_down when get e keyboard_keycode = Sdl.K.l
-         *               && Trigger.ctrl_pressed () ->
-         *   print_endline "User Redraw";
-         *   display board;
-         *   show board; *)
-        (* | `Key_down when get e keyboard_keycode = Sdl.K.m
-         *               && Trigger.ctrl_pressed () ->
-         *   Draw.memory_info ();
-         *   if !debug then (print_endline "Garbage collecting...";
-         *                   Gc.compact ();
-         *                   Draw.memory_info ()) *)
-        | `Mouse_button_down
-        | `Finger_down ->
-          Trigger.button_down e; (* TODO for touch too... *)
-          activate board (get_mouse_focus board)
-        | `Mouse_button_up
-        | `Finger_up ->
-          printd debug_event "Mouse button up !";
-          Trigger.button_up e; (* TODO for touch too... *)
-          if not !Trigger.too_fast
-          && (map2_option board.button_down (get_mouse_focus board) Layout.equal
-              = Some true
-              || map_option board.button_down Layout.has_keyboard_focus
-                 = Some true)
-          then begin
-            printd debug_event "full click";
-            Trigger.(push_event (full_click_event ()));
-            (* full click means that the press and released were done on the
-               same widget. It does not mean that the click was "quick". For
-               this, check Trigger.single_click. *)
-            (* = this trigger does not work well because all user_event are
-               captured to trigger redraw, it ends up with an infinite
-               redraw loop, since all "connections" add a User0
-               event... Maybe we could do this if we make sure that we add
-               connections without "redraw" (update_target=false) *)
-            set e mouse_button_state Sdl.pressed;
-            (* = this is a DIRTY HACK ! we set button_state to "pressed" (it
-               should be "released") to store the fact that we have a full
-               click *) (* TODO: use the full_click event instead *)
-            (* Now we set keyboard_focus on "admissible" widgets: *)
-            do_option (get_mouse_focus board) (fun x ->
-                printd debug_board "Mouse focus: %d" x.Layout.id);
-            do_option board.keyboard_focus (fun x ->
-                printd debug_board "Keyboard focus: %d" x.Layout.id);
-            do_option board.button_down (fun x ->
-                printd debug_board "Button down on #%d" x.Layout.id;
-                Layout.set_keyboard_focus x);
-            board.keyboard_focus <- board.button_down; (* OK?? *)
-          end
-        | `Mouse_wheel ->
-          (* TODO change. mouse_wheel should be captured by the widget itself. *)
-          do_option (get_mouse_focus board) (fun room ->
-              do_option (Layout.find_clip_house room)
-                (fun room ->
-                   (* now we add up the number of wheel events in the queue. With
-                        a standard mouse wheel one can easily add up to 5
-                        events. With a touchpad, this can add up to 10 or more *)
-                   let list = Trigger.filter_events (fun e ->
-                       Trigger.event_kind e <> `Mouse_wheel) in
-                   let total = List.fold_left
-                       (fun s ev -> s + get ev mouse_wheel_y)
-                       E.(get e mouse_wheel_y) list in
-                   printd debug_event "Total mouse wheels=%d" total;
-                   let dy = - total * 50 in
-                   Layout.scroll ~duration:500 dy room;
-                   Trigger.push_var_changed room.Layout.id))
-        | `Window_event ->
-          let wid = get e window_event_id in
-          printd debug_event "Window event [%d]" wid;
-          (* Warning: on my system, resizing window by dragging the corner
-                does not trigger only 6 = resize, but triggers event 4=
-                "window_event_moved"... and sometimes 3=exposed *)
-          (* Some window events may come by pair; for instance if you
-                 middle_click on the maximize button, it can trigger 10 (mouse
-                 enter) and then 6 (resize). So the 6 should not be flushed
-                 ! *)
-          begin
-            match window_event_enum wid with
-            (* | `Resized *)
-            (* https://wiki.libsdl.org/SDL_WindowEventID *)
-            | `Size_changed ->
-              printd debug_event "Size_changed => Resize to (%lu,%lu)"
-                (get e window_data1) (get e window_data2);
-              do_option (window_of_event board e) resize
-            | `Exposed ->
-              (* the exposed event is triggered by X11 when part of the
-                 window is lost and should be re-rendered. Sometimes several
-                 exposed events are triggered because they correspond to
-                 several regions of the window. This seems to be unreachable
-                 via SDL. *)
-              printd debug_event "Exposed";
-              (* for some reason, when the size changes quickly, Exposed is
-                 triggered but not Resized nor `Size_changed...*)
-              do_option (window_of_event board e) (fun w ->
-                  let l = Window.get_layout w in
-                  if Window.size w <> Layout.get_physical_size l
-                  then (Layout.resize_from_window ~flip:false l;
-                        Thread.delay 0.002); (* only to be nice *)
-                  (* else Trigger.flush_but_n 8; *) (* DEBUG *)
-                  (* the renderer changed, we need to recreate all
-                     textures *)
-                  Window.to_refresh w)
-            | `Close ->
-              printd (debug_board+debug_event) "Asking window to close";
-              do_option (window_of_event board e) (remove_window board);
-              if board.windows = [] then begin
-                printd debug_board "No more windows. We quit.";
-                (* The `Quit` event seems to be emitted when the user clicks on
-                   the Close button of the last open window, but not when we
-                   delete windows manually. Hence we have to raise Exit.*)
-                (* TODO instead we should check if there are Sync actions of
-                   Timeouts waiting?*)
-                raise Exit
-              end
-            | _ as enum ->
-              printd debug_event "%s" (Trigger.window_event_name enum);
-              do_option (window_of_event board e) (fun w ->
-                  Window.to_refresh w;
-                  check_mouse_motion board;
-                  (* Otherwise we don't get mouse_leave when the mouse leaves the
-                       window. OK here ? *)
-                  (* Warning: the behaviour of SDL seems to be the following:
-                       when the window has no focus and the user click on it,
-                       there is NO Button_down NEITHER Button_up event, instead
-                       there is a Window "Take_focus" event. We follow this
-                       here. It means that the user has to click a second time to
-                       activate a button.*) )
-          end;
-          (* TODO just display the corresponding window, not all of them *)
-        | `Quit -> printd (debug_event+debug_board) "Quit event"; raise Exit
-        | _ -> ()
-      end);
-
-
-  do_option before_display (fun f -> f ()); (* TODO? *)
-
-  (* Second, the event is treated by the global layout for drag-and-drop,
-     and we return the evo_widget for the widgets *)
-  let evo_widget = match evo_layout with
-    | None -> None
-    | Some e ->
-      (* match window_of_event board e with *) (* TODO ne sert à rien ?? *)
-      (* | None -> (print_debug "No layout for this event !"; Some e) *)
-      (* | Some _ ->  *)
-      (match board.button_down with
-       | Some room -> if Layout.draggable room
-         then drag board e room (*Layout.drag_n_drop e room*)
-         else Some e
-       | None -> printd debug_board "No board.button_down"; Some e)
-      (* it happens for instance when you drag outside the SDL window and then
-             release mouse button. Still, the event will be treated by the original
-             widget below (in case of a keyboard_focus) *)
-  in
-
-  let has_no_event = Trigger.has_no_event () in
-  (* Now, the widget has the event *)
-  (* note that the widget will usually emit a redraw event, this is why we save
-     the state of Trigger.has_no_event () *)
-  do_option evo_widget (fun ev ->
-      do_option (target_widget board ev)
-        (Widget.wake_up_all ev)
-    );
-
-  (* The board can use the event that was filtered by the widget *)
-  do_option evo_widget (fun ev ->
-      match Trigger.event_kind ev with
-      (*          | `Key_down when E.(get e keyboard_keycode) = Sdl.K.tab -> tab board e *)
-      | _ -> ());
-
+  let anim = new_anim in
   (* now some specifics in case of animation *)
   if anim then begin
     (* if board.mouse_focus <> None then board.mouse_focus <- None; *)
@@ -835,93 +869,30 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
        Read below for various trys... *)
 
     (* Comment this for Menu2 keyboard navigation... *)
-    (* if (\*Trigger.*\)has_no_event (\* () *\) then check_mouse_motion board; *)
 
-    (* the has_no_event test is important, otherwise this CAUSES IMPORTANT
-       LAGS because check_mouse_motion can generate more events than we can
-       handle (we can handle only one per iteration) *)
-    (* TODO even with this, there is lag when scrolling with the mouse +
-       having the mouse over the widgets *)
     (* : even if the mouse doesn't actually move, some animated widget can
        collide the mouse and become (un)selected. *)
     (* display board; *)
     List.iter Window.to_refresh board.windows;
-    (* : we could only select the one which really has an animation *)
+    (* : we could select only the one which really has an animation *)
     (*fps 60*)
   end;
   (* else *)
 
-  (* Finally we do final updates before flip with the original, unfiltered
-     event "e" *)
-  (* TODO we should not use 'e' if there is an anim, because it will be an
-     old event *)
-  begin
-    do_option evo (fun e ->
-        match Trigger.event_kind e with
-        (* | `Mouse_motion when not anim && has_no_event ->
-         *   if not board.mouse_alive then board.mouse_alive <- true;
-         *   check_mouse_motion board; *)
-        (* do_option (window_of_event board e) do_display; *)
-        (* List.iter Window.to_refresh board.windows; *)
-        (* TODO? display? *)
-        (* = ou seulement ce qui a été (dé)sélectionné ? *)
-        | `Mouse_motion ->
-          printd debug_disable "MOTION anim=%b no_event=%b"
-            anim has_no_event;
-          if not board.mouse_alive then board.mouse_alive <- true;
-          if has_no_event && not (Trigger.mm_pressed e)
-          then check_mouse_motion board
-        (* In most situations, when the button is pressed, we don't want to lose
-           the initial focus, and we don't want to activate anything else. There
-           is one (common) exception: when clicking a menu entry, we would like
-           to navigate menus while mouse button is down. How to handle this
-           particular case? If we remove the mm_pressed test it works nicely for
-           menus, but it not usual for other things (like scroll bar). I don't
-           see any other solution than adding a new flag
-           'allow_focus_change_when_mm_pressed' somewhere... TODO? *)
-        | `Mouse_button_up
-        | `Finger_up ->
-          board.button_down <- None;
-          check_mouse_motion board
-        | `Window_event -> () (* done above *)
-        | `Bogue_redraw ->
-          (* Sometimes there are too many redraw events in the queue, this
-             would cause a noticeable delay if only one can be treated by
-             iteration. Cf example 28/bis.  Hence we leave at most
-             one. Flushing all here is NOT recommended, it can prevent the
-             correct detection of new animations (ex: adding sliding
-             popups). *)
-          do_option Trigger.(get_last redraw) (fun ev -> Trigger.push_event ev);
-          if not anim then begin
-            printd debug_event "Redraw";
-            do_option (window_of_event board e) Window.to_refresh
-          end
-        (* board.mouse_focus <- (check_mouse_focus board); *)  (* ? *)
-        (* could use window_of_event instead *)
-        (* do_option board.mouse_focus Layout.set_focus *) (* ? *)
-        (* | `Unknown when not !anim && E.(get e typ) = Trigger.refresh -> *)
-        (*   printd debug_event "Refresh"; (\* not used anymore *\) *)
-        (* update board; *)
-        (* board.mouse_focus <- (check_mouse_focus board); *) (* ? *)
-        (* could use window_of_event instead *)
-        (* do_option board.mouse_focus Layout.set_focus *) (* ? *)
-        | `Bogue_mouse_at_rest ->
-          printd debug_event "Mouse AT REST"; (* TODO *)
-        | _ -> ());
-    if anim then fps () else Thread.delay 0.005;
-    (* even when there is no anim, we need to to be nice to other treads, in
-       particular when an event is triggered very rapidly (mouse_motion) and
-       captured by a connection, without anim. Should we put also here a FPS?? *)
-  end;
+  if anim then fps () else Thread.delay 0.005;
+  (* even when there is no anim, we need to to be nice to other treads, in
+     particular when an event is triggered very rapidly (mouse_motion) and
+     captured by a connection, without anim. Should we put also here a FPS?? *)
+
   let t = Time.now () in
   flip ?clear board; (* This is where all rendering takes place. *)
   printd debug_graphics "==> Rendering took %u ms" (Time.now () - t);
-  Avar.new_frame (); (* this is used for updating animated variables *)
+  Avar.new_frame (); (* This is used for updating animated variables. *)
   printd debug_graphics "---------- end of loop -----------";
   anim
 
 (* Create an SDL window for each top layout. *)
-(* cone can use predefined windows, they will be used by the layouts in the
+(* One can use predefined windows, they will be used by the layouts in the
    order they appear in the list. If there are fewer windows than layouts, new
    windows are created. If there are more, the excess is disregarded. *)
 let make_sdl_windows ?windows board =
