@@ -590,7 +590,8 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
     Widget.add_connection slider c;
     let on_release _ _ _ =
       clicked_value := None in
-    let c2 = Widget.connect_main slider slider on_release Trigger.buttons_up in
+    let c2 = Widget.connect_main slider slider on_release
+        Trigger.buttons_up in
     Widget.add_connection slider c2;
     let bar = Layout.(resident
                         ~background:(color_bg Draw.scrollbar_color) slider) in

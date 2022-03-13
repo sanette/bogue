@@ -251,7 +251,7 @@ let last ti =
 (*** input ***)
 
 let activate ?(check=true) ti ev =
-  if (not check) || Sdl.Event.(get ev typ) = Trigger.full_click
+  if (not check) || Trigger.has_full_click ev
   then begin
     printd debug_event "Activating text_input";
     Sdl.start_text_input ();
@@ -537,7 +537,7 @@ let click ti ev =
   if is_active ti then begin
     if Trigger.was_double_click () then select_word ti
     else begin
-      if Sdl.Event.(get ev typ) = Trigger.full_click then click_cursor ti ev;
+      if Trigger.has_full_click ev then click_cursor ti ev;
       ignore (make_selection ti)
     end
   end

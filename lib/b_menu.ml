@@ -444,7 +444,8 @@ module Engine = struct
     Widget.add_connection widget c;
 
     let action _ _ _ = button_up screen entry in
-    let c = Widget.connect_main widget widget action Trigger.buttons_up in
+    let c = Widget.connect_main widget widget action
+        Trigger.buttons_up in
     Widget.add_connection widget c;
 
     let action _ _ _ = mouse_over screen entry in

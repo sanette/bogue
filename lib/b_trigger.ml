@@ -87,8 +87,6 @@ let redraw = new_event_type "redraw" (* TODO: select only a particular canvas *)
 
 let mouse_at_rest = new_event_type "mouse_at_rest"
 
-let full_click = new_event_type "full_click"
-
 let startup = new_event_type "startup"
 
 (* The var_changed event can be send to notify that some widget made a change to
@@ -112,7 +110,7 @@ let not_used = new_event_type "not_used"
 (* some aliases *)
 
 let buttons_down = E.[mouse_button_down; finger_down]
-let buttons_up = E.[mouse_button_up; finger_up; full_click]
+let buttons_up = E.[mouse_button_up; finger_up]
 let pointer_motion = E.[mouse_motion; finger_motion]
 
 
@@ -183,7 +181,6 @@ type bogue_event =
   | `Bogue_stop
   | `Bogue_stopped
   | `Bogue_mouse_at_rest
-  | `Bogue_full_click
   | `Bogue_mouse_enter
   | `Bogue_mouse_leave
   | `Bogue_var_changed
@@ -209,7 +206,6 @@ let event_kind ev : [> sdl_event | bogue_event] =
        | i when i = mouse_at_rest -> `Bogue_mouse_at_rest
        | i when i = mouse_enter -> `Bogue_mouse_enter
        | i when i = mouse_leave -> `Bogue_mouse_leave
-       | i when i = full_click -> `Bogue_full_click
        | i when i = var_changed -> `Bogue_var_changed
        | i when i = keyboard_focus -> `Bogue_keyboard_focus
        | i when i = mouse_focus -> `Bogue_mouse_focus
@@ -783,7 +779,18 @@ let wait_for ?timeout ?ev cond =
 (* EDIT: now we duplicate the event before sending it to a thread, so this
    should be safer, see widget.ml/add_action *)
 
-let full_click_event () = create_event full_click
+let full_click_magic = 255
+
+(* A full_click event is actually a mouse_button_up but whose clicks fields is
+   set to full_click_magic. This way we can use the x,y fields, which would be
+   difficult with a user_event. *)
+let set_full_click e =
+  E.(set e mouse_button_clicks) full_click_magic
+
+let has_full_click ev =
+  E.(get ev typ = mouse_button_up)
+  && E.(get ev mouse_button_clicks) = full_click_magic
+
 let startup_event () = create_event startup
 
 let is_mouse_at_rest = ref false
@@ -897,7 +904,7 @@ let empty_click () =
     button_y = 0 } in
   { static; dynamic }
 
-let button_down_event= empty_click ()
+let button_down_event = empty_click ()
 let single_click_delay = 300 (* between button_down and button_up *)
 let double_click_delay = 400 (* between first button_up and second button_up *)
 let single_click = ref None

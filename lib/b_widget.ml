@@ -566,7 +566,8 @@ let on_click ~click w =
   add_connection w c
 
 let on_release ~release w =
-  let c = connect_main w w (fun w _ _ -> release w) Trigger.buttons_up in
+  let c = connect_main w w (fun w _ _ -> release w)
+      Trigger.buttons_up in
   add_connection w c
 
 (****)

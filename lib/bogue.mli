@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220313
+@version 20220314
 
 @author Vu Ngoc San
 
@@ -482,7 +482,6 @@ module Trigger : sig
     | `Bogue_stop
     | `Bogue_stopped
     | `Bogue_mouse_at_rest
-    | `Bogue_full_click
     | `Bogue_mouse_enter
     | `Bogue_mouse_leave
     | `Bogue_var_changed

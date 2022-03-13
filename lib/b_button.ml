@@ -5,7 +5,6 @@
 (* ==> label_on, label_off ? *)
 
 open B_utils
-open Tsdl
 module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
@@ -117,7 +116,7 @@ let release b =
 
 (* called by button_up in case of kind=Switch *)
 let switch b ev =
-  if Sdl.Event.(get ev typ) = Trigger.full_click
+  if Trigger.has_full_click ev
   then begin
     Var.set b.state (not (Var.get b.state));
     printd debug_event "Switch button to [pressed=%b] [state=%b]"

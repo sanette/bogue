@@ -577,7 +577,7 @@ let filter_board_events board e =
 
 
 (* Treat events that should be used before being sent to the layout & widget,
-   but without filtering *)
+   but without filtering. *)
 let treat_layout_events board e =
   let open E in
   printd debug_event "2==> Treating event type: %s" (Trigger.sprint_ev e);
@@ -602,6 +602,8 @@ let treat_layout_events board e =
     | `Finger_down ->
       Trigger.button_down e;
       activate board (get_mouse_focus board)
+    | `Mouse_button_up when Trigger.has_full_click e ->
+      printd debug_event "Full click"
     | `Mouse_button_up
     | `Finger_up ->
       printd debug_event "Mouse button up !";
@@ -612,7 +614,7 @@ let treat_layout_events board e =
           || map_option board.button_down Layout.has_keyboard_focus = Some true)
       then begin
         printd debug_event "full click";
-        Trigger.(push_event (full_click_event ()));
+        Trigger.set_full_click e;
         (* full click means that the press and released were done on the same
            widget. It does not mean that the click was "quick". For this, check
            Trigger.single_click. *)
@@ -646,13 +648,12 @@ let treat_layout_events board e =
     | `Window_event ->
       let wid = get e window_event_id in
       printd debug_event "Window event [%d]" wid;
-      (* Warning: on my system, resizing window by dragging the corner
-            does not trigger only 6 = resize, but triggers event 4=
-            "window_event_moved"... and sometimes 3=exposed *)
-      (* Some window events may come by pair; for instance if you
-             middle_click on the maximize button, it can trigger 10 (mouse
-             enter) and then 6 (resize). So the 6 should not be flushed
-             ! *)
+      (* Warning: on my system, resizing window by dragging the corner does not
+         trigger only 6 = resize, but triggers event 4=
+         "window_event_moved"... and sometimes 3=exposed *)
+      (* Some window events may come by pair; for instance if you middle_click
+         on the maximize button, it can trigger 10 (mouse enter) and then 6
+         (resize). So the 6 should not be flushed ! *)
       begin
         match window_event_enum wid with
         (* | `Resized *)
