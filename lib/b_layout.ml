@@ -192,6 +192,8 @@ and room = {
     (* TODO keep_focus_on_pressed: bool (default = true) CF. menu2. BUT It's not
        so easy because many layouts can cover a widget. Ideally, this property
        should belong to the widget. *)
+    mutable removed : bool;
+    (* experimental field: hint that the layout should not be used anymore. *)
   }
 
 type t = room
@@ -380,7 +382,8 @@ let create_unsafe
       keyboard_focus;
       mouse_focus;
       canvas;
-      draggable
+      draggable;
+      removed = false;
     } in
   (* we update the lookup table: *)
   (* remove is in principle not necessary *)
@@ -422,10 +425,17 @@ let of_id_unsafe id : room =
 
 (* A detached room is a layout that does not belong to the current layout tree.
    Checking house = None is not sufficient, as it is allowed to have a unique
-   top layout containing a resident.  Note, we could also add a 'detached' field
-   in the layout type. *)
+   top layout containing a resident. Hum. what? bad definition. Use
+   [is_removed] instead? *)
 let is_detached room =
   room.house = None && not (has_resident room)
+
+(* Currently [is_removed] is different from [is_detached] *)
+let is_removed room =
+  room.removed
+
+let set_removed room =
+  room.removed <- true
 
 (* This one is more secure: we check if the layout is not detached. *)
 let of_id_opt ?not_found id : room option =
@@ -736,7 +746,7 @@ let adjust_window_size l =
        if (w,h) <> Draw.get_window_size win
        then begin
            Draw.set_window_size win ~w ~h;
-           Trigger.(push_event (create_event E.window_event_resized))
+           Trigger.(push_event (create_window_event E.window_event_resized))
          end
        else printd debug_graphics
               "Window for layout %s already has the required size."

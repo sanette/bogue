@@ -487,6 +487,7 @@ module Trigger : sig
     | `Bogue_var_changed
     | `Bogue_keyboard_focus
     | `Bogue_mouse_focus
+    | `Bogue_remove_layout
     | `Bogue_update
     | `Bogue_sync_action
     | `Bogue_redraw ]

@@ -66,6 +66,11 @@ let create_event t =
   E.(set e typ t);
   e
 
+let create_window_event w_id =
+  let e = create_event E.window_event in
+  E.(set e window_event_id w_id);
+  e
+
 (* we create new user types. The first one should be the predefined
    E.user_event *)
 
@@ -104,6 +109,8 @@ let sync_action = new_event_type "sync_action"
 let keyboard_focus = new_event_type "keyboard_focus"
 
 let mouse_focus = new_event_type "mouse_focus"
+
+let remove_layout = new_event_type "remove_layout"
 
 let not_used = new_event_type "not_used"
 
@@ -186,6 +193,7 @@ type bogue_event =
   | `Bogue_var_changed
   | `Bogue_keyboard_focus
   | `Bogue_mouse_focus
+  | `Bogue_remove_layout
   | `Bogue_update
   | `Bogue_sync_action
   | `Bogue_redraw ]
@@ -198,8 +206,8 @@ let event_kind ev : [> sdl_event | bogue_event] =
   (* It would be nice that Tsdl puts the event enum type as refinable variant
      type with [>...]. Then we could add our own variant tags. *)
   | `Unknown x ->
-     begin
-       match x with (* TODO association list or Imap like tsdl.ml *)
+    begin
+      match x with (* TODO association list or Imap like tsdl.ml *)
        | i when i = startup -> `Bogue_startup
        | i when i = stop -> `Bogue_stop
        | i when i = stopped -> `Bogue_stopped
@@ -209,10 +217,11 @@ let event_kind ev : [> sdl_event | bogue_event] =
        | i when i = var_changed -> `Bogue_var_changed
        | i when i = keyboard_focus -> `Bogue_keyboard_focus
        | i when i = mouse_focus -> `Bogue_mouse_focus
+       | i when i = remove_layout -> `Bogue_remove_layout
        | i when i = update -> `Bogue_update
        | i when i = redraw -> `Bogue_redraw
        | i when i = sync_action -> `Bogue_sync_action
-       | _ -> print_endline (Printf.sprintf "UNKNOWN EVENT=%i" x);
+       | _ -> printd debug_event "UNKNOWN EVENT=%i" x;
               `Unknown x
      end
   | e -> generalize_sdl_event e
@@ -709,6 +718,12 @@ let push_var_changed = push_from_id var_changed
 
 (* the widget_id is stored in the update event *)
 let push_update = push_from_id update
+
+(* The layout id is stored but not used. Only one push is necessary
+   currently. *)
+let push_remove_layout id =
+  if not (Sdl.has_event remove_layout)
+  then push_from_id remove_layout id
 
 (* send the `Quit event *)
 let push_quit () = push_from_id E.quit 0

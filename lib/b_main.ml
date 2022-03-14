@@ -278,7 +278,7 @@ let window_of_event board ev =
       (Trigger.sprint_ev ev);
     None
 
-(* detect layout under mouse, with top layer (= largest "depth") *)
+(* Detect layout under mouse, with top layer (= largest "depth") *)
 let check_mouse_focus board =
   if board.mouse_alive
   then let (x,y) = Mouse.pos () in
@@ -526,27 +526,45 @@ let refresh_custom_windows board =
       if not w.Window.bogue then w.Window.is_fresh <- false)
     board.windows
 
-(* EVENT LOOP *)
+let check_removed board =
+  do_option board.mouse_focus (fun r ->
+      if Layout.is_removed r then begin
+        printd debug_board "Re-setting mouse_focus because layout %s was removed"
+          (Layout.sprint_id r);
+        board.mouse_focus <- check_mouse_focus board
+      end);
+  do_option board.keyboard_focus (fun r ->
+      if Layout.is_removed r then begin
+        printd debug_board "Unsetting keyboard_focus because layout %s was removed"
+          (Layout.sprint_id r);
+        board.keyboard_focus <- None
+      end);
+  do_option board.button_down (fun r ->
+      if Layout.is_removed r then begin
+        printd debug_board "Unsetting button_down because layout %s was removed"
+          (Layout.sprint_id r);
+        board.button_down <- None
+      end)
 
-(* First: we treat the events that should be filtered or modified. This returns
-   the evo_layout that the layout (& widget) is authorized to treat
-   thereafter. Returning None means that widgets will never react to such
-   event. Currently all events are returned, except for the Update event. *)
+
+  (* EVENT LOOP *)
+
+  (* First: we treat the events that should be filtered or modified. This returns
+     the evo_layout that the layout (& widget) is authorized to treat
+     thereafter. Returning None means that widgets will never react to such
+     event. Currently all events are returned, except for the Update and
+     Remove_layout events. *)
 let filter_board_events board e =
   let open E in
   printd debug_event "1==> Filtering event type: %s" (Trigger.sprint_ev e);
   match Trigger.event_kind e with
-  | `Mouse_motion ->
-    if Sdl.has_event E.mouse_motion then None else Some e
-  (* no use to treat mouse motion if there is another one in the queue.  TODO?
-     if really the system was slow to treat this, we could check if the 'count'
-     of the event loop is not too high. *)
   | `Finger_motion ->
     if Sdl.has_event E.finger_motion then None else Some e
-  (* idem *)
+  (* There is (probably?) no use in treating finger motion if there is another
+     one in the queue. [This is NOT true for Mouse_motion, see below.] If really
+     the system was slow to treat this, we could check if the 'count' of the
+     event loop is not too high (TODO?). *)
   | `Bogue_keyboard_focus ->
-    (* we filter and treat only the last event *)
-    (* let e' = default (Trigger.get_last (Trigger.keyboard_focus)) e in *)
     set_keyboard_focus board
       (Layout.of_id_opt (get e user_code)
          ~not_found:(fun () ->
@@ -572,6 +590,11 @@ let filter_board_events board e =
   | `Bogue_update ->
     printd debug_event "Update";
     Update.execute e;
+    None
+  | `Bogue_remove_layout ->
+    printd debug_event "Layout removed";
+    Trigger.(flush remove_layout); (* not necessary in principle *)
+    check_removed board;
     None
   | _ -> Some e
 
@@ -600,10 +623,13 @@ let treat_layout_events board e =
           (fun a -> board.shortcut_pressed <- true; a board)
     | `Mouse_button_down
     | `Finger_down ->
+      (* For finger down and moving, the following events can be emitted quasi
+         simultaneously: (0x400) (0x401) (0x700) (0x400) (0x702) (0x400) (0x702)
+         (0x400) (0x702) *)
       Trigger.button_down e;
       activate board (get_mouse_focus board)
-    | `Mouse_button_up when Trigger.has_full_click e ->
-      printd debug_event "Full click"
+    (* | `Mouse_button_up when Trigger.has_full_click e ->
+     *   printd debug_event "Full click" *)
     | `Mouse_button_up
     | `Finger_up ->
       printd debug_event "Mouse button up !";
@@ -644,6 +670,7 @@ let treat_layout_events board e =
                printd debug_event "Total mouse wheels=%d" total;
                let dy = - total * 50 in
                Layout.scroll ~duration:500 dy room;
+               check_mouse_motion board;
                Trigger.push_var_changed room.Layout.id))
     | `Window_event ->
       let wid = get e window_event_id in
@@ -740,15 +767,16 @@ let final_events board anim e =
   (* TODO? display? *)
   (* = ou seulement ce qui a été (dé)sélectionné ? *)
   | `Mouse_motion ->
-    if not (Sdl.has_event E.mouse_motion) then
-      (* we don't act if there is another mouse_motion queued. *)
-      begin
-      printd debug_disable "MOTION anim=%b"
-        anim;
-      if not board.mouse_alive then board.mouse_alive <- true;
-      if (* has_no_event && *) not (Trigger.mm_pressed e)
-      then check_mouse_motion board
-    end
+    (* Even if there are several mouse_motion in the queue, it is important to
+       treat the ones that are followed by button_down (otherwise the focus is
+       not updated). Hence we don't flush them. In case of performance hit, one
+       could check Sdl.has_event E.mouse_motion && not (Sdl.has_event
+       E.mouse_button_down). *)
+    printd debug_disable "MOTION anim=%b"
+      anim;
+    if not board.mouse_alive then board.mouse_alive <- true;
+    if (* has_no_event && *) not (Trigger.mm_pressed e)
+    then check_mouse_motion board
   (* In most situations, when the button is pressed, we don't want to lose the
      initial focus, and we don't want to activate anything else. There is one
      (common) exception: when clicking a menu entry, we would like to navigate
