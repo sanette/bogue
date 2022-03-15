@@ -1451,17 +1451,15 @@ let buffer_draw_vline buffer x y0 y1 =
 
 (* draw a filled annulus between radius1 and radius2 (inclusive) *)
 let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
-  
   let alpha0 = float a0 in
   (* TODO if radius1 = radius2 appeler circle *)
   let radius1,radius2 = if radius1 <= radius2
-    then radius1,radius2
-    else radius2,radius1 in
+    then imax 0 radius1, radius2
+    else imax 0 radius2, radius1 in
 
-  (* A rough estimate of the necessary buffer size in pixels *)
-  let r1 = round (float radius1 /. 1.42) in
-  let n = 4*(radius2 - r1)*(radius2 + r1 + 1) in
-  (* 4r²+4r + 1 - 4x² - 4x - 1 = 4(r-x)(r+x) + 4(r-x) = 4(r-x)(r+x+1) *)
+  (* A rough estimate of the necessary buffer size in pixels. We take the square
+     of size 2*radius2 + 2 minus the square of diagonal 2*radius1 - 2. *)
+  let n = 4*radius2*radius2 - 2*radius1*radius1 + 8*(radius1+radius2+1)  in
   let buffer = create_buffer n in
 
   (* plot will be called with various colors, we cannot use the global buffer *)
@@ -1601,7 +1599,7 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
    faster *)
 let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
     xc yc radius1 radius2 =
-  
+
   let alpha0 = float a0 in
   (* TODO if radius1 = radius2 appeler circle *)
   let radius1, radius2 = if radius1 <= radius2

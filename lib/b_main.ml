@@ -166,19 +166,10 @@ let resize window =
   let layout = Window.get_layout window in
   if Window.size window <> Layout.get_physical_size layout
   then begin
-      printd debug_graphics "Resize window (Layout #%u)" layout.Layout.id;
-      Layout.resize_from_window layout;
-      Window.render window;
-      Window.flip window; (* Necessary? *)
-      Window.to_refresh window;
-      (* Window.set_fresh window; ?*)
-      (* we remove all the window_event_exposed event: *)
-      (* TODO: move this to the reaction to the exposed event only? *)
-      ignore (Trigger.filter_events (fun e ->
-          E.(get e typ <> window_event ||
-             get e window_event_id <> window_event_exposed)));
-      Thread.delay 0.1;
-    end
+    printd debug_graphics "Resize window (Layout #%u)" layout.Layout.id;
+    Layout.resize_from_window layout;
+    Window.to_refresh window
+  end
 
 (* Dynamically add a new window (given by the layout) to the board, while
    running. *)
@@ -673,6 +664,7 @@ let treat_layout_events board e =
                check_mouse_motion board;
                Trigger.push_var_changed room.Layout.id))
     | `Window_event ->
+      (* https://github.com/libsdl-org/SDL/blob/main/include/SDL_video.h *)
       let wid = get e window_event_id in
       printd debug_event "Window event [%d]" wid;
       (* Warning: on my system, resizing window by dragging the corner does not
@@ -683,14 +675,18 @@ let treat_layout_events board e =
          (resize). So the 6 should not be flushed ! *)
       begin
         match window_event_enum wid with
-        (* | `Resized *)
+        | `Resized ->
+          printd debug_event "(ignored) Resized => to (%lu,%lu)"
+            (get e window_data1) (get e window_data2)
         (* https://wiki.libsdl.org/SDL_WindowEventID *)
         | `Size_changed ->
+          (* For resizing, we usually have wid = (4-moved), 6-size-changed,
+             5-resized, 3-exposed.*)
           printd debug_event "Size_changed => Resize to (%lu,%lu)"
             (get e window_data1) (get e window_data2);
           do_option (window_of_event board e) resize
         | `Exposed ->
-          (* the exposed event is triggered by X11 when part of the
+          (* The exposed event is triggered by X11 when part of the
              window is lost and should be re-rendered. Sometimes several
              exposed events are triggered because they correspond to
              several regions of the window. This seems to be unreachable
@@ -701,9 +697,7 @@ let treat_layout_events board e =
           do_option (window_of_event board e) (fun w ->
               let l = Window.get_layout w in
               if Window.size w <> Layout.get_physical_size l
-              then (Layout.resize_from_window ~flip:false l;
-                    Thread.delay 0.002); (* only to be nice *)
-              (* else Trigger.flush_but_n 8; *) (* DEBUG *)
+              then Layout.resize_from_window ~flip:false l;
               (* the renderer changed, we need to recreate all
                  textures *)
               Window.to_refresh w)
@@ -841,7 +835,7 @@ let event_loop anim new_anim board =
        event "e" *)
     (* TODO we should not use 'e' if there is an anim, because it will be an
        old event *)
-    final_events board anim e;
+    final_events board new_anim e;
     continue e (count + 1)
 
   and continue e count =

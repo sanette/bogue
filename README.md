@@ -66,7 +66,7 @@ a delay.
 
 # Screenshots
 
-| demo, tab #1 | demo, tab #2 |
+| demo, tab1 | demo, tab2 |
 |-----|-----|
 |![demo1](tabs1.png)| ![demo2](tabs2.png) |
 
