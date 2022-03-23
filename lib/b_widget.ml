@@ -312,16 +312,33 @@ let connect_main = connect ~priority:Main
 let connections t =
   t.connections
 
-(* TODO: vérifier qu'on n'ajoute pas deux fois la même *)
 (* TODO à faire automatiquement après "connect" ? *)
+(* Not thread safe, should be used only in main thread. *)
 let add_connection w c =
-  w.connections <- List.rev (c :: List.rev w.connections)
+  if List.exists (fun cc -> cc.id = c.id) w.connections
+  then printd (debug_error + debug_user) "Connection is already present in widget"
+  else w.connections <- List.rev (c :: List.rev w.connections)
 
-(* TODO: remove connection *)
+(* Remove connection. Not thread safe, should be used only in main thread. *)
+let remove_connection w c =
+  let clist = List.filter (fun cc -> cc.id <> c.id) w.connections in
+  if List.compare_lengths clist w.connections <> 0
+  then w.connections <- clist
+  else printd (debug_error + debug_user)
+      "Cannot remove connection because it is not present in the widget."
+
+(* Remove all connection that respond to the given trigger (=event) *)
+let remove_trigger w tr =
+  let clist = List.filter (fun cc -> not (List.mem tr cc.triggers)) w.connections in
+  if List.compare_lengths clist w.connections <> 0
+  then w.connections <- clist
+  else printd (debug_warning + debug_user)
+      "[remove_trigger] There is no trigger of that kind in the list of connections."
+
 let get_box w =
   match w.kind with
-    | Box b -> b
-    | _ -> invalid_arg "Expecting a box"
+  | Box b -> b
+  | _ -> invalid_arg "Expecting a box"
 
 let get_check w =
   match w.kind with
@@ -537,6 +554,11 @@ let get_state w =
   | _ -> (printd debug_error "This type of widget does not have a state function";
           false)
 
+let set_state w s =
+  match w.kind with
+  | Button b -> Button.set b s
+  | Check c -> Check.set c s
+  | _ -> (printd debug_error "Cannot set the state for this type of widget.")
 
 (** creation of combined widgets *)
 let check_box_with_label text =

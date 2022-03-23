@@ -4,7 +4,7 @@
 (** Vu Ngoc San, December 2013 -- now *)
 
 (* doc on threads:
-http://ocamlunix.forge.ocamlcore.org/threads.html
+https://ocaml.github.io/ocamlunix/threads.html
 *)
 
 open B_utils
@@ -75,12 +75,6 @@ let set_windows board windows =
   board.windows_house.Layout.content <-
     Layout.Rooms (List.map Window.get_layout windows)
 (* TODO connections? widgets? *)
-
-(* not used *)
-let new_window (*?(adjust=false)*) ?x ?y ?(w=800) ?(h=600) () =
-  let canvas = Draw.init ?x ?y ~w ~h () in
-  canvas
-(* TODO adjust *)
 
 let close_window_layout layout =
   printd debug_board "Closing layout...";
@@ -161,7 +155,7 @@ let flip ?clear board =
   List.iter (Window.flip ?clear) board.windows;
   Draw.destroy_textures ()
 
-(** Update window that was resized by user *)
+(** Update layout of window that was resized by user *)
 let resize window =
   let layout = Window.get_layout window in
   if Window.size window <> Layout.get_physical_size layout
@@ -626,7 +620,7 @@ let treat_layout_events board e =
       printd debug_event "Mouse button up !";
       Trigger.button_up e;
       if not !Trigger.too_fast
-      && (map2_option board.button_down (get_mouse_focus board) Layout.equal
+      && (map2_option board.button_down (check_mouse_focus board) Layout.equal
           = Some true
           || map_option board.button_down Layout.has_keyboard_focus = Some true)
       then begin
@@ -932,7 +926,7 @@ let make_sdl_windows ?windows board =
          end in
      loop list board.windows
 
-(* make the board. Each layout in the list will be displayed in a different
+(* Make the board. Each layout in the list will be displayed in a different
    window. *)
 let make ?(shortcuts = []) connections layouts =
   let windows = List.map (Window.create ~bogue:true) layouts in

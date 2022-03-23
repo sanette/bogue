@@ -113,22 +113,23 @@ let max_texture_size renderer =
   info.Sdl.ri_max_texture_width, info.Sdl.ri_max_texture_height
 
 let rec create_texture renderer format access ~w ~h =
-  let w,h = if w = 0 || h = 0
-            then (printd draw_error
-                    "Texture dimensions can't be 0. We change to 1.";
-                  imax w 1, imax h 1)
-            else w,h in
+  let w,h =
+    if w <= 0 || h <= 0
+    then (printd draw_error
+            "Texture dimensions must be positive. We change to 1.";
+          imax w 1, imax h 1)
+    else w,h in
   match Sdl.create_texture renderer format access ~w ~h with
   | Error _ ->
-     printd draw_error "create_texture error: %s" (Sdl.get_error ());
-     let wmax, hmax = max_texture_size renderer in
-     if wmax < w || hmax < h
-     then (printd draw_error "The requested texture size (%u,%u) exceeds the max size (%u,%u)." w h wmax hmax;
-           create_texture renderer format access ~w:(imin w wmax) ~h:(imin h hmax))
-     else exit 1
+    printd draw_error "create_texture (%i,%i) error: %s" w h (Sdl.get_error ());
+    let wmax, hmax = max_texture_size renderer in
+    if wmax < w || hmax < h
+    then (printd draw_error "The requested texture size (%u,%u) exceeds the max size (%u,%u)." w h wmax hmax;
+          create_texture renderer format access ~w:(imin w wmax) ~h:(imin h hmax))
+    else exit 1
   | Ok t ->
-     incr textures_in_memory;
-     t
+    incr textures_in_memory;
+    t
 
 let rec create_texture_from_surface renderer surface =
   match Sdl.create_texture_from_surface renderer surface with
@@ -486,6 +487,8 @@ let scrollbar_color = set_alpha 20 blue
 
 let opaque = set_alpha 255
 
+let color_of_rgb = opaque
+
 let transp = set_alpha 127
 
 let more_transp (r,g,b,a) : color =
@@ -818,6 +821,7 @@ let[@inline] to_pixels (x,y) =
 let get_window_size win =
   dpi_rescale (Sdl.get_window_size win)
 
+ (* [set_window_size] will emit E.window_event_size_changed event. *)
 let set_window_size win ~w ~h =
   Sdl.set_window_size win ~w:(round (float w /. !dpi_xscale))
       ~h:(round (float h /. !dpi_yscale))
@@ -1001,6 +1005,7 @@ let image_size file =
   size
 
 (** create a texture filled with a color *)
+(* TODO: compare with creating a target texture and clearing it with color *)
 let texture ?(color = opaque grey) renderer ~w ~h =
   let surf = create_surface ~renderer ~color w h in
   let tex = create_texture_from_surface renderer surf in
@@ -1457,6 +1462,8 @@ let annulus renderer (r,g,b,a0) xc yc ~radius1 ~radius2 =
     then imax 0 radius1, radius2
     else imax 0 radius2, radius1 in
 
+  if !debug then assert (radius2 >= 0);
+
   (* A rough estimate of the necessary buffer size in pixels. We take the square
      of size 2*radius2 + 2 minus the square of diagonal 2*radius1 - 2. *)
   let n = 4*radius2*radius2 - 2*radius1*radius1 + 8*(radius1+radius2+1)  in
@@ -1605,6 +1612,8 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
   let radius1, radius2 = if radius1 <= radius2
     then radius1, radius2
     else radius2, radius1 in
+
+  if !debug then assert (radius2 >= 0);
 
   (* A rough estimate of the necessary buffer size in pixels *)
   let n_octants = octants land 1 + (octants lsr 1) land 1 +
@@ -1762,12 +1771,18 @@ let annulus_octants renderer (r,g,b,a0) ?(antialias=true) ?(octants=255)
   render_buffer buffer renderer
 
 let circle ?(thick=1) renderer ~color ~radius ~x ~y =
-  if thick > 0
-  then if thick = 1 then circle renderer color x y radius
-    else
-      let radius1 = radius - thick + 1 in
-      let radius2 = radius in
-      annulus renderer color x y ~radius1 ~radius2
+  if radius >= 0
+  then if thick > 0
+    then if thick = 1 then circle renderer color x y radius
+      else
+        let radius1 = radius - thick + 1 in
+        let radius2 = radius in
+        annulus renderer color x y ~radius1 ~radius2
+    else printd (debug_graphics + debug_user)
+        "Circle with non-positive thickness %i gives the empty set..." thick
+  else printd (debug_graphics + debug_user)
+      "Circle with negative radius %i gives the empty set..." radius
+
 
 (* we draw a filled circle by calling annulus with radius1 = 0. Not optimal
    (could reduce the number of lines drawn) but not too far. *)

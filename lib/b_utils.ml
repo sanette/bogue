@@ -31,7 +31,9 @@ let debug_memory = 32
 let debug_board = 64
 let debug_event = 128
 let debug_custom = 256
-let debug_disable = 512 (* use this to disable the debug message *)
+let debug_user = 512 (* messages that can be of interest to the (non developer)
+                        user *)
+let debug_disable = 1024 (* use this to disable the debug message *)
 
 let debug_code =
   ref (debug_error
@@ -42,7 +44,8 @@ let debug_code =
        + debug_board
        + debug_memory
        + debug_event
-       + debug_custom)
+       + debug_custom
+       + debug_user)
 
 (* debug_code := !debug_code lor debug_thread;; *)
 
@@ -57,28 +60,21 @@ let debug_vars =
     "Memory", debug_memory;
     "Board", debug_board;
     "Event", debug_event;
-    "Custom", debug_custom]
+    "Custom", debug_custom;
+    "User", debug_user]
 
 let debug_to_string =
   let debug_array = Array.of_list debug_vars in
   fun c ->
-  let rec loop i n list =
-    if i = 0 || n = 16 then list
-    else let code = i land 1 in
-         if code = 0 then loop (i lsr 1) (n+1) list
-         else let s = if n > 0 && n < 10
-                      then fst debug_array.(n-1)
-                               (* if n = 1 then "Thread" *)
-                               (* else if n = 2 then "Warning" *)
-                               (* else if n = 3 then "Graphics" *)
-                               (* else if n = 4 then "ERROR" *)
-                               (* else if n = 5 then "I/O" *)
-                               (* else if n = 6 then "Memory" *)
-                               (* else if n = 7 then "Board" *)
-                               (* else if n = 8 then "Event" *)
-                      else "Unknown" in
-              loop (i lsr 1) (n+1) (s::list) in
-  String.concat "; " (loop c 1 [])
+    let rec loop i n list =
+      if i = 0 || n = 16 then list
+      else let code = i land 1 in
+        if code = 0 then loop (i lsr 1) (n+1) list
+        else let s = if n > 0 && n < 11
+               then fst debug_array.(n-1)
+               else "Unknown" in
+          loop (i lsr 1) (n+1) (s::list) in
+    String.concat "; " (loop c 1 [])
 
 (* Should we put this in a Var/Atomic? *)
 (* TODO: use this to reduce the number of lock if there is no thread *)

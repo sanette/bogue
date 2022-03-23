@@ -203,11 +203,12 @@ let example8 () =
 let desc9 = "the button is attached to the mouse"
 let example9 () =
   let b = W.check_box () in
-  let btn = L.flat_of_w [b] in
-  let layout = L.flat [btn] in
+  let btn = L.flat_of_w ~background:(L.theme_bg) [b] in
+  let layout = L.flat ~margins:0 [btn] in
+  L.fix_content layout; (* this prevents the box around the button to expand
+                           when resizing the layout/window.*)
   L.set_width layout 500; L.set_height layout 500;
-  (* L.animate layout (Anim.follow_mouse ()); *)
-  L.follow_mouse ~dx:20 ~dy:20 btn;
+  L.follow_mouse ~dx:15 ~dy:20 btn;
   let board = make [] [layout] in
   run board
 
@@ -252,7 +253,7 @@ let example12 () =
 let desc13 = "circular sliders"
 let example13 () =
   let text = W.label "I'm a knob" in
-  let background = L.bg_color in
+  let background = L.theme_bg in
   let s = W.slider ~kind:Slider.Circular 100 ~h:200 ~tick_size:6 in
   let s' = W.slider ~kind:Slider.Circular 10 ~h:50 ~thickness:25 ~tick_size:4 in
   let knob = L.superpose ~center:true [L.resident ~background s;
@@ -279,7 +280,7 @@ let example14 () =
   let c' = W.connect_main s' l' action events in
   let c'' = W.connect_main s'' l'' action events in
   (* notice that action is a pure function, we can use it for both connections *)
-  let slider = L.resident ~background:L.bg_color s in
+  let slider = L.resident ~background:L.theme_bg s in
   let slider' = L.resident ~background:(L.color_bg Draw.(transp green)) s' in
   let slider'' = L.resident ~background:(L.color_bg Draw.(transp red)) s'' in
   let lay =  L.tower [
@@ -688,15 +689,15 @@ let example28 () =
 
 let desc29 = "radiolist"
 let example29 () =
-  let radio = Radiolist.vertical
-      [|"only one can be selected"; "AAA"; "BBB"; "CCC"|] in
+  let radio = Radiolist.vertical ~selected:2
+      [|"Only one can be selected"; "AAA"; "BBB"; "CCC"|] in
   let board = make [] [Radiolist.layout radio] in
   run board
 
 let desc30 = "radiolist and interaction + a timeout"
 let example30 () =
   let radio = Radiolist.vertical
-      [|"only one can be selected"; "AAA"; "BBB"; "CCC"|] in
+      [|"At most one can be selected"; "AAA"; "BBB"; "CCC"|] in
   let label = W.label "   Please make your choice   " in
   let action _ l _ =
     let sel = Utils.(default (map_option (Radiolist.get_index radio) string_of_int) "nothing") in
@@ -715,7 +716,7 @@ let example30 () =
   let board = make cs [layout] in
   let _ = Timeout.add 5000 (fun () ->
       print_endline "SET INDEX TO 3";
-      Radiolist.set_index radio 3) in
+      Radiolist.set_index radio (Some 3)) in
   run board
 
 let desc31 = "a Long List"
@@ -903,7 +904,7 @@ let example38 () =
 
 let desc39 = "the hfill/vfill elements. Try and resize the window."
 let example39 () =
-  let background = L.bg_color in
+  let background = L.theme_bg in
   let line0 = L.flat
                 [L.resident ~background (W.label "Room 1");
                  L.resident ~background (W.label "Room 2");
@@ -941,7 +942,7 @@ let example39 () =
 
 let desc39bis = "Keep bottom/right"
 let example39bis () =
-  let background = L.bg_color in
+  let background = L.theme_bg in
   let bg_red = L.color_bg (Draw.(transp red)) in
   let bottom = L.resident ~background:bg_red (W.label "Bottom") in
   let right = L.resident ~background:bg_red (W.label "Right") in
@@ -1021,7 +1022,7 @@ let desc42 = "effect of rotate on a composite room"
 let example42 () =
   let l = W.label "Rotation" in
   let td = W.text_display lorem in
-  let background = L.bg_color in
+  let background = L.theme_bg in
   let layout = L.tower_of_w ~background [l;td] in
   L.rotate ~duration:5000 ~angle:180. layout;
   let board = make [] [layout] in
@@ -1034,7 +1035,7 @@ let example43 () =
   let l = W.label "We snapshot this pack:" in
   let b = W.check_box () in
   let box = W.box ~style:round_image_box () in
-  let background = L.bg_color in
+  let background = L.theme_bg in
   let room = L.tower ~background
       [ L.resident l;
         L.flat_of_w [b;box] ] in

@@ -19,10 +19,11 @@ let motion_pos ev =
     let x = E.(get ev mouse_motion_x) in
     let y = E.(get ev mouse_motion_y) in
     let x,y = Draw.dpi_unscale_pos (x,y) in
-    let px,py = pos () in
-    if (x,y) <> (px,py)
-    then printd debug_event
-        " ! Mouse_pos (%d,%d) <> Motion_pos (%d,%d) ! " px py x y;
+    let () = if !debug
+    then let px,py = pos () in
+      if (x,y) <> (px,py)
+      then printd debug_event " ! Mouse_pos (%d,%d) <> Motion_pos (%d,%d) ! "
+          px py x y in
     Some (x,y)
   | _ -> None
 
@@ -63,17 +64,17 @@ let finger_pos ev =
   | `Finger_motion -> compute_finger_pos ev
   | _ ->  failwith "WRONG EVENT"
 
-(* guess where the pointer is, trying mouse first and then touch *)
-(* in logical pixels *)
+(* Guess where the pointer is (in physical pixels), trying mouse first and then
+   touch *)
 (* TODO retrieve also from mouse_at_rest *)
-let pointer_pos ev =
+let pointer_physical_pos ev =
   match Trigger.event_kind ev with
   | `Mouse_motion
   | `Mouse_button_down
   | `Mouse_button_up ->
     let x = E.(get ev mouse_button_x) in
     let y = E.(get ev mouse_button_y) in
-    Draw.(unscale_pos @@ dpi_rescale (x,y))
+    Draw.dpi_rescale (x,y)
   | `Finger_down
   | `Finger_up
   | `Finger_motion ->
@@ -85,9 +86,12 @@ let pointer_pos ev =
       Trigger.mouse_pos ()
     end
 
+(* in logical pixels *)
+let pointer_pos ev =
+  Draw.unscale_pos (pointer_physical_pos ev)
 
-(* the mouse_pos with respect to the given window, using window position if
-   necessary *)
+(* The mouse_pos with respect to the given window, using window position if
+   necessary. *)
 let window_pos =
   let x' = ref 0 in
   let y' = ref 0 in

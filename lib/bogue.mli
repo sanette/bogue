@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220315
+@version 20220323
 
 @author Vu Ngoc San
 
@@ -934,6 +934,7 @@ module Style : sig
 
   (** {2 Constructing backgrounds} *)
 
+  val theme_bg : background
   val color_bg : Draw.color -> background
   val opaque_bg : Draw.rgb -> background
   val image_bg : Image.t -> background
@@ -1008,6 +1009,15 @@ module Button : sig
                  Trigger module*)
     | Switch (* two states *)
 
+  val create : ?size:int ->
+    ?border_radius:int ->
+    ?border_color:Draw.color ->
+    ?fg:Draw.color ->
+    ?bg_on:Style.background ->
+    ?bg_off:Style.background ->
+    ?bg_over:Style.background ->
+    ?label:Label.t ->
+    ?label_on:Label.t -> ?label_off:Label.t -> ?state:bool -> string -> t
   val state : t -> bool
   val reset : t -> unit
   val is_pressed : t -> bool
@@ -1171,6 +1181,11 @@ module Sdl_area : sig
   (** Size in physical pixels of the target SDL texture on which you can
      draw. You may also use [Tsdl.Sdl.get_renderer_output_size], if used inside
       the Sdl_area command queue. *)
+
+  val pointer_pos : t -> Tsdl.Sdl.event -> int * int
+  (** Position of the pointer (mouse or touchscreen that has generated the
+     event) in physical pixels, with respect to the top-left corner of the
+     Sdl_area. Should be called only after the Sdl_area has been rendered. *)
 
   val to_pixels : (int * int) -> (int * int)
   (** Convert BOGUE logical coordinates into pixel coordinates usable for the
@@ -1469,6 +1484,9 @@ let l = get_label w in
   (** If the widget is not rendered yet, a default size may be returned instead
      of the true size. *)
 
+  val set_state : t -> bool -> unit
+  (** Set a boolean state. Works for Button and Check. *)
+
   val set_text : t -> string -> unit
   (** Change the text of a widget. Works for Button, TextDisplay, Label,
      and TextInput. *)
@@ -1570,7 +1588,7 @@ module Layout : sig
   val style_bg : Style.t -> background
   (** Construct a background from the given [Style]. *)
 
-  val bg_color: background
+  val theme_bg: background
   (** This is the background constructed from the current theme's BG_COLOR. *)
 
   val unload_background : t -> unit
@@ -2133,11 +2151,13 @@ module Radiolist : sig
   val vertical : ?name:string -> ?click_on_label:bool -> ?selected:int -> string array -> t
   (** A radiolist with the usual vertical layout of items. The option [click_on_label] is true be default: one can click on the label to select it. *)
 
+  val of_widgets : ?selected:int -> Widget.t list -> t
+
   val layout : t -> Layout.t
   (** The layout to display the radiolist. *)
 
   val get_index : t -> int option
-  val set_index : t -> int -> unit
+  val set_index : t -> int option -> unit
   (** Set the selected entry to the specified index and directly activate the
      button's connections with the {!Trigger.var_changed} event. *)
 

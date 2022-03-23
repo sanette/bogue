@@ -5,6 +5,7 @@
 
 module Draw = B_draw
 module Image = B_image
+module Theme = B_theme
 open B_utils
 
 type line_style =
@@ -99,7 +100,9 @@ let color_bg color =
   Solid color
 
 let opaque_bg rgb =
-  Solid (Draw.opaque rgb)
+  color_bg (Draw.opaque rgb)
+
+let theme_bg = opaque_bg (Draw.find_color Theme.bg_color)
 
 let get_color = function
   | Solid c -> c

@@ -42,6 +42,7 @@
 </div>
 </div>
 
+<pre><span id="VALof_widgets"><span class="keyword">val</span> of_widgets</span> : <code class="type">?selected:int -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -&gt; <a href="Bogue.Radiolist.html#TYPEt">t</a></code></pre>
 <pre><span id="VALlayout"><span class="keyword">val</span> layout</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>The layout to display the radiolist.</p>
@@ -49,7 +50,7 @@
 </div>
 
 <pre><span id="VALget_index"><span class="keyword">val</span> get_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; int option</code></pre>
-<pre><span id="VALset_index"><span class="keyword">val</span> set_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALset_index"><span class="keyword">val</span> set_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; int option -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set the selected entry to the specified index and directly activate the
      button's connections with the <a href="Bogue.Trigger.html#VALvar_changed"><code class="code"><span class="constructor">Trigger</span>.var_changed</code></a> event.</p>

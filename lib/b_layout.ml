@@ -36,8 +36,6 @@ module Selection = B_selection
 type background =
   (* TODO instead we should keep track of how the box was created... in case we
      want to recreate (eg. use it for another window... ?) *)
-  (* TODO use Style.background? Cependant Style est antérieur (et utilisé par) à
-     Box... *)
   | Style of Style.t
   | Box of Box.t
 
@@ -46,7 +44,7 @@ let color_bg color =
 
 let opaque_bg color = color_bg Draw.(opaque color)
 
-let bg_color = opaque_bg @@ Draw.find_color Theme.bg_color
+let theme_bg = opaque_bg @@ Draw.find_color Theme.bg_color
 
 let style_bg s =
   Style s
@@ -738,19 +736,16 @@ let resize_content room =
 let adjust_window_size l =
   if not (is_top l)
   then printd debug_error
-         "[adjust_window_size] should only be called with a top house, what %s \
-          is not." (sprint_id l)
+      "[adjust_window_size] should only be called with a top house, what %s is \
+       not." (sprint_id l)
   else if l.canvas <> None
   then let w,h = get_physical_size l in
-       let win = window l in
-       if (w,h) <> Draw.get_window_size win
-       then begin
-           Draw.set_window_size win ~w ~h;
-           Trigger.(push_event (create_window_event E.window_event_resized))
-         end
-       else printd debug_graphics
-              "Window for layout %s already has the required size."
-              (sprint_id l)
+    let win = window l in
+    if (w,h) <> Draw.get_window_size win
+    then Draw.set_window_size win ~w ~h
+    else printd debug_graphics
+        "Window for layout %s already has the required size."
+        (sprint_id l)
 
 (* Change the size of the room. By default this will cancel the resize function
    of this room. If [set_size] or its derivatives [set_width] and [set_height]
@@ -2280,15 +2275,11 @@ let slide_to ?(duration=default_duration) room (x0,y0) =
 
 (** follow mouse animation. *)
 (* Note that the window is not available before running the layout... *)
-(* TODO this doesn't work for touch, because get_mouse_state only captures when
-   the finger touches the screen, but not when it moves. One should use
-   pointer_pos instead. *)
-
 let mouse_motion_x ?dx ?modifier room =
   let x0 = ref 0 in (* we store here the dist between mouse and room *)
   let init () =
     x0 := default_lazy dx
-            (lazy (fst (Mouse.window_pos (window room)) - xpos room)) in
+        (lazy (fst (Mouse.window_pos (window room)) - xpos room)) in
   let update _ _ =
     let x = fst (Mouse.window_pos (window room)) - (x_origin room) - !x0 in
     match modifier with
@@ -2300,7 +2291,7 @@ let mouse_motion_y ?dy ?modifier room =
   let y0 = ref 0 in
   let init () =
     y0 := default_lazy dy
-            (lazy (snd (Mouse.window_pos (window room)) - ypos room)) in
+        (lazy (snd (Mouse.window_pos (window room)) - ypos room)) in
   let update _ _ =
     let y = snd (Mouse.window_pos (window room)) - (y_origin room) - !y0 in
     match modifier with
@@ -2779,7 +2770,7 @@ let render layout =
   if Draw.window_is_shown (window layout) then display layout
   else printd debug_board "Window (layout #%u) is hidden" layout.id
 
-(* the function to call when the window has been resized *)
+(* The function to call when the window has been resized *)
 let resize_from_window ?(flip=true) layout =
   let top = top_house layout in
   if not (equal layout top)
@@ -2809,6 +2800,8 @@ let make_window ?window layout =
   if not (equal layout top)
   then printd debug_error
       "  The layout for creating a window should be the top layout";
+  Draw.video_init (); (* this will compute the scale. If we don't do this here,
+                         the size below will be (0,0). *)
   let w,h = get_physical_size top in
   let wmax, hmax = 4096, 4096 in
   (* = TODO ? instead clip to ri_max_texture_width,ri_max_texture_height ? *)

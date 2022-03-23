@@ -114,7 +114,9 @@ let remove_layout = new_event_type "remove_layout"
 
 let not_used = new_event_type "not_used"
 
-(* some aliases *)
+(* Some aliases. Beware that in case of finger events, the OS or SDL will most
+   likely trigger the corresponding mouse event as well, so it's not necessary
+   to react to both. *)
 
 let buttons_down = E.[mouse_button_down; finger_down]
 let buttons_up = E.[mouse_button_up; finger_up]

@@ -14,7 +14,7 @@ type sound = (int, Bigarray.int16_signed_elt) Sdl.bigarray
 
 type repeat = Repeat of int | Forever
 
-type effect = sound -> unit
+type sound_effect = sound -> unit
 
 type track = {
     mutable soundpos : int;  (* this should only be modified by the callback *)
@@ -23,7 +23,7 @@ type track = {
     sound : sound;
     mutable volume : float;  (* factor between 0 and 1. It is applied
                                dynamically. Can be changed on the fly. *)
-    effects : effect list;
+    effects : sound_effect list;
   }
 
 type t = {
@@ -513,7 +513,7 @@ let close mixer =
   done;;
 
 (* let free_chunk = Sdl.free_wav *)
-(* DONT USE THIS, the chunks will be free (hopefully) by Ocaml's GC. *)
+(* DONT USE THIS, the chunks will be freed (hopefully) by Ocaml's GC. *)
 
 let test () =
   print_endline "MIXER TEST";

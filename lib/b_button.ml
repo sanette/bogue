@@ -100,6 +100,7 @@ let set_label b text =
 let is_pressed b =
   Var.get b.pressed
 
+(* called on button_down *)
 let press b =
   Var.set b.pressed true
 
@@ -107,11 +108,17 @@ let reset b =
   Var.set b.pressed false;
   Var.set b.state false
 
+let set b s =
+  Var.set b.pressed s;
+  Var.set b.state s
+
+(* called on button up for Trigger *)
 let release b =
   (* TODO: verify true click *)
   if is_pressed b then begin
     Var.set b.pressed false;
-    Var.set b.state (not (Var.get b.state)) (* TODO; this is not exactly what we want with Trigger *)
+    Var.set b.state (not (Var.get b.state))
+    (* TODO; this is not exactly what we want with Trigger *)
   end
 
 (* called by button_up in case of kind=Switch *)

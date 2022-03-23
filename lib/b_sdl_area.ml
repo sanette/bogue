@@ -8,6 +8,7 @@ module Flow = B_flow
 module Time = B_time
 module Trigger = B_trigger
 module Theme = B_theme
+module Mouse = B_mouse
 
 open B_utils
 
@@ -30,7 +31,9 @@ type t = {
   mutable update : bool;
   (* if [update] is false, we just draw the box texture without applying the
      [sheet] *)
-  timeout : int
+  timeout : int;
+  mutable pos: (int * int) option;
+  (* For convenience, the layout position will be stored here *)
 }
 
 let new_id = fresh_int ()
@@ -39,7 +42,8 @@ let create ~width ~height ?style ?(timeout = 50) () =
   { box = Box.create ~width ~height ?style ();
     sheet = Var.create (Flow.create ());
     update = true;
-    timeout
+    timeout;
+    pos = None
   }
 
 let sprint el =
@@ -123,7 +127,17 @@ let drawing_size area =
     Box.size area.box
             |> Draw.to_pixels
 
+(* position in physical pixels with respect to the area *)
+let pointer_pos area ev =
+  let x0, y0 = default area.pos
+      (printd (debug_error + debug_user) "Cannot find pointer position within the Sdl_area because it is not displayed yet."; (0,0)) in
+  let x, y = Mouse.pointer_physical_pos ev in
+  x-x0, y-y0
+
 let to_pixels = Draw.to_pixels
+
+let set_rgb area rgb =
+  add area (fun renderer -> Draw.(set_color renderer (opaque rgb)))
 
 (* Convenient shortcuts to some Draw functions. Downside: they cannot adapt
    easily to resizing the area. See example 49. *)
@@ -153,6 +167,7 @@ let set_texture area texture =
 (************* display ***********)
 
 let display wid canvas layer area g =
+  area.pos <- Some (g.Draw.x, g.Draw.y);
   if area.update then Box.unload_texture area.box;
   let blits = Box.display canvas layer area.box g in
   if not area.update && Flow.end_reached (Var.get area.sheet) then blits
