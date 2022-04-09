@@ -78,13 +78,25 @@ a delay.
 # Installation
 
 ## Using the opam package
-This is the easiest way unless you want to try out the development version.
+
+It's the easiest way unless you want to try out the development
+version.
 
 ```
 opam install bogue
 ```
 
-That's it.
+That's it. **But**, if you want to stay in sync with the latest
+developement, you may direcly "pin" the github repository:
+
+```
+opam pin add https://github.com/sanette/bogue.git
+```
+
+(Then update/upgrade opam). And this can easily be undone with
+```
+opam unpin https://github.com/sanette/bogue.git
+```
 
 ## Building from sources
 
