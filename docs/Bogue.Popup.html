@@ -25,6 +25,9 @@
 <div class="info-desc">
 <p>Put layouts on top of others</p>
 
+<p><em>Warning:</em> For all functions in this module, the destination layout must be a
+   house, not a single resident.</p>
+
 <h6 id="5_graphbpopuphtmlDependencygraph"><a href="graph-b_popup.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
@@ -32,7 +35,7 @@
 <pre><span id="VALadd_screen"><span class="keyword">val</span> add_screen</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Add a screen on top of the layout. This can be useful to make the whole
-     layout clickable as a whole.</p>
+      layout clickable as a whole.</p>
 </div>
 <ul class="info-attributes">
 <li><b>Returns</b> the screen.</li>
@@ -65,7 +68,7 @@
 </div>
 </div>
 
-<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre>
+<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt; content:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre>
 <pre><code><span id="TYPEposition"><span class="keyword">type</span> <code class="type"></code>position</span> = </code></pre><table class="typetable">
 <tr>
 <td align="left" valign="top" >

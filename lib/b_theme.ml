@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220323"  (* see VERSION file *)
+let this_version = "20220409"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -93,6 +93,7 @@ let sub_file = Filename.concat
 let home = Sys.getenv "HOME"
 
 (* Home config directory *)
+(* TODO use https://github.com/ocamlpro/directories *)
 let conf = try Sys.getenv "XDG_CONFIG_HOME" with
   | Not_found -> sub_file home ".config"
 

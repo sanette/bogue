@@ -40,6 +40,10 @@ let clear q =
 let rewind q =
   q.current <- q.first
 
+(* forget the past of the flow. *)
+let forget q =
+  q.first <- q.current
+
 (* Add [x] to the queue. If the current pointer is [Nil] (end reached) then it
    will point to the added element. *)
 let add x q =
@@ -73,26 +77,28 @@ let read_opt q =
     q.current <- next;
     Some content
 
+(* TODO use read_opt? *)
 let iter =
-  let rec iter f cell =
+  let rec iter q f cell =
     match cell with
     | Nil -> ()
     | Cons { content; next } ->
+      q.current <- next;
       f content;
-      iter f next
+      iter q f next
   in
   fun f q ->
-    iter f q.current;
+    iter q f q.current;
     q.current <- Nil
 
-(* Stops when the result of [f] evaluated on the queue is true *)
+(* Stops when the result of [f] evaluated on the queue element is true *)
 let iter_until f q =
   let rec loop f cell =
     match cell with
     | Nil -> q.current <- Nil
     | Cons { content; next } ->
+      q.current <- next;
       if not (f content) then loop f next
-      else q.current <- next
   in
   loop f q.current
 

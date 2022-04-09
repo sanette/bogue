@@ -140,6 +140,7 @@ let rec pwr_old k x =
 
 let pwr k x = Float.pow x (float k)
 
+(* Use Int.max and Int.min for ocaml >= 4.13 *)
 let imax (x:int) (y:int) =
   if x > y then x else y
 

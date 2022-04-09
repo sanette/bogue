@@ -147,7 +147,8 @@ let page list : words list = list
 let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font)
       paragraphs =
   Draw.ttf_init ();
-  { paragraphs = Var.create (List.rev ([Style Ttf.Style.normal] :: (List.rev paragraphs))); (* we add normal style at the end *)
+  { paragraphs = Var.create (List.rev ([Style Ttf.Style.normal] :: (List.rev paragraphs)));
+    (* : we add normal style at the end *)
     render = Var.create None;
     font = Var.create font;
     size; w; h}

@@ -702,8 +702,20 @@ let unload_blit b =
 
 (**********)
 
-(* draw a thin rectangle of width=1. See also "rectangle" for specifying
-   width. *)
+(* Draw a thin rectangle of width=1. See also "rectangle" for specifying
+   width. As of SDL 2.0.10 to SDL 2.0.14, we don't want to rely upon
+   SDL_RenderDrawRect, see:
+   https://discourse.libsdl.org/t/sdl-renderdrawrect-function-broken/28756 On
+   the other hand, render_draw_line(s) also has
+   problems...https://github.com/libsdl-org/SDL/issues/3521.  We will
+   reimplement this.
+
+   SDL_RenderDrawLine bug: with SDL 2.0.10, the end point is drawn at a random
+   location found in memory. This can be clearly seen in the /examples/drawing
+   example: while drawing a new line, you can see ghost points forming a line
+   that was drawn in a previous session! (the array somewhat stayed in memory).
+
+   *)
 let draw_rect ?color renderer (x,y) w h =
   do_option color (set_color renderer);
   go (Sdl.render_draw_lines renderer
@@ -731,12 +743,14 @@ let create_surface ?like:surf ?renderer ?color w h =
   if w=0 || h=0 then failwith "Error: surface has zero size. You could maybe use a Layout.empty?";
   let depth, color_mask = match surf with
     | Some surf ->
-      let d,r,g,b,a = go (Sdl.pixel_format_enum_to_masks (Sdl.get_surface_format_enum surf)) in
+      let d,r,g,b,a = go (Sdl.pixel_format_enum_to_masks
+                            (Sdl.get_surface_format_enum surf)) in
       d, (r,g,b,a)
     | None ->
       (match renderer with
        | Some renderer -> mask renderer
-       | None -> failwith "Creating surface needs either a surface or a renderer")
+       | None ->
+         failwith "Creating surface needs either a surface or a renderer")
   in
   let surf = create_rgb_surface ~w ~h ~depth color_mask in
   do_option color (fun c ->
@@ -1019,7 +1033,6 @@ let box renderer ?bg x y w h =
   else begin
       printd debug_graphics "Drawing box (%d, %d) (%d, %d)" x y (x+w-1) (y+h-1);
       let r = Sdl.Rect.create ~x ~y ~w ~h in
-      (*go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_blend); *)
       do_option bg (set_color renderer);
       go (Sdl.render_fill_rect renderer (Some r))
     end
@@ -1306,6 +1319,106 @@ let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thic
   forget_texture tex;
   make_blit ?voffset ~dst ~transform canvas layer tex
 
+let center x0 big_w small_w =
+  x0 + (big_w - small_w) / 2
+
+let align align x0 big_w small_w =
+  match align with
+  | Min -> x0
+  | Center -> x0 + (big_w - small_w) / 2
+  | Max -> x0 + big_w - small_w
+
+(** copy the texture on the canvas, clipped (or else) in the given
+    area *)
+let copy_tex ?(overlay = TopRight) renderer tex area x y =
+  let w, h = tex_size tex in
+  let rect = Sdl.Rect.create ~x ~y ~w ~h in
+  let dst = Sdl.intersect_rect rect area in
+  do_option dst (fun dst ->
+      let src = (let open Sdl in match overlay with
+        | Shrink -> Rect.create ~x:0 ~y:0 ~w ~h
+        | Clip -> Rect.create ~x:(Rect.x dst - x) ~y:(Rect.y dst - y)
+                    ~w:(Rect.w dst) ~h:(Rect.h dst)
+        | TopRight -> Rect.create ~x:(w - Rect.w dst)
+                        ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
+        | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
+                          ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
+        ) in
+      go (Sdl.render_copy ~src ~dst renderer tex))
+
+(* new version for layers *)
+let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform
+      canvas layer tex area x y =
+  let w, h = tex_size tex in
+  let rect = Sdl.Rect.create ~x ~y ~w ~h in
+  let dst = Sdl.intersect_rect rect area in
+  let src = match dst with
+    | None -> None
+    | Some dst -> Some (let open Sdl in match overlay with
+      | Shrink -> Rect.create ~x:0 ~y:0 ~w ~h
+      | Clip -> Rect.create ~x:(Rect.x dst - x) ~y:(Rect.y dst - y)
+                  ~w:(Rect.w dst) ~h:(Rect.h dst)
+      | TopRight -> Rect.create ~x:(w - Rect.w dst)
+                      ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
+      | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
+                        ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
+      ) in
+  make_blit ?src ?dst ?voffset ?transform canvas layer tex
+
+(** copy the texture on the canvas, centered in the given area *)
+let center_tex ?(horiz=true) ?(verti=true) renderer tex x y w h =
+  let rw, rh = tex_size tex in
+  (* we center the texture *)
+  let x = if horiz then center x w rw else x in
+  let y = if verti then center y h rh else y in
+  let dst= Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
+  go (Sdl.render_copy ~dst renderer tex)
+
+(* new version for layers. If clip is true and the texture is larger than the
+   geometry, we do not center, instead we align from the origin. *)
+(* TODO use voffset *)
+let center_tex_to_layer ?(horiz=Center) ?(verti=true) ?(clip=true)
+      canvas layer tex g =
+  let tw, th = tex_size tex in
+  let w, h = if clip then imin tw g.w, imin th g.h else tw, th in
+  let src =
+    if not clip || (tw <= g.w && th <=  g.h)
+    then None
+    else Some (Sdl.Rect.create ~x:0 ~y:0 ~w ~h) in
+  (* we center the texture *)
+  let x = match horiz with
+    | Center -> center g.x g.w w
+    | Min -> g.x
+    | Max -> g.x + g.w - w in
+  let y = if verti then center g.y g.h h else g.y in
+  let dst = Sdl.Rect.create ~x ~y ~w ~h in
+  make_blit ~voffset:g.voffset ?src ~dst canvas layer tex
+
+let tex_to_layer canvas layer tex g =
+  let w, h = tex_size tex in
+  let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w ~h in
+  make_blit ~voffset:g.voffset ~dst canvas layer tex
+
+
+
+(********************************************************************************)
+(* Drawing primitives. The goal is to provide basic drawing primitives to BOGUE,
+   but also to have fun pushing ocaml's limits to find high-quality
+   algorithms. For more serious (and faster) graphics, use bogue-cairo instead!
+   https://github.com/sanette/bogue-cairo *)
+
+let normsq (x,y) =
+  x*x + y*y
+
+(* Euclidian norm. One could also use Stdlib.hypot, but benchmarks say that it
+   would be slower, see tests/norm. For default ocamlopt compilation, hypot
+   (float x) (float y) takes 40% more time than our norm. *)
+let norm (x,y) =
+  sqrt(float (x*x + y*y))
+
+(* Euclidian distance *)
+let dist (x,y) (x0,y0) =
+  norm (x-x0, y-y0)
 
 (* The type for fast plot of points of the same color *)
 type point_buffer =
@@ -1318,13 +1431,13 @@ let create_buffer n =
   let ba = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout (2*n) in
   { ba; index = 0; len = 2*n }
 
-(* yes, it is unsafe, and can crash, but that's not "too bad" because
+(* Yes, it is unsafe, and can crash, but that's not "too bad" because
    [render_buffer] will tell you if the index is out of bounds. *)
 let unsafe_add_point_to_buffer buffer x y =
   Bigarray.Array1.unsafe_set buffer.ba buffer.index (Int32.of_int x);
   buffer.index <- buffer.index + 1;
   Bigarray.Array1.unsafe_set buffer.ba buffer.index (Int32.of_int y);
-  buffer.index <- buffer.index + 1
+  buffer.index <- buffer.index + 1 [@@inline]
 
 let add_point_to_buffer buffer x y =
   if buffer.index + 1 < buffer.len
@@ -1336,6 +1449,8 @@ let render_buffer buffer renderer =
     (Bigarray.Array1.sub buffer.ba 0 buffer.index) |> go
 
 
+(************************************************************************************)
+(* CIRCLE                                                                           *)
 (*           |                                          y
              |                \3 | 2/                   ^
              |              4  \ | /  1                 |
@@ -1789,6 +1904,21 @@ let circle ?(thick=1) renderer ~color ~radius ~x ~y =
 let disc renderer color x0 y0 radius =
   annulus renderer color x0 y0 ~radius1:0 ~radius2:radius
 
+(* draw a ring (=annulus) on a new transparent texture *)
+(* and returns the texture. *)
+(* radius is the exterior radius. Total size is 2*radius+2 *)
+let ring_tex renderer ?(color = opaque grey) ~radius ~width x y =
+  (* diameter = 2*radius+1 and we add 1 for antialiasing *)
+  let w = imax (x+radius+2) (2*radius+2) |> imax (y+radius+2) in
+  let target = create_target renderer w w in
+  let push = push_target  ~bg:(set_alpha 0 white) renderer target in
+  annulus renderer color x y ~radius1:(radius-width+1) ~radius2:radius;
+  pop_target renderer push;
+  target
+
+
+(*******************************************************************************)
+(* RECTANGLE *)
 
 (* a simple rectangle with uniform thickness inside (w,h) *)
 let rectangle ?(thick=1) renderer ~color ~w ~h ~x ~y =
@@ -1889,17 +2019,9 @@ let filled_rounded_box renderer color ?(antialias=true) ~w ~h ~radius x0 y0 =
      automatically *)
   rounded_box renderer color ~antialias ~w ~h ~radius ~thick x0 y0
 
-(* draw a ring (=annulus) on a new transparent texture *)
-(* and returns the texture. *)
-(* radius is the exterior radius. Total size is 2*radius+2 *)
-let ring_tex renderer ?(color = opaque grey) ~radius ~width x y =
-  (* diameter = 2*radius+1 and we add 1 for antialiasing *)
-  let w = imax (x+radius+2) (2*radius+2) |> imax (y+radius+2) in
-  let target = create_target renderer w w in
-  let push = push_target  ~bg:(set_alpha 0 white) renderer target in
-  annulus renderer color x y ~radius1:(radius-width+1) ~radius2:radius;
-  pop_target renderer push;
-  target
+
+(*********************************************************************************)
+(* GRADIENT *)
 
 (* Draw gradient on the renderer. *)
 (* vertical gradient with n colors -- hinted version only *)
@@ -2117,100 +2239,12 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
             bottom_right; bottom_left; top_left; top_right]
     end
 
-let center x0 big_w small_w =
-  x0 + (big_w - small_w) / 2
-
-let align align x0 big_w small_w =
-  match align with
-  | Min -> x0
-  | Center -> x0 + (big_w - small_w) / 2
-  | Max -> x0 + big_w - small_w
-
-(** copy the texture on the canvas, clipped (or else) in the given
-    area *)
-let copy_tex ?(overlay = TopRight) renderer tex area x y =
-  let w, h = tex_size tex in
-  let rect = Sdl.Rect.create ~x ~y ~w ~h in
-  let dst = Sdl.intersect_rect rect area in
-  do_option dst (fun dst ->
-      let src = (let open Sdl in match overlay with
-        | Shrink -> Rect.create ~x:0 ~y:0 ~w ~h
-        | Clip -> Rect.create ~x:(Rect.x dst - x) ~y:(Rect.y dst - y)
-                    ~w:(Rect.w dst) ~h:(Rect.h dst)
-        | TopRight -> Rect.create ~x:(w - Rect.w dst)
-                        ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
-        | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
-                          ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
-        ) in
-      go (Sdl.render_copy ~src ~dst renderer tex))
-
-(* new version for layers *)
-let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform
-      canvas layer tex area x y =
-  let w, h = tex_size tex in
-  let rect = Sdl.Rect.create ~x ~y ~w ~h in
-  let dst = Sdl.intersect_rect rect area in
-  let src = match dst with
-    | None -> None
-    | Some dst -> Some (let open Sdl in match overlay with
-      | Shrink -> Rect.create ~x:0 ~y:0 ~w ~h
-      | Clip -> Rect.create ~x:(Rect.x dst - x) ~y:(Rect.y dst - y)
-                  ~w:(Rect.w dst) ~h:(Rect.h dst)
-      | TopRight -> Rect.create ~x:(w - Rect.w dst)
-                      ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
-      | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
-                        ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
-      ) in
-  make_blit ?src ?dst ?voffset ?transform canvas layer tex
-
-(** copy the texture on the canvas, centered in the given area *)
-let center_tex ?(horiz=true) ?(verti=true) renderer tex x y w h =
-  let rw, rh = tex_size tex in
-  (* we center the texture *)
-  let x = if horiz then center x w rw else x in
-  let y = if verti then center y h rh else y in
-  let dst= Sdl.Rect.create ~x ~y ~w:rw ~h:rh in
-  go (Sdl.render_copy ~dst renderer tex)
-
-(* new version for layers. If clip is true and the texture is larger than the
-   geometry, we do not center, instead we align from the origin. *)
-(* TODO use voffset *)
-let center_tex_to_layer ?(horiz=Center) ?(verti=true) ?(clip=true)
-      canvas layer tex g =
-  let tw, th = tex_size tex in
-  let w, h = if clip then imin tw g.w, imin th g.h else tw, th in
-  let src =
-    if not clip || (tw <= g.w && th <=  g.h)
-    then None
-    else Some (Sdl.Rect.create ~x:0 ~y:0 ~w ~h) in
-  (* we center the texture *)
-  let x = match horiz with
-    | Center -> center g.x g.w w
-    | Min -> g.x
-    | Max -> g.x + g.w - w in
-  let y = if verti then center g.y g.h h else g.y in
-  let dst = Sdl.Rect.create ~x ~y ~w ~h in
-  make_blit ~voffset:g.voffset ?src ~dst canvas layer tex
-
-let tex_to_layer canvas layer tex g =
-  let w, h = tex_size tex in
-  let dst = Sdl.Rect.create ~x:g.x ~y:g.y ~w ~h in
-  make_blit ~voffset:g.voffset ~dst canvas layer tex
+(*********************************************************************************)
+(* LINES *)
 
 
-(* some graphics algorithms *)
 
-let normsq (x,y) =
-  x*x + y*y
-
-(** euclidian norm *)
-let norm (x,y) =
-  sqrt(float (x*x + y*y))
-
-(** euclidian distance *)
-let dist (x,y) (x0,y0) =
-  norm (x-x0, y-y0)
-
+(* TODO use [box] instead? *)
 let make_hline ?(thick=1) renderer ~color ~x0 ~x1 ~y =
   let x0, x1 = if x0 < x1 then x0, x1 else x1, x0 in
   let y = y - thick/2 in
@@ -2250,6 +2284,32 @@ let line ?(thick=1) renderer ~color ~x0 ~y0 ~x1 ~y1 =
     let angle = 180. *. atan2 (float (y1 - y0)) (float (x1 - x0)) /. pi in
     go (Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none);
     forget_texture tex
+
+
+(* Bresenham-type algorithm for fast line rasterization;
+   here only the case of a subdiagonal parameterized by x:
+
+o---___
+       ---___
+             ---o
+*)
+let simple_line_1 renderer ~x0 ~y0 ~x1 ~y1 =
+  let x0, x1 = if x0 <= x1 then x0, x1 else x1, x0 in
+  let y0, y1 = if y0 <= y1 then y0, y1 else y1, y0 in
+  let dx = x1 - x0 in
+  let dy = y1 - y0 in
+  assert (dy <= dx);
+  let bf = create_buffer dx in
+  let rec loop x y f =
+    unsafe_add_point_to_buffer bf x y;
+    if x <> x1 then let z = dy - f in
+      if 2*z <= dx then loop (x+1) y (-z) else loop (x+1) (y+1) (dx-z) in
+  loop x0 y0 0;
+  render_buffer bf renderer
+
+
+
+
 
 (** intersection of rectangles; None means no clipping = the whole texture *)
 (* if the intersection is empty, we return a rect with zero area. This can be

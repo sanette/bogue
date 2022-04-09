@@ -71,13 +71,13 @@
 
 <pre><span id="VALimax"><span class="keyword">val</span> imax</span> : <code class="type">int -&gt; int -&gt; int</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">imax&nbsp;a&nbsp;b</code> returns max(<code class="code">a</code>, <code class="code">b</code>).</p>
+<p><code class="code">imax&nbsp;a&nbsp;b</code> returns max(<code class="code">a</code>, <code class="code">b</code>). (Same as <code class="code"><span class="constructor">Int</span>.max</code>).</p>
 </div>
 </div>
 
 <pre><span id="VALimin"><span class="keyword">val</span> imin</span> : <code class="type">int -&gt; int -&gt; int</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">imin&nbsp;a&nbsp;b</code> returns min(<code class="code">a</code>, <code class="code">b</code>).</p>
+<p><code class="code">imin&nbsp;a&nbsp;b</code> returns min(<code class="code">a</code>, <code class="code">b</code>). (Same as <code class="code"><span class="constructor">Int</span>.min</code>).</p>
 </div>
 </div>
 <h3 id="2_TsdlResult">Tsdl Result</h3>
@@ -90,14 +90,31 @@
 <h3 id="2_Options">Options</h3>
 <p>Monadic style operations on optional variables.</p>
 
-<pre><span id="VALmap_option"><span class="keyword">val</span> map_option</span> : <code class="type">'a option -&gt; ('a -&gt; 'b) -&gt; 'b option</code></pre>
-<pre><span id="VALdo_option"><span class="keyword">val</span> do_option</span> : <code class="type">'a option -&gt; ('a -&gt; unit) -&gt; unit</code></pre>
-<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type">'a option -&gt; 'a -&gt; 'a</code></pre>
+<pre><span id="VALmap_option"><span class="keyword">val</span> map_option</span> : <code class="type">'a option -&gt; ('a -&gt; 'b) -&gt; 'b option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">map_option&nbsp;o&nbsp;f</code> is the same as <code class="code"><span class="constructor">Option</span>.map&nbsp;f&nbsp;o</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALdo_option"><span class="keyword">val</span> do_option</span> : <code class="type">'a option -&gt; ('a -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">do_option&nbsp;o&nbsp;f</code> is the same as <code class="code"><span class="constructor">Option</span>.iter&nbsp;f&nbsp;o</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type">'a option -&gt; 'a -&gt; 'a</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">default&nbsp;o&nbsp;v&nbsp;</code> is the same as <code class="code"><span class="constructor">Option</span>.value&nbsp;o&nbsp;~default:v</code>. Warning: <code class="code">v</code> is
+      evaluated even if it is not used.</p>
+</div>
+</div>
+
 <pre><span id="EXCEPTIONNone_option"><span class="keyword">exception</span> None_option</span></pre>
 
 <pre><span id="VALremove_option"><span class="keyword">val</span> remove_option</span> : <code class="type">'a option -&gt; 'a</code></pre><div class="info ">
 <div class="info-desc">
-<p>Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.</p>
+<p>Like <code class="code"><span class="constructor">Option</span>.get</code>. Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the
+     <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.</p>
 </div>
 </div>
 <h3 id="2_Others">Others</h3>

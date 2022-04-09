@@ -217,6 +217,7 @@ type t = room
  *)
 
 exception Fatal_error of (t * string)
+exception Found of t
 
 (* [not_specified] is a special value used to indicate that the window position
    should be guessed by the program. TODO don't use this nasty trick. *)
@@ -418,8 +419,9 @@ let dummy_room = create ~name:"dummy" (geometry ()) (Rooms [])
 
 let of_id_unsafe id : room =
   try WHash.find rooms_wtable {dummy_room with id} with
-  | Not_found -> (printd debug_warning "Cannot find room with id=%d" id;
-                  raise Not_found)
+  | Not_found ->
+    printd debug_warning "Cannot find room with id=%d" id;
+    raise Not_found
 
 (* A detached room is a layout that does not belong to the current layout tree.
    Checking house = None is not sufficient, as it is allowed to have a unique
@@ -438,13 +440,14 @@ let set_removed room =
 (* This one is more secure: we check if the layout is not detached. *)
 let of_id_opt ?not_found id : room option =
   match (WHash.find_opt rooms_wtable {dummy_room with id}) with
-  | None -> (printd debug_error "Cannot find room with id=%d" id;
-             do_option not_found run;
-             None)
+  | None ->
+    printd debug_error "Cannot find room with id=%d" id;
+    do_option not_found run;
+    None
   | Some r as o ->
-     if is_detached r
-     then (printd debug_error "Trying to access the detached room #%d" id; None)
-     else o
+    if is_detached r
+    then (printd debug_error "Trying to access the detached room #%d" id; None)
+    else o
 
 (* WARNING: in "iter" and in all other search functions below, recall that
    itering though a room is tricky because of mutability and threading. The
@@ -480,12 +483,14 @@ let iter_rooms f house =
                     "Layout %s has no rooms: cannot iter." (sprint_id house)
   | Rooms list -> List.iter f list
 
-(* find the room containing a widget given by the wid (or None if the room has
-   disappeared in the air)*)
+(* find the room containing a widget (or None if the widget does not belong to a
+   room or if the room has disappeared in the air)*)
+let containing_widget w =
+  check_option w.Widget.room_id of_id_opt
+
 let of_wid wid =
   let w = Widget.of_id wid in
-  let id = Widget.get_room_id w in
-  of_id_opt id
+  containing_widget w
 
 (* returns the list of rooms of the layout, or Not_found if there is a
    resident *)
@@ -493,8 +498,8 @@ let get_rooms layout =
   match layout.content with
   | Resident _ ->
      printd debug_error
-       "This layout %s is a leaf, not a node: \
-        it does not contain a list of rooms" (sprint_id layout);
+       "[Layout.get_rooms] This layout %s is a leaf, not a node: it does not \
+        contain a list of rooms" (sprint_id layout);
      raise Not_found
   | Rooms list -> list
 
@@ -622,6 +627,11 @@ let rec top_house layout =
   match layout.house with
   | None -> layout
   | Some r -> top_house r
+
+let guess_top () =
+  try WHash.iter (fun r -> if not (is_detached r) then raise (Found r)) rooms_wtable;
+  None with
+  | Found r -> Some r
 
 let is_top layout =
   layout.house = None
@@ -978,7 +988,6 @@ let rec find_resident test room =
 
 (* search through the whole component of the layout (children and parents)
    starting from top house containing room *)
-exception Found of t
 let search room scan =
   if scan room then Some room
   (* =just in case it might speed-up things: room is the "initial guess" *)
@@ -1694,8 +1703,8 @@ let copy ~src ~dst =
   dst.clip <- src.clip;
   dst.background <- src.background;
   begin match src.content with
-  | Resident r as c -> r.Widget.room_id <- Some dst.id; dst.content <- c
-  | Rooms rooms -> set_rooms dst rooms
+    | Resident r as c -> r.Widget.room_id <- Some dst.id; dst.content <- c
+    | Rooms rooms -> set_rooms dst rooms
   end;
   dst.keyboard_focus <- src.keyboard_focus;
   dst.draggable <- src.draggable;

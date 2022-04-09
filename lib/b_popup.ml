@@ -151,10 +151,11 @@ let info ?w ?h ?(button="Close") text dst =
 
 (* ?w and ?h to specify a common size for both buttons *)
 let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
-    content dst =
+    ~content dst =
   let btn1 = Widget.button ~border_radius:3 label1 in
   let btn2 = Widget.button ~border_radius:3 label2 in
-  let buttons = Layout.(flat ~vmargin:0 ~sep:(2*Theme.room_margin) [resident ?w ?h btn1; resident ?w ?h btn2]) in
+  let buttons = Layout.(flat ~vmargin:0 ~sep:(2*Theme.room_margin)
+                          [resident ?w ?h btn1; resident ?w ?h btn2]) in
   let popup, screen = slide_in ~dst content buttons in
   let close () =
     (*Layout.hide popup;*)
@@ -171,11 +172,21 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   Widget.on_release ~release:do2 btn2
 
 let yesno ?w ?h ?(yes="Yes") ?(no="No") ~yes_action ~no_action text dst =
-  let td = Widget.text_display ?w ?h text
-           |> Layout.resident in
+  let dst = if Layout.has_resident dst
+    then begin
+      printd (debug_error + debug_user)
+        "The [yesno] popup requires a destination layout which is not a single \
+         resident (as %s). We're trying anyways, but please correct your code."
+        (Layout.sprint_id dst);
+      match Layout.guess_top () with
+      | Some r -> Layout.top_house r
+      | None -> failwith "Cannot find a valid layout!"
+    end
+    else dst in
+  let content = Widget.text_display ?w ?h text
+                |> Layout.resident in
   two_buttons ?w ?h ~label1:yes ~label2:no ~action1:yes_action ~action2:no_action
-    td dst
-
+    ~content dst
 
 (* tooltips *)
 

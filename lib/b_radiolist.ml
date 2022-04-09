@@ -141,7 +141,7 @@ let make_button_widget b =
   let press = fun _ _ _ -> Button.press (get_button b) in
   let c = connect_main b b press Trigger.buttons_down in
   add_connection b c;
-     let c = connect_main b b (fun b _ _ -> Button.mouse_enter (get_button b))
+  let c = connect_main b b (fun b _ _ -> Button.mouse_enter (get_button b))
       [Trigger.mouse_enter] in
   add_connection b c;
   let c = connect_main b b (fun b _ _ -> Button.mouse_leave (get_button b))
