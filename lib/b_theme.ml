@@ -242,7 +242,7 @@ let download_conf () =
   then failwith "Cannot copy config files. Aborting"
   else print "Minimal config downloaded to %s/bogue." conf;
   Sys.chdir cwd;
-  sprintf "%s/bogue" conf
+  sprintf "%s/bogue/themes" conf
 
 (* We try to locate the theme dir. *)
 (* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes
