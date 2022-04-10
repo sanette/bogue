@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220409"  (* see VERSION file *)
+let this_version = "20220410"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -224,9 +224,28 @@ let () =
     log_channel := open_out log_file
   end
 
+let download_conf () =
+  let open Printf in
+  let rescue = "bogue_conf.tgz" in
+  let cwd = Sys.getcwd () in
+  let tmpdir = Filename.temp_file "bogue" "" in
+  Sys.remove tmpdir;
+  Sys.mkdir tmpdir 0o777;
+  Sys.chdir tmpdir;
+  if Sys.command (sprintf "wget https://raw.githubusercontent.com/sanette/bogue/master/%s" rescue) <> 0
+  then failwith "Cannot download rescue config. Aborting."
+  else if Sys.command (sprintf "tar xvfz %s" rescue) <> 0
+  then failwith "Cannot extract rescue config. Aborting."
+  else if Sys.command (sprintf "mkdir -p %s/bogue" conf) <> 0
+  then failwith "Cannot create config dir. Aborting."
+  else if Sys.command (sprintf "cp -r bogue/* %s/bogue/" conf) <> 0
+  then failwith "Cannot copy config files. Aborting"
+  else print "Minimal config downloaded to %s/bogue." conf;
+  Sys.chdir cwd;
+  sprintf "%s/bogue" conf
+
 (* We try to locate the theme dir. *)
 (* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes
-
 
    WARNING, when installing from a tmp dir and running `dune build @install
    @runtest` (which is what the ocaml-ci does when submitting a new opam
@@ -260,20 +279,22 @@ let dir =
           let dir = Printf.sprintf "%s/share/bogue/themes" res in
           if Sys.file_exists dir && Sys.is_directory dir
           then dir else begin
-            printd debug_error "(FATAL) Cannot find themes directory";
-            print_endline "Cannot find themes dir";
+            printd debug_error "Cannot find themes directory";
             raise Not_found
           end
-        | _ -> printd debug_error
-                 "(FATAL) Cannot find a usable bogue configuration directory";
-          print_endline "Cannot find bogue lib directory";
+        | _ ->
+          printd debug_error
+            "Cannot find a usable bogue configuration directory";
           raise Not_found
       with
+      | Not_found
       | End_of_file ->
         printd debug_error
           "(FATAL) Bogue configuration directory %s does not exist, and \
            system-wide config cannot be found." dir;
-        raise Not_found
+        print_endline "Cannot find bogue lib directory";
+        print_endline "Trying to download a minimal Bogue config...";
+        download_conf ()
       | e -> raise e
 
 (* Add variables from theme config file (if specified in the user config file)

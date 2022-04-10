@@ -86,8 +86,8 @@ version.
 opam install bogue
 ```
 
-That's it. **But**, if you want to stay in sync with the latest
-developement, you may direcly "pin" the github repository:
+That's it. *But*, if you want to stay in sync with the latest
+developement, you can directly "pin" the github repository:
 
 ```
 opam pin add https://github.com/sanette/bogue.git

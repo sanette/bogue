@@ -1156,6 +1156,18 @@ let load_textures window renderer fill = (* use hashtbl ? *)
     radio_off;
     background }
 
+let create_window  ?x ?y ~w ~h name =
+  match Sdl.create_window ?x ?y ~w ~h name
+          Sdl.Window.(windowed + resizable + hidden +
+                      opengl + allow_highdpi) with
+  | Ok w -> printd debug_graphics "SDL Window created"; w
+  | Error _ -> let er = Sdl.get_error () in
+    print "Error creating SDL Window: %s\n" er;
+    if er = "Couldn't find matching GLX visual"
+    then print "This may happen if you are running from a Virtual Machine.\n You \
+                should try 'export SDL_VIDEO_X11_VISUALID='";
+    raise (Sdl_error ("SDL ERROR: " ^ (Sdl.get_error ())))
+
 (* Sdl init. [w,h] is the physical size of the window in pixels. In case of
    High-DPI mode, SDL might actually produce a larger window. We need to correct
    this, because we have our own DPI engine.
@@ -1177,10 +1189,7 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   (* https://wiki.libsdl.org/SDL_GLattr#multisample *)
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
-  let win = default_lazy window
-      (lazy (go (Sdl.create_window ?x ?y ~w ~h name
-                   Sdl.Window.(windowed + resizable + hidden +
-                               opengl + allow_highdpi)))) in
+  let win = default_lazy window (lazy (create_window ?x ?y ~w ~h name)) in
   do_option !icon (Sdl.set_window_icon win);
   let px = Sdl.get_window_pixel_format win in
   printd debug_graphics "Window pixel format = %s" (Sdl.get_pixel_format_name px);

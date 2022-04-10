@@ -76,9 +76,12 @@
 <p><a href="https://www.youtube.com/watch?v=b7rBCctJ7Cw">randomize</a>, <a href="https://youtu.be/isFLxnDooL8">demo 1907</a></p>
 <h1 id="installation">Installation</h1>
 <h2 id="using-the-opam-package">Using the opam package</h2>
-<p>This is the easiest way unless you want to try out the development version.</p>
+<p>It’s the easiest way unless you want to try out the development version.</p>
 <pre><code>opam install bogue</code></pre>
-<p>That’s it.</p>
+<p>That’s it. <em>But</em>, if you want to stay in sync with the latest developement, you can directly “pin” the github repository:</p>
+<pre><code>opam pin add https://github.com/sanette/bogue.git</code></pre>
+<p>(Then update/upgrade opam). And this can easily be undone with</p>
+<pre><code>opam unpin https://github.com/sanette/bogue.git</code></pre>
 <h2 id="building-from-sources">Building from sources</h2>
 <h3 id="prerequisites">Prerequisites</h3>
 <p>You need a working <code>ocaml</code> installation with <code>opam</code>, see the <a href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make sure you have <code>dune</code>, <code>tsdl</code>, <code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
