@@ -46,6 +46,7 @@ let get_window =
   do_option (Sdl.get_mouse_focus ()) (fun win -> last_win := Some win);
   !last_win
 
+(* physical pixels *)
 let compute_finger_pos ev =
   (* WARNING as of tsdl version??? this is now normalized in 0..1 *)
   let fx = E.(get ev touch_finger_x) in
@@ -54,14 +55,16 @@ let compute_finger_pos ev =
   | None -> failwith "Cannot find window for finger position"
   (* TODO don't fail for this? *)
   | Some win ->
-     let w,h = Draw.get_window_size win in
-     Theme.(unscale_f (fx *. float w), unscale_f (fy *. float h))
+    let w,h = Draw.get_window_size win in
+    fx *. float w, fy *. float h
 
+(* logical pixels *)
 let finger_pos ev =
   match Trigger.event_kind ev with
   | `Finger_down
   | `Finger_up
-  | `Finger_motion -> compute_finger_pos ev
+  | `Finger_motion -> let x,y = compute_finger_pos ev in
+    Theme.unscale_f x, Theme.unscale_f y
   | _ ->  failwith "WRONG EVENT"
 
 (* Guess where the pointer is (in physical pixels), trying mouse first and then

@@ -1019,7 +1019,8 @@ let image_size file =
   size
 
 (** create a texture filled with a color *)
-(* TODO: compare with creating a target texture and clearing it with color *)
+(* One could also create a target texture and clear it with color, but tests in
+   tests/line suggest it's no faster. *)
 let texture ?(color = opaque grey) renderer ~w ~h =
   let surf = create_surface ~renderer ~color w h in
   let tex = create_texture_from_surface renderer surf in
