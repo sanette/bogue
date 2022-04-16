@@ -222,7 +222,7 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALcontaining_widget">containing_widget</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>Search the room containing the widget, if any.</p>
+<p>Search for the room containing the widget, if any.</p>
 
 </div>
 </td></tr>
@@ -554,6 +554,12 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALget_texture">get_texture</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Layout.html#VALget_window_pos">get_window_pos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Return the window position within the desktop, in physical pixels.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALgetx">getx</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Compute the relative x position of the room with respect to its house,
@@ -599,6 +605,12 @@
 <tr><td><a href="Bogue.Layout.html#VALhide">hide</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>See <a href="Bogue.Layout.html#VALshow"><code class="code"><span class="constructor">Layout</span>.show</code></a>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Layout.html#VALhide_window">hide_window</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Hide the window containing the layout.</p>
 
 </div>
 </td></tr>
@@ -1179,8 +1191,8 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_window_pos">set_window_pos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>It should be set <b>after</b> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> and <b>before</b>
-     <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.</p>
+<p><code class="code">set_window_pos&nbsp;layout&nbsp;x&nbsp;y</code> sets the position of the window containing
+     <code class="code">layout</code> to (x,y), in physical pixels.</p>
 
 </div>
 </td></tr>
@@ -1197,6 +1209,13 @@
 <tr><td><a href="Bogue.Layout.html#VALshow">show</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Does nothing if the layout is already fully displayed.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Layout.html#VALshow_window">show_window</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Make the window containing the layout appear onscreen, using <code class="code">set_show</code>
+     and <code class="code"><span class="constructor">Sdl</span>.show_window</code>.</p>
 
 </div>
 </td></tr>
@@ -1452,7 +1471,11 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALwindow">window</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Return the SDL window containing the layout.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Mouse.html#VALwindow_pos">window_pos</a> [<a href="Bogue.Mouse.html">Bogue.Mouse</a>]</td>
 <td><div class="info">
 <p>Return the mouse position with respect to the given window, using window

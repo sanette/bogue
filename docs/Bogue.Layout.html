@@ -421,16 +421,41 @@
 </div>
 
 <pre><span id="VALretower"><span class="keyword">val</span> retower</span> : <code class="type">?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt; ?margins:int -&gt; ?duration:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="2_Windows">Windows</h3>
-<p>A very special use of layout is to represent the 'window' on which
-     everything is drawn. Thus, this specific to the 'main house' (or <em>     top-layout</em>), <em>i.e.</em> a layout that is not a sublayout of another
-     layout.</p>
+<p>An SDL window is created for each Layout in the list sent to
+     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
 
-<pre><span id="VALwindow"><span class="keyword">val</span> window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; Tsdl.Sdl.window</code></pre>
+<pre><span id="VALwindow"><span class="keyword">val</span> window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; Tsdl.Sdl.window</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the SDL window containing the layout.</p>
+</div>
+</div>
+
+<pre><span id="VALshow_window"><span class="keyword">val</span> show_window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Make the window containing the layout appear onscreen, using <code class="code">set_show</code>
+     and <code class="code"><span class="constructor">Sdl</span>.show_window</code>. (If the layout was hidden at startup,
+     <code class="code"><span class="constructor">Sdl</span>.show_window</code> is not enough to display the layout: use this function
+     instead.)</p>
+</div>
+</div>
+
+<pre><span id="VALhide_window"><span class="keyword">val</span> hide_window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Hide the window containing the layout.</p>
+</div>
+</div>
+
 <pre><span id="VALset_window_pos"><span class="keyword">val</span> set_window_pos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int * int -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p>It should be set <b>after</b> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> and <b>before</b>
-     <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. Otherwise it has possibly no effect, or perhaps causes some
-      glitches.</p>
+<p><code class="code">set_window_pos&nbsp;layout&nbsp;x&nbsp;y</code> sets the position of the window containing
+     <code class="code">layout</code> to (x,y), in physical pixels. (0,0) is top-left. This should be
+     run <b>after</b> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALget_window_pos"><span class="keyword">val</span> get_window_pos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int option * int option</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the window position within the desktop, in physical pixels.</p>
 </div>
 </div>
 <h3 id="2_Misc">Misc</h3>
@@ -442,7 +467,7 @@
 
 <pre><span id="VALcontaining_widget"><span class="keyword">val</span> containing_widget</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> option</code></pre><div class="info ">
 <div class="info-desc">
-<p>Search the room containing the widget, if any.</p>
+<p>Search for the room containing the widget, if any.</p>
 </div>
 </div>
 </body></html>
