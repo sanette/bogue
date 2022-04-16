@@ -212,19 +212,25 @@ let example9 () =
   let board = make [] [layout] in
   run board
 
-(* BUG: the check box is active only after the window has focus (hence we have
-   to click twice) *)
-let desc10 = "two independent windows should open. ESC to quit."
+(* BUG: sometimes the check box is active only after the window has focus (hence
+   we have to click twice). But not always?? *)
+let desc10 = "two independent windows should open. Click on the first button to \
+              hide the second one. ESC to quit."
 let example10 () =
-  let b1 = W.check_box () in
+  let show = false in
+  let b1 = W.check_box ~state:show () in
   let b2 = W.check_box () in
-  let l1 = L.flat_of_w ~name:"Window#1" [b1; W.label "First window"] in
+  let l1 = L.flat_of_w ~name:"Window#1" [b1; W.label "Show the second window"] in
   let l2 = L.flat_of_w ~name:"Window#2" [b2; W.label "Win 2"] in
 
+  W.on_click b1 ~click:(fun w ->
+      if W.get_state w then L.show_window l2
+      else Sdl.hide_window (L.window l2));
   let shortcuts = [exit_on_escape] in
+  L.set_show l2 show;
   let board = make ~shortcuts [] [l1;l2] in
   (* window position can be set after "make" and before "run" *)
-  L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,200);
+  L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,400);
   run board
 
 let desc11 = "two connected windows: the button in the first window sets the check_box in the second window"
@@ -239,7 +245,7 @@ let example11 () = (* attention ne marche pas avec DEBUG=false !! OK problème r
   let l2 = L.flat_of_w [b2; W.label "Window 2"] in
   let shortcuts = [exit_on_escape] in
   let board = make ~shortcuts [c] [l1;l2] in
-  L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,200);
+  L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,400);
   run board
 
 let desc12 = "a check_box and a text input in a line editor"
@@ -1031,7 +1037,9 @@ let example42 () =
 let desc43 = "snapshot, rotation and zoom"
 let example43 () =
   let left = W.label "LEFT" in
-  let top = W.label "TOP" in
+  let top = W.text_display ~w:400 ~h:40
+      "The layout on the right is just a 'screenshot' of the layout on the \
+       left. It is not active." in
   let l = W.label "We snapshot this pack:" in
   let b = W.check_box () in
   let box = W.box ~style:round_image_box () in
@@ -1058,7 +1066,7 @@ let desc44 = "tooltips"
 let example44 () =
   let b = W.button "Some Button" in
   let b' = W.button "Another Button" in
-  let td = W.text_display lorem in
+  let td = W.text_display ("Leave the mouse cursor on the buttons to see the tooltips!\n\n" ^ lorem) in
   let target = L.resident b in
   let target' = L.resident b' in
   let layout = L.tower [L.flat [target; target']; L.resident td] in
@@ -1097,9 +1105,11 @@ let example46 () =
 
 let desc47 = "basic HTML"
 let example47 () =
-  let td = W.html "<p>Welcome to <b>Bogue</b>!<br>You will find it \
-                   <em>great</em>.</p><p>Have fun,<br><br><em>and stay \
-                   <strong>calm</strong></em>... Thank you</p><b>This should <b>stay</b> bold.</b>" in
+  let td = W.html
+      "<p>Welcome to <b>Bogue</b>!<br>You will find it \
+       <em>great</em>.</p><p>Have fun,<br><br><em>and stay \
+       <strong>calm</strong></em>... Thank you</p><b>This should <b>stay</b> \
+       bold.</b>" in
   let layout = L.flat_of_w [td] in
   let board = make [] [layout] in
   run board

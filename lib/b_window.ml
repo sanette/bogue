@@ -35,6 +35,11 @@ let to_refresh w =
 let window w =
   Layout.window w.layout
 
+let show_maybe w =
+  if w.layout.Layout.show
+  then Sdl.show_window (window w)
+  else Sdl.hide_window (window w)
+
 (* physical size *)
 let size w =
   Draw.get_window_size (window w)

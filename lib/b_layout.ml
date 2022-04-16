@@ -167,8 +167,9 @@ and room = {
     mutable canvas : Draw.canvas option;
     (* The canvas contains the "hardware" information to render the room *)
     (* The canvas is not really an intrinsic property of the layout, it is used
-     only when rendering is required. It may change "without notice" when a
-     layout is copied into another window *)
+       only when rendering is required. It may change "without notice" when a
+       layout is copied into another window. It is first initialized by
+       [make_window]. *)
     mutable house: room option;
     (* [house] = parent: this is the "room" that contains this room in his
        "Rooms". This field is mutable because of cyclic definition: one cannot
@@ -220,8 +221,8 @@ exception Fatal_error of (t * string)
 exception Found of t
 
 (* [not_specified] is a special value used to indicate that the window position
-   should be guessed by the program. TODO don't use this nasty trick. *)
-let not_specified = -66666
+   should be guessed by the program. *)
+let not_specified = Sdl.Window.pos_undefined
 
 let no_clip = ref false
 (* The normal behaviour when a non-zero voffset is specified is to clip the
@@ -346,19 +347,19 @@ let base_layer = function
 
 (* Create a new room. Rather use the [create] function below. *)
 let create_unsafe
-      ?name
-      ?(set_house = true) ?(adjust = Fit)
-      ?(resize = fun _ -> ())
-      ?layer
-      ?mask ?background ?shadow ?house ?keyboard_focus ?(mouse_focus=false)
-      ?(show = true) ?(clip = false) ?(draggable = false) ?canvas
-      geometry content =
+    ?name
+    ?(set_house = true) ?(adjust = Fit)
+    ?(resize = fun _ -> ())
+    ?layer
+    ?mask ?background ?shadow ?house ?keyboard_focus ?(mouse_focus=false)
+    ?(show = true) ?(clip = false) ?(draggable = false) ?canvas
+    geometry content =
   let id = fresh_id () in
   let layer = match layer with
     | Some layer -> layer
     | None -> match content with
-              | Rooms rooms -> base_layer rooms
-              | Resident _ -> Draw.get_current_layer () in
+      | Rooms rooms -> base_layer rooms
+      | Resident _ -> Draw.get_current_layer () in
   let room =
     {
       id;
@@ -388,15 +389,15 @@ let create_unsafe
   (* remove is in principle not necessary *)
   if !debug
   then if WHash.mem rooms_wtable room
-       then (printd debug_error "A room with same id was already in the table !";
-             remove_wtable room);
+    then (printd debug_error "A room with same id was already in the table !";
+          remove_wtable room);
   WHash.add rooms_wtable room;
   (* we update the resident room_id field *)
   (* we update the content's house field *)
   let () = match content with
     | Resident w -> w.Widget.room_id <- Some id
     | Rooms list -> if set_house
-                    then List.iter (fun r -> r.house <- Some room) list in
+      then List.iter (fun r -> r.house <- Some room) list in
   (* Gc.finalise free room;*)
   (* We don't do this because who knows when the background texture will be
      destroyed.... maybe too late (after renderer was destroyed). TODO: what to
@@ -423,12 +424,10 @@ let of_id_unsafe id : room =
     printd debug_warning "Cannot find room with id=%d" id;
     raise Not_found
 
-(* A detached room is a layout that does not belong to the current layout tree.
-   Checking house = None is not sufficient, as it is allowed to have a unique
-   top layout containing a resident. Hum. what? bad definition. Use
-   [is_removed] instead? *)
+(* A detached room is a layout that does not belong to the current layout tree,
+   and is not associated to any SDL window (so no canvas field).  *)
 let is_detached room =
-  room.house = None && not (has_resident room)
+  room.house = None && room.canvas = None
 
 (* Currently [is_removed] is different from [is_detached] *)
 let is_removed room =
@@ -628,13 +627,15 @@ let rec top_house layout =
   | None -> layout
   | Some r -> top_house r
 
+(* see [top_house] *)
 let guess_top () =
-  try WHash.iter (fun r -> if not (is_detached r) then raise (Found r)) rooms_wtable;
+  try WHash.iter (fun r ->
+      if not (is_detached r) then raise (Found r)) rooms_wtable;
   None with
-  | Found r -> Some r
+  | Found r -> Some (top_house r)
 
 let is_top layout =
-  layout.house = None
+  layout.house = None && layout.canvas <> None
 
 let get_house layout =
   layout.house
@@ -646,9 +647,9 @@ let get_canvas l =
   match l.canvas with
   | Some c -> c
   | None ->
-     raise (Fatal_error
-              (l, Printf.sprintf "The room #%d is not associated with any canvas"
-                    l.id))
+    raise (Fatal_error
+             (l, Printf.sprintf "The room #%d is not associated with any canvas"
+                l.id))
 
 (* test if layouts share the same layer (= same depth) *)
 let same_layer l1 l2 =
@@ -893,19 +894,25 @@ let reset_pos l =
   l.current_geom <- to_current_geom g;
   unlock l
 
-(* a special use of current_geom is to indicate the desired window position
-   within the desktop at startup. It should be set *after* Bogue.make and
-   *before* Bogue.run *)
+(* [get_window_pos] is meaningful only when the window is created, that is after
+   calling Bogue.make. The corresponding SDL window is created only after
+   Bogue.run. In the meantime, a special use of current_geom is to indicate the
+   desired window position within the desktop at startup. *)
 let get_window_pos layout =
   let f x = if x = not_specified then None else Some x in
-  f layout.current_geom.x, f layout.current_geom.y
+  let x,y = match layout.canvas with
+    | None -> xpos layout, ypos layout
+    | Some _ -> Draw.get_window_position (window layout) in
+  f x, f y
 
-(* see get_window_pos. It should be set *after* Bogue.make and *before*
-   Bogue.run. Otherwise it has possibly no effect, or perhaps causes some
-   glitches. TODO make a test to ensure this?? *)
-let set_window_pos layout (x,y)=
-  let g = layout.current_geom in
-  layout.current_geom <- { g with x; y }
+(* see [get_window_pos]. It should be set *after* Bogue.make. Otherwise it has
+   possibly no effect, or perhaps causes some glitches. TODO test this more
+   thoroughly. *)
+let set_window_pos layout (x,y) =
+  match layout.canvas with
+  | None -> let g = layout.current_geom in
+    layout.current_geom <- { g with x; y }
+  | Some _ -> Draw.set_window_position (window layout) x y
 
 (* lock l? *)
 let get_transform l =
@@ -948,6 +955,14 @@ let rec rec_set_show b l =
   | Resident _ -> ()
   | Rooms list -> List.iter (rec_set_show b) list in
   unlock l
+
+let show_window t =
+  set_show (top_house t) true;
+  Sdl.show_window (window t)
+
+let hide_window t =
+  set_show (top_house t) false;
+  Sdl.hide_window (window t)
 
 (** return absolute (x,y) position *)
 (* TODO optimize: test if x is up_to_date, then one can use current_geom
@@ -1006,9 +1021,6 @@ let find_room_old house id =
   printd debug_warning "Search room #%d in %d..." id (house.id);
   let scan r = r.id = id in
   search house scan
-
-(* let set_canvas canvas room = *)
-(*   iter (fun r -> r.canvas <- canvas);; *)
 
 (* find the next room in the same level of the house. In circular mode, after
    the last one comes the first. In non circular mode, if room is the last one,
@@ -1584,6 +1596,7 @@ let detach_rooms layout =
      list_iter rooms (fun r ->
          if r.house <> None then
            (r.house <- None;
+            r.canvas <- None;
             printd debug_warning "Room %s was detached from House %s..."
               (sprint_id r) (sprint_id layout)))
 
@@ -1596,6 +1609,7 @@ let detach room =
     | Some h ->
       lock h;
       room.house <- None;
+      room.canvas <- None;
       let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
       h.content <- Rooms rooms;
       printd debug_warning "Room %s was detached from House %s."

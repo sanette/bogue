@@ -223,7 +223,7 @@ let event_kind ev : [> sdl_event | bogue_event] =
        | i when i = update -> `Bogue_update
        | i when i = redraw -> `Bogue_redraw
        | i when i = sync_action -> `Bogue_sync_action
-       | _ -> printd debug_event "UNKNOWN EVENT=%i" x;
+       | _ -> printd debug_event "UNKNOWN EVENT=0x%x" x;
               `Unknown x
      end
   | e -> generalize_sdl_event e

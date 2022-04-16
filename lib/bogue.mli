@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220411
+@version 20220416
 
 @author Vu Ngoc San
 
@@ -1510,7 +1510,10 @@ let l = get_label w in
      and TextInput. *)
 
   val set_cursor : t -> Tsdl.Sdl.cursor option -> unit
-  (** Set the cursor that should be displayed for this widget. *)
+  (** Set the cursor that should be displayed for this widget. Note that the Sdl
+     functions for creating cursor are only available after SDL
+     initialization. One can use a [Lazy] type or {!Sync.push} for delaying
+     their execution. *)
 
   (** {2 Conversions from the generic Widget type to the specialized inner type}
 
@@ -1863,24 +1866,35 @@ module Layout : sig
 
   (** {2 Windows}
 
-      A very special use of layout is to represent the 'window' on which
-     everything is drawn. Thus, this specific to the 'main house' (or {e
-     top-layout}), {e i.e.} a layout that is not a sublayout of another
-     layout. *)
+      An SDL window is created for each Layout in the list sent to
+     {!Main.make}.  *)
 
   val window : t -> Tsdl.Sdl.window
+  (** Return the SDL window containing the layout. *)
+
+  val show_window : t -> unit
+  (** Make the window containing the layout appear onscreen, using [set_show]
+     and [Sdl.show_window]. (If the layout was hidden at startup,
+     [Sdl.show_window] is not enough to display the layout: use this function
+     instead.) *)
+
+  val hide_window : t -> unit
+  (** Hide the window containing the layout. *)
 
   val set_window_pos : t -> int * int -> unit
-  (** It should be set {b after} {!Main.make} and {b before}
-     {!Main.run}. Otherwise it has possibly no effect, or perhaps causes some
-      glitches.  *)
+  (** [set_window_pos layout x y] sets the position of the window containing
+     [layout] to (x,y), in physical pixels. (0,0) is top-left. This should be
+     run {b after} {!Main.make}.  *)
+
+  val get_window_pos : t -> int option * int option
+  (** Return the window position within the desktop, in physical pixels. *)
 
   (** {2 Misc} *)
 
   val set_cursor : t option -> unit
   (** Set the current cursor to the default value for this layout. *)
 
-  (** Search the room containing the widget, if any. *)
+  (** Search for the room containing the widget, if any. *)
   val containing_widget : Widget.t -> t option
 
 end (* of Layout *)

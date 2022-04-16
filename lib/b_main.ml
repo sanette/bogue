@@ -217,7 +217,7 @@ let remove_window board window =
 (*************)
 let show board =
   List.iter (fun w ->
-      Sdl.show_window (Window.window w);
+      Window.show_maybe w;
       Window.to_refresh w;
       Draw.update_background (Window.get_canvas w)) board.windows
 
@@ -835,7 +835,7 @@ let event_loop anim new_anim board =
   and continue e count =
     if count > max_events
     then begin
-      printd (debug_event + debug_error)
+      printd (debug_event + debug_error + debug_user)
         "Too many events accumulate. Maybe your system is too slow.";
       Sdl.flush_events E.first_event E.last_event
     end

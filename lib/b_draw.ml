@@ -843,6 +843,17 @@ let set_window_size win ~w ~h =
 let get_window_position win =
   dpi_rescale (Sdl.get_window_position win)
 
+let set_window_position win x y =
+  let x, y = if !dpi_xscale *. !dpi_yscale = 0.
+    then begin
+      printd (debug_error + debug_graphics)
+        "[set_window_position] should not be called when the DPI scale has not \
+         been detected";
+      x, y
+    end
+    else round (float x /. !dpi_xscale), round (float y /. !dpi_yscale) in
+  Sdl.set_window_position win ~x ~y
+
 (** get the canvas window size *)
 let window_size canvas =
   get_window_size canvas.window
@@ -1192,6 +1203,7 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
   let win = default_lazy window (lazy (create_window ?x ?y ~w ~h name)) in
   do_option !icon (Sdl.set_window_icon win);
+  Sdl.set_window_minimum_size win ~w:8 ~h:8;
   let px = Sdl.get_window_pixel_format win in
   printd debug_graphics "Window pixel format = %s" (Sdl.get_pixel_format_name px);
   let renderer = match window with
