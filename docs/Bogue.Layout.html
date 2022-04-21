@@ -170,15 +170,41 @@
 </div>
 </div>
 <h4 id="3_Createlayoutsfromwidgets">Create layouts from widgets</h4>
-<pre><span id="VALresident"><span class="keyword">val</span> resident</span> : <code class="type">?name:string -&gt;<br>       ?x:int -&gt;<br>       ?y:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?draggable:bool -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?layer:<a href="Bogue.Draw.html#TYPElayer">Draw.layer</a> -&gt;<br>       ?keyboard_focus:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
-<pre><span id="VALflat_of_w"><span class="keyword">val</span> flat_of_w</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?h:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?widget_bg:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
-<pre><span id="VALtower_of_w"><span class="keyword">val</span> tower_of_w</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?w:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?widget_bg:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><h4 id="3_Createlayoutsfromotherlayouts">Create layouts from other layouts</h4>
-<pre><span id="VALflat"><span class="keyword">val</span> flat</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?margins:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
-<pre><span id="VALtower"><span class="keyword">val</span> tower</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?margins:int -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?clip:bool -&gt; ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre>
+<pre><span id="VALresident"><span class="keyword">val</span> resident</span> : <code class="type">?name:string -&gt;<br>       ?x:int -&gt;<br>       ?y:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?draggable:bool -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?layer:<a href="Bogue.Draw.html#TYPElayer">Draw.layer</a> -&gt;<br>       ?keyboard_focus:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a layout (=room) from a single Widget (=resident). The content of
+     such a layout cannot be modified.</p>
+</div>
+</div>
+
+<pre><span id="VALflat_of_w"><span class="keyword">val</span> flat_of_w</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?h:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?widget_bg:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Horizontal arrangement. See <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALtower_of_w"><span class="keyword">val</span> tower_of_w</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?w:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?widget_bg:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Vertical arrangement. See <a href="Bogue.Layout.html#VALtower"><code class="code"><span class="constructor">Layout</span>.tower</code></a>.</p>
+</div>
+</div>
+<h4 id="3_Createlayoutsfromotherlayouts">Create layouts from other layouts</h4>
+<pre><span id="VALflat"><span class="keyword">val</span> flat</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?margins:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a horizontal arrangement from a list of rooms.</p>
+</div>
+</div>
+
+<pre><span id="VALtower"><span class="keyword">val</span> tower</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?margins:int -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?clip:bool -&gt; ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a vertical arrangement from a list of rooms.</p>
+</div>
+</div>
+
 <pre><span id="VALsuperpose"><span class="keyword">val</span> superpose</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?name:string -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?center:bool -&gt; ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a new layout by superposing a list of layouts without changing
-      their (x,y) position.</p>
+     their (x,y) position.</p>
 </div>
 </div>
 <p>Remark: when creating a house (a layout) with <code class="code">flat*</code>, <code class="code">tower*</code>, or
@@ -273,6 +299,24 @@
 </div>
 </div>
 
+<pre><span id="VALdisable_resize"><span class="keyword">val</span> disable_resize</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>This makes sure that nothing is executed when someone tries to resize the
+      layout.</p>
+</div>
+</div>
+
+<pre><span id="VALon_resize"><span class="keyword">val</span> on_resize</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; (unit -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room, in addition
+     to the already registered resized functions. Warning: placing the room in
+     another layout will likely reset the resize function (unless you set the
+     <code class="code">scale_content</code> flag to <code class="code"><span class="keyword">false</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the remark below
+     that). Hence <code class="code">on_resize</code> should be called after the room is hosted in its
+     house.</p>
+</div>
+</div>
+
 <pre><span id="VALset_width"><span class="keyword">val</span> set_width</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
 <pre><span id="VALset_height"><span class="keyword">val</span> set_height</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
 <pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int * int -&gt; unit</code></pre>
@@ -326,13 +370,6 @@
      lock it with a mutex. This does *not* always prevent from modifying it, but
      another <code class="code">lock</code> statement will wait for the previous lock to be removed by
      <a href="Bogue.Layout.html#VALunlock"><code class="code"><span class="constructor">Layout</span>.unlock</code></a>.</p>
-</div>
-</div>
-
-<pre><span id="VALpush_close"><span class="keyword">val</span> push_close</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
-<div class="info-desc">
-<p>Emit the close-window event to the window containing the layout. This
-     should close the window at the next graphics frame.</p>
 </div>
 </div>
 <h3 id="2_Animations">Animations</h3>
@@ -424,9 +461,11 @@
 <p>An SDL window is created for each Layout in the list sent to
      <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
 
-<pre><span id="VALwindow"><span class="keyword">val</span> window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; Tsdl.Sdl.window</code></pre><div class="info ">
+<pre><span id="VALwindow_opt"><span class="keyword">val</span> window_opt</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; Tsdl.Sdl.window option</code></pre><div class="info ">
 <div class="info-desc">
-<p>Return the SDL window containing the layout.</p>
+<p>Return the SDL window containing the layout. It will return <code class="code"><span class="constructor">None</span></code> if the
+     window was not created yet, or was previously destroyed. Note that SDL
+     windows are created by <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>, not before.</p>
 </div>
 </div>
 
@@ -456,6 +495,22 @@
 <pre><span id="VALget_window_pos"><span class="keyword">val</span> get_window_pos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int option * int option</code></pre><div class="info ">
 <div class="info-desc">
 <p>Return the window position within the desktop, in physical pixels.</p>
+</div>
+</div>
+
+<pre><span id="VALpush_close"><span class="keyword">val</span> push_close</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Emit the close-window event to the window containing the layout, as if the
+     user clicked on the close button. This should close the window at the next
+     graphics frame, or execute the function registered by
+     <a href="Bogue.Window.html#VALon_close"><code class="code"><span class="constructor">Window</span>.on_close</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALdestroy_window"><span class="keyword">val</span> destroy_window</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Emit the destroy_window event to ask Bogue to destroy the SDL window
+      containing the layout.</p>
 </div>
 </div>
 <h3 id="2_Misc">Misc</h3>

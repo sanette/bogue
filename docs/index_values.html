@@ -226,6 +226,18 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Main.html#VALcreate">create</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td><div class="info">
+<p>Create a <code class="code">board</code> from a list of layouts and connections.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Window.html#VALcreate">create</a> [<a href="Bogue.Window.html">Bogue.Window</a>]</td>
+<td><div class="info">
+<p>Create a window from the given layout.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Table.html#VALcreate">create</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
 <td><div class="info">
 </div>
@@ -350,9 +362,29 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Window.html#VALdestroy">destroy</a> [<a href="Bogue.Window.html">Bogue.Window</a>]</td>
+<td><div class="info">
+<p>Ask Bogue to destroy the window.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Layout.html#VALdestroy_window">destroy_window</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>Emit the destroy_window event to ask Bogue to destroy the SDL window
+      containing the layout.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALdisable">disable</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
 <p>Mark an element for skipping its execution.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Layout.html#VALdisable_resize">disable_resize</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p>This makes sure that nothing is executed when someone tries to resize the
+      layout.</p>
 
 </div>
 </td></tr>
@@ -465,9 +497,17 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALflat">flat</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Create a horizontal arrangement from a list of rooms.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALflat_of_w">flat_of_w</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Horizontal arrangement.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALfollow_mouse">follow_mouse</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Avar.html#VALfromto">fromto</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
@@ -750,11 +790,7 @@
 <tr><td><a href="Bogue.Draw.html#VALmagenta">magenta</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Main.html#VALmake">make</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
-<td><div class="info">
-<p>Create a <code class="code">board</code> from a list of layouts and connections.</p>
-
-</div>
-</td></tr>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALmake_clip">make_clip</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Clip a layout inside a smaller container and make it scrollable, and
@@ -804,6 +840,12 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Style.html#VALmk_shadow">mk_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Trigger.html#VALmouse_at_rest">mouse_at_rest</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
+<td><div class="info">
+<p>Triggered when the mouse did not move for a while.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALmouse_enter">mouse_enter</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>The <code class="code">mouse_enter</code> event is triggered when the pointer (mouse motion, or
@@ -849,6 +891,18 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Style.html#VALof_border">of_border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALof_layout">of_layout</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.Main.html#VALof_layout"><code class="code"><span class="constructor">Main</span>.of_layout</code></a> but with only one layout.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Main.html#VALof_layouts">of_layouts</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Table.html#VALof_list">of_list</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Selection.html#VALof_list">of_list</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
@@ -857,9 +911,21 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALof_widgets">of_widgets</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALof_windows">of_windows</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td><div class="info">
+<p>Synonym for <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALon_click">on_click</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p><em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em></p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Window.html#VALon_close">on_close</a> [<a href="Bogue.Window.html">Bogue.Window</a>]</td>
+<td><div class="info">
+<p>Modify the on_close parameter of <a href="Bogue.Window.html#VALcreate"><code class="code"><span class="constructor">Window</span>.create</code></a>.</p>
 
 </div>
 </td></tr>
@@ -867,6 +933,13 @@
 <td><div class="info">
 <p><code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
      which will be executed when the mouse button is released on this widget.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Layout.html#VALon_resize">on_resize</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td><div class="info">
+<p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room, in addition
+     to the already registered resized functions.</p>
 
 </div>
 </td></tr>
@@ -968,7 +1041,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALpush_close">push_close</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>Emit the close-window event to the window containing the layout.</p>
+<p>Emit the close-window event to the window containing the layout, as if the
+     user clicked on the close button.</p>
 
 </div>
 </td></tr>
@@ -1050,7 +1124,11 @@
 <tr><td><a href="Bogue.Button.html#VALreset">reset</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALresident">resident</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Create a layout (=room) from a single Widget (=resident).</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALretower">retower</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALrich_text">rich_text</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -1071,7 +1149,9 @@
 </td></tr>
 <tr><td><a href="Bogue.Main.html#VALrun">run</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
-<p>Launch the main loop.</p>
+<p>This is finally how you run your app! It creates the SDL windows
+     associated with the <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a>s registered with the board, and launches
+     the main loop.</p>
 
 </div>
 </td></tr>
@@ -1284,7 +1364,7 @@
 <tr><td><a href="Bogue.Layout.html#VALsuperpose">superpose</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Create a new layout by superposing a list of layouts without changing
-      their (x,y) position.</p>
+     their (x,y) position.</p>
 
 </div>
 </td></tr>
@@ -1344,9 +1424,17 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALtower">tower</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Create a vertical arrangement from a list of rooms.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALtower_of_w">tower_of_w</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Vertical arrangement.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Draw.html#VALtransp">transp</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Popup.html#VALtwo_buttons">two_buttons</a> [<a href="Bogue.Popup.html">Bogue.Popup</a>]</td>
@@ -1470,7 +1558,7 @@
 
 </div>
 </td></tr>
-<tr><td><a href="Bogue.Layout.html#VALwindow">window</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<tr><td><a href="Bogue.Layout.html#VALwindow_opt">window_opt</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Return the SDL window containing the layout.</p>
 

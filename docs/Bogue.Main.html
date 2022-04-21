@@ -5,7 +5,7 @@
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Bogue.Table.html">
+<link rel="previous" href="Bogue.Window.html">
 <link rel="next" href="Bogue.Bogue.html">
 <link rel="Up" href="Bogue.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
@@ -16,7 +16,7 @@
 <title>Bogue.Main</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Bogue.Table.html" title="Bogue.Table">Previous</a>
+<div class="navbar"><a class="pre" href="Bogue.Window.html" title="Bogue.Window">Previous</a>
 &nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
 &nbsp;<a class="post" href="Bogue.Bogue.html" title="Bogue.Bogue">Next</a>
 </div>
@@ -52,7 +52,7 @@
 </div>
 </div>
 
-<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       <a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a <code class="code">board</code> from a list of layouts and connections. The list of
      connections can be empty, because connections can be added afterwards. Each
@@ -62,9 +62,33 @@
 </div>
 </div>
 
+<pre><span id="VALof_windows"><span class="keyword">val</span> of_windows</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Synonym for <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALof_layouts"><span class="keyword">val</span> of_layouts</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Similar to <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>. Each layout in the list will be displayed in a
+     different window.</p>
+</div>
+</div>
+
+<pre><span id="VALof_layout"><span class="keyword">val</span> of_layout</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Similar to <a href="Bogue.Main.html#VALof_layout"><code class="code"><span class="constructor">Main</span>.of_layout</code></a> but with only one layout.</p>
+</div>
+</div>
+
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       <a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre>
 <pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">?before_display:(unit -&gt; unit) -&gt;<br>       ?after_display:(unit -&gt; unit) -&gt; <a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p>Launch the main loop.</p>
+<p>This is finally how you run your app! It creates the SDL windows
+     associated with the <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a>s registered with the board, and launches
+     the main loop. This function only returns when all windows are closed (in
+     case at least one window was created), or when the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a> exception is
+     raised.</p>
 </div>
 </div>
 <h3 id="2_UsingBoguetogetherwithanothergraphicsloop">Using Bogue together with another graphics loop</h3>
