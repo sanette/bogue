@@ -112,6 +112,8 @@ let mouse_focus = new_event_type "mouse_focus"
 
 let remove_layout = new_event_type "remove_layout"
 
+let destroy_window = new_event_type "destroy_window"
+
 let not_used = new_event_type "not_used"
 
 (* Some aliases. Beware that in case of finger events, the OS or SDL will most
@@ -196,6 +198,7 @@ type bogue_event =
   | `Bogue_keyboard_focus
   | `Bogue_mouse_focus
   | `Bogue_remove_layout
+  | `Bogue_destroy_window
   | `Bogue_update
   | `Bogue_sync_action
   | `Bogue_redraw ]
@@ -220,6 +223,7 @@ let event_kind ev : [> sdl_event | bogue_event] =
        | i when i = keyboard_focus -> `Bogue_keyboard_focus
        | i when i = mouse_focus -> `Bogue_mouse_focus
        | i when i = remove_layout -> `Bogue_remove_layout
+       | i when i = destroy_window -> `Bogue_destroy_window
        | i when i = update -> `Bogue_update
        | i when i = redraw -> `Bogue_redraw
        | i when i = sync_action -> `Bogue_sync_action
@@ -727,6 +731,18 @@ let push_remove_layout id =
   if not (Sdl.has_event remove_layout)
   then push_from_id remove_layout id
 
+let push_destroy_window ~window_id id =
+  let e = create_event destroy_window in
+  E.(set e user_code id);
+  E.(set e user_window_id window_id);
+  push_event e
+
+let push_close id =
+  let e = create_event E.window_event in
+  E.(set e window_window_id id);
+  E.(set e window_event_id window_event_close);
+  push_event e
+
 (* send the `Quit event *)
 let push_quit () = push_from_id E.quit 0
 
@@ -740,8 +756,6 @@ let get_update_wid e =
 let push_action =
   let action_event = create_event sync_action in
   fun () -> push_event action_event
-
-
 
 
 (** tell if the current thread should exit. This should be called within a
@@ -859,7 +873,7 @@ let rec wait_event ?(action = nop) e =
 let mm_pressed ev =
   Int32.logand E.(get ev mouse_motion_state) (Sdl.Button.lmask) <> 0l
 
-(* Maybe all the window_id field in fact are the same int? *)
+(* Maybe all the *_window_id fields in fact are the same int? *)
 let window_id ev =
   match event_kind ev with
   | `Key_down
@@ -871,6 +885,7 @@ let window_id ev =
   | `Text_editing -> E.(get ev text_editing_window_id)
   | `Text_input -> E.(get ev text_input_window_id)
   | `User_event -> E.(get ev user_window_id)
+  | `Bogue_destroy_window -> E.(get ev user_window_id)
   | `Window_event -> E.(get ev window_window_id)
   | _ -> (* TODO mouse_enter/leave *)
     printd debug_event "Warning! this event has no window id; fallback on mouse_focus";

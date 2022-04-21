@@ -55,6 +55,8 @@ let sprint el =
   Printf.sprintf "%u%s" el.id
     (if el.name = "" then "" else Printf.sprintf " (%s)" el.name)
 
+(* Note: it would be super smart to reinstall the commands that created the
+   cache when we clear the cache... TODO?*)
 let clear_cache area =
   match Var.get area.cache with
   | None -> ()
@@ -104,7 +106,9 @@ let add area ?name f =
   add_get area ?name f
   |> ignore
 
-(* clear the sheet before this point and save the drawing into the cache *)
+(* Clear the sheet before this point and save the drawing into the
+   cache. Currently, the user is responsible for saving the commands that were
+   used to create the cache if necessary.  *)
 let cache area renderer =
   match Var.get area.box.render with
   | None -> failwith "Sdl_area texture was not created."

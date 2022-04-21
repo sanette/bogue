@@ -13,12 +13,22 @@ type t =
     (* if bogue = false this means that bogue didn't create the corresponding
        SDL window, and we should neither clear it before rendering, nor
        RenderPresent it after rendering *)
+    mutable on_close : (t -> unit) option (* None means destroy window *)
   }
 
-let create ?(is_fresh = false) ?(bogue = false) layout =
+let create ?on_close layout =
+  if Layout.get_house layout <> None
+  then begin
+    printd (debug_error + debug_user)
+      "Cannot construct a Window from room %s because it is already contained in \
+       a house." (Layout.sprint_id layout);
+    raise (Invalid_argument
+             "[Window.create] Cannot create a Window from a Layout that belongs \
+              to a house.")
+  end;
   let g = layout.Layout.current_geom in
   Layout.(layout.current_geom <- { g with x = not_specified; y = not_specified });
-  { layout; is_fresh; bogue }
+  { layout; is_fresh = false; bogue = true; on_close}
 
 let get_layout w =
   w.layout
@@ -32,17 +42,34 @@ let set_fresh w =
 let to_refresh w =
   w.is_fresh <- false
 
-let window w =
+let on_close w f =
+  w.on_close <- f
+
+(* This is not very efficient because it will search for the Window.t from the
+   Layout.id... while we already have the Window.t at hand! Well, this function
+   doesn't have to be efficient anyways. *)
+let destroy w =
+  Layout.destroy_window w.layout
+
+let sdl_window w =
   Layout.window w.layout
 
+let is_shown w =
+  w.layout.Layout.show
+
 let show_maybe w =
-  if w.layout.Layout.show
-  then Sdl.show_window (window w)
-  else Sdl.hide_window (window w)
+  match Layout.window_opt w.layout with
+  | Some win ->
+    if is_shown w
+    then Sdl.show_window win
+    else Sdl.hide_window win
+  | None -> printd (debug_error + debug_board)
+              "[Window.show_maybe] the SDL window does not exist for layout %s"
+              (Layout.sprint_id w.layout)
 
 (* physical size *)
 let size w =
-  Draw.get_window_size (window w)
+  Draw.get_window_size (sdl_window w)
 
 let get_canvas w =
   Layout.get_canvas w.layout

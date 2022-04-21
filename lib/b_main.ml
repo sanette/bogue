@@ -169,7 +169,7 @@ let resize window =
    running. *)
 let add_window board layout =
   Layout.move_to_new_stack layout;
-  let window = Window.create ~bogue:true layout in
+  let window = Window.create layout in
   Window.make_sdl_window window;
 
   (* update board *)
@@ -201,8 +201,10 @@ let get_window_by_id board id =
       else loop rest in
   loop board.windows
 
+(* Remove window and raise Exit if there are no more active windows. *)
 let remove_window board window =
-  let windows = List.filter (fun w -> not (Window.equal window w)) board.windows in
+  let windows = List.filter (fun w -> not (Window.equal window w))
+      board.windows in
   set_windows board windows;
   let layout = Window.get_layout window in
   printd debug_board "** Remove window #%u (Layout #%u)"
@@ -212,7 +214,21 @@ let remove_window board window =
      belonged to the removed window. *)
   board.mouse_focus <- None;
   board.keyboard_focus <- None;
-  board.button_down <- None
+  board.button_down <- None;
+  if board.windows = [] then begin
+    printd debug_board "No more windows. We quit.";
+    (* The `Quit` event seems to be emitted when the user clicks on the Close
+       button of the last open window, but not when we delete windows
+       manually. Hence we have to raise Exit.*)
+    (* TODO instead we should check if there are Sync actions or Timeouts
+       waiting?*)
+    raise Exit
+  end else if not (List.exists Window.is_shown board.windows) then begin
+    printd (debug_board + debug_user)
+      "Some windows are alive, but all windows are hidden. We quit.";
+    (* Is there a scenario where we would not like to quit here? *)
+    raise Exit
+  end
 
 (*************)
 let show board =
@@ -245,7 +261,7 @@ let top_house board room =
   let top = Layout.top_house room in
   list_check_ok (fun l -> Layout.(top == l)) (get_layouts board)
 
-(* which window corresponds to the event? *)
+(* which Window.t corresponds to the event? *)
 let window_of_event board ev =
   try
     let ido = match Trigger.event_kind ev with
@@ -363,7 +379,7 @@ let is_fresh board =
 (* because of transparency effects, this is almost impossible to use *)
 let update_old board =
   List.iter (fun w ->
-      if not (Window.is_fresh w) && Draw.window_is_shown (Window.window w)
+      if not (Window.is_fresh w) && Draw.window_is_shown (Window.sdl_window w)
       then (Window.to_refresh w;
             Layout.update_old (Window.get_layout w))
       else printd debug_board "Window is hidden")
@@ -657,16 +673,19 @@ let treat_layout_events board e =
                Layout.scroll ~duration:500 dy room;
                check_mouse_motion board;
                Trigger.push_var_changed room.Layout.id))
+    | `Bogue_destroy_window ->
+      printd (debug_board+debug_event) "Destroy window request";
+      do_option (window_of_event board e) (remove_window board);
     | `Window_event ->
       (* https://github.com/libsdl-org/SDL/blob/main/include/SDL_video.h *)
       let wid = get e window_event_id in
       printd debug_event "Window event [%d]" wid;
-      (* Warning: on my system, resizing window by dragging the corner does not
-         trigger only 6 = resize, but triggers event 4=
-         "window_event_moved"... and sometimes 3=exposed *)
+      (* Warning: when resizing window by mowing the top-left corner, we trigger
+         trigger 6 = resize, and also 4 = "window_event_moved"... and sometimes
+         3 = exposed *)
       (* Some window events may come by pair; for instance if you middle_click
          on the maximize button, it can trigger 10 (mouse enter) and then 6
-         (resize). So the 6 should not be flushed ! *)
+         (resize). *)
       begin
         match window_event_enum wid with
         | `Resized ->
@@ -697,16 +716,9 @@ let treat_layout_events board e =
               Window.to_refresh w)
         | `Close ->
           printd (debug_board+debug_event) "Asking window to close";
-          do_option (window_of_event board e) (remove_window board);
-          if board.windows = [] then begin
-            printd debug_board "No more windows. We quit.";
-            (* The `Quit` event seems to be emitted when the user clicks on
-               the Close button of the last open window, but not when we
-               delete windows manually. Hence we have to raise Exit.*)
-            (* TODO instead we should check if there are Sync actions of
-               Timeouts waiting?*)
-            raise Exit
-          end
+          do_option (window_of_event board e) (fun w ->
+              let action = default w.on_close (remove_window board) in
+              action w)
         | _ as enum ->
           printd debug_event "%s" (Trigger.window_event_name enum);
           do_option (window_of_event board e) (fun w ->
@@ -926,16 +938,15 @@ let make_sdl_windows ?windows board =
          end in
      loop list board.windows
 
-(* Make the board. Each layout in the list will be displayed in a different
-   window. *)
-let make ?(shortcuts = []) connections layouts =
-  let windows = List.map (Window.create ~bogue:true) layouts in
+(* Create the board. *)
+let create ?(shortcuts = []) ?(connections = []) windows =
   (* let canvas = match layouts with *)
   (*   | [] -> failwith "At least one layout is needed to make the board" *)
   (*   | l::_ -> Layout.get_canvas l in *)
   (* if adjust then List.iter (Layout.adjust_window ~display:false) layouts; *)
   (* TODO add "adjust" property in layout. NO this should be enforced *)
   (* TODO one could use the position of the top layout to position the window *)
+  let layouts = List.map Window.get_layout windows in
   let windows_house = Layout.create_win_house layouts in
   let widgets = (* List.flatten (List.map Layout.get_widgets layouts) *)
     Layout.get_widgets windows_house in
@@ -961,6 +972,21 @@ let make ?(shortcuts = []) connections layouts =
     button_down = None;
     shortcuts; shortcut_pressed = false;
     mouse_alive = false}
+
+let of_windows = create
+
+(* Create a board from layouts. Each layout in the list will be displayed in a
+   different window.*)
+let of_layouts ?shortcuts ?connections layouts =
+  create ?shortcuts ?connections (List.map Window.create layouts)
+
+let of_layout ?shortcuts ?connections layout =
+  of_layouts ?shortcuts ?connections [layout]
+
+(* for backward compatibility. Use [create], [of_windows] or [of_layouts]
+   instead. *)
+let make ?shortcuts connections layouts =
+  of_layouts ?shortcuts ~connections layouts
 
 (** The main function that loops indefinitely *)
 (* one can insert code to be executed at two different places: "before_display"

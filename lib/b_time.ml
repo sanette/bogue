@@ -1,3 +1,14 @@
+(*
+
+Warning: (from the SDL wiki)
+
+SDL_GetTicks
+
+This function is not recommended as of SDL 2.0.18; use SDL_GetTicks64() instead, where the value doesn't wrap every ~49 days. There are places in SDL where we provide a 32-bit timestamp that can not change without breaking binary compatibility, though, so this function isn't officially deprecated.
+
+*)
+
+
 open Tsdl
 open B_utils
 
@@ -25,6 +36,8 @@ let delay_old d = Sdl.delay (Int32.of_int d);; (* attention ça freeze si c'est 
 (* we use this instead *)
 let delay x = Thread.delay (float x /. 1000.)
 
+(* in principle one should use Int32.unsigned_to_int. This is ok until 2^31 -1,
+   ie. about 24 days. TODO change this? *)
 let now () : t = Int32.to_int (Sdl.get_ticks ())
 
 let make_fps () =

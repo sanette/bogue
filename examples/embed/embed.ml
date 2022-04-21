@@ -5,6 +5,12 @@
 
 (* press TAB to show GUI *)
 
+(* BUG: currently you need to set BOGUE_SCALE before running this. For instance:
+
+ export BOGUE_SCALE=2 ./embed
+
+*)
+
 open Tsdl
 open Bogue
 open Utils

@@ -24,8 +24,8 @@ type t = {
        conversely if the layout is scrolled, the scrollbar is automatically
        updated. *)
     var : (int Avar.t, int) Tvar.t;
-    (* The destination of the Tvar is the local slider value: an integer between
-       0 and max. The origin is an arbitrary 'external' integer Avar. *)
+    (* The local value of the Tvar is the local slider value: an integer between
+       0 and max. The remote value is an arbitrary 'external' integer Avar. *)
     (* TODO: (int Avar.t) is here to make smoother transitions. not done yet *)
     cache : int Var.t; (* used to avoid computing too many times the same value *)
     mutable pointer_motion : bool;
@@ -227,13 +227,6 @@ let click s ev =
   (* let avar = s.var.Tvar.var in *)
   (* let final = Avar.get (s.var.Tvar.t_to v) in *)
   (* Var.set avar (Avar.fromto (Avar.get (Var.get avar)) final);; *)
-
-(* this should be called on mouse_button_up: *)
-(* not necessary anymore, since keyboard_focus is treated by the main loop *)
-(* let click_focus s ev = *)
-(*  if Sdl.Event.(get ev mouse_button_state) = Sdl.pressed *)
-(* (\* = DIRTY trick, see bogue.ml *\) *)
-(*  then Var.set s.keyboard_focus true;; *)
 
 (* This should be called on mouse_button_up: *)
 let release s =

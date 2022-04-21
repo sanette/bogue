@@ -312,10 +312,10 @@ let geometry ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) ?transform () : geometry =
     h = Avar.var h;
     voffset = Var.create (Avar.var voffset);
     transform = default transform
-                  { angle = Avar.var 0.;
-                    center = Avar.var None;
-                    flip = Avar.var Sdl.Flip.none;
-                    alpha = Avar.var 1.}
+        { angle = Avar.var 0.;
+          center = Avar.var None;
+          flip = Avar.var Sdl.Flip.none;
+          alpha = Avar.var 1.}
   }
 
 (** list of all integer dynamical variables *)
@@ -610,8 +610,12 @@ let renderer t = match t.canvas with
   | _ -> failwith "Cannot get renderer because no canvas was defined"
 
 (* get the Sdl window of the layout *)
-let window t = match t.canvas with
-  | Some c -> c.Draw.window
+let window_opt t =
+  map_option t.canvas (fun c -> c.Draw.window)
+
+let window t =
+  match window_opt t with
+  | Some w -> w
   | _ -> begin
       printd debug_error
         "Cannot get window for layout %s because no canvas was defined"
@@ -734,6 +738,10 @@ let resize room =
 
 let disable_resize room =
   room.resize <- (fun _ -> ())
+
+let on_resize room f =
+  let r = room.resize in
+  room.resize <- (fun house -> r house; f ())
 
 let fix_content house =
   iter_rooms disable_resize house
@@ -958,11 +966,11 @@ let rec rec_set_show b l =
 
 let show_window t =
   set_show (top_house t) true;
-  Sdl.show_window (window t)
+  do_option (window_opt t) Sdl.show_window
 
 let hide_window t =
   set_show (top_house t) false;
-  Sdl.hide_window (window t)
+  do_option (window_opt t) Sdl.hide_window
 
 (** return absolute (x,y) position *)
 (* TODO optimize: test if x is up_to_date, then one can use current_geom
@@ -1311,15 +1319,6 @@ let claim_keyboard_focus r =
   else printd (debug_error + debug_board)
          "Cannot claim keyboard_focus on room %s without resident." (sprint_id r)
 
-(* Emit the close-window event to the window containing the layout *)
-let push_close r =
-  let id = Sdl.get_window_id (window r) in
-  let open Trigger in
-  let e = create_event E.window_event in
-  E.(set e window_window_id id);
-  E.(set e window_event_id window_event_close);
-  push_event e
-
 (* center vertically the rooms of the layout (first generation only) *)
 let v_center layout y0 h =
   match layout.content with
@@ -1412,7 +1411,7 @@ let scale_resize_list ?scale_width ?scale_height ?scale_x ?scale_y (w,h) rooms =
   List.iter (scale_resize ?scale_width ?scale_height ?scale_x ?scale_y (w,h))
     rooms
 
-(* Overrides scale_resize to retreive the house size automatically. Can only be
+(* Overrides scale_resize to retrieve the house size automatically. Can only be
    applied if the room is already in a house. *)
 let scale_resize ?scale_width ?scale_height ?scale_x ?scale_y room =
   match room.house with
@@ -2871,12 +2870,25 @@ let adjust_window ?(display=false) layout =
         render top;
         flip top
       end)
-(*Draw.destroy_textures ();; *)
+
+(* Emit the close-window event to the window containing the layout *)
+let push_close r =
+  let id = Sdl.get_window_id (window r) in
+  Trigger.push_close id
+
+let destroy_window r =
+  match window_opt r with
+  | Some w ->
+    let window_id = Sdl.get_window_id w in
+    Trigger.push_destroy_window (r.id) ~window_id
+  | None ->
+    printd (debug_board + debug_error + debug_user)
+      "Cannot destroy window for layout %s because it is not associated with any \
+       SDL window." (sprint_id r)
 
 (* the display function we export *)
 (* NO we need pos for snapshot.ml *)
-(*let display r : unit =
-  display r;;*)
+(* let display r : unit = display r *)
 
 let inside_geom geometry (x,y) =
   x <= geometry.x + geometry.w && x >= geometry.x &&

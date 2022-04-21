@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220416
+@version 20220421
 
 @author Vu Ngoc San
 
@@ -390,6 +390,9 @@ module Trigger : sig
   val mouse_leave : t
   (** Similar to {!mouse_enter}, when the pointer leaves the layout. *)
 
+  val mouse_at_rest : t
+  (** Triggered when the mouse did not move for a while. *)
+
   val var_changed : t
   (** The [var_changed] event can be sent to notify that some widget made a
      change to a global variable. *)
@@ -493,6 +496,7 @@ module Trigger : sig
     | `Bogue_keyboard_focus
     | `Bogue_mouse_focus
     | `Bogue_remove_layout
+    | `Bogue_destroy_window
     | `Bogue_update
     | `Bogue_sync_action
     | `Bogue_redraw ]
@@ -756,8 +760,8 @@ end (* of Mouse *)
 {5 {{:graph-b_tvar.html}Dependency graph}} *)
 module Tvar : sig
   type ('a, 'b) t
-  (** a transform variable of type [('a,'b)] is a variable of type ['b] attached to
-     a variable of type ['a Var.t] by a bi-directional transformation. *)
+  (** a transform variable of type [('a,'b)] is a variable of type ['b] attached
+     to a variable of type ['a Var.t] by a bi-directional transformation. *)
 
   val create : 'a Var.t -> t_from:('a -> 'b) -> t_to:('b -> 'a) -> ('a, 'b) t
   val get : ('a, 'b) t -> 'b
@@ -1457,6 +1461,8 @@ let l = get_label w in
     ?var:(int Avar.t, int) Tvar.t ->
     ?length:int -> ?thickness:int -> ?tick_size:int -> ?lock:bool ->
     ?w:int -> ?h:int -> int -> t
+  (* The size of the slider is given either by [w,h] or [length, thickness]. The
+     interpretation of [length] and [thickness] depends on [kind]. *)
 
   val slider_with_action : ?priority:action_priority ->
     ?step:int -> ?kind:Slider.kind -> value:int -> ?length:int ->
@@ -1636,18 +1642,24 @@ module Layout : sig
     ?draggable:bool ->
     ?canvas:Draw.canvas ->
     ?layer:Draw.layer -> ?keyboard_focus:bool -> Widget.t -> t
+  (** Create a layout (=room) from a single Widget (=resident). The content of
+     such a layout cannot be modified. *)
+
   val flat_of_w :
     ?name:string -> ?sep:int -> ?h:int ->
     ?align:Draw.align ->
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
     Widget.t list -> t
+  (** Horizontal arrangement. See {!flat}. *)
+
   val tower_of_w :
     ?name:string -> ?sep:int -> ?w:int ->
     ?align:Draw.align ->
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
     Widget.t list -> t
+    (** Vertical arrangement. See {!tower}. *)
 
   (** {3 Create layouts from other layouts} *)
 
@@ -1657,6 +1669,8 @@ module Layout : sig
     ?align:Draw.align ->
     ?background:background -> ?shadow:Style.shadow ->
     ?canvas:Draw.canvas -> ?scale_content:bool -> t list -> t
+  (** Create a horizontal arrangement from a list of rooms. *)
+
   val tower :
     ?name:string -> ?sep:int ->
     ?margins:int -> ?hmargin:int -> ?vmargin:int ->
@@ -1664,13 +1678,15 @@ module Layout : sig
     ?adjust:adjust ->
     ?background:background -> ?shadow:Style.shadow ->
     ?canvas:Draw.canvas -> ?clip:bool -> ?scale_content:bool -> t list -> t
+  (** Create a vertical arrangement from a list of rooms. *)
+
   val superpose :
     ?w:int -> ?h:int -> ?name:string ->
     ?background:background -> ?canvas:Draw.canvas -> ?center:bool ->
     ?scale_content:bool ->
     t list -> t
   (** Create a new layout by superposing a list of layouts without changing
-      their (x,y) position. *)
+     their (x,y) position. *)
 
   (** Remark: when creating a house (a layout) with [flat*], [tower*], or
      [superpose], the size of the inner rooms will be automatically updated
@@ -1744,6 +1760,18 @@ module Layout : sig
   (** Set the layout to automatically scale its inner rooms when the layout size
      is modified. *)
 
+  val disable_resize : t -> unit
+  (** This makes sure that nothing is executed when someone tries to resize the
+      layout. *)
+
+  val on_resize : t -> (unit -> unit) -> unit
+  (** [on_resize room f] will execute [f ()] upon resizing the room, in addition
+     to the already registered resized functions. Warning: placing the room in
+     another layout will likely reset the resize function (unless you set the
+     [scale_content] flag to [false], see eg. {!flat} and the remark below
+     that). Hence [on_resize] should be called after the room is hosted in its
+     house. *)
+
   val set_width : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
                   -> t -> int -> unit
   val set_height :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
@@ -1787,9 +1815,6 @@ module Layout : sig
      another [lock] statement will wait for the previous lock to be removed by
      {!unlock}. *)
 
-  val push_close : t -> unit
-  (** Emit the close-window event to the window containing the layout. This
-     should close the window at the next graphics frame. *)
 
 
   (** {2 Animations}
@@ -1869,8 +1894,10 @@ module Layout : sig
       An SDL window is created for each Layout in the list sent to
      {!Main.make}.  *)
 
-  val window : t -> Tsdl.Sdl.window
-  (** Return the SDL window containing the layout. *)
+  val window_opt : t -> Tsdl.Sdl.window option
+  (** Return the SDL window containing the layout. It will return [None] if the
+     window was not created yet, or was previously destroyed. Note that SDL
+     windows are created by {!Main.run}, not before. *)
 
   val show_window : t -> unit
   (** Make the window containing the layout appear onscreen, using [set_show]
@@ -1888,6 +1915,16 @@ module Layout : sig
 
   val get_window_pos : t -> int option * int option
   (** Return the window position within the desktop, in physical pixels. *)
+
+  val push_close : t -> unit
+  (** Emit the close-window event to the window containing the layout, as if the
+     user clicked on the close button. This should close the window at the next
+     graphics frame, or execute the function registered by
+     {!Window.on_close}. *)
+
+  val destroy_window : t -> unit
+  (** Emit the destroy_window event to ask Bogue to destroy the SDL window
+      containing the layout. *)
 
   (** {2 Misc} *)
 
@@ -2251,6 +2288,32 @@ end (* of Table *)
 
 (* ---------------------------------------------------------------------------- *)
 
+(** {2 Windows}
+
+    In order to display a Layout, you need to create a {!Window.t} for it, and
+   pass it as argument of {!Main.make}. Windows are create by SDL, and hence
+   will appear with the usual decorations of your Desktop Environment.  *)
+module Window : sig
+  type t
+  val create : ?on_close:(t -> unit) -> Layout.t -> t
+  (** Create a window from the given layout. The layout must not belong to any
+     room. If the layout is hidden, the window will be created but not shown.
+     @param on_close Set the function to be executed when the user wants to
+     close the window. By default, the window will be destroyed. Hence, setting
+     a function can prevent the window from being closed. However, if this is
+     the sole open window, clicking on the close button will also emit the
+     'Quit' event, and will terminate Bogue anyways. *)
+
+  val on_close : t -> (t -> unit) option -> unit
+  (** Modify the on_close parameter of {!create}. *)
+
+  val destroy : t -> unit
+  (** Ask Bogue to destroy the window. *)
+
+  end
+
+(* ---------------------------------------------------------------------------- *)
+
 (** {2 The Bogue mainloop}
 
 Because a GUI continuously waits for user interaction, everything has to run
@@ -2271,18 +2334,41 @@ module Main : sig
   (** If the [exit_on_escape] shortcut is given to the {!make} function, then
      the {!Exit} exception will be raised upon pressing the Escape key. *)
 
-  val make : ?shortcuts:(int * int * (board -> unit)) list ->
-    Widget.connection list -> Layout.t list -> board
+  val create : ?shortcuts:(int * int * (board -> unit)) list ->
+    ?connections:(Widget.connection list) -> Window.t list -> board
   (** Create a [board] from a list of layouts and connections. The list of
      connections can be empty, because connections can be added afterwards. Each
      Layout in the list will open as a new window. The optional argument
      [shortcuts] is a list of shortcut triples of the form [keycode, keymod,
      action].  *)
 
+  val of_windows :  ?shortcuts:(int * int * (board -> unit)) list ->
+    ?connections:(Widget.connection list) -> Window.t list -> board
+  (** Synonym for {!create}. *)
+
+  val of_layouts : ?shortcuts:(int * int * (board -> unit)) list ->
+    ?connections:(Widget.connection list) -> Layout.t list -> board
+  (** Similar to {!create}. Each layout in the list will be displayed in a
+     different window. *)
+
+  val of_layout : ?shortcuts:(int * int * (board -> unit)) list ->
+    ?connections:(Widget.connection list) -> Layout.t -> board
+  (** Similar to {!of_layout} but with only one layout. *)
+
+  val make : ?shortcuts:(int * int * (board -> unit)) list ->
+    (Widget.connection list) -> Layout.t list -> board
+  (* Similar to {!of_layouts}.
+
+     @Deprecated since 20220418. Use {!of_layouts} or {!create} instead. *)
+
   val run :
     ?before_display:(unit -> unit) ->
     ?after_display:(unit -> unit) -> board -> unit
-  (** Launch the main loop. *)
+  (** This is finally how you run your app! It creates the SDL windows
+     associated with the {!Window.t}s registered with the board, and launches
+     the main loop. This function only returns when all windows are closed (in
+     case at least one window was created), or when the {!Exit} exception is
+     raised. *)
 
   (** {2 Using Bogue together with another graphics loop}
 
