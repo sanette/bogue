@@ -10,7 +10,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220421
+@version 20220504
 
 @author Vu Ngoc San
 
@@ -400,6 +400,11 @@ module Trigger : sig
   val update : t
   (** Currently the [update] event is more or less equivalent to
      [var_changed]. This might change in future versions. *)
+
+  val user_event : t
+  (** Same as [Tsdl.Sdl.Event.user_event]. This special event of type
+     SDL_UserEvent can trigger a global reaction, not associated with any widget
+     in particular, through the [on_user_event] parameter of {!Main.create} *)
 
   val buttons_down : t list
   (** A list of events containing the mouse_button_down event, and the
@@ -800,7 +805,14 @@ module Avar : sig
   (** [fromto x1 x2] creates a integer Avar.t with initial value [x1] and, as
       time elapses, moves continuously to [x2], with a final slowdown. *)
 
+  val var : 'a -> 'a t
+  (** Create an Avar which behaves like a normal Var (no animation). *)
+
   (** {2 Avar information} *)
+
+  val get : 'a t -> 'a
+  (** Start the animation (if necessary) and compute the current value of the
+     variable. *)
 
   val progress : 'a t -> float
   (** [progress v] is a float in \[0,1\] giving the percentage of the animation
@@ -883,27 +895,27 @@ module Image : sig
 
   val create : ?width:int -> ?height:int -> ?noscale:bool -> ?bg:Draw.color -> string -> t
   (** [create "image.jpg"] will load the image ["image.jpg"]. The actual load
-     occurs only once, on the first time the image widget is effectively
-     displayed. The image is then stored in a texture. All
-     {{:https://www.libsdl.org/projects/SDL_image/}Sdl_image} image formats are
-     supported.
+      occurs only once, on the first time the image widget is effectively
+      displayed. The image is then stored in a texture. All
+      {{:https://www.libsdl.org/projects/SDL_image/}Sdl_image} image formats are
+      supported.
 
-     The file "image.png" will be search in the current Theme
-     directory. Absolute paths starting with "/" can also be used.
+      The file "image.png" will be search in the current Theme
+      directory. Absolute paths starting with "/" can also be used.
 
-   @param noscale if [true], the image will appear at the original hardware
-     pixel size. By default, [noscale=false] and the image is scaled using the
-     {!Theme} [SCALE] variable. *)
+      @param noscale if [true], the image will appear at the original hardware
+      pixel size. By default, [noscale=false] and the image is scaled using the
+      {!Theme} [SCALE] variable. *)
 
   val create_from_svg : ?width:int -> ?height:int -> ?bg:Draw.color -> string -> t
-(** Load an svg image. This requires the [rsvg] or [rsvg-convert] program.
+  (** Load an svg image. This requires the [rsvg] or [rsvg-convert] program.
 
-    {e Remark:} With SDL_Image >= 2.0.2, one can use {!create} to load SVG
-   files, but the size is not correctly handled (the image will be rendered at
-   its 'internal SVG size', and {e then} scaled, which may result in poor
-   accuracy).
+      {e Remark:} With SDL_Image >= 2.0.2, one can use {!create} to load SVG
+      files, but the size is not correctly handled (the image will be rendered at
+      its 'internal SVG size', and {e then} scaled, which may result in poor
+      accuracy).
 
-   *)
+  *)
 
 end (* of Image *)
 
@@ -1050,6 +1062,8 @@ module Slider : sig
 
   val value : t -> int
   (** Get current value. *)
+
+  val get_max : t -> int
 
   val set : t -> int -> unit
   (** Set a new value. *)
@@ -1765,12 +1779,13 @@ module Layout : sig
       layout. *)
 
   val on_resize : t -> (unit -> unit) -> unit
-  (** [on_resize room f] will execute [f ()] upon resizing the room, in addition
-     to the already registered resized functions. Warning: placing the room in
-     another layout will likely reset the resize function (unless you set the
-     [scale_content] flag to [false], see eg. {!flat} and the remark below
-     that). Hence [on_resize] should be called after the room is hosted in its
-     house. *)
+  (** [on_resize room f] will execute [f ()] upon resizing the room's house (or
+     the room's window, in case the room is the top house, see {!top_house}), in
+     addition to the already registered resized functions. Warning: placing the
+     room in another layout will likely reset the resize function (unless you
+     set the [scale_content] flag to [false], see eg. {!flat} and the remark
+     below that). Hence [on_resize] should be called after the room is hosted in
+     its house. *)
 
   val set_width : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
                   -> t -> int -> unit
@@ -2310,6 +2325,14 @@ module Window : sig
   val destroy : t -> unit
   (** Ask Bogue to destroy the window. *)
 
+  val set_size : w:int -> h:int -> t -> unit
+  (** Set window size in physical pixels. Only works after the window is
+     physically created by {Main.run}. However, you may use [set_size] in
+     advance with {!Sync.push}. *)
+
+  val maximize_width : t -> unit
+  (** See remarks in {!set_size}. *)
+
   end
 
 (* ---------------------------------------------------------------------------- *)
@@ -2317,7 +2340,8 @@ module Window : sig
 (** {2 The Bogue mainloop}
 
 Because a GUI continuously waits for user interaction, everything has to run
-   inside a loop.  *)
+   inside a loop. You start the loop with {!run}, and this is usually the last
+   command of your Bogue code.  *)
 
 (** Control the workflow of the GUI mainloop
 
@@ -2327,6 +2351,8 @@ module Main : sig
   type board
   (** The board is the whole universe of your GUI. It contains everything. *)
 
+  type shortcuts
+
   exception Exit
   (** Raising the [Exit] exception will tell the GUI loop to terminate. *)
 
@@ -2334,28 +2360,38 @@ module Main : sig
   (** If the [exit_on_escape] shortcut is given to the {!make} function, then
      the {!Exit} exception will be raised upon pressing the Escape key. *)
 
-  val create : ?shortcuts:(int * int * (board -> unit)) list ->
-    ?connections:(Widget.connection list) -> Window.t list -> board
+  val create : ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
   (** Create a [board] from a list of layouts and connections. The list of
      connections can be empty, because connections can be added afterwards. Each
-     Layout in the list will open as a new window. The optional argument
-     [shortcuts] is a list of shortcut triples of the form [keycode, keymod,
-     action].  *)
+     Layout in the list will open as a new window.
 
-  val of_windows :  ?shortcuts:(int * int * (board -> unit)) list ->
-    ?connections:(Widget.connection list) -> Window.t list -> board
+      @param shortcuts This optional argument is a list of shortcut triples of
+     the form [keycode, keymod, action].
+
+      @param on_user_event This optional argument is a function to be executed
+     (by the main thread) when a {!Trigger.user_event} is emmitted.
+
+*)
+
+  val of_windows :  ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
   (** Synonym for {!create}. *)
 
-  val of_layouts : ?shortcuts:(int * int * (board -> unit)) list ->
-    ?connections:(Widget.connection list) -> Layout.t list -> board
+  val of_layouts : ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t list -> board
   (** Similar to {!create}. Each layout in the list will be displayed in a
      different window. *)
 
-  val of_layout : ?shortcuts:(int * int * (board -> unit)) list ->
-    ?connections:(Widget.connection list) -> Layout.t -> board
+  val of_layout : ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t -> board
   (** Similar to {!of_layout} but with only one layout. *)
 
-  val make : ?shortcuts:(int * int * (board -> unit)) list ->
+  val make : ?shortcuts:shortcuts ->
     (Widget.connection list) -> Layout.t list -> board
   (* Similar to {!of_layouts}.
 
@@ -2369,6 +2405,23 @@ module Main : sig
      the main loop. This function only returns when all windows are closed (in
      case at least one window was created), or when the {!Exit} exception is
      raised. *)
+
+  (** {3 Creating global keyboard shortcuts} *)
+
+  type shortcut_action = board -> unit
+
+  val shortcuts_empty : unit -> shortcuts
+
+  val shortcuts_add : shortcuts ->
+    ?keymod:Tsdl.Sdl.keymod -> int -> shortcut_action -> shortcuts
+
+  val shortcuts_add_ctrl : shortcuts -> int -> shortcut_action -> shortcuts
+
+  val shortcuts_add_ctrl_shift : shortcuts ->
+    int -> shortcut_action -> shortcuts
+
+  val shortcuts_of_list : (int * int * shortcut_action) list -> shortcuts
+  (** List of (SDL keycode, SDL keymod, action) *)
 
   (** {2 Using Bogue together with another graphics loop}
 
@@ -2402,8 +2455,9 @@ module Main : sig
   (** Number of displayed frames since startup. *)
 
   val quit : unit -> unit
-(** Use this to close SDL windows and cleanup memory, after {!run} has
-   returned. *)
+  (** Use this to close SDL windows and cleanup memory, after {!run} has
+     returned. This does not exit your program. Calling [quit ()] is not
+     necessary if your program exits after {!run}.*)
 
 end (* of Main *)
 

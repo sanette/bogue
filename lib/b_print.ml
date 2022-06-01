@@ -7,19 +7,7 @@ module Draw = B_draw
 module Label = B_label
 module Style = B_style
 
-let kind k =
-  let open Widget in
-  match k with
-  | Empty _ -> "Empty"
-  | Box _ -> "Box"
-  | Button _ -> "Button"
-  | Check _ -> "Check"
-  | TextDisplay _ -> "TextDisplay"
-  | Label l -> "Label [" ^ Utils.xterm_red ^ (Label.text l) ^ Utils.xterm_nc ^ "]"
-  | Image _ -> "Image"
-  | Slider _ -> "Slider"
-  | TextInput _ -> "TextInput"
-  | SdlArea _ -> "SdlArea"
+let kind = Widget.string_of_kind
 
 let widget w =
   let open Widget in

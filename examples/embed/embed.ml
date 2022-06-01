@@ -68,7 +68,8 @@ let make_board () =
     let text = W.get_text input in
     W.set_text label ("Hello " ^ text ^ "!") in
 
-  Bogue.(make ~shortcuts:[exit_on_escape] [] [layout]), before_display
+  let shortcuts = Bogue.(shortcuts_of_list [exit_on_escape]) in
+  Bogue.(of_layout ~shortcuts layout), before_display
 
 let main () =
   Sys.catch_break true;

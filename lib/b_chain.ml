@@ -64,7 +64,7 @@ let singleton value =
     next = None }
 
 let get_stack_id = function
-  | None -> invalid_arg "Empty Chain has no stack id"
+  | None -> invalid_arg "[Chain.get_stack_id] Empty Chain has no stack id."
   | Some a -> a.id
 
 (* same as Option.iter f o *)
@@ -81,7 +81,7 @@ let prev = function
   | Some t -> t.prev
 
 let value = function
-  | None -> invalid_arg "Empty chain has no value"
+  | None -> invalid_arg "[Chain.value] Empty chain has no value."
   | Some a -> a.value
 
 let depth = function
@@ -212,14 +212,14 @@ let insert_before t value =
 
 let replace t value =
   match t with
-  | None -> invalid_arg "Cannot set value to empty Chain"
+  | None -> invalid_arg "[Chain.replace] Cannot set value to empty Chain."
   | Some a -> a.value <- value
 
 (* [remove t] removes the element pointed by t in the stack and returns the next
    element. Then [t] becomes isolated and should be discarded. *)
 (* not used *)
 let remove = function
-  | None -> invalid_arg "Cannot remove element of empty Chain"
+  | None -> invalid_arg "Cannot remove element of empty Chain."
   | Some a ->
      do_option a.prev (fun p -> p.next <- a.next);
      do_option a.next (fun n -> n.prev <- a.prev);
@@ -333,11 +333,12 @@ let copy = function
    order. *)
 let copy_into ~dst:t = function
   | None ->
-    B_utils.(printd debug_warning "Copying an empty Chain has no effect");
+    B_utils.(printd debug_warning "Copying an empty Chain has no effect.");
     None
   | Some a as s ->
     if same_stack s t
-    then invalid_arg "Cannot copy a chain element into the same stack"
+    then invalid_arg
+        "[Chain.copy_into] Cannot copy a chain element into the same stack."
     else
       let rec search_position t0 = function
         | None -> t0, None

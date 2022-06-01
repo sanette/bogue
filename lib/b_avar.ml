@@ -42,21 +42,21 @@ anymore, it will never "finish".  Moreover some animations can belong to layouts
 that are still alive but hidden (maybe clipped, maybe in a hidden window): in
 this case they should not be considered "alive" by the renderer. *)
 (* not used *)
-let alive_animations = ref 0;;
+let alive_animations = ref 0
 
 (* For the moment, in order to indicate that a var is changed, in case it is not
    detected by Bogue.has_amin, one should use: Trigger.push_var_changed *)
 
 (** this global variable counts the number of frames displayed *)
 (* of course it should be increased by the main loop *)
-let frame = ref 0;;
+let frame = ref 0
 
 let new_frame () =
-  incr frame;;
+  incr frame
 
-let nop () = ();;
+let nop () = ()
 
-let fail _ _ = failwith "This variable cannot update itself";;
+let fail _ _ = failwith "This variable does not know how to update itself"
 
 let create ?(duration=1000) ?(init=nop) ?(ending=nop) ?(finished=false)
     ?(update=fail) value =
@@ -69,11 +69,11 @@ let create ?(duration=1000) ?(init=nop) ?(ending=nop) ?(finished=false)
     ending;
     update;
     duration
-  };;
+  }
 
-let constant x _ _ = x;;
+let constant x _ _ = x
 
-(** simulate a mutable normal variable with a fixed value. The value can be
+(** Simulate a mutable normal variable with a fixed value. The value can be
     changed by changing v.value.
 
     <OLD>But it cannot update itself: thus v.finished
@@ -83,22 +83,22 @@ let constant x _ _ = x;;
    has_anim, and thus can become unnoticed by the main event loop *)
 let var value =
   let update v _ = v.value in
-  create ~finished:true ~duration:0 ~update value;;
+  create ~finished:true ~duration:0 ~update value
 
 (** create a fixed value. Behaves a bit like var, with important differences: it
     is declared as a new animation (and thus reports "has_anim"), it will always
     have this value when initialized (even if v.value was manually changed) and
     if v.finished is set to false, the initial value will be set again *)
 let fixed value =
-  create ~duration:0 ~update:(constant value) value;;
+  create ~duration:0 ~update:(constant value) value
 
 (* one could use this instead of the global variable
    alive_animations *)
-let has_anim v = not v.finished;;
+let has_anim v = not v.finished
 
-let finished v = v.finished;;
+let finished v = v.finished
 
-let started v = v.starting_time <> None;;
+let started v = v.starting_time <> None
 
 (* this should not be called directly (done by get v) *)
 (* in particular, it assumes that v.finished = false *)
@@ -109,16 +109,16 @@ let start v =
   incr alive_animations;
   printd debug_event "New animation started. Total=%d" !alive_animations;
   v.starting_time <- Some t;
-  t;;
+  t
 
-let progress v = v.progress;;
+let progress v = v.progress
 
-let in_progress v = v.starting_time <> None && not v.finished;;
+let in_progress v = v.starting_time <> None && not v.finished
 
 let elapsed v =
   if v.duration < 0
   then round v.progress
-  else round (v.progress *. (float v.duration));;
+  else round (v.progress *. (float v.duration))
 
 (** return the final value, or the current value if v was stopped. This does not
     stop the animation and does not trigger 'ending' *)
@@ -128,7 +128,7 @@ let final_value v =
   if v.duration < 0 then begin
     printd debug_error "Cannot compute the final value for an infinite animation !";
     v.value end
-  else v.update v 1.;;
+  else v.update v 1.
 
 (** stop the animation, but doesn't change the value *)
 (* can be called directly *)
@@ -139,13 +139,13 @@ let stop v =
     v.finished <- true;
     decr alive_animations;
     printd debug_event "Animation finished. Total remaining=%d" !alive_animations
-  end;;
+  end
 
 (** finish the animation and set the value to the expected final value *)
 let finish v =
   let final = final_value v in
   stop v;
-  v.value <- final;;
+  v.value <- final
 
 (* reset so that the animation will start again *)
 let reset v =
@@ -159,7 +159,7 @@ let reset v =
   v.starting_time <- None;
   v.finished <- false;
   v.frame <- !frame;
-  v.progress <- 0.;;
+  v.progress <- 0.
 
 
 (** start the animation and compute the current value of the variable *)
@@ -185,19 +185,19 @@ let get v =
     v.value <- x;
     v.frame <- !frame;
     v.progress <- u;
-    x;;
+    x
 
 (** get the old value. This is the way to get the value if one doesn't want to
     start the animation, or if one doesn't want to make any calculation *)
 let old v =
-  v.value;;
+  v.value
 
 (** sets the value *)
 (* if there is an anim running, this has (almost) no effect, since the new value
    will be computed anyway. v.progress is *not* modified *)
 let set v value =
   v.value <- value;
-  v.frame <- !frame;;
+  v.frame <- !frame
 
 (** create a new Avar by composing with f; the old Avar is still active *)
 (* this doesn't start the animation *)
@@ -215,13 +215,13 @@ let apply_old f v =
      printd debug_event "New composite animation started. Total=%d"
        !alive_animations;
     );
-  av;;
+  av
 
 let apply f v =
   let value = f (old v) in
   let update _ _ = f (get v) in
   let duration = v.duration - (elapsed v) in
-  create ~duration ~finished:v.finished ~update value;;
+  create ~duration ~finished:v.finished ~update value
 
 type direction =
   | No
@@ -233,18 +233,18 @@ type direction =
   | TopRight
   | BottomLeft
   | BottomRight
-  | Random;;
+  | Random
 
 
 let slowdown_old u =
   (* between 0 and 1, with speed from 1.8 to 0 *)
-  2. *. (sin ((1. +. 2. *. u) *. pi /. 6.) -. 0.5);;
+  2. *. (sin ((1. +. 2. *. u) *. pi /. 6.) -. 0.5)
 
 let slowdown u =
   (* between 0 and 1, with speed from 2 to 0 *)
-  u *. (2. -. u);;
+  u *. (2. -. u)
 
-let fmin a b : float = min a b;;
+let fmin a b : float = min a b
 
 (* for 0 to 1 with prescribed initial speed *)
 let initial_slope ~slope =
@@ -252,25 +252,25 @@ let initial_slope ~slope =
   if slope >= 2. then fun u -> (* this one is constant = 1 for u >= 2/slope *)
     if u < u1 then (slope *. u *. (1. -. slope *. u /. 4.)) else 1.
   else fun u ->
-    u *. (slope +. (1. -. slope) *. u);;
+    u *. (slope +. (1. -. slope) *. u)
 
 (* from x1 to x2 with given initial and final slopes *)
 let interpol3 ~slope1 ~slope2 x1 x2 u =
   let dx = x2 -. x1 in
   x1 +. u *. (slope1
               +. u *. (3. *. dx -. 2. *. slope1 -. slope2
-                       +. u *. (slope1 +. slope2 -. 2. *. dx)));;
+                       +. u *. (slope1 +. slope2 -. 2. *. dx)))
 
 (* from x1 to x2 *)
 let affine x1 x2 u =
-  x1 *. (1. -. u) +. x2 *. u;;
+  x1 *. (1. -. u) +. x2 *. u
 
 (* from 0 to x *)
 let linear x u =
-  x *. u;;
+  x *. u
 
 let reverse u =
-  1. -. u;;
+  1. -. u
 
 let concat ?(weight=0.5) g1 g2 =
   assert (weight >= 0. && weight <= 1.);
@@ -278,7 +278,7 @@ let concat ?(weight=0.5) g1 g2 =
   else if weight = 1. then g1
   else fun u ->
     if u < weight then g1 (u /. weight)
-    else g2 ((u -. weight) /. (1. -. weight));;
+    else g2 ((u -. weight) /. (1. -. weight))
 
 (******** examples of animated variables *********)
 
@@ -288,7 +288,7 @@ let fromto_old ?(duration=300) x1 x2 =
   let update _ u =
     let t = slowdown u in
     round (float x1 *. (1. -. t) +. float x2 *. t) in
-  create ~duration ~update x1;;
+  create ~duration ~update x1
 
 (** create a (slowdowned) integer Avar from x1 to x2 *)
 let fromto ?(duration=300) ?ending x1 x2 =
@@ -297,14 +297,14 @@ let fromto ?(duration=300) ?ending x1 x2 =
     initial_slope ~slope:1.2 u
     |> affine (float x1) (float x2)
     |> round in
-    create ~duration ~update ?ending x1;;
+    create ~duration ~update ?ending x1
 
 let fromto_float ?(duration=300) ?ending x1 x2 =
   if x1 = x2 then fixed x1
   else let update _ u =
     initial_slope ~slope:1.2 u
     |> affine x1 x2 in
-    create ~duration ~update ?ending x1;;
+    create ~duration ~update ?ending x1
 
 (** piecevise linear, with 2 pieces *)
 let pl2 ?(duration=300) ~via x1 x3 =
@@ -316,14 +316,14 @@ let pl2 ?(duration=300) ~via x1 x3 =
     let update _ u =
       concat ~weight g1 g2 u
       |> round in
-    create ~duration ~update x1;;
+    create ~duration ~update x1
 
 (** oscillate around the initial position *)
 let oscillate ?(duration = 10000) ?(frequency=5.) amplitude x0 =
   let f = frequency *. 2. *. pi in
   let update _ u =
     x0 + round (float amplitude *. (sin (f *. u))) in
-  create ~duration ~update 0;;
+  create ~duration ~update 0
 
 (** linear slide-in animation *)
 let slide_in ?(from=Right) ~pos ~size () =
@@ -343,7 +343,7 @@ let slide_in ?(from=Right) ~pos ~size () =
       round (float w *. cos t), round (float h *. sin t) in
   let x = fromto (x0 + dx) x0 in
   let y = fromto (y0 + dy) y0 in
-  (x,y);;
+  (x,y)
 
 (** hoffset animation from h1 to h2 *)
 (* for fun, one could use 'apply' instead to compose several Dynvar, but
@@ -353,7 +353,7 @@ let show ?(duration = 300) ?init ?ending h1 h2 =
     slowdown u
     |> affine (float h1) (float h2)
     |> round in
-  create ~duration ~update ?init ?ending h1;;
+  create ~duration ~update ?init ?ending h1
 
 let hide ?(duration = 300) ?init ?ending h1 h2 =
   let update _ u =
@@ -361,7 +361,7 @@ let hide ?(duration = 300) ?init ?ending h1 h2 =
     |> slowdown
     |> affine (float h1) (float h2)
     |> round in
-  create ~duration ~update ?init ?ending h1;;
+  create ~duration ~update ?init ?ending h1
 
 (** fade_in animation *)
 (* same as fade_out, but accell curve is reversed *)
@@ -370,14 +370,14 @@ let fade_in ?(duration = 300) ?(from_alpha = 0.) ?(to_alpha = 1.) () =
     reverse u
     |> slowdown
     |> affine to_alpha from_alpha in
-  create ~duration ~update from_alpha;;
+  create ~duration ~update from_alpha
 
 (** fade_out animation *)
 let fade_out ?ending ?(duration = 300) ?(from_alpha = 1.) ?(to_alpha = 0.) () =
   let update _ u =
     slowdown u
     |> affine from_alpha to_alpha in
-  create ~duration ~update ?ending from_alpha;;
+  create ~duration ~update ?ending from_alpha
 
 (* (\** mouse position relative to starting position *\)
  * let mouse_motion_x_old ?(threshold=7) window =
@@ -401,7 +401,7 @@ let resist threshold =
     if !resist then begin
       if abs x > threshold then resist := false;
       0 end
-    else x;;
+    else x
 
 (* mouse x position relative to starting position *)
 let mouse_motion_x_old ?(threshold=7) ?(dx = 0) window =
@@ -411,7 +411,7 @@ let mouse_motion_x_old ?(threshold=7) ?(dx = 0) window =
   let update _ _ =
     resist (fst (Mouse.window_pos (Lazy.force window)) - !x0)
     |> (+) dx in
-  create ~duration:(-1) ~init ~update dx;;
+  create ~duration:(-1) ~init ~update dx
 
 (* mouse y position relative to starting position *)
 let mouse_motion_y_old ?(threshold=7) ?(dy = 0) window =
@@ -421,7 +421,7 @@ let mouse_motion_y_old ?(threshold=7) ?(dy = 0) window =
   let update _ _ =
     resist (snd (Mouse.window_pos (Lazy.force window)) - !y0)
     |> (+) dy in
-  create ~duration:(-1) ~init ~update dy;;
+  create ~duration:(-1) ~init ~update dy
 
 (** create a new avar from the current position to x2 with C^1 glue *)
 (* warning: this is not guaranteed to stay between x1 and x2 *)
@@ -453,4 +453,4 @@ let extendto ~duration v x2 =
       interpol3 ~slope1 ~slope2:(0.) (float x1) (float x2) u
       |> round  in
     print_endline ("SLOPE=" ^ (string_of_float slope1)); (* DEBUG *)
-    create ~duration ~update x1;;
+    create ~duration ~update x1

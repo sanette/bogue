@@ -87,6 +87,9 @@ let xterm_light_grey = "\027[1;30m"
 let xterm_nc = "\027[0m"
 
 let print s = Printf.ksprintf print_endline s
+
+let invalid_arg s = Printf.ksprintf invalid_arg s
+
 let print_debug_old s =
   Printf.ksprintf
     (fun s ->

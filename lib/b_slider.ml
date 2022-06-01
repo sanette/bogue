@@ -142,6 +142,8 @@ let value s =
   Var.get s.cache
 (*  Tvar.get s.var;;*)
 
+let get_max s = s.max
+
 let clicked_value s =
   Var.get s.clicked_value
 

@@ -55,7 +55,10 @@ type board = {
   (* True as soon as the mouse has moved. Because SDL will report position 0,0
      when the window opens, but we dont want to activate a widget if it is
      located at 0,0...*)
+  on_user_event : (Sdl.event -> unit) option
 }
+
+type shortcuts = board Shortcut.t
 
 let exit_on_escape = (Sdl.K.escape, Sdl.Kmod.none, fun (_ : board) -> raise Exit)
 
@@ -734,6 +737,9 @@ let treat_layout_events board e =
                    activate a button.*) )
       end;
       (* TODO just display the corresponding window, not all of them *)
+    | `User_event ->
+      printd (debug_event+debug_board+debug_user) "User event";
+      do_option board.on_user_event (fun f -> f e)
     | `Quit -> printd (debug_event+debug_board) "Quit event"; raise Exit
     | _ -> ()
   end
@@ -939,7 +945,7 @@ let make_sdl_windows ?windows board =
      loop list board.windows
 
 (* Create the board. *)
-let create ?(shortcuts = []) ?(connections = []) windows =
+let create ?shortcuts ?(connections = []) ?on_user_event windows =
   (* let canvas = match layouts with *)
   (*   | [] -> failwith "At least one layout is needed to make the board" *)
   (*   | l::_ -> Layout.get_canvas l in *)
@@ -955,7 +961,7 @@ let create ?(shortcuts = []) ?(connections = []) windows =
       failwith (Printf.sprintf "Widget is repeated: #%u" (Widget.id w)));
   List.iter (fun c -> Widget.(add_connection c.source c)) connections;
   (* = ou bien dans "run" ? (ça modifie les widgets) *)
-  let shortcuts = Shortcut.create shortcuts in
+  let shortcuts = default_lazy shortcuts (lazy (Shortcut.create [])) in
   let shortcuts =
     (if !debug then add_debug_shortcuts shortcuts else shortcuts)
     |> Shortcut.add (Sdl.K.tab, tab)
@@ -971,17 +977,18 @@ let create ?(shortcuts = []) ?(connections = []) windows =
     keyboard_focus = None;
     button_down = None;
     shortcuts; shortcut_pressed = false;
-    mouse_alive = false}
+    mouse_alive = false;
+    on_user_event }
 
 let of_windows = create
 
 (* Create a board from layouts. Each layout in the list will be displayed in a
    different window.*)
-let of_layouts ?shortcuts ?connections layouts =
-  create ?shortcuts ?connections (List.map Window.create layouts)
+let of_layouts ?shortcuts ?connections ?on_user_event layouts =
+  create ?shortcuts ?connections ?on_user_event (List.map Window.create layouts)
 
-let of_layout ?shortcuts ?connections layout =
-  of_layouts ?shortcuts ?connections [layout]
+let of_layout ?shortcuts ?connections ?on_user_event layout =
+  of_layouts ?shortcuts ?connections ?on_user_event [layout]
 
 (* for backward compatibility. Use [create], [of_windows] or [of_layouts]
    instead. *)
@@ -1047,3 +1054,25 @@ let run ?before_display ?after_display board =
     if sdl_error <> "" then print_endline ("SDL ERROR: " ^ sdl_error);
     print_endline (Print.layout_down board.windows_house);
     raise e
+
+
+(*************)
+(* Shortcuts *)
+(*************)
+
+type shortcut_action = board Shortcut.action
+
+let shortcuts_empty () : shortcuts =
+  Shortcut.empty ()
+
+let shortcuts_add map ?(keymod = Sdl.Kmod.none) keycode action : shortcuts =
+  Shortcut.add_map map (keycode, keymod, action)
+
+let shortcuts_add_ctrl map keycode action : shortcuts =
+  Shortcut.add_ctrl (keycode, action) map
+
+let shortcuts_add_ctrl_shift map keycode action : shortcuts =
+  Shortcut.add_ctrl_shift (keycode, action) map
+
+let shortcuts_of_list list : shortcuts =
+  Shortcut.create list

@@ -78,6 +78,8 @@ let user_type = new_event_type "user"
 
 let () = assert (user_type = E.user_event)  (* 32768 *)
 
+let user_event = E.user_event
+
 let stop = new_event_type "stop"
 
 let stopped = new_event_type "stopped"
@@ -95,7 +97,7 @@ let mouse_at_rest = new_event_type "mouse_at_rest"
 let startup = new_event_type "startup"
 
 (* The var_changed event can be send to notify that some widget made a change to
-   a global variable. This is used for instance in radiolist.ml *)
+   a global variable. Not used yet. *)
 let var_changed = new_event_type "var_changed"
 
 (* The update event can be used to trigger some actions when a widget is

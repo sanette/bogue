@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220421"  (* see VERSION file *)
+let this_version = "20220601"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -314,7 +314,7 @@ let fonts_dir = sub_file common "fonts"
    searched in the current directory, or if it does not exist, in the current
    theme directory. *)
 let get_path file =
-  if file = "" then invalid_arg "[get_path]: filename empty";
+  if file = "" then invalid_arg "[Theme.get_path]: filename empty";
   if file.[0] = '/' then file
   else if file.[0] = '%'
   then let file = String.sub file 1 (String.length file - 1) in

@@ -130,7 +130,8 @@ let toggle_widget_of_widget widget =
          printd debug_error "[Radiolist] Label does not have any state";
          false),
       Trigger.E.mouse_button_down
-    | _ -> invalid_arg "[toggle_widget_of_widget]" in
+    | _ -> invalid_arg "[Radiolist.toggle_widget_of_widget] widget %i"
+             (W.id widget) in
   (* W.remove_trigger widget trigger; *) (* We remove possibly conflicting connections *)
   { widget; trigger; set_state; get_state }
 
@@ -185,7 +186,7 @@ let vertical ?(name = "radiolist") ?(click_on_label=true) ?selected entries =
       (List.map (function
            | (b, Some l) ->
              Layout.flat_of_w ~sep:2 ~align:Draw.Center [b.widget; l.widget]
-           | _ -> invalid_arg "Radiolist.vertical")
+           | _ -> invalid_arg "[Radiolist.vertical] this should not happen")
           (Array.to_list widgets))
                |> Option.some in
   create ?selected ?layout ~click_on_label widgets

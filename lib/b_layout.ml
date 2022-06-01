@@ -741,7 +741,7 @@ let disable_resize room =
 
 let on_resize room f =
   let r = room.resize in
-  room.resize <- (fun house -> r house; f ())
+  room.resize <- (fun house_size -> r house_size; f ())
 
 let fix_content house =
   iter_rooms disable_resize house
@@ -1567,15 +1567,15 @@ let create_win_house windows =
   let rec loop layer_ids = function
     | [] -> ()
     | win::rest ->
-       let id = Chain.get_stack_id (get_layer win) in
-       let id =
-         if List.mem id layer_ids then
-           begin
-             set_new_stack win;
-             Chain.get_stack_id (get_layer win)
-           end else id in
-       unify_layer_stack win;
-       loop (id::layer_ids) rest in
+      let id = Chain.get_stack_id (get_layer win) in
+      let id =
+        if List.mem id layer_ids then
+          begin
+            set_new_stack win;
+            Chain.get_stack_id (get_layer win)
+          end else id in
+      unify_layer_stack win;
+      loop (id::layer_ids) rest in
   loop [] windows;
   let layer = None in
   create_unsafe ~set_house:false ~name:"windows_house" ~layer
@@ -1633,7 +1633,8 @@ let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
   if equal room dst
   then begin
     printd debug_error "Cannot add room %s to itself!" (sprint_id room);
-    if loop_error then invalid_arg "add_room"
+    if loop_error then invalid_arg "[Layout.ok_to_add_room] room %s"
+        (sprint_id room)
     else false
     (* equivalent to (not ((not loop_error) || raise ...)) *)
   end else match room.house with
@@ -2808,6 +2809,7 @@ let resize_from_window ?(flip=true) layout =
     printd debug_graphics "Resize (%d,%d) --> (%d,%d)" w' h' w h;
     set_size ~keep_resize:true ~check_window:false top (w,h);
     Draw.update_background (get_canvas top);
+    layout.resize (w,h);
     if flip then Draw.sdl_flip (renderer top)
   end
 (* : somehow we need this intermediate flip so that the renderer takes into

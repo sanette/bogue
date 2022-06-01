@@ -176,7 +176,7 @@ let example6 () =
   let l = W.label ~fg:(Draw.(opaque (find_color "firebrick")))
       "Merry Christmas !" in
   let layout = L.flat_of_w ~align:Draw.Center [b;l] in
-  let shortcuts = [exit_on_escape] in
+  let shortcuts = shortcuts_of_list [exit_on_escape] in
   let board = make ~shortcuts [] [layout] in
   run board
 
@@ -226,7 +226,7 @@ let example10 () =
 
   W.on_click b1 ~click:(fun w ->
       if W.get_state w then L.show_window l2 else L.hide_window l2);
-  let shortcuts = [exit_on_escape] in
+  let shortcuts = shortcuts_of_list [exit_on_escape] in
   L.set_show l2 show;
   let board = of_layouts ~shortcuts [l1;l2] in
   (* window position can be set after "make" and before "run" *)
@@ -247,7 +247,7 @@ let example11 () = (* attention ne marche pas avec DEBUG=false !! OK problème r
   let w2 = Window.create ~on_close:(fun _ ->
       print_endline "I won't close if my sister is still alive! Press ESC to \
                      quit.") l2 in
-  let shortcuts = [exit_on_escape] in
+  let shortcuts = shortcuts_of_list [exit_on_escape] in
   let board = create ~shortcuts ~connections:[c] [Window.create l1;w2] in
   L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,400);
   run board
@@ -291,7 +291,7 @@ let example14 () =
   let c = W.connect_main s l action events in
   let c' = W.connect_main s' l' action events in
   let c'' = W.connect_main s'' l'' action events in
-  
+
   let slider = L.resident ~background:L.theme_bg s in
   let slider' = L.resident ~background:(L.color_bg Draw.(transp green)) s' in
   let slider'' = L.resident ~background:(L.color_bg Draw.(transp red)) s'' in

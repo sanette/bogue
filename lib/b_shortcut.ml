@@ -44,6 +44,8 @@ let add_list map alist =
 let create alist : 'a t =
   add_list PairsMap.empty alist
 
+let empty () = create []
+
 (* add a binding to a keycode without modifier *)
 let add (keycode, action) map =
   add_map map (keycode, Sdl.Kmod.none, action)

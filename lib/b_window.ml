@@ -71,6 +71,20 @@ let show_maybe w =
 let size w =
   Draw.get_window_size (sdl_window w)
 
+let set_size ~w ~h win =
+  do_option (Layout.window_opt win.layout) (Draw.set_window_size ~w ~h)
+
+let maximize_width win =
+  do_option (Layout.window_opt win.layout) (fun sdl_win ->
+      let id = go (Sdl.get_window_display_index sdl_win) in
+      let rect = go (Sdl.get_display_bounds id) in
+      let w = Sdl.Rect.w rect in
+      printd debug_graphics
+        "[maximize_width] Detected display size for layout %s: (%i,%i)."
+        (Layout.sprint_id win.layout) w (Sdl.Rect.h rect);
+      let _w, h = Draw.get_window_size sdl_win in
+      Draw.set_window_size sdl_win ~w ~h)
+
 let get_canvas w =
   Layout.get_canvas w.layout
 

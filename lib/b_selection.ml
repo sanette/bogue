@@ -70,17 +70,17 @@ let proj2 (Range (_, r2)) = r2
 
 (* min element. *)
 let first_unsorted = function
-  | [] -> invalid_arg "first"
+  | [] -> invalid_arg "[Selection.first_unsorted] selection should not be empty."
   | (Range (r1, _)) :: rest ->
     List.map proj1 rest
     |> List.fold_left min r1
 
 let first = function
-  | [] -> invalid_arg "first"
+  | [] -> invalid_arg "[Selection.first] selection should not be empty."
   | (Range (r1, _))::_ -> r1
 
 let last = function
-  | [] -> invalid_arg "last"
+  | [] -> invalid_arg "[Selection.last] selection should not be empty."
   | (Range (_, r2)) :: rest ->
     List.map proj2 rest
     |> List.fold_left max r2
@@ -209,7 +209,7 @@ let random ?(bad = 0) len gap maxi =
 (* return (ieth element, list without that element) *)
 let list_remove l i =
   let rec loop j acc = function
-    | [] -> invalid_arg "list_remove"
+    | [] -> invalid_arg "[Selection.list_remove] selection should not be empty."
     | x::rest -> if i = j then x, List.rev_append acc rest
       else loop (j+1) (x::acc) rest in
   loop 0 [] l

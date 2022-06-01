@@ -107,6 +107,18 @@ end
 module WHash = Weak.Make(Hash)
 let widgets_wtable = WHash.create 100
 
+let string_of_kind = function
+  | Empty _ -> "Empty"
+  | Box _ -> "Box"
+  | Button _ -> "Button"
+  | Check _ -> "Check"
+  | TextDisplay _ -> "TextDisplay"
+  | Label l -> "Label [" ^ xterm_red ^ (Label.text l) ^ xterm_nc ^ "]"
+  | Image _ -> "Image"
+  | Slider _ -> "Slider"
+  | TextInput _ -> "TextInput"
+  | SdlArea _ -> "SdlArea"
+
 (* When to use this??? *)
 (* in particular, when this function is called, the widget w in principle has
    already been removed from widgets_wtable *)
@@ -264,7 +276,8 @@ let update w =
   Var.set w.fresh false;
   (* if !draw_boxes then Trigger.(push_event refresh_event) *)
   (* else *)
-  Trigger.push_redraw w.wid;; (*TODO... use wid et/ou window_id...*)
+  Trigger.push_redraw w.wid
+(* TODO... use wid et/ou window_id...*)
 (* refresh is not used anymore. We redraw everyhting at each frame ... *)
 (* before, it was not very subtle either: if !draw_boxes is false, we ask for
    clearing the background before painting. Maybe some widgets can update
@@ -280,8 +293,6 @@ let update w =
    cas, ne pas déclancher plein de ces connexions à la suite... elles
    s'attendent ! *)
 let connect source target action ?(priority=Forget) ?(update_target=true) ?join triggers =
-  if update_target && (List.mem Sdl.Event.user_event triggers)
-  then printd debug_warning "one should not 'connect' with 'update_target'=true if the trigger list contains 'user_event'. It may cause an infinite display loop";
   let action = if update_target
     then fun w1 w2 ev -> (action w1 w2 ev; update w2) (* TODO ajouter Trigger.will_exit ev ?? *)
     else action in
@@ -338,42 +349,42 @@ let remove_trigger w tr =
 let get_box w =
   match w.kind with
   | Box b -> b
-  | _ -> invalid_arg "Expecting a box"
+  | _ -> invalid_arg "Expecting a box, not a %s" (string_of_kind w.kind)
 
 let get_check w =
   match w.kind with
     | Check b -> b
-    | _ -> invalid_arg "Expecting a check box"
+    | _ -> invalid_arg "Expecting a check box, not a %s" (string_of_kind w.kind)
 
 let get_label w =
  match w.kind with
     | Label l -> l
-    | _ -> invalid_arg "Expecting a label"
+    | _ -> invalid_arg "Expecting a label, not a %s" (string_of_kind w.kind)
 
 let get_button w =
   match w.kind with
     | Button b -> b
-    | _ -> invalid_arg "Expecting a button"
+    | _ -> invalid_arg "Expecting a button, not a %s" (string_of_kind w.kind)
 
 let get_slider w =
  match w.kind with
     | Slider s -> s
-    | _ -> invalid_arg "Expecting a slider"
+    | _ -> invalid_arg "Expecting a slider, not a %s" (string_of_kind w.kind)
 
 let get_text_display w =
  match w.kind with
     | TextDisplay td -> td
-    | _ -> invalid_arg "Expecting a text display"
+    | _ -> invalid_arg "Expecting a text display, not a %s" (string_of_kind w.kind)
 
 let get_text_input w =
  match w.kind with
     | TextInput ti -> ti
-    | _ -> invalid_arg "Expecting a text input"
+    | _ -> invalid_arg "Expecting a text input, not a %s" (string_of_kind w.kind)
 
 let get_sdl_area w =
   match w.kind with
   | SdlArea a -> a
-  | _ -> invalid_arg "Expecting an Sdl_area"
+  | _ -> invalid_arg "Expecting an Sdl_area, not a %s" (string_of_kind w.kind)
 
 (** creation of simple widgets *)
 let check_box ?state ?style () =

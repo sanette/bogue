@@ -484,7 +484,7 @@ module Engine = struct
       printd (debug_error + debug_board)
         "The destination %s of the menu cannot be the menu itself"
         (Layout.sprint_id dst);
-      invalid_arg "bar"
+      invalid_arg "[Menu.init_now] t=dst=%s" (Layout.sprint_id dst);
     end;
 
     printd debug_custom "Menu init to dst=%s" (Layout.sprint_id dst);
