@@ -12,6 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Using Bogue together with another graphics loop" rel="Section" href="#2_UsingBoguetogetherwithanothergraphicsloop">
+<link title="Creating global keyboard shortcuts" rel="Subsection" href="#3_Creatingglobalkeyboardshortcuts">
 <title>Bogue.Bogue</title>
 </head>
 <body>
@@ -35,6 +36,9 @@
 </div>
 
 
+<pre><span id="TYPEshortcuts"><span class="keyword">type</span> <code class="type"></code>shortcuts</span> </pre>
+
+
 <pre><span id="EXCEPTIONExit"><span class="keyword">exception</span> Exit</span></pre>
 <div class="info ">
 <div class="info-desc">
@@ -49,36 +53,38 @@
 </div>
 </div>
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?shortcuts:<a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       ?on_user_event:(Tsdl.Sdl.event -&gt; unit) -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a <code class="code">board</code> from a list of layouts and connections. The list of
      connections can be empty, because connections can be added afterwards. Each
-     Layout in the list will open as a new window. The optional argument
-     <code class="code">shortcuts</code> is a list of shortcut triples of the form <code class="code">keycode,&nbsp;keymod,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;action</code>.</p>
+     Layout in the list will open as a new window.</p>
 </div>
 </div>
+<div class="param_info"><code class="code">shortcuts</code> : This optional argument is a list of shortcut triples of
+     the form <code class="code">keycode,&nbsp;keymod,&nbsp;action</code>.</div>
+<div class="param_info"><code class="code">on_user_event</code> : This optional argument is a function to be executed
+     (by the main thread) when a <a href="Bogue.Trigger.html#VALuser_event"><code class="code"><span class="constructor">Trigger</span>.user_event</code></a> is emmitted.</div>
 
-<pre><span id="VALof_windows"><span class="keyword">val</span> of_windows</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<pre><span id="VALof_windows"><span class="keyword">val</span> of_windows</span> : <code class="type">?shortcuts:<a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       ?on_user_event:(Tsdl.Sdl.event -&gt; unit) -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Synonym for <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
 </div>
 </div>
 
-<pre><span id="VALof_layouts"><span class="keyword">val</span> of_layouts</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<pre><span id="VALof_layouts"><span class="keyword">val</span> of_layouts</span> : <code class="type">?shortcuts:<a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       ?on_user_event:(Tsdl.Sdl.event -&gt; unit) -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Similar to <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>. Each layout in the list will be displayed in a
      different window.</p>
 </div>
 </div>
 
-<pre><span id="VALof_layout"><span class="keyword">val</span> of_layout</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
+<pre><span id="VALof_layout"><span class="keyword">val</span> of_layout</span> : <code class="type">?shortcuts:<a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       ?on_user_event:(Tsdl.Sdl.event -&gt; unit) -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Similar to <a href="Bogue.Main.html#VALof_layout"><code class="code"><span class="constructor">Main</span>.of_layout</code></a> but with only one layout.</p>
 </div>
 </div>
 
-<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?shortcuts:(int * int * (<a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit)) list -&gt;<br>       <a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre>
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?shortcuts:<a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       <a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre>
 <pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">?before_display:(unit -&gt; unit) -&gt;<br>       ?after_display:(unit -&gt; unit) -&gt; <a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>This is finally how you run your app! It creates the SDL windows
@@ -86,6 +92,19 @@
      the main loop. This function only returns when all windows are closed (in
      case at least one window was created), or when the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a> exception is
      raised.</p>
+</div>
+</div>
+<h4 id="3_Creatingglobalkeyboardshortcuts">Creating global keyboard shortcuts</h4>
+<pre><span id="TYPEshortcut_action"><span class="keyword">type</span> <code class="type"></code>shortcut_action</span> = <code class="type"><a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit</code> </pre>
+
+
+<pre><span id="VALshortcuts_empty"><span class="keyword">val</span> shortcuts_empty</span> : <code class="type">unit -&gt; <a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a></code></pre>
+<pre><span id="VALshortcuts_add"><span class="keyword">val</span> shortcuts_add</span> : <code class="type"><a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       ?keymod:Tsdl.Sdl.keymod -&gt;<br>       int -&gt; <a href="Bogue.Main.html#TYPEshortcut_action">shortcut_action</a> -&gt; <a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a></code></pre>
+<pre><span id="VALshortcuts_add_ctrl"><span class="keyword">val</span> shortcuts_add_ctrl</span> : <code class="type"><a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       int -&gt; <a href="Bogue.Main.html#TYPEshortcut_action">shortcut_action</a> -&gt; <a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a></code></pre>
+<pre><span id="VALshortcuts_add_ctrl_shift"><span class="keyword">val</span> shortcuts_add_ctrl_shift</span> : <code class="type"><a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       int -&gt; <a href="Bogue.Main.html#TYPEshortcut_action">shortcut_action</a> -&gt; <a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a></code></pre>
+<pre><span id="VALshortcuts_of_list"><span class="keyword">val</span> shortcuts_of_list</span> : <code class="type">(int * int * <a href="Bogue.Main.html#TYPEshortcut_action">shortcut_action</a>) list -&gt; <a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>List of (SDL keycode, SDL keymod, action)</p>
 </div>
 </div>
 <h3 id="2_UsingBoguetogetherwithanothergraphicsloop">Using Bogue together with another graphics loop</h3>
@@ -134,7 +153,8 @@
 <pre><span id="VALquit"><span class="keyword">val</span> quit</span> : <code class="type">unit -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Use this to close SDL windows and cleanup memory, after <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a> has
-   returned.</p>
+     returned. This does not exit your program. Calling <code class="code">quit&nbsp;()</code> is not
+     necessary if your program exits after <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.</p>
 </div>
 </div>
 </body></html>

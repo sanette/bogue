@@ -308,12 +308,13 @@
 
 <pre><span id="VALon_resize"><span class="keyword">val</span> on_resize</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; (unit -&gt; unit) -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room, in addition
-     to the already registered resized functions. Warning: placing the room in
-     another layout will likely reset the resize function (unless you set the
-     <code class="code">scale_content</code> flag to <code class="code"><span class="keyword">false</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the remark below
-     that). Hence <code class="code">on_resize</code> should be called after the room is hosted in its
-     house.</p>
+<p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room's house (or
+     the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>), in
+     addition to the already registered resized functions. Warning: placing the
+     room in another layout will likely reset the resize function (unless you
+     set the <code class="code">scale_content</code> flag to <code class="code"><span class="keyword">false</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the remark
+     below that). Hence <code class="code">on_resize</code> should be called after the room is hosted in
+     its house.</p>
 </div>
 </div>
 

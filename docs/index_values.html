@@ -527,6 +527,13 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>G</div></td></tr>
+<tr><td><a href="Bogue.Avar.html#VALget">get</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
+<td><div class="info">
+<p>Start the animation (if necessary) and compute the current value of the
+     variable.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Tvar.html#VALget">get</a> [<a href="Bogue.Tvar.html">Bogue.Tvar</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Var.html#VALget">get</a> [<a href="Bogue.Var.html">Bogue.Var</a>]</td>
@@ -548,6 +555,8 @@
 <tr><td><a href="Bogue.Radiolist.html#VALget_index">get_index</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_label">get_label</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Slider.html#VALget_max">get_max</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_oldx">get_oldx</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
@@ -827,6 +836,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Window.html#VALmaximize_width">maximize_width</a> [<a href="Bogue.Window.html">Bogue.Window</a>]</td>
+<td><div class="info">
+<p>See remarks in <a href="Bogue.Window.html#VALset_size"><code class="code"><span class="constructor">Window</span>.set_size</code></a>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Selection.html#VALmem">mem</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Style.html#VALmk_border">mk_border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
@@ -938,8 +953,9 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALon_resize">on_resize</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room, in addition
-     to the already registered resized functions.</p>
+<p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room's house (or
+     the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>), in
+     addition to the already registered resized functions.</p>
 
 </div>
 </td></tr>
@@ -1057,7 +1073,7 @@
 <tr><td><a href="Bogue.Main.html#VALquit">quit</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
 <p>Use this to close SDL windows and cleanup memory, after <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a> has
-   returned.</p>
+     returned.</p>
 
 </div>
 </td></tr>
@@ -1245,6 +1261,12 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_show">set_show</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Window.html#VALset_size">set_size</a> [<a href="Bogue.Window.html">Bogue.Window</a>]</td>
+<td><div class="info">
+<p>Set window size in physical pixels.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_size">set_size</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALset_state">set_state</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -1280,6 +1302,20 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALsety">sety</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALshortcuts_add">shortcuts_add</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALshortcuts_add_ctrl">shortcuts_add_ctrl</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALshortcuts_add_ctrl_shift">shortcuts_add_ctrl_shift</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALshortcuts_empty">shortcuts_empty</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Main.html#VALshortcuts_of_list">shortcuts_of_list</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
+<td><div class="info">
+<p>List of (SDL keycode, SDL keymod, action)</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALshould_exit">should_exit</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Tell if the current thread should exit.</p>
@@ -1503,10 +1539,22 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Trigger.html#VALuser_event">user_event</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
+<td><div class="info">
+<p>Same as <code class="code"><span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.<span class="constructor">Event</span>.user_event</code>.</p>
+
+</div>
+</td></tr>
 <tr><td align="left"><div>V</div></td></tr>
 <tr><td><a href="Bogue.Slider.html#VALvalue">value</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td><div class="info">
 <p>Get current value.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Avar.html#VALvar">var</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
+<td><div class="info">
+<p>Create an Avar which behaves like a normal Var (no animation).</p>
 
 </div>
 </td></tr>

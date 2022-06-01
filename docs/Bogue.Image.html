@@ -35,27 +35,27 @@
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?width:int -&gt;<br>       ?height:int -&gt;<br>       ?noscale:bool -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">create&nbsp;<span class="string">"image.jpg"</span></code> will load the image <code class="code"><span class="string">"image.jpg"</span></code>. The actual load
-     occurs only once, on the first time the image widget is effectively
-     displayed. The image is then stored in a texture. All
-     <a href="https://www.libsdl.org/projects/SDL_image/">Sdl_image</a> image formats are
-     supported.</p>
+      occurs only once, on the first time the image widget is effectively
+      displayed. The image is then stored in a texture. All
+      <a href="https://www.libsdl.org/projects/SDL_image/">Sdl_image</a> image formats are
+      supported.</p>
 
 <p>The file "image.png" will be search in the current Theme
-     directory. Absolute paths starting with "/" can also be used.</p>
+      directory. Absolute paths starting with "/" can also be used.</p>
 </div>
 </div>
 <div class="param_info"><code class="code">noscale</code> : if <code class="code"><span class="keyword">true</span></code>, the image will appear at the original hardware
-     pixel size. By default, <code class="code">noscale=<span class="keyword">false</span></code> and the image is scaled using the
-     <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a> <code class="code"><span class="constructor">SCALE</span></code> variable.</div>
+      pixel size. By default, <code class="code">noscale=<span class="keyword">false</span></code> and the image is scaled using the
+      <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a> <code class="code"><span class="constructor">SCALE</span></code> variable.</div>
 
 <pre><span id="VALcreate_from_svg"><span class="keyword">val</span> create_from_svg</span> : <code class="type">?width:int -&gt; ?height:int -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Image.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Load an svg image. This requires the <code class="code">rsvg</code> or <code class="code">rsvg-convert</code> program.</p>
 
 <p><em>Remark:</em> With SDL_Image &gt;= 2.0.2, one can use <a href="Bogue.Image.html#VALcreate"><code class="code"><span class="constructor">Image</span>.create</code></a> to load SVG
-   files, but the size is not correctly handled (the image will be rendered at
-   its 'internal SVG size', and <em>then</em> scaled, which may result in poor
-   accuracy).</p>
+      files, but the size is not correctly handled (the image will be rendered at
+      its 'internal SVG size', and <em>then</em> scaled, which may result in poor
+      accuracy).</p>
 </div>
 </div>
 </body></html>
