@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220601"  (* see VERSION file *)
+let this_version = "20220605"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -82,8 +82,10 @@ let default_vars = [
      with rendering functions, or when creating blits. It might be a good idea
      to have a different scale per window, in case of multiple monitors. SCALE=0
      will try to autodetect: *)
-    "SCALE", "0"; ]
-
+    "SCALE", "0";
+    "OPENGL_MULTISAMPLE", "false";
+    (* https://wiki.libsdl.org/SDL_GLattr#multisample *)
+  ]
 
 let id x = x
 
@@ -372,6 +374,7 @@ let room_margin = get_int ~default:10 "ROOM_MARGIN"
 let fa_dir = sub_file common (get_var "FA_DIR")
 let fa_font = sub_file fa_dir "fonts/fontawesome-webfont.ttf"
 let scale = ref (get_float ~default:0. "SCALE")
+let opengl_multisample = get_bool "OPENGL_MULTISAMPLE"
 let fa_font_size = 18
 
 (** some standard (?) UTF8 symbols *)

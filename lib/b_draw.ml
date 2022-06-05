@@ -1198,9 +1198,14 @@ let create_window  ?x ?y ~w ~h name =
 (* if an Sdl window is provided, we try to use it... *)
 let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   video_init ();
-  (* https://wiki.libsdl.org/SDL_GLattr#multisample *)
-  go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
-  go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
+  if Theme.opengl_multisample
+  then begin
+    go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
+    go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
+    if go (Sdl.gl_get_attribute Sdl.Gl.multisamplebuffers) <> 1
+    then printd (debug_error + debug_graphics)
+        "The opengl driver does not support multisampling"
+  end;
   let win = default_lazy window (lazy (create_window ?x ?y ~w ~h name)) in
   do_option !icon (Sdl.set_window_icon win);
   Sdl.set_window_minimum_size win ~w:8 ~h:8;
