@@ -126,6 +126,7 @@ v}
 - [MENU_HL_COLOR]: the color for highlighting selected menu entries.
 - [MENU_BG_COLOR]
 - [MONO_FONT]: monospace font.
+- [OPENGL_MULTISAMPLE]: set to "true" to enable this opengl attribute.
 - [ROOM_MARGIN]
 - [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.],
   all dimensions given to Bogue functions will be multiplied by 2 before
