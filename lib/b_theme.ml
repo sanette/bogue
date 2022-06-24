@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220605"  (* see VERSION file *)
+let this_version = "20220624"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)
@@ -232,7 +232,7 @@ let download_conf () =
   let cwd = Sys.getcwd () in
   let tmpdir = Filename.temp_file "bogue" "" in
   Sys.remove tmpdir;
-  Sys.mkdir tmpdir 0o777;
+  Unix.mkdir tmpdir 0o777;
   Sys.chdir tmpdir;
   if Sys.command (sprintf "wget https://raw.githubusercontent.com/sanette/bogue/master/%s" rescue) <> 0
   then failwith "Cannot download rescue config. Aborting."
