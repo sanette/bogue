@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220624
+@version 20220730
 
 @author Vu Ngoc San
 
@@ -1243,6 +1243,9 @@ module Sdl_area : sig
         given line thickness {e inside} the box of top-left coordinates [(x0,
         y0)], width [w] and height [h]. *)
 
+  val fill_rectangle : t -> color:Draw.color ->
+    w:int -> h:int -> int * int -> unit
+
   val draw_circle : t -> color:Draw.color -> thick:int -> radius:int ->
     int * int -> unit
   (** [draw_circle c ~color ~thick ~radius (x0, y0)] draws a circle of the given
@@ -1258,7 +1261,9 @@ module Sdl_area : sig
       The source code for all [boguex] examples is
      {{:https://github.com/sanette/bogue/blob/master/examples/example.ml}here}.
 
-*)
+  *)
+
+  val fill_circle : t -> color:Draw.color -> radius:int -> int * int -> unit
 
 
   (** {2 Draw elements}

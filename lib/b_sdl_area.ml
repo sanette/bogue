@@ -195,8 +195,14 @@ let set_rgb area rgb =
 let draw_circle area ~color ~thick ~radius (x, y) =
   add area (Draw.circle ~color ~thick ~radius ~x ~y)
 
+let fill_circle area ~color ~radius (x, y) =
+add area (Draw.disc ~color ~x0:x ~y0:y ~radius)
+
 let draw_rectangle area ~color ~thick ~w ~h (x, y) =
   add area (Draw.rectangle ~color ~w ~h ~thick ~x ~y)
+
+let fill_rectangle area ~color ~w ~h (x, y) =
+  add area (fun renderer -> Draw.box renderer ~bg:color x y w h)
 
 let draw_line area ~color ~thick (x0, y0) (x1, y1) =
   if thick = 1

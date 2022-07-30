@@ -829,7 +829,7 @@ let dpi_unscale_pos (x,y) =
 
 (** From BOGUE logical pixels to physical pixels *)
 let[@inline] to_pixels (x,y) =
-  dpi_rescale (scale_pos (x,y))  (* TODO inline *)
+  dpi_rescale (scale_pos (x,y))
 
 (* Get the window size in true physical pixels *)
 let get_window_size win =
@@ -1928,7 +1928,7 @@ let circle ?(thick=1) renderer ~color ~radius ~x ~y =
 
 (* we draw a filled circle by calling annulus with radius1 = 0. Not optimal
    (could reduce the number of lines drawn) but not too far. *)
-let disc renderer color x0 y0 radius =
+let disc renderer ~color ~x0 ~y0 ~radius =
   annulus renderer color x0 y0 ~radius1:0 ~radius2:radius
 
 (* draw a ring (=annulus) on a new transparent texture *)
