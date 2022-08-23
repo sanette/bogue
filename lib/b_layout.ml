@@ -547,12 +547,11 @@ let create_unsafe
     | Rooms list -> if set_house
       then List.iter (fun r -> r.house <- Some room) list in
   Gc.finalise finalize room;
-  (* Should we really do this [finalize]? Because who knows when the background
-     texture will be destroyed.... maybe too late (after renderer was destroyed)
-     SDL seems to impose destroying textures before destroying renderer. TODO:
-     what to do to make sure the background is destroyed if the layout is not
-     used anymore (and we don't destroy the renderer)? Only solution I see is to
-     add the renderer information to the texture... *)
+  (* Should we really do this [finalize]? Because who knows when the Gc will
+     destroy the background texture.... maybe too late (after renderer was
+     destroyed, and hence the texture pointer could point to a completely
+     different texture). In order to prevent this, we call Gc.full_major when
+     destroying the renderer. *)
   printd debug_board "Layout %s created." (sprint_id room);
   room
 

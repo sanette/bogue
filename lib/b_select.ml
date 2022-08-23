@@ -20,7 +20,7 @@ module Var = B_var
 module Label = B_label
 module Menu = B_menu
 module Sync = B_sync
-module Print = B_print
+(* module Print = B_print *)
 
 let pre = if !debug
   then fun s -> print_endline ("[Select] " ^ s) (* for local debugging *)
@@ -30,7 +30,7 @@ let pre = if !debug
    returns the submenu. *)
 let get_submenu menu =
   let open Menu.Engine in
-  pre (Printf.sprintf "#entries=%u" (List.length menu.entries));
+  (* pre (Printf.sprintf "#entries=%u" (List.length menu.entries)); *)
   match menu.entries with
   | [entry] -> begin
       match entry.kind with
@@ -91,7 +91,7 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
       ]
      ]
    *)
-  pre (Print.layout_down menu_layout);
+  (* pre (Print.layout_down menu_layout); *)
   List.iter (fun l -> Layout.set_width l (w - Menu.suffix_width))
     [menu_layout;
      Layout.get_rooms menu_layout |> List.hd;
@@ -121,7 +121,7 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
       Layout.set_height tmp_dst (Layout.height menu_layout);
       (* We need to relocate to the top layout *)
       (fun () ->
-        pre "RELOCATE!";
+        (* pre "RELOCATE!"; *)
         let room = Menu.layout_of_menu submenu in
         let screen = Layout.get_rooms tmp_dst |>
                        List.rev |>

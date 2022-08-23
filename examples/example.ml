@@ -1107,7 +1107,7 @@ let example46 () =
 
 let desc47 = "basic HTML"
 let example47 () =
-  let td = W.html
+  let td = W.html ~w:200 ~h:200
       "<p>Welcome to <b>Bogue</b>!<br>You will find it \
        <em>great</em>.</p><p>Have fun,<br><br><em>and stay \
        <strong>calm</strong></em>... Thank you</p><b>This should <b>stay</b> \

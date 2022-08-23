@@ -201,10 +201,12 @@ let reduce_memory ll direction =
   printd debug_memory "Long list: Reduce_memory...";
   let mm = match ll.max_memory with
     | Some mm -> mm
-    | None -> failwith "reduce_memory is only called with ll.max_memory is not None" in
+    | None ->
+      failwith "reduce_memory is only called with ll.max_memory is not None" in
   let rec loop j next  =
     if j<0 || j >= ll.length
-    then printd debug_error "Memory usage for LongList exceeds maximum value. Beware."
+    then printd debug_error
+        "Memory usage for LongList exceeds maximum value. Beware."
     else
       let j' = next j in
       match ll.array.(j) with
@@ -481,7 +483,7 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
      store 2x the size of the display. *)
   let max_memory = map_option max_memory (fun mm ->
       if mm < 2*wh
-      then (printd debug_error "Memory for long_list is insuficient; taking %u instead" (2*wh); 2*wh)
+      then (printd debug_error "Memory for long_list is insufficient; taking %u instead" (2*wh); 2*wh)
       else mm) in
   let rendered_height =
     (* it is crucial that max_memory be enough to fill the rendered_height +

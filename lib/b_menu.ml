@@ -307,7 +307,7 @@ module Engine = struct
     let filter = Layout.get_rooms entry_layout
                  |> List.rev
                  |> List.hd in
-    if !debug then assert (filter.Layout.name = Some "filter");
+    if !debug then assert (filter.Layout.name = Some "_filter");
     Layout.claim_keyboard_focus filter
 
   (* 2. Functions for reacting to events *)

@@ -232,7 +232,7 @@ let rect_translate r (x0,y0) =
 
 (* this function should only be called by the main loop *)
 (* TODO try to remove all of this, and instead invoque Gc.finalise on every
-   texture creation ? Bad idea in fact. *)
+   texture creation ? Bad idea in fact. See the 'finalise_textures' branch.  *)
 let destroy_textures () =
   let queue = Var.get textures_to_destroy in
   let rec loop i =
@@ -375,11 +375,14 @@ let destroy_canvas c =
    | Pattern t -> forget_texture t
    | _ -> ());
   destroy_textures ();
+  Gc.full_major ();
+  printd (debug_graphics + debug_memory) "Destroying renderer";
   Sdl.destroy_renderer c.renderer;
-  (* note: this will destroy all textures attached to the renderer. And their id
+  (* Note: this will destroy all textures attached to the renderer. And their id
      will be available for new textures: BEWARE: If ocaml refers to a texture
      that was destroyed this way, it will in fact most probably refer to a new
-     texture with same id that was created after this... *)
+     texture with same id that was created after this... Hence the
+     Gc.full_major, I didn't test whether this is sufficient. *)
   Sdl.destroy_window c.window;
   do_option c.gl_context Sdl.gl_delete_context
 
