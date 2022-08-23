@@ -88,6 +88,13 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALanimate_y">animate_y</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Avar.html#VALapply">apply</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
+<td><div class="info">
+<p><code class="code">apply&nbsp;f&nbsp;v</code> creates a new Avar by composing with f; the old Avar <code class="code">v</code>
+          is still active</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Popup.html#VALattach">attach</a> [<a href="Bogue.Popup.html">Bogue.Popup</a>]</td>
 <td><div class="info">
 <p>Generic modal type popup</p>
@@ -119,12 +126,6 @@
 <td><div class="info">
 <p>Create a Box widget, which simply displays a rectangle, optionally with
      rounded corners and drop shadow.</p>
-
-</div>
-</td></tr>
-<tr><td><a href="Bogue.Layout.html#VALbox_bg">box_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td><div class="info">
-<p>Construct a background from the given <code class="code"><span class="constructor">Box</span></code>.</p>
 
 </div>
 </td></tr>
@@ -184,6 +185,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Layout.html#VALclaim_keyboard_focus">claim_keyboard_focus</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALclear">clear</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
 <p>Clear the area (this removes all commands from the render queue).</p>
@@ -521,6 +524,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Avar.html#VALfromto_unif">fromto_unif</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.Avar.html#VALfromto"><code class="code"><span class="constructor">Avar</span>.fromto</code></a> but with uniform speed (no slowdown).</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Space.html#VALfull_height">full_height</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Space.html#VALfull_width">full_width</a> [<a href="Bogue.Space.html">Bogue.Space</a>]</td>
@@ -556,6 +565,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Widget.html#VALget_image">get_image</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALget_index">get_index</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_label">get_label</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
@@ -697,6 +708,13 @@
 </td></tr>
 <tr><td><a href="Bogue.Style.html#VALimage_bg">image_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Widget.html#VALimage_copy">image_copy</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td><div class="info">
+<p>Return a new "Image" widget linked to the same image (same underlying
+     <code class="code"><span class="constructor">Image</span>.t</code>, hence same texture.)</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALimage_from_svg">image_from_svg</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p>Requires <code class="code">rsvg</code>.</p>
@@ -982,6 +1000,12 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALoscillate">oscillate</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Avar.html#VALoscillate">oscillate</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
+<td><div class="info">
+<p>oscillate around the initial position</p>
+
+</div>
+</td></tr>
 <tr><td align="left"><div>P</div></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALpage">page</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
@@ -1218,6 +1242,10 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALset_alpha">set_alpha</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Layout.html#VALset_background">set_background</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Box.html#VALset_background">set_background</a> [<a href="Bogue.Box.html">Bogue.Box</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALset_check_state">set_check_state</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>

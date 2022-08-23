@@ -52,10 +52,29 @@
      value of the Avar <code class="code">v</code> at the time <code class="code">s</code>. The meaning of the time <code class="code">s</code> is
      described in <a href="Bogue.Avar.html#VALprogress"><code class="code"><span class="constructor">Avar</span>.progress</code></a>.</div>
 
+<pre><span id="VALapply"><span class="keyword">val</span> apply</span> : <code class="type">('a -&gt; 'b) -&gt; 'a <a href="Bogue.Avar.html#TYPEt">t</a> -&gt; 'b <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">apply&nbsp;f&nbsp;v</code> creates a new Avar by composing with f; the old Avar <code class="code">v</code>
+          is still active</p>
+</div>
+</div>
+
 <pre><span id="VALfromto"><span class="keyword">val</span> fromto</span> : <code class="type">?duration:int -&gt;<br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -&gt; int -&gt; int -&gt; int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">fromto&nbsp;x1&nbsp;x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
       time elapses, moves continuously to <code class="code">x2</code>, with a final slowdown.</p>
+</div>
+</div>
+
+<pre><span id="VALfromto_unif"><span class="keyword">val</span> fromto_unif</span> : <code class="type">?duration:int -&gt;<br>       ?ending:<a href="Bogue.Avar.html#TYPEcallback">callback</a> -&gt; int -&gt; int -&gt; int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Similar to <a href="Bogue.Avar.html#VALfromto"><code class="code"><span class="constructor">Avar</span>.fromto</code></a> but with uniform speed (no slowdown).</p>
+</div>
+</div>
+
+<pre><span id="VALoscillate"><span class="keyword">val</span> oscillate</span> : <code class="type">?duration:int -&gt; ?frequency:float -&gt; int -&gt; int -&gt; int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>oscillate around the initial position</p>
 </div>
 </div>
 

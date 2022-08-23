@@ -119,7 +119,7 @@
 <div class="info-desc">
 <p>Warning, the <code class="code">background</code> type corresponds actually to the <a href="Bogue.Style.html#TYPEt"><code class="code"><span class="constructor">Style</span>.t</code></a>
      type, which means is includes color backgrounds, image patterns, corner and
-     shadow styles. In fact, any <a href="Bogue.Box.html#TYPEt"><code class="code"><span class="constructor">Box</span>.t</code></a> can be turned into a <code class="code">background</code>.</p>
+     shadow styles.</p>
 </div>
 </div>
 
@@ -136,12 +136,6 @@
 </div>
 </div>
 
-<pre><span id="VALbox_bg"><span class="keyword">val</span> box_bg</span> : <code class="type"><a href="Bogue.Box.html#TYPEt">Box.t</a> -&gt; <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
-<div class="info-desc">
-<p>Construct a background from the given <code class="code"><span class="constructor">Box</span></code>.</p>
-</div>
-</div>
-
 <pre><span id="VALstyle_bg"><span class="keyword">val</span> style_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEt">Style.t</a> -&gt; <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Construct a background from the given <code class="code"><span class="constructor">Style</span></code>.</p>
@@ -154,6 +148,7 @@
 </div>
 </div>
 
+<pre><span id="VALset_background"><span class="keyword">val</span> set_background</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEbackground">background</a> option -&gt; unit</code></pre>
 <pre><span id="VALunload_background"><span class="keyword">val</span> unload_background</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Free the texture associated with the background (if any). This can be used
@@ -440,7 +435,7 @@
 </div>
 </div>
 
-<pre><span id="VALslide_in"><span class="keyword">val</span> slide_in</span> : <code class="type">?from:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -&gt; dst:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre>
+<pre><span id="VALslide_in"><span class="keyword">val</span> slide_in</span> : <code class="type">?duration:int -&gt;<br>       ?from:<a href="Bogue.Avar.html#TYPEdirection">Avar.direction</a> -&gt; ?dst:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre>
 <pre><span id="VALslide_to"><span class="keyword">val</span> slide_to</span> : <code class="type">?duration:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int * int -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">slide_to&nbsp;room&nbsp;(x0,y0)</code> will translate the <code class="code">room</code> to the position
@@ -515,6 +510,7 @@
 </div>
 </div>
 <h3 id="2_Misc">Misc</h3>
+<pre><span id="VALclaim_keyboard_focus"><span class="keyword">val</span> claim_keyboard_focus</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre>
 <pre><span id="VALset_cursor"><span class="keyword">val</span> set_cursor</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> option -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set the current cursor to the default value for this layout.</p>

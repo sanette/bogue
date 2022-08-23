@@ -47,7 +47,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?size:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?w:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?h:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_display</span>.words&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;verbatim&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;html&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;html&nbsp;:&nbsp;?w:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?h:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;label&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?size:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?fg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span><br>
@@ -58,9 +58,11 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;image&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?w:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?h:int&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?bg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?noscale:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?bg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?noscale:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?angle:float&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;image_from_svg&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?w:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?h:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?bg:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;image_copy&nbsp;:&nbsp;?rotate:float&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;text_input&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?text:string&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?prompt:string&nbsp;<span class="keywordsign">-&gt;</span><br>
@@ -112,6 +114,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_slider&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Slider</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_text_display&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_display</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_text_input&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Text_input</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_image&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Image</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_sdl_area&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Sdl_area</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;map_text&nbsp;:&nbsp;(string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.action<br>
 <span class="keyword">end</span></pre></body></html>

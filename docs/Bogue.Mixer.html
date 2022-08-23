@@ -75,7 +75,8 @@
 <pre><span id="VALcreate_mixer"><span class="keyword">val</span> create_mixer</span> : <code class="type">?tracks:int -&gt; ?freq:int -&gt; string option -&gt; <a href="Bogue.Mixer.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create the mixer an open sound device. Only <code class="code">s16le</code> format is supported by
-      the callback at this time.</p>
+     the callback at this time. The mixer is initially paused, you need to
+      <a href="Bogue.Mixer.html#VALunpause"><code class="code"><span class="constructor">Mixer</span>.unpause</code></a> it before playing anything.</p>
 </div>
 </div>
 

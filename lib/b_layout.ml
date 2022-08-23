@@ -1,3 +1,5 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 (* Layout is the main object type. *)
 
 (* a layout is a 'box' which can contain 'sub-boxes'. We use the terminology of
@@ -37,7 +39,7 @@ type background =
   (* TODO instead we should keep track of how the box was created... in case we
      want to recreate (eg. use it for another window... ?) *)
   | Style of Style.t
-  | Box of Box.t
+  | Box of Box.t (* for caching, should not be set directly *)
 
 let color_bg color =
   Style (Style.(of_bg (color_bg color)))
@@ -139,9 +141,9 @@ and room = {
     (* [current_geom] is the current *absolute* geometry. Is updated at each
        display. But because of clip, the actual rendered size can be smaller
        than indicated size. Before the start of the main loop, it is equal to
-       the initial values of the geometry field *)
-    (* a special case of current_geom.(x,y) is to specify window position for
-     the top layouts. See set_window_pos *)
+       the initial values of the geometry field. *)
+    (* A special case of current_geom.(x,y) is to specify window position for
+       the top layouts. See set_window_pos *)
     mutable clip : bool;
     (* If [clip]=true, the room (and its children) will be clipped inside its
        geometry. This should be set whenever one want to scroll the content of
@@ -152,9 +154,9 @@ and room = {
     mutable shadow : Style.shadow option;
     mask : Sdl.surface option;
     (* If there is a mask, a position (x,y) will be declared inside the layout
-     if it corresponds to a mask pixel with alpha value <> 0. A mask will act
-     as a clip if it is uniformly white, and the shape is given by nonzero
-     alpha values. (TODO) *)
+       if it corresponds to a mask pixel with alpha value <> 0. A mask will act
+       as a clip if it is uniformly white, and the shape is given by nonzero
+       alpha values. (TODO) *)
     mutable content : room_content;
     mutable layer : Draw.layer;
     (* [layer] is the particular layer = chain element of this layout. It should
@@ -162,8 +164,8 @@ and room = {
        contains all windows. If a room contains other Rooms, its layer should be
        at least as deep as the layers of the Rooms, otherwise the "background"
        might end-up not being at the background... *)
-    (* in principle a chain of layers is attached to a window. When creating a
-     new window, one has to select a new layer chain (use_new_layer) *)
+    (* In principle a chain of layers is attached to a window. When creating a
+       new window, one has to select a new layer chain (use_new_layer). *)
     mutable canvas : Draw.canvas option;
     (* The canvas contains the "hardware" information to render the room *)
     (* The canvas is not really an intrinsic property of the layout, it is used
@@ -192,7 +194,9 @@ and room = {
        so easy because many layouts can cover a widget. Ideally, this property
        should belong to the widget. *)
     mutable removed : bool;
-    (* experimental field: hint that the layout should not be used anymore. *)
+    (* [removed] is an experimental field: hint that the layout should not be
+       used anymore by the board, at least temporarily. Maybe show/hidden could
+       be used instead.  *)
   }
 
 type t = room
@@ -254,15 +258,13 @@ module WHash = Weak.Make(Hash)
    not anymore in use, and automatically disappear from the set. *)
 let rooms_wtable = WHash.create 50
 
+
 (* [cemetery] is only for debugging: we insert here the room ids we think are
    not used anymore. Then we can check if the GC did remove them from the
    [rooms_wtable]. *)
 let cemetery = ref []
 let send_to_cemetery room =
   cemetery := room.id :: !cemetery
-(* TODO: use GC.finalise to automatically unload (but not destroy) textures from
-   GCed layout? *)
-(* (or maybe better for GCed widgets) *)
 
 let rec remove_wtable room =
   if WHash.mem rooms_wtable room
@@ -294,6 +296,152 @@ let clear_wtable () = WHash.clear rooms_wtable
 (*   try Hashtbl.find rooms_table id with *)
 (*   | Not_found -> failwith (Printf.sprintf "Cannot find room with id=%d" id);; *)
 
+
+(* if !debug is true, we replace the background by solid red *)
+let delete_background room =
+  printd debug_memory "Delete background for room %s" (sprint_id room);
+  do_option room.background
+    (fun b ->
+      let () =
+        room.background <-
+          if !debug then Some (opaque_bg Draw.red) else None in
+      match b with
+      | Style s -> Style.unload s
+      | Box b -> Box.unload b)
+
+(* this can be used to force recreating the background, for instance after
+   changing the size of the room *)
+let unload_background room =
+  do_option room.background (function
+      | Box b -> Box.unload b
+      | Style s -> Style.unload s) (* maybe not necessary *)
+
+(* WARNING: in "iter" and in all other search functions below, recall that
+   itering though a room is tricky because of mutability and threading. The
+   structure of the tree can be changed by another thread while we iter. Most
+   dangerous: it can also be changed by the itering itself, hehe. If necessary,
+   doing "iter lock room" should minimize the risk (but not 100%: the tree can
+   still be modified while we are locking..) *)
+
+(* iter through all the rooms (layouts & widgets) contained in the [room],
+   including the initial [room] itself. *)
+(* top to bottom *)
+let rec iter f room =
+  f room;
+  match room.content with
+  | Resident _ -> ()
+  | Rooms list -> List.iter (iter f) list
+
+(* iter through widgets *)
+let rec iter_widgets f room =
+  match room.content with
+  | Resident w -> f w
+  | Rooms list -> List.iter (iter_widgets f) list
+
+let map_widgets f room =
+  let list = ref [] in
+  iter_widgets (fun w -> list := (f w) :: !list) room;
+  !list
+
+(* iter the direct children *)
+let iter_rooms f house =
+  match house.content with
+  | Resident _ -> printd (debug_error + debug_board)
+                    "Layout %s has no rooms: cannot iter." (sprint_id house)
+  | Rooms list -> List.iter f list
+
+(* returns the list of rooms of the layout, or Not_found if there is a
+   resident *)
+let get_rooms layout =
+  match layout.content with
+  | Resident _ ->
+    printd debug_error
+      "[Layout.get_rooms] This layout %s is a leaf, not a node: it does not \
+       contain a list of rooms" (sprint_id layout);
+    raise Not_found
+  | Rooms list -> list
+
+let siblings room =
+  match room.house with
+  | None ->
+     printd debug_error
+       "Cannot get siblings of room %s because it does not belong to any \
+        house." (sprint_id room);
+     []
+  | Some house -> get_rooms house
+
+let rec belongs_to ~parent room =
+  match room.house with
+  | None -> false
+  | Some h -> equal h parent || belongs_to ~parent h
+
+(* return the resident widget, or Not_found *)
+let widget layout =
+  match layout.content with
+  | Rooms _ ->
+     printd debug_error
+       "This room %s is a node, not a leaf: \
+        it does not contain a resident widget" (sprint_id layout);
+     raise Not_found
+  (* or, return the first available widget with next_widget? *)
+  | Resident w -> w
+
+let get_resident = widget
+
+(* return the first resident widget with show=true inside the layout, or
+   Not_found *)
+let rec first_show_widget layout =
+  if layout.show
+  then match layout.content with
+       | Resident w ->
+          (printd debug_board "first_show_widget selects %u" (Widget.id w); w)
+       | Rooms rooms ->
+          let rec loop = function
+            | [] -> raise Not_found
+            | r::rest -> try first_show_widget r with Not_found -> loop rest in
+          loop rooms
+  else raise Not_found
+
+(* use this to reset all widget textures (room + all children) for reducing
+   memory. The layout can still be used without any impact, the textures will be
+   recreated on the fly. If you want to really remove all created textures, you
+   have to use delete_backgrounds too; but then the backgrounds will *not* be
+   recreated. *)
+let unload_widget_textures room =
+  unload_background room;
+  iter_widgets Widget.unload_texture room
+
+(* same, but for all rooms + widgets *)
+let unload_textures room =
+  let f r =
+    unload_background r;
+    match r.content with
+    | Resident w -> Widget.unload_texture w
+    | _ -> () in
+  iter f room
+
+let delete_backgrounds room =
+  iter delete_background room
+
+let delete_textures room =
+  unload_textures room;
+  delete_backgrounds room
+
+let finalize room =
+  printd debug_memory "Finalize room %s" (sprint_id room);
+  delete_textures room
+
+(* Return the list of all texts contained in the widgets *)
+let get_texts room =
+  map_widgets Widget.get_text room
+  |> List.filter (fun s -> s <> "")
+
+let get_text room =
+  get_resident room
+  |> Widget.get_text
+
+let set_text room text =
+  Widget.set_text (get_resident room) text
 
 (* Pressing the TAB key in the main loop will switch the keyboard focus to
    another room. Here we save the room that had keyboard focus just before
@@ -398,19 +546,15 @@ let create_unsafe
     | Resident w -> w.Widget.room_id <- Some id
     | Rooms list -> if set_house
       then List.iter (fun r -> r.house <- Some room) list in
-  (* Gc.finalise free room;*)
-  (* We don't do this because who knows when the background texture will be
-     destroyed.... maybe too late (after renderer was destroyed). TODO: what to
-     do to make sure the background is destroyed if the layout is not used
-     anymore (and we don't destroy the renderer)? Only solution I see is to add
-     the renderer information to the texture... *)
+  Gc.finalise finalize room;
+  (* Should we really do this [finalize]? Because who knows when the background
+     texture will be destroyed.... maybe too late (after renderer was destroyed)
+     SDL seems to impose destroying textures before destroying renderer. TODO:
+     what to do to make sure the background is destroyed if the layout is not
+     used anymore (and we don't destroy the renderer)? Only solution I see is to
+     add the renderer information to the texture... *)
   printd debug_board "Layout %s created." (sprint_id room);
   room
-
-let has_resident layout =
-  match layout.content with
-  | Resident _ -> true
-  | Rooms _ -> false
 
 (* The public [create] version. *)
 let create = create_unsafe ~set_house:true
@@ -429,12 +573,16 @@ let of_id_unsafe id : room =
 let is_detached room =
   room.house = None && room.canvas = None
 
-(* Currently [is_removed] is different from [is_detached] *)
+(* Currently [is_removed] is different from [is_detached]. *)
 let is_removed room =
   room.removed
 
-let set_removed room =
-  room.removed <- true
+(* Notify the board that the layout cannot have focus (but it can still belong
+   to the layout tree). *)
+let remove room =
+  printd debug_board "Removing layout %s from focus" (sprint_id room);
+  room.removed <- true;
+  Trigger.push_remove_layout (room.id)
 
 (* This one is more secure: we check if the layout is not detached. *)
 let of_id_opt ?not_found id : room option =
@@ -448,40 +596,6 @@ let of_id_opt ?not_found id : room option =
     then (printd debug_error "Trying to access the detached room #%d" id; None)
     else o
 
-(* WARNING: in "iter" and in all other search functions below, recall that
-   itering though a room is tricky because of mutability and threading. The
-   structure of the tree can be changed by another thread while we iter. Most
-   dangerous: it can also be changed by the itering itself, hehe. If necessary,
-   doing "iter lock room" should minimize the risk (but not 100%: the tree can
-   still be modified while we are locking..) *)
-
-(* iter through all the rooms (layouts & widgets) contained in the [room],
-   including the initial [room] itself. *)
-(* top to bottom *)
-let rec iter f room =
-  f room;
-  match room.content with
-  | Resident _ -> ()
-  | Rooms list -> List.iter (iter f) list
-
-(* iter through widgets *)
-let rec iter_widgets f room =
-  match room.content with
-  | Resident w -> f w
-  | Rooms list -> List.iter (iter_widgets f) list
-
-let map_widgets f room =
-  let list = ref [] in
-  iter_widgets (fun w -> list := (f w) :: !list) room;
-  !list
-
-(* iter the direct children *)
-let iter_rooms f house =
-  match house.content with
-  | Resident _ -> printd (debug_error + debug_board)
-                    "Layout %s has no rooms: cannot iter." (sprint_id house)
-  | Rooms list -> List.iter f list
-
 (* find the room containing a widget (or None if the widget does not belong to a
    room or if the room has disappeared in the air)*)
 let containing_widget w =
@@ -490,65 +604,6 @@ let containing_widget w =
 let of_wid wid =
   let w = Widget.of_id wid in
   containing_widget w
-
-(* returns the list of rooms of the layout, or Not_found if there is a
-   resident *)
-let get_rooms layout =
-  match layout.content with
-  | Resident _ ->
-     printd debug_error
-       "[Layout.get_rooms] This layout %s is a leaf, not a node: it does not \
-        contain a list of rooms" (sprint_id layout);
-     raise Not_found
-  | Rooms list -> list
-
-let siblings room =
-  match room.house with
-  | None ->
-     printd debug_error
-       "Cannot get siblings of room %s because it does not belong to any \
-        house." (sprint_id room);
-     []
-  | Some house -> get_rooms house
-
-(* return the resident widget, or Not_found *)
-let widget layout =
-  match layout.content with
-  | Rooms _ ->
-     printd debug_error
-       "This room %s is a node, not a leaf: \
-        it does not contain a resident widget" (sprint_id layout);
-     raise Not_found
-  (* or, return the first available widget with next_widget? *)
-  | Resident w -> w
-
-let get_resident = widget
-
-(* return the first resident widget with show=true inside the layout, or
-   Not_found *)
-let rec first_show_widget layout =
-  if layout.show
-  then match layout.content with
-       | Resident w ->
-          (printd debug_board "first_show_widget selects %u" (Widget.id w); w)
-       | Rooms rooms ->
-          let rec loop = function
-            | [] -> raise Not_found
-            | r::rest -> try first_show_widget r with Not_found -> loop rest in
-          loop rooms
-  else raise Not_found
-
-(* Return the list of all texts contained in the widgets *)
-let get_texts room =
-  map_widgets Widget.get_text room
-  |> List.filter (fun s -> s <> "")
-
-let get_text room =
-  get_resident room
-  |> Widget.get_text
-
-let set_text room text =
-  Widget.set_text (get_resident room) text
 
 (* only for debugging: *)
 (* check if rooms sent to cemetery have effectively been removed by GC *)
@@ -666,25 +721,6 @@ let same_stack l1 l2 =
 let get_background l =
   l.background
 
-(* if !debug is true, we replace the background by solid red *)
-let delete_background room =
-  printd debug_memory "Delete background for room %s" (sprint_id room);
-  do_option room.background
-    (fun b ->
-      let () =
-        room.background <-
-          if !debug then Some (opaque_bg Draw.red) else None in
-      match b with
-      | Style s -> Style.unload s
-      | Box b -> Box.unload b)
-
-(* this can be used to force recreating the background, for instance after
-   changing the size of the room *)
-let unload_background room =
-  do_option room.background (function
-      | Box b -> Box.unload b
-      | Style s -> Style.unload s) (* maybe not necessary *)
-
 (* force compute background at current size. Canvas must be created *)
 let compute_background ?(mustlock = true) room =
   do_option room.background (
@@ -702,10 +738,11 @@ let compute_background ?(mustlock = true) room =
       ignore (Box.display (get_canvas room) (get_layer room) box
                 (Draw.scale_geom (to_draw_geom g))))
 
-(* change background *)
+(* Change background. *)
 (* can be called by a thread *)
-(* TODO it should not be allowed to use a background of type Box in case the box
-   already belongs to another room... *)
+(* Remark: one should not set a "Box" background (for safety, because one cannot
+   use a background of type Box in case the box already belongs to another
+   room...) *)
 let set_background l b =
   lock l;
   unload_background l;
@@ -985,20 +1022,20 @@ let compute_pos room =
       | Some h -> loop x y h in
   loop 0 0 room
 
-(** get absolute position of the parent house *)
+(* Get absolute position of the parent house *)
 let house_pos room =
   match room.house with
     | None -> 0,0
     | Some h -> compute_pos h;;
 
-(* not used, just to fix the vocabulary "leaf" *)
+(* Not used, just to fix the vocabulary "leaf" *)
 let is_leaf room =
   match room.content with
   | Resident _
-    | Rooms [] -> true
+  | Rooms [] -> true
   | _ -> false
 
-(* return the first resident *below (or including) room* for which test w =
+(* Return the first resident *below (or including) room* for which test w =
     true, or None *)
 let rec find_resident test room =
   match room.content with
@@ -1009,7 +1046,7 @@ let rec find_resident test room =
       if f = None then loop rest else f in
     loop list
 
-(* search through the whole component of the layout (children and parents)
+(* Search through the whole component of the layout (children and parents)
    starting from top house containing room *)
 let search room scan =
   if scan room then Some room
@@ -1023,14 +1060,14 @@ let search room scan =
     | Not_found -> printd debug_error "Search produced no result!"; None
     | e -> raise e
 
-(** find room by id in the connected component of house *)
+(* Find room by id in the connected component of house *)
 (* cf Layout.of_id *)
 let find_room_old house id =
   printd debug_warning "Search room #%d in %d..." id (house.id);
   let scan r = r.id = id in
   search house scan
 
-(* find the next room in the same level of the house. In circular mode, after
+(* Find the next room in the same level of the house. In circular mode, after
    the last one comes the first. In non circular mode, if room is the last one,
    we return None. If [only_visible] is true, we skip all rooms that have
    [.show=false] and rooms that belong to a hidden house. *)
@@ -1051,7 +1088,7 @@ let next ?(circular = false) ?(only_visible = true) room =
                     else loop rest (found || equal a room) in
      loop rooms false
 
-(* find the "first" (and deepest) room (leaf) contained in the layout by going
+(* Find the "first" (and deepest) room (leaf) contained in the layout by going
    deep and choosing always the first room of a house *)
 (* WARNING a room with empty content is considered a leaf too *)
 let rec first_room r =
@@ -1061,7 +1098,7 @@ let rec first_room r =
   | Rooms [] -> r
   | Rooms (a::_) -> first_room a
 
-(* find a 'uncle': a room next to some parent room, going up in generation. *)
+(* Find a 'uncle': a room next to some parent room, going up in generation. *)
 let rec next_up r =
   check_option r.house (fun h ->
       match next h with
@@ -1103,7 +1140,7 @@ let next_leaf ~top room =
          end
        | Rooms _ -> first_room room
 
-(** find the next visible room with a widget that can have keyboard_focus *)
+(* Find the next visible room with a widget that can have keyboard_focus *)
 (* TODO check example25 *)
 let next_keyboard ~top room =
   let rec loop r visited =
@@ -1122,30 +1159,6 @@ let next_keyboard ~top room =
 (********************)
 
 
-(* use this to reset all widget textures (room + all children) for reducing
-   memory. The layout can still be used without any impact, the textures will be
-   recreated on the fly. If you want to really remove all created textures, you
-   have to use delete_backgrounds too; but then the backgrounds will *not* be
-   recreated. *)
-let unload_widget_textures room =
-  unload_background room;
-  iter_widgets Widget.unload_texture room
-
-(* same, but for all rooms + widgets *)
-let unload_textures room =
-  let f r =
-    unload_background r;
-    match r.content with
-    | Resident w -> Widget.unload_texture w
-    | _ -> () in
-  iter f room
-
-let delete_backgrounds room =
-  iter delete_background room
-
-let delete_textures room =
-  unload_textures room;
-  delete_backgrounds room
 
 let remove_canvas room =
   delete_textures room;
@@ -1161,7 +1174,6 @@ let remove_canvas room =
 (* mask and background are not freed because nothing prevents them from being
    shared with another object (which is maybe not a good idea...) We leave this
    to the GC... (?) *)
-(* TODO: use GC.finalise ? *)
 (* WARNING: be careful it's quite easy to forget that something else points to
    the layout... or its children. This is easily the case for instance with
    Bogue.board fields like windows_house, mouse_focus, keyboard_focus,
@@ -1193,7 +1205,7 @@ let free l =
    want to kill a layout, you may forget that its direct house has no name, so
    it will likely stay in the table for ever. It's difficult for the user to
    keep track of this. One could use ocaml's Ephemeron instead ?*)
-(* note that rooms we be reclaimed though their id, for instance via of_wid, or
+(* Note that rooms can be reclaimed though their id, for instance via of_wid, or
    even more devily stored in an event... At this point it DOES cause some fatal
    errors that I don't know how to locate... *)
 let kill_all_NO room =
@@ -1284,10 +1296,19 @@ let rec get_widgets layout =
     | Rooms h -> List.flatten (List.map get_widgets h)
     | Resident w -> [w]
 
+let has_resident layout =
+  match layout.content with
+  | Resident _ -> true
+  | Rooms _ -> false
+
 let has_keyboard_focus r =
   r.keyboard_focus = Some true
 
-(** set keyboard_focus if possible *)
+(* Set keyboard_focus to the room and the resident widget, if possible. In debug
+   mode, this will draw some shadow around the layout when focused... Warning,
+   currently, even if the room doesn't have the keyboard_focus flag, this does
+   not prevent the board to register it as keyboard focus... TODO: what to
+   do? *)
 (* we don't lock because it will be modified only by the main loop *)
 let set_keyboard_focus r =
   match r.keyboard_focus with
@@ -1319,7 +1340,7 @@ let claim_keyboard_focus r =
   else printd (debug_error + debug_board)
          "Cannot claim keyboard_focus on room %s without resident." (sprint_id r)
 
-(* center vertically the rooms of the layout (first generation only) *)
+(* Center vertically the rooms of the layout (first generation only) *)
 let v_center layout y0 h =
   match layout.content with
   | Resident _ -> ()
@@ -1599,7 +1620,8 @@ let detach_rooms layout =
             printd debug_warning "Room %s was detached from House %s..."
               (sprint_id r) (sprint_id layout)))
 
-(* Detach a room from its house. See detach_rooms *)
+(* Detach a room from its house. See detach_rooms. Warning, the textures are not
+   freed. *)
 let detach room =
   lock room;
   let () = match room.house with
@@ -1650,7 +1672,8 @@ let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
     | None -> true
 
 (* Modify the layout content by setting new rooms *)
-(* Old ones are *not* freed, but they are *detached* from house *)
+(* Old ones are *not* freed, but they are *detached* from house, and their
+   textures are "unloaded". *)
 (* Note that setting rooms that are already there is legal (can be used to
    change the order). Then they are not detached, of course. *)
 (* With sync=false, this is highly non thread safe. Locking layout is not enough
@@ -1658,42 +1681,36 @@ let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
    better to set sync=true, which delays the execution to Sync (the main loop
    Queue) *)
 (* mutualize with [add_room, replace_room]?*)
-let set_rooms layout ?(sync=true) rooms =
+let set_rooms layout rooms =
   match layout.content with
   | Resident _ ->
     printd debug_error
       "Cannot transform a leaf (Resident #%u) to a node (Rooms) because the \
        resident widget would be lost" layout.id
   | Rooms old_rooms ->
-    (if sync then Sync.push else run)
-      (fun () ->
-         list_iter rooms (fun r ->
-             if ok_to_add_room ~already:true ~dst:layout r
-             then begin
-               if !debug && mem equal r old_rooms
-               then printd (debug_board + debug_warning)
-                   "Trying to insert a room (%s) that is already there (%s). We \
-                    leave it there, no problem."
-                   (sprint_id r) (sprint_id layout)
-               else attach ~dst:layout r
-             end);
+    list_iter rooms (fun r ->
+        if mem equal r old_rooms
+        then printd (debug_board + debug_warning)
+            "Trying to insert a room (%s) that is already there (%s). We \
+             leave it there, no problem."
+            (sprint_id r) (sprint_id layout)
+        else if ok_to_add_room ~dst:layout r
+        then attach ~dst:layout r);
 
-         (* Now we rescan the list to detach unused rooms. This could have been
-            done in the first iteration, but there is a [if !debug] there,
-            so... *)
-         list_iter old_rooms
-           (fun r ->
-              if not (mem equal r rooms) then detach r);
-         (* detach_rooms layout; *) (* we don't detach because some orphans may
-                                       want to survive longer than you
-                                       think... see WARNING in 'kill' *)
-         layout.content <- Rooms rooms;
-         (*fit_content layout*)
-      )
-(* Hum. the adjust should NOT be done at this point, because display didn't
-   happen yet, hence the current_geometry is not updated. Morover there is no
-   way to know the 'sep' optional argument *)
-(* TODO the example/ls example should be reviewed then ... *)
+    (* Now we rescan the list to detach unused rooms. *)
+    list_iter old_rooms (fun r ->
+        if not (mem equal r rooms) then begin
+          detach r;
+          unload_textures r
+        end);
+    (* detach_rooms layout; *) (* we don't detach because some orphans may
+                                  want to survive longer than you
+                                  think... see WARNING in 'kill' *)
+    layout.content <- Rooms rooms
+    (*fit_content layout*)
+
+let set_rooms layout ?(sync=true) rooms =
+  (if sync then Sync.push else run) (fun () -> set_rooms layout rooms)
 
 (* like set_rooms but in addition the old ones are killed *)
 let replace_rooms_NO layout rooms =
@@ -1901,14 +1918,14 @@ let bounding_geometry = function
     0,0,0,0
   | rooms ->
     let rec loop xmin ymin xmax ymax = function
-      | [] -> (xmin, ymin, xmax-xmin, ymax-ymin)
+      | [] -> (xmin, ymin, xmax - xmin + 1, ymax - ymin + 1)
       | room :: rest ->
         let x,y = getx room, gety room in
         loop
           (imin xmin x)
           (imin ymin y)
-          (imax xmax (width room + x))
-          (imax ymax (height room + y))
+          (imax xmax (width room + x - 1))
+          (imax ymax (height room + y - 1))
           rest in
     loop max_int max_int 0 0 rooms
 
@@ -2061,40 +2078,43 @@ let default_duration = 300
 (* 2. if the room is shown and without animation, we do nothing *)
 let show ?(duration=default_duration) ?from room =
   if room.show && Avar.finished (Var.get room.geometry.voffset)
-  then printd (debug_board + debug_warning)
-         "Room %s is already shown, we don't run the show animation"
-         (sprint_id room)
+  then if !debug then begin assert (not room.removed);
+      printd (debug_board + debug_warning)
+        "Room %s is already shown, we don't run the show animation"
+        (sprint_id room)
+    end else ()
   (* it is ok to show a room that currently is performing a hide animation. *)
   else begin
-      let clip = ref false in
-      let init () =
-        clip := room.clip;
-        set_clip room
-      in
-      (* it is important to do this AFTER the ending() of the previous
-         animation. *)
-      let h = height room in
-      if not room.show && (get_voffset room <> -h)
-      then (printd debug_warning
-              "Using a 'show' animation on a room that was not previously in a \
-               'hidden' state. Forcing voffset to %d." (-h);
-            set_voffset room (-h));
-      let h, duration = match from with
-        | None ->
-           let current_vo = get_voffset room in
-           let d' = abs ((current_vo * duration) / h) in
-           current_vo, d'
-        | Some Avar.Bottom -> h, duration
-        | Some Avar.Top -> -h, duration
-        | Some _ -> printd debug_board "Layout.show direction not implemented";
-                    h, duration in
-      let ending () =
-        printd debug_board "End of show for %s" (sprint_id room);
-        room.clip <- !clip in
-      let voffset = Avar.show ~init ~ending ~duration h 0 in
-      animate_voffset room voffset;
-      rec_set_show true room;
-    end
+    let clip = ref false in
+    let init () =
+      clip := room.clip;
+      set_clip room
+    in
+    (* it is important to do this AFTER the ending() of the previous
+       animation. *)
+    let h = height room in
+    if not room.show && (get_voffset room <> -h)
+    then (printd debug_warning
+            "Using a 'show' animation on a room that was not previously in a \
+             'hidden' state. Forcing voffset to %d." (-h);
+          set_voffset room (-h));
+    let h, duration = match from with
+      | None ->
+        let current_vo = get_voffset room in
+        let d' = abs ((current_vo * duration) / h) in
+        current_vo, d'
+      | Some Avar.Bottom -> h, duration
+      | Some Avar.Top -> -h, duration
+      | Some _ -> printd debug_board "Layout.show direction not implemented";
+        h, duration in
+    let ending () =
+      printd debug_board "End of show for %s" (sprint_id room);
+      room.clip <- !clip in
+    let voffset = Avar.show ~init ~ending ~duration h 0 in
+    animate_voffset room voffset;
+    rec_set_show true room;
+    room.removed <- false
+  end
 
 (* add a hide animation to the room *)
 let hide ?(duration=default_duration) ?(towards = Avar.Bottom) room =
@@ -2115,7 +2135,8 @@ let hide ?(duration=default_duration) ?(towards = Avar.Bottom) room =
       let ending _ =
         printd debug_board "End of hide";
         room.clip <- !clip;
-        rec_set_show false room in
+        rec_set_show false room;
+        remove room in
       (* WARNING: if the room contains subrooms with animations, they will remain
        forever because a layout with show=false is not displayed and hence not
        updated: the anim is not removed. Even more so with Avar. Thus compute
@@ -2240,6 +2261,9 @@ let fade_out ?duration ?from_alpha ?(to_alpha = 0.) ?(hide=false) room =
   let from_alpha = default_lazy from_alpha (lazy (get_alpha room)) in
   let ending _ =
     printd debug_board "End of complete fade_out => hiding room";
+    remove room;
+    (* One could also use: Trigger.push_from_id Trigger.E.mouse_motion room.id; *)
+    (* This forces the board to recompute the new mouse focus. *)
     rec_set_show false room in
   let ending = if hide then Some ending else None in
   let alpha = Avar.fade_out ?duration ?ending ~from_alpha ~to_alpha () in
@@ -2281,8 +2305,9 @@ let oscillate ?(duration = 10000) ?(frequency=5.) amplitude room =
   animate_x room x
 
 (** add a slide_in animation to the room *)
-let slide_in ?from ~dst room =
-  let x,y = Avar.slide_in ?from ~size:(get_size dst)
+let slide_in ?duration ?from ?dst room =
+  let dst = default dst room in
+  let x,y = Avar.slide_in ?from ?duration ~size:(get_size dst)
               ~pos:(getx room, gety room) () in
   animate_x room x;
   animate_y room y

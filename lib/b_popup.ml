@@ -66,7 +66,7 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
       let style = Style.create ~background:(Style.Solid color)() in
       Widget.box ~w ~h ~style () in
   let screen = (* Layout.(flat_of_w ~sep:0 layout.canvas [b]) in *)
-    Layout.(resident ~name:"filter" ?canvas:layout.canvas b) in
+    Layout.(resident ~name:"_filter" ?canvas:layout.canvas b) in
   (* Layout.(screen.geometry <- {screen.geometry with w; h}); *)
   do_option layer (Layout.set_layer screen);
   screen.Layout.keyboard_focus <- keyboard_focus;
@@ -80,7 +80,8 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
 let add_screen ?(color = Draw.(transp red) (* DEBUG *) ) layout =
   let base_layer = top_layer layout in
   let screen_layer = new_layer_above base_layer in
-  let screen = filter_screen ~color ~layer:screen_layer layout in
+  let screen = filter_screen ~color ~layer:screen_layer
+      ~keyboard_focus:true layout in
   Layout.add_room ~dst:layout screen;
   Layout.resize_follow_house screen;
   screen
@@ -104,7 +105,7 @@ let attach ?bg ?(show=true) house layout =
   let top_layer = new_layer_above filter_layer in  (* eg. 30 *)
   (* We change layer for layout and all its children: *)
   Layout.global_set_layer layout top_layer;
-  let screen = filter_screen ?color:bg house in
+  let screen = filter_screen ?color:bg ~keyboard_focus:true house in
   Layout.set_layer screen filter_layer;
   Layout.add_room ~dst:house screen;
   Layout.scale_resize screen;
@@ -144,10 +145,10 @@ let one_button ?w ?h ~button ~dst content =
 (* a text and a close button. *)
 (* TODO the ?w and ?h define the size of the text_display (not automatically
    detected). It should also include the size of the close button *)
-let info ?w ?h ?(button="Close") text dst =
+let info ?w ?h ?button_w ?button_h ?(button="Close") text dst =
   let td = Widget.text_display ?w ?h text
            |> Layout.resident in
-  one_button ?w ?h ~button ~dst td
+  one_button ?w:button_w ?h:button_h ~button ~dst td
 
 (* ?w and ?h to specify a common size for both buttons *)
 let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
@@ -158,10 +159,12 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
                           [resident ?w ?h btn1; resident ?w ?h btn2]) in
   let popup, screen = slide_in ~dst content buttons in
   let close () =
+    let open Layout in
     (*Layout.hide popup;*)
-    Layout.fade_out ~hide:true popup;
+    fade_out ~hide:true popup;
     (*Layout.hide screen*)
-    Layout.fade_out ~hide:true screen in
+    fade_out ~hide:true screen;
+  in
   let do1 _ =
     close ();
     action1 () in
@@ -171,7 +174,8 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   Widget.on_release ~release:do1 btn1;
   Widget.on_release ~release:do2 btn2
 
-let yesno ?w ?h ?(yes="Yes") ?(no="No") ~yes_action ~no_action text dst =
+let yesno ?w ?h ?button_w ?button_h ?(yes="Yes") ?(no="No")
+    ~yes_action ~no_action text dst =
   let dst = if Layout.has_resident dst
     then begin
       printd (debug_error + debug_user)
@@ -185,7 +189,8 @@ let yesno ?w ?h ?(yes="Yes") ?(no="No") ~yes_action ~no_action text dst =
     else dst in
   let content = Widget.text_display ?w ?h text
                 |> Layout.resident in
-  two_buttons ?w ?h ~label1:yes ~label2:no ~action1:yes_action ~action2:no_action
+  two_buttons ?w:button_w ?h:button_h ~label1:yes ~label2:no
+    ~action1:yes_action ~action2:no_action
     ~content dst
 
 (* tooltips *)

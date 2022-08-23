@@ -219,7 +219,7 @@
 <pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -&gt;<br>       ?w:int -&gt; ?h:int -&gt; <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALhtml"><span class="keyword">val</span> html</span> : <code class="type">string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALhtml"><span class="keyword">val</span> html</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Display basic html text by interpreting the following tags:
       <code class="code">&lt;em&gt;,&lt;/em&gt;,&nbsp;&lt;b&gt;,&lt;/b&gt;,&nbsp;&lt;strong&gt;,&lt;/strong&gt;,&nbsp;&lt;p&gt;,&lt;/p&gt;,&nbsp;&lt;br&gt;</code></p>
@@ -249,7 +249,7 @@
 </div>
 </div>
 <h4 id="3_Image">Image</h4>
-<pre><span id="VALimage"><span class="keyword">val</span> image</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; ?noscale:bool -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALimage"><span class="keyword">val</span> image</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?noscale:bool -&gt; ?angle:float -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Load image file.</p>
 </div>
@@ -258,6 +258,13 @@
 <pre><span id="VALimage_from_svg"><span class="keyword">val</span> image_from_svg</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Requires <code class="code">rsvg</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALimage_copy"><span class="keyword">val</span> image_copy</span> : <code class="type">?rotate:float -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a new "Image" widget linked to the same image (same underlying
+     <code class="code"><span class="constructor">Image</span>.t</code>, hence same texture.)</p>
 </div>
 </div>
 <h4 id="3_Textinput">Text input</h4>
@@ -349,6 +356,7 @@
 <pre><span id="VALget_slider"><span class="keyword">val</span> get_slider</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Slider.html#TYPEt">Slider.t</a></code></pre>
 <pre><span id="VALget_text_display"><span class="keyword">val</span> get_text_display</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_display.html#TYPEt">Text_display.t</a></code></pre>
 <pre><span id="VALget_text_input"><span class="keyword">val</span> get_text_input</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_input.html#TYPEt">Text_input.t</a></code></pre>
+<pre><span id="VALget_image"><span class="keyword">val</span> get_image</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Image.html#TYPEt">Image.t</a></code></pre>
 <pre><span id="VALget_sdl_area"><span class="keyword">val</span> get_sdl_area</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Sdl_area.html#TYPEt">Sdl_area.t</a></code></pre><h3 id="2_Genericactions">Generic actions</h3>
 <pre><span id="VALmap_text"><span class="keyword">val</span> map_text</span> : <code class="type">(string -&gt; string) -&gt; <a href="Bogue.Widget.html#TYPEaction">action</a></code></pre><div class="info ">
 <div class="info-desc">

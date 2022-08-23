@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220730"  (* see VERSION file *)
+let this_version = "20220823"  (* see VERSION file *)
 
 let default_vars = [
     (* Debug: *)

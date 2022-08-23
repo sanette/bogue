@@ -54,17 +54,19 @@
 </ul>
 </div>
 
-<pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?button:string -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt; ?button:string -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with a text and a close button. By
-     default, <code class="code">button=<span class="string">"Close"</span></code>.</p>
+      default, <code class="code">button=<span class="string">"Close"</span></code>. Use the optional parameters <code class="code">w,h</code> to impose the
+      size of the button.</p>
 </div>
 </div>
 
-<pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?yes:string -&gt;<br>       ?no:string -&gt;<br>       yes_action:(unit -&gt; unit) -&gt;<br>       no_action:(unit -&gt; unit) -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?yes:string -&gt;<br>       ?no:string -&gt;<br>       yes_action:(unit -&gt; unit) -&gt;<br>       no_action:(unit -&gt; unit) -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with two yes/no buttons. By default,
-      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>.</p>
+      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>. Use the optional parameters <code class="code">w,h</code> to impose the
+      common size of the two buttons.</p>
 </div>
 </div>
 

@@ -1,7 +1,11 @@
 (* A simple image display widget *)
 (* This file is part of BOGUE *)
 
-module Theme = B_theme
+(* WARNING: this is (currently) the only widget that can be "copied", cf
+   [Widget.image_copy]: the same Image.t can be displayed by several
+   Widget.t. *)
+
+
 module Var = B_var
 module Draw = B_draw
 open B_utils
@@ -15,8 +19,13 @@ type resize =  (* not implemented *)
   | Shrink (* shrink if too big. Do not expand *)
   | Size of int (* make it this size *)
 
-type t =
-  { file : string Var.t;
+type source =
+  | File of string
+  | Image of t
+
+and t =
+  { source : source Var.t;
+    mutable angle : float;
     width : int; (* width of the area *)
     height : int; (* height of the area *)
     xsize : resize; (* NOT used anymore. control the width of the image within the area *)
@@ -25,6 +34,8 @@ type t =
     ypos : Draw.align; (* NOT used anymore. vertical ... *)
     background : Draw.color option;
     render : (Draw.texture option) Var.t;
+    (* The [render] field will contain the unrotated, unscaled rendered
+       image. *)
   }
 
 let size img =
@@ -38,7 +49,7 @@ let resize _size _i =
  * performing scale (size / scale), thus we loose some units due to integer
    rounding. To be exact, we should keep a flag "original size" and modify the
    blit to use exact size *)
-let create ?width ?height ?(noscale = false) ?bg file =
+let create ?width ?height ?(noscale = false) ?bg ?(angle=0.) file =
   let width, height = match width, height with
     | Some w, Some h -> (w,h)
     | _ -> begin let (w0,h0) = Draw.image_size file in
@@ -50,7 +61,8 @@ let create ?width ?height ?(noscale = false) ?bg file =
   let width, height = if noscale
                       then Draw.unscale_size (width, height)
                       else width, height in
-  { file = Var.create file;
+  { source = Var.create (File file);
+    angle;
     xpos = Draw.Center; (* TODO, make this changeable *)
     ypos = Draw.Center; (* idem *)
     width;
@@ -66,6 +78,14 @@ let create ?width ?height ?(noscale = false) ?bg file =
 let create_from_svg ?width ?height ?bg file =
   create ?width ?height ?bg (Draw.convert_svg ?w:width ?h:height file)
 
+let copy ?(rotate = 0.) img =
+  let angle = img.angle +. rotate in
+  { img with
+    source = Var.create (Image img);
+    angle;
+    render = Var.create None
+  }
+
 let unload img =
   match Var.get img.render with
   | None -> ()
@@ -78,14 +98,34 @@ let unload img =
 (* TODO *)
 let free = unload
 
+let rec get_file img =
+  match Var.get img.source with
+  | File f -> f
+  | Image im -> get_file im
+
 (************* display ***********)
+
+(* Retrieve (and compute if necessary) the rotated texture. *)
+let rec get_texture renderer img =
+  let tex = match Var.get img.render with
+    | Some tex -> tex
+    | None ->  match Var.get img.source with
+      | File file -> Draw.load_image renderer file
+      | Image im -> get_texture renderer im
+  in
+  if img.angle = 0. then tex
+  else begin
+    let rotated = Draw.copy_rotate_texture renderer img.angle tex in
+    Draw.forget_texture tex;
+    rotated
+  end
 
 let display canvas layer img g =
   let open Draw in
   let tex = match Var.get img.render with
     | Some t -> t
     | None ->
-      let file = Theme.get_path (Var.get img.file) in
+      let tex = get_texture canvas.renderer img in
       (* printd debug_io "Image: Loading image file %s" file; *)
       (* let surf = sdl_image_load file in *)
       (* let box = create_surface ~like:surf ~color:img.background g.w g.h in *)
@@ -104,7 +144,7 @@ let display canvas layer img g =
       (* let tex = create_texture_from_surface canvas.renderer box in *)
       (* Var.set img.render (Some tex); *)
       (* tex *)
-      let tex = Draw.load_image canvas.renderer file in
+
       let tex = match img.background with
         | Some bg -> (* we blend the image on the bkg *)
           let w, h = tex_size tex in
@@ -120,11 +160,11 @@ let display canvas layer img g =
       tex
 
 
-      (* it is better to render first the image at full resolution and then
-         scale it, in case we later use some zoom animation. If one has a zoom
-         from 0 to 1, then the first time the image will be rendered, the
-         required size would be zero. So we have to be careful not to render at
-         this size... *)
+  (* it is better to render first the image at full resolution and then
+     scale it, in case we later use some zoom animation. If one has a zoom
+     from 0 to 1, then the first time the image will be rendered, the
+     required size would be zero. So we have to be careful not to render at
+     this size... *)
   in
   let dst = geom_to_rect g in
   [make_blit ~dst ~voffset:g.voffset canvas layer tex]

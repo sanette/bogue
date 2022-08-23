@@ -1,4 +1,6 @@
-(* each widget contains its personal data, and the list of connections from
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* Each widget contains its personal data, and the list of connections from
    it *)
 
 open Tsdl
@@ -257,7 +259,7 @@ let display canvas layer w geom =
   | TextDisplay td ->
     printd debug_board "text display: %s" (Text_display.text td);
     Text_display.display canvas layer td geom
-  | Image img -> printd debug_board "image: %s" (Var.get img.Image.file);
+  | Image img -> printd debug_board "image: %s" (Image.get_file img);
     Image.display canvas layer img geom
   | Label l -> printd debug_board "label: %s" (Label.text l);
     Label.display canvas layer l geom
@@ -381,6 +383,11 @@ let get_text_input w =
     | TextInput ti -> ti
     | _ -> invalid_arg "Expecting a text input, not a %s" (string_of_kind w.kind)
 
+let get_image w =
+ match w.kind with
+   | Image im -> im
+   | _ -> invalid_arg "Expecting an image, not a %s" (string_of_kind w.kind)
+
 let get_sdl_area w =
   match w.kind with
   | SdlArea a -> a
@@ -417,8 +424,8 @@ let lines_display ?w ?h lines =
 let verbatim text =
   create_empty (TextDisplay (Text_display.create_verbatim text))
 
-let html text =
-  create_empty (TextDisplay (Text_display.create_from_html text))
+let html ?w ?h text =
+  create_empty (TextDisplay (Text_display.create_from_html ?w ?h text))
 
 let box ?w ?h ?style () =
   create_empty (Box (Box.create ?width:w ?height:h ?style ()))
@@ -433,13 +440,16 @@ let label ?size ?fg ?font ?align text =
 let icon ?size ?fg name =
   create_empty (Label (Label.icon ?size ?fg name))
 
-let image ?w ?h ?bg ?noscale file =
-  create_empty (Image (Image.create ?width:w ?height:h ?bg ?noscale file))
+let image ?w ?h ?bg ?noscale ?angle file =
+  create_empty (Image (Image.create ?width:w ?height:h ?bg ?noscale ?angle file))
 
 let image_from_svg ?w ?h ?bg file =
   let svg = Draw.convert_svg ?w ?h file in
   let w,h = Draw.unscale_size (Draw.image_size svg) in
   image ~w ~h ?bg svg
+
+let image_copy ?rotate w =
+  create_empty (Image (Image.copy ?rotate (get_image w)))
 
 let button ?(kind = Button.Trigger) ?label ?label_on ?label_off
     ?fg ?bg_on ?bg_off ?bg_over ?state

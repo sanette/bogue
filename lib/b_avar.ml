@@ -173,10 +173,9 @@ let get v =
         | None -> start v
       in
       if v.duration < 0 then float t (* no rescale in this case: infinite animation! *)
-      else let t = if Time.(t - t0 >= v.duration)
-        then (stop v;
-              Time.(t0 + v.duration))
-        else t in
+      else if Time.(t - t0 >= v.duration)
+        then (stop v; 1.)
+        else
         (* here v.duration should not be 0 *)
         Time.(float (t - t0) /. (float v.duration)) in
 
@@ -299,11 +298,18 @@ let fromto ?(duration=300) ?ending x1 x2 =
     |> round in
     create ~duration ~update ?ending x1
 
+let fromto_unif ?(duration=300) ?ending x1 x2 =
+  if x1 = x2 then fixed x1
+  else let update _ u =
+         affine (float x1) (float x2) u
+         |> round in
+    create ~duration ~update ?ending x1
+
 let fromto_float ?(duration=300) ?ending x1 x2 =
   if x1 = x2 then fixed x1
   else let update _ u =
-    initial_slope ~slope:1.2 u
-    |> affine x1 x2 in
+         initial_slope ~slope:1.2 u
+         |> affine x1 x2 in
     create ~duration ~update ?ending x1
 
 (** piecevise linear, with 2 pieces *)
@@ -326,7 +332,7 @@ let oscillate ?(duration = 10000) ?(frequency=5.) amplitude x0 =
   create ~duration ~update 0
 
 (** linear slide-in animation *)
-let slide_in ?(from=Right) ~pos ~size () =
+let slide_in ?(from=Right) ?duration ~pos ~size () =
   let w,h = size in
   let x0, y0 = pos in
   let dx,dy = match from with
@@ -341,8 +347,8 @@ let slide_in ?(from=Right) ~pos ~size () =
     | BottomRight -> w, h
     | Random -> let t = Random.float (2. *. pi) in
       round (float w *. cos t), round (float h *. sin t) in
-  let x = fromto (x0 + dx) x0 in
-  let y = fromto (y0 + dy) y0 in
+  let x = fromto ?duration (x0 + dx) x0 in
+  let y = fromto ?duration (y0 + dy) y0 in
   (x,y)
 
 (** hoffset animation from h1 to h2 *)

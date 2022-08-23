@@ -1135,6 +1135,16 @@ let update_background canvas =
     canvas.textures.background <- generate_background canvas.window
                                     canvas.renderer t
 
+(* return a new copy of the rotated texture (around its center) *)
+let copy_rotate_texture renderer angle tex =
+  let w, h = tex_size tex in
+  let target = create_target renderer w h in
+  let push = push_target renderer target in
+  go (Sdl.set_texture_blend_mode tex Sdl.Blend.mode_none);
+  go (Sdl.render_copy_ex renderer tex angle None Sdl.Flip.none);
+  pop_target renderer push;
+  target
+
 (* TODO: better to save surfaces instead of textures ? otherwise setting
    eg. alpha on one texture will affect everywhere it is blitted. Cf for example
    check buttons *)

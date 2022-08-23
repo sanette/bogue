@@ -79,7 +79,7 @@ let adaptive_fps fps =
               total_wait := 0;
               start := now ();
               5)
-        else (printd debug_graphics "Wait=%u, Avg. =%u" wait (!total_wait / !frame);
+        else (printd debug_graphics "Wait=%u, Avg.=%u" wait (!total_wait / !frame);
               wait) in
       delay wait;
       incr frame;

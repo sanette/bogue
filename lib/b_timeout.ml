@@ -1,13 +1,15 @@
-(** Execute actions after a specified timeout *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
 
-(* Warning: the Timemout by itself will not generate any event. Therefore, if
-   the action needs an immediate redraw by the main loop, the redraw event
-   should be triggered, or the action_event (if just breaking the wait_event
-   loop is enough). TODO ? Maybe it's better that all timeouts break the the
-   wait_event loop? *)
+(* Execute actions after a specified timeout *)
+
+(* Warning: the Timeout by itself will not generate any event. Therefore, if the
+   action needs an immediate redraw by the main loop, the redraw event should be
+   triggered, or the action_event (if just breaking the wait_event loop is
+   enough). TODO ? Maybe it's better that all timeouts break the the wait_event
+   loop? *)
 
 
-(* we need an ordered data structure, with very fast folding ( = itering in
+(* We need an ordered data structure, with very fast folding ( = itering in
    increasing order), but the insertion time is not a problem. *)
 (* We chose here an ordered List. Maybe that's not optimal. *)
 
@@ -18,25 +20,32 @@ module Var = B_var
 type action = unit -> unit
 type t = {
   id : int;
-  timeout : Time.t;
-  action : action
+  timeout : Time.t; (* in absolute time units *)
+  action : action;
+  mutable cancelled : bool
 }
 
 let new_id = Utils.fresh_int ()
 
+let iterating = ref false (* for debugging *)
+
 let create timeout action =
-  { id = new_id (); timeout; action}
+  { id = new_id (); timeout; action; cancelled = false}
 
 let execute t =
+  if !Utils.debug then assert (not t.cancelled);
   if Time.(now () >> t.timeout)
-  then (Utils.(printd debug_board "Executing timeout");
+  then (Utils.(printd (debug_board + debug_custom) "Executing timeout %i" t.id);
         t.action (); true)
   else false
 
-(* the global stack variable *)
+(* The global stack variable. It should always be sorted by final time of
+   execution.  *)
 let stack = Var.create []
 
+(* (Not used) Should not be called while iterating... *)
 let clear () =
+  if !Utils.debug then assert (not !iterating);
   if Var.get stack <> [] then
     begin
       Utils.(printd debug_warning "Clearing the remaining %u Timeouts"
@@ -44,8 +53,8 @@ let clear () =
       Var.set stack []
     end
 
-(* insert t at the right place in list *)
-let insert t list =
+(* Insert t at the right place in list. *)
+let insert list t =
   let rec loop before_rev after =
     match after with
     | [] -> List.rev (t :: before_rev)
@@ -54,68 +63,57 @@ let insert t list =
       else loop (a :: before_rev) rest in
   loop [] list
 
-(* insert a sublist in a list *)
-(* it should be slightly more efficient than using "insert" repeatedly *)
-(* because once an element of sublist in inserted into list, we know the other
-   elements of sublist will fall on the right of it. *)
+(* Insert a sublist in a list. *)
+(* It could certainly be optimised taking into account that lists are ordered: *)
+(* once an element of sublist in inserted into list, we know the other elements
+   of sublist will fall on the right of it. *)
 let insert_sublist sublist list =
-  if sublist = [] then list
-  else begin
-  let rec loop sub final_rev rest =
-    let rec insert t before_rev after =
-      match after with
-      | [] -> (t :: before_rev), []
-      | a :: rest -> if a.timeout > t.timeout
-        then (t :: before_rev), after
-        else insert t (a :: before_rev) rest in
-    match sub with
-    | [] -> List.rev_append final_rev rest
-    | t :: subrest -> let before_rev, after =  insert t final_rev list in
-      loop subrest before_rev after in
-  loop sublist [] list
-  end
+  List.fold_left insert list sublist
 
 (* Immediately registers a new timeout and returns it. In general it's better to
    use push in order to get a correct starting time, unless we know this is done
    dynamically during the main loop. *)
-let add timeout action =
-  let timeout = Time.now () + timeout in
+  let add delay action =
+    let timeout = Time.now () + delay in
   let t = create timeout action in
+  Utils.(printd debug_custom "Adding timeout %i" t.id);
   Var.protect_fn stack (fun list ->
-      Var.set stack (insert t list));
+      Var.set stack (insert list t));
   t
-
-(* Push a timeout to be registered at the next iteration of the main loop. *)
-let push timeout action =
-  (fun () -> add timeout action)
-  |> Stack.push
 
 let not_equal t1 t2 =
   t1.id <> t2.id
 
-(* remove a Timeout from stack *)
-let remove t stack =
+(* (Not used) Remove a Timeout from stack. Should not be called while
+   iterating. *)
+let remove_old t stack =
   Var.protect_fn stack (fun list ->
       Var.set stack (List.filter (not_equal t) list))
 
-(** cancel a Timeout from the global stack *)
+(* Cancel a Timeout from the global stack. It will not be executed and will be
+   effectively removed from the stack by the next call to [iter]. *)
 let cancel t =
-  remove t stack
+  Utils.(printd debug_custom "Cancelling Timeout %i" t.id);
+  t.cancelled <- true
 
 let iter stack =
-  (* we pop the whole list and push back an empty stack in case some thread want
-     to add new timeouts while we are processing *)
+  (* We pop the whole list and push back an empty stack in case the actions in
+     the list, or some other thread, want to add new timeouts while we are
+     processing. *)
   let list = Var.protect_fn stack (fun list ->
       Var.set stack [];
       list) in
+  Utils.(printd debug_custom "Iter timeout stack of size %i" (List.length list));
   let rec loop l =
     match l with
     | [] -> []
-    | t :: l' -> if execute t
+    | t :: l' ->
+      if t.cancelled || execute t
       then loop l'
       else l (* the action t was not executed, we leave it in the stack *)
   in
   let remaining = loop list in
+  Utils.(printd debug_custom "Remaining size %i" (List.length remaining));
   Var.protect_fn stack (fun modified ->
       Var.set stack (insert_sublist modified remaining))
 

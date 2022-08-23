@@ -12,6 +12,8 @@ module Label = B_label
 
 (* TODO: use Tsdl_extra.TTF.style *)
 
+(* TODO horiz. align text (Min, Center or Max) *)
+
 type entity =
   | Word of string
   | Space
@@ -23,7 +25,9 @@ type entity =
 type words = entity list
 
 let example : words = let open Ttf.Style in
-  [ Word "Hello"; Space; Word "I"; Space; Word "am"; Space; Style bold; Word "bold"; Style normal; Space; Word "and"; Space; Style italic; Word "italic." ]
+  [ Word "Hello"; Space; Word "I"; Space; Word "am"; Space;
+    Style bold; Word "bold"; Style normal; Space; Word "and"; Space;
+    Style italic; Word "italic." ]
 
 type t =
     { paragraphs : (words list) Var.t;
@@ -50,8 +54,8 @@ let unload td =
 let free = unload
 (* TODO free font ? *)
 
-(* determine the style at the end of the entity list, assuming that the initial
-   style is normal *)
+(* Determine the style at the end of the entity list, assuming that the initial
+   style is normal. *)
 (* TODO: be careful when using this, maybe the initial normal style is a wrong
    assumption. This should be ok if the user may only concatenate entity lists,
    not split them. *)
@@ -81,13 +85,9 @@ let set_style style words =
 
 
 let bold = set_style Ttf.Style.bold
-
 let italic = set_style Ttf.Style.italic
-
 let normal = set_style Ttf.Style.normal
-
 let underline = set_style Ttf.Style.underline
-
 let strikethrough = set_style Ttf.Style.strikethrough
 
 (** convert tabs '\t' in a string to the required number of spaces *)
@@ -346,9 +346,8 @@ let display canvas layer td g =
                   free_surface surf;
                   (* this word will hence be rendered twice. This could be
                      optimized of course. *)
-                  loop list 0 (dy + lineskip);
+                  loop list 0 (dy + lineskip); (* =we go to new line *)
                 end
-                (* =we go to new line *)
                 else (go (Sdl.blit_surface ~src:surf (Some rect) ~dst:target_surf
                             (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
                       free_surface surf;

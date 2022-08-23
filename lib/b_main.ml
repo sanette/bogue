@@ -341,7 +341,7 @@ let check_mouse_motion ?target board =
 (* Rm: in case of triggered action, this is already done by the redraw/refresh
    event *)
 
-let dragging = ref None;; (* the initial position of the dragged room *)
+let dragging = ref None (* the initial position of the dragged room *)
 (* put this in board, or local to the drag & drop functions? *)
 
 (* guess which widget the event should be targetted to (or None) *)
@@ -375,7 +375,7 @@ let target_widget board ev =
 (* Are all the widgets rendered up-to-date? *)
 let is_fresh board =
   (* List.fold_left (fun yes b -> yes && (Layout.is_fresh b)) true
-     board.layouts;; *)
+     board.layouts *)
   Layout.is_fresh board.windows_house
 
 (** display only widgets that need to be updated *)
@@ -388,7 +388,7 @@ let update_old board =
       else printd debug_board "Window is hidden")
     board.windows
 (* without the shown test, one could do directly: Layout.update
-   board.windows_house;; *)
+   board.windows_house *)
 
 let has_anim board =
   (* !Avar.alive_animations > 0 || *)
@@ -398,7 +398,7 @@ let has_anim board =
        let h = Layout.has_anim (Window.get_layout w) in
        if h then Window.to_refresh w;
        h || b ) false board.windows)
-  (* ou bien: Layout.has_anim board.windows_house;; *)
+  (* ou bien: Layout.has_anim board.windows_house *)
 
 (* the "drop" part of drag-and-drop. It is only called by "drag" *)
 let drop board =
@@ -532,19 +532,19 @@ let refresh_custom_windows board =
 
 let check_removed board =
   do_option board.mouse_focus (fun r ->
-      if Layout.is_removed r then begin
+      if Layout.is_removed r || not r.Layout.show then begin
         printd debug_board "Re-setting mouse_focus because layout %s was removed"
           (Layout.sprint_id r);
-        board.mouse_focus <- check_mouse_focus board
+        check_mouse_motion board
       end);
   do_option board.keyboard_focus (fun r ->
-      if Layout.is_removed r then begin
+      if Layout.is_removed r || not r.Layout.show then begin
         printd debug_board "Unsetting keyboard_focus because layout %s was removed"
           (Layout.sprint_id r);
         board.keyboard_focus <- None
       end);
   do_option board.button_down (fun r ->
-      if Layout.is_removed r then begin
+      if Layout.is_removed r || not r.Layout.show then begin
         printd debug_board "Unsetting button_down because layout %s was removed"
           (Layout.sprint_id r);
         board.button_down <- None

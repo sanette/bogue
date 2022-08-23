@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220730
+@version 20220823
 
 @author Vu Ngoc San
 
@@ -544,7 +544,8 @@ module Mixer : sig
 
   val create_mixer : ?tracks:int -> ?freq:int -> string option -> t
   (** Create the mixer an open sound device. Only [s16le] format is supported by
-      the callback at this time. *)
+     the callback at this time. The mixer is initially paused, you need to
+      {!unpause} it before playing anything. *)
 
   val load_chunk : t -> string -> sound
   (** Load a WAV file. *)
@@ -806,9 +807,19 @@ module Avar : sig
      value of the Avar [v] at the time [s]. The meaning of the time [s] is
      described in {!progress}. *)
 
+  val apply : ('a -> 'b) -> 'a t -> 'b t
+      (** [apply f v] creates a new Avar by composing with f; the old Avar [v]
+          is still active *)
+
   val fromto : ?duration:int -> ?ending:callback -> int -> int -> int t
   (** [fromto x1 x2] creates a integer Avar.t with initial value [x1] and, as
       time elapses, moves continuously to [x2], with a final slowdown. *)
+
+  val fromto_unif : ?duration:int -> ?ending:callback -> int -> int -> int t
+  (** Similar to {!fromto} but with uniform speed (no slowdown). *)
+
+  val oscillate : ?duration:int -> ?frequency:float -> int -> int -> int t
+  (** oscillate around the initial position *)
 
   val var : 'a -> 'a t
   (** Create an Avar which behaves like a normal Var (no animation). *)
@@ -898,7 +909,8 @@ end (* of Selection *)
 module Image : sig
   type t
 
-  val create : ?width:int -> ?height:int -> ?noscale:bool -> ?bg:Draw.color -> string -> t
+  val create : ?width:int -> ?height:int -> ?noscale:bool -> ?bg:Draw.color ->
+    ?angle:float -> string -> t
   (** [create "image.jpg"] will load the image ["image.jpg"]. The actual load
       occurs only once, on the first time the image widget is effectively
       displayed. The image is then stored in a texture. All
@@ -1153,6 +1165,8 @@ module Box : sig
 
   val create : ?width:int -> ?height:int ->
     ?style:Style.t -> unit -> t
+
+  val set_background : t -> Style.background -> unit
 
 end (* of Box *)
 
@@ -1431,7 +1445,7 @@ let l = get_label w in
   val rich_text : ?size:int -> ?w:int -> ?h:int -> Text_display.words list -> t
   val verbatim : string -> t
 
-  val html : string -> t
+  val html : ?w:int -> ?h:int -> string -> t
   (** Display basic html text by interpreting the following tags:
       [<em>,</em>, <b>,</b>, <strong>,</strong>, <p>,</p>, <br>] *)
 
@@ -1457,11 +1471,15 @@ let l = get_label w in
   (** {3 Image} *)
 
   val image : ?w:int -> ?h:int -> ?bg:Draw.color ->
-    ?noscale:bool -> string -> t
+    ?noscale:bool -> ?angle:float -> string -> t
   (** Load image file. *)
 
   val image_from_svg : ?w:int -> ?h:int -> ?bg:Draw.color -> string -> t
   (** Requires [rsvg]. *)
+
+  val image_copy : ?rotate:float -> t -> t
+  (** Return a new "Image" widget linked to the same image (same underlying
+     [Image.t], hence same texture.) *)
 
   (** {3 Text input} *)
 
@@ -1557,6 +1575,7 @@ let l = get_label w in
   val get_slider : t -> Slider.t
   val get_text_display : t -> Text_display.t
   val get_text_input : t -> Text_input.t
+  val get_image : t -> Image.t
   val get_sdl_area : t -> Sdl_area.t
 
   (** {2 Generic actions} *)
@@ -1627,7 +1646,7 @@ module Layout : sig
 
   (** Warning, the [background] type corresponds actually to the {!Style.t}
      type, which means is includes color backgrounds, image patterns, corner and
-     shadow styles. In fact, any {!Box.t} can be turned into a [background]. *)
+     shadow styles. *)
   type background
 
   val color_bg : Draw.color -> background
@@ -1636,14 +1655,13 @@ module Layout : sig
   val opaque_bg : Draw.rgb -> background
   (** Construct a background from a RGB (ie non-transparent) color. *)
 
-  val box_bg : Box.t -> background
-  (** Construct a background from the given [Box]. *)
-
   val style_bg : Style.t -> background
   (** Construct a background from the given [Style]. *)
 
-  val theme_bg: background
+  val theme_bg : background
   (** This is the background constructed from the current theme's BG_COLOR. *)
+
+  val set_background : t -> background option -> unit
 
   val unload_background : t -> unit
   (** Free the texture associated with the background (if any). This can be used
@@ -1896,7 +1914,7 @@ module Layout : sig
   (** Rotate all widgets inside the layout around their respective centers. For
       a global rotation, use a {!Snapshot}. *)
 
-  val slide_in : ?from:Avar.direction -> dst:t -> t -> unit
+  val slide_in : ?duration:int -> ?from:Avar.direction -> ?dst:t -> t -> unit
   val slide_to : ?duration:int -> t -> int * int -> unit
   (** [slide_to room (x0,y0)] will translate the [room] to the position
      [(x0,y0)]. *)
@@ -1952,6 +1970,8 @@ module Layout : sig
       containing the layout. *)
 
   (** {2 Misc} *)
+
+  val claim_keyboard_focus : t -> unit
 
   val set_cursor : t option -> unit
   (** Set the current cursor to the default value for this layout. *)
@@ -2119,16 +2139,19 @@ module Popup : sig
      screen to hide the house, one for the layout on top of the screen.
      @return the screen. *)
 
-  val info : ?w:int -> ?h:int -> ?button:string -> string -> Layout.t -> unit
+  val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
+    ?button:string -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with a text and a close button. By
-     default, [button="Close"]. *)
+      default, [button="Close"]. Use the optional parameters [w,h] to impose the
+      size of the button. *)
 
-  val yesno : ?w:int -> ?h:int ->
+  val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
     ?yes:string -> ?no:string ->
     yes_action:(unit -> unit) ->
     no_action:(unit -> unit) -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with two yes/no buttons. By default,
-      [yes="Yes"] and [no="No"]. *)
+      [yes="Yes"] and [no="No"]. Use the optional parameters [w,h] to impose the
+      common size of the two buttons. *)
 
   val two_buttons : ?w:int -> ?h:int -> label1:string -> label2:string ->
     action1:(unit -> unit) -> action2:(unit -> unit) ->

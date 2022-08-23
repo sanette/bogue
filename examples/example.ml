@@ -1001,14 +1001,13 @@ let example41 () =
       "The Black Hole Game"
               |> L.resident in
   let style = Style.(create ~border:(mk_border thick_grey_line) ()) in
-  let bg = Box.create ~style () in
   let fg = Draw.(opaque white) in
   let make_btn x y text =
     let l = W.label ~fg text in
     (* alternative: *)
     (*let b = W.button ~border_radius:7 ~bg_off:Draw.(transp grey) ~fg text in *)
     let r = L.tower ~name:"game button" ~margins:0
-        [L.resident ~w:100 ~h:40 ~background:(L.box_bg bg)
+        [L.resident ~w:100 ~h:40 ~background:(L.style_bg style)
            (*b*) l] in
     L.setx r x; L.sety r y; r in
   let start_btn = make_btn 800 500 "Start" in
@@ -1034,7 +1033,7 @@ let example42 () =
   let td = W.text_display lorem in
   let background = L.theme_bg in
   let layout = L.tower_of_w ~background [l;td] in
-  L.rotate ~duration:5000 ~angle:180. layout;
+  L.rotate ~duration:3000 ~angle:180. layout;
   let board = of_layout layout in
   run board
 
@@ -1091,8 +1090,7 @@ let example45 () =
   let b = W.box ~style ~w:50 ~h:50 () in (* OK *)
   let bg = L.color_bg Draw.(transp green) in
   let l = L.flat ~margins:50 ~shadow ~background:bg [L.resident b] in(* BUG *)
-  let b2 = Box.create ~style ~width:50 ~height:50 () in
-  let l2 = L.flat ~margins:50 ~shadow ~background:(L.box_bg b2)
+  let l2 = L.flat ~margins:50 ~shadow ~background:(L.style_bg style)
              [L.empty ~w:50 ~h:50 ()] in
   let large = L.flat ~margins:60 [l; l2] in
   let board = of_layout large in
