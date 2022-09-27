@@ -23,7 +23,7 @@
 
 <pre><span id="MODULETimeout"><span class="keyword">module</span> Timeout</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Timeout.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Delayed actions</p>
+<p>Delayed actions.</p>
 
 <h6 id="5_graphbtimeouthtmlDependencygraph"><a href="graph-b_timeout.html">Dependency graph</a></h6></div>
 </div>
@@ -42,7 +42,9 @@
 
      Warning: don't expect the delay to be
      exact at the ms. The precision cannot be better than what the
-     framerate imposes, <em>i.e.</em> usually about 16ms.</li>
+     framerate imposes, <em>i.e.</em> usually about 16ms.
+
+      Note: it is legal for an action to add a new Timeout.</li>
 </ul>
 </div>
 

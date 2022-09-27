@@ -22,7 +22,7 @@
 
 <pre><span id="MODULETheme"><span class="keyword">module</span> Theme</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Theme.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Theming variables</p>
+<p>Theming variables.</p>
 
 <p>A number of variables control the appearance of your Bogue application. They are called <a href="#path">Theme variables</a>.
  They take effect when you start your application up (no need to recompile).
@@ -33,7 +33,7 @@ For quick experimentation, they can be modified as environment variables, for in
 <p>The config files are all called <code class="code">bogue.conf</code>. Several locations are used.
     Upon installing Bogue, a system wide Bogue share directory is created. If you used an <b>opam</b> install, this will be</p>
 <pre class="verbatim">$(opam var share)/bogue</pre><p>The share directory contains a <code class="code">themes</code> directory, which itself contains a <code class="code">default</code> dir.
-This where the default configuration file, resides.</p>
+This is where the default configuration file resides.</p>
 
 <p>However, <b>if you want to modify the themes</b>, it is advisable to create your own Bogue share dir.
     This personal Bogue dir should be <code class="code">$(<span class="constructor">XDG_CONFIG_HOME</span>)/bogue</code>.

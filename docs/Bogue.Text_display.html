@@ -13,8 +13,8 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Preparing the text" rel="Section" href="#2_Preparingthetext">
-<link title="Creating the widgets" rel="Section" href="#2_Creatingthewidgets">
-<link title="Modifying the widgets" rel="Section" href="#2_Modifyingthewidgets">
+<link title="Creating the widget" rel="Section" href="#2_Creatingthewidget">
+<link title="Modifying the widget" rel="Section" href="#2_Modifyingthewidget">
 <title>Bogue.Text_display</title>
 </head>
 <body>
@@ -26,7 +26,7 @@
 
 <pre><span id="MODULEText_display"><span class="keyword">module</span> Text_display</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Text_display.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Multi-line text display widget</p>
+<p>Multi-line text display widget.</p>
 
 <h6 id="5_graphbtextdisplayhtmlDependencygraph"><a href="graph-b_text_display.html">Dependency graph</a></h6></div>
 </div>
@@ -47,9 +47,9 @@
 <pre><span id="VALstrikethrough"><span class="keyword">val</span> strikethrough</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
 <pre><span id="VALpage"><span class="keyword">val</span> page</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> list -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre>
 <pre><span id="VALpara"><span class="keyword">val</span> para</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALparagraphs_of_string"><span class="keyword">val</span> paragraphs_of_string</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre><h3 id="2_Creatingthewidgets">Creating the widgets</h3>
+<pre><span id="VALparagraphs_of_string"><span class="keyword">val</span> paragraphs_of_string</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre><h3 id="2_Creatingthewidget">Creating the widget</h3>
 <p>Use <a href="Bogue.Widget.html#VALtext_display"><code class="code"><span class="constructor">Widget</span>.text_display</code></a></p>
-<h3 id="2_Modifyingthewidgets">Modifying the widgets</h3>
+<h3 id="2_Modifyingthewidget">Modifying the widget</h3>
 <pre><span id="VALreplace"><span class="keyword">val</span> replace</span> : <code class="type">by:<a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">replace&nbsp;~by:t2&nbsp;t1</code> replaces the text content of <code class="code">t1</code> by the one of <code class="code">t2</code>.</p>

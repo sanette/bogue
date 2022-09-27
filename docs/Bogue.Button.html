@@ -23,7 +23,7 @@
 
 <pre><span id="MODULEButton"><span class="keyword">module</span> Button</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Button.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Button widget with text or icon</p>
+<p>Button widget with text or icon.</p>
 
 <h6 id="5_graphbbuttonhtmlDependencygraph"><a href="graph-b_button.html">Dependency graph</a></h6></div>
 </div>
@@ -50,7 +50,16 @@
 
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -&gt;<br>       ?border_radius:int -&gt;<br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -&gt;<br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?state:bool -&gt;<br>       ?action:(bool -&gt; unit) -&gt; <a href="Bogue.Button.html#TYPEkind">kind</a> -&gt; string -&gt; <a href="Bogue.Button.html#TYPEt">t</a></code></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -&gt;<br>       ?border_radius:int -&gt;<br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -&gt;<br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?state:bool -&gt;<br>       ?action:(bool -&gt; unit) -&gt; <a href="Bogue.Button.html#TYPEkind">kind</a> -&gt; string -&gt; <a href="Bogue.Button.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>The <code class="code">action</code> parameter is executed (with the current button state as
+        argument) just after the button state is modified by mouse clicking or
+        keyboard (on button up or key up). In order to execute an action that
+        depends on the button itself, use <a href="Bogue.Widget.html#VALon_button_release"><code class="code"><span class="constructor">Widget</span>.on_button_release</code></a>
+        instead.</p>
+</div>
+</div>
+
 <pre><span id="VALstate"><span class="keyword">val</span> state</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -&gt; bool</code></pre>
 <pre><span id="VALreset"><span class="keyword">val</span> reset</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -&gt; unit</code></pre>
 <pre><span id="VALis_pressed"><span class="keyword">val</span> is_pressed</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -&gt; bool</code></pre></body></html>

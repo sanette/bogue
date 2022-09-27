@@ -26,7 +26,7 @@
 
 <pre><span id="MODULEAvar"><span class="keyword">module</span> Avar</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Avar.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Animated variables</p>
+<p>Animated variables.</p>
 
 <p>An Avar.t is a variable that evolves in time. It is updated at every frame
    (<em>i.e.</em> every iteration of the main loop). Bogue uses Avars for animations.</p>
@@ -74,7 +74,8 @@
 
 <pre><span id="VALoscillate"><span class="keyword">val</span> oscillate</span> : <code class="type">?duration:int -&gt; ?frequency:float -&gt; int -&gt; int -&gt; int <a href="Bogue.Avar.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
-<p>oscillate around the initial position</p>
+<p><code class="code">oscillate&nbsp;amplitude&nbsp;x0</code> will oscillate with the given amplitude around
+      the initial value <code class="code">x0</code></p>
 </div>
 </div>
 

@@ -58,7 +58,7 @@ module L = Bogue.Layout]}
 
 
 
-(** Theming variables
+(** Theming variables.
 
     A number of variables control the appearance of your Bogue application. They are called {%html:<a href="#path">Theme variables</a>%}.
  They take effect when you start your application up (no need to recompile).
@@ -76,7 +76,7 @@ The config files are all called [bogue.conf]. Several locations are used.
 $(opam var share)/bogue
 v}
 The share directory contains a [themes] directory, which itself contains a [default] dir.
-This where the default configuration file, resides.
+This is where the default configuration file resides.
 
 However, {b if you want to modify the themes}, it is advisable to create your own Bogue share dir.
     This personal Bogue dir should be [$(XDG_CONFIG_HOME)/bogue].
@@ -197,7 +197,7 @@ end (* of Theme *)
 (* ---------------------------------------------------------------------------- *)
 
 
-(** Utilities
+(** Utilities.
 
     This module contains several utilities, in particular for debug logs.
 
@@ -246,7 +246,7 @@ module Utils : sig
 
   val go : 'a Tsdl.Sdl.result -> 'a
   (** Transform a [result] into a standard value, or fail with an error. Used
-      only for SDL functions. *)
+      for SDL functions only. *)
 
   (** {2 Options}
 
@@ -278,7 +278,7 @@ end (* of Utils *)
 (* ---------------------------------------------------------------------------- *)
 
 
-(** Time in msec
+(** Time in msec.
 
 {5 {{:graph-b_time.html}Dependency graph}}
 *)
@@ -306,7 +306,7 @@ end (* of Time *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Global variables with mutex
+(** Global variables with mutex.
 
    In a GUI, it is quite likely that a thread has to modify a variable owned by
    another thread. This is particularly true in Bogue. In order to protect
@@ -336,7 +336,7 @@ end (* of Var *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Delayed actions
+(** Delayed actions.
 
 {5 {{:graph-b_timeout.html}Dependency graph}}
 *)
@@ -350,7 +350,9 @@ module Timeout : sig
 
      Warning: don't expect the delay to be
      exact at the ms. The precision cannot be better than what the
-     framerate imposes, {e i.e.} usually about 16ms. *)
+     framerate imposes, {e i.e.} usually about 16ms.
+
+      Note: it is legal for an action to add a new Timeout. *)
 
   val cancel : t -> unit
     (** Cancel the Timeout. *)
@@ -358,7 +360,7 @@ end (* of Timeout *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Dealing with events
+(** Dealing with events.
 
 Events are simply SDL events, plus a few additional events. They are also used
    for primitive communication between threads.
@@ -519,7 +521,7 @@ end (* of Trigger *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Basic audio mixer for sound effects
+(** Basic audio mixer for sound effects.
 
 This simple audio mixer makes it possible to play quick sounds, for instance
    when clicking on buttons, or for game sounds effects.
@@ -592,7 +594,7 @@ end (* of Sync *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Low-level graphics and colors
+(** Low-level graphics and colors.
 
 This module is internally used for low-level graphics and a thin layer over
    Tsdl.
@@ -718,7 +720,7 @@ end (* of Draw *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Mouse and touchscreen information
+(** Mouse and touchscreen information.
 
 All positions are given in logical pixels, not hardware pixels (see the {!Theme}
    [SCALE] variable).
@@ -783,7 +785,7 @@ end (* of Tvar *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Animated variables
+(** Animated variables.
 
     An Avar.t is a variable that evolves in time. It is updated at every frame
    ({e i.e.} every iteration of the main loop). Bogue uses Avars for animations.
@@ -820,7 +822,8 @@ module Avar : sig
   (** Similar to {!fromto} but with uniform speed (no slowdown). *)
 
   val oscillate : ?duration:int -> ?frequency:float -> int -> int -> int t
-  (** oscillate around the initial position *)
+  (** [oscillate amplitude x0] will oscillate with the given amplitude around
+      the initial value [x0] *)
 
   val var : 'a -> 'a t
   (** Create an Avar which behaves like a normal Var (no animation). *)
@@ -903,7 +906,7 @@ end (* of Selection *)
    The main module for dealing with widgets is {!Widget}.
 *)
 
-(** Image widget
+(** Image widget.
 
 {5 {{:graph-b_image.html}Dependency graph}}
  *)
@@ -915,7 +918,7 @@ module Image : sig
   (** [create "image.jpg"] will load the image ["image.jpg"]. The actual load
       occurs only once, on the first time the image widget is effectively
       displayed. The image is then stored in a texture. All
-      {{:https://www.libsdl.org/projects/SDL_image/}Sdl_image} image formats are
+      {{:https://wiki.libsdl.org/SDL_image/FrontPage}Sdl_image} image formats are
       supported.
 
       The file "image.png" will be search in the current Theme
@@ -939,7 +942,7 @@ end (* of Image *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Line and box styles
+(** Line and box styles.
 
 {5 {{:graph-b_style.html}Dependency graph}}
  *)
@@ -1000,7 +1003,7 @@ end (* of Style *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** One-line text widget
+(** One-line text widget.
 
 A [Label] is a widget for displaying a single line of text.
 
@@ -1037,16 +1040,15 @@ end (* of Label *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Button widget with text or icon
+(** Button widget with text or icon.
 
 {5 {{:graph-b_button.html}Dependency graph}}
 *)
 module Button : sig
   type t
   type kind =
-    | Trigger (* one action when pressed. TODO, better to avoid name clash with
-                 Trigger module*)
-    | Switch (* two states *)
+    | Trigger (* The button always looks "up" when not pressed.*)
+    | Switch (* The button is displayed differently on "down" or "up". *)
 
   val create : ?size:int ->
     ?border_radius:int ->
@@ -1058,6 +1060,12 @@ module Button : sig
     ?label:Label.t ->
     ?label_on:Label.t -> ?label_off:Label.t -> ?state:bool ->
     ?action:(bool -> unit) -> kind -> string -> t
+    (** The [action] parameter is executed (with the current button state as
+        argument) just after the button state is modified by mouse clicking or
+        keyboard (on button up or key up). In order to execute an action that
+        depends on the button itself, use {!Widget.on_button_release}
+        instead. *)
+
   val state : t -> bool
   val reset : t -> unit
   val is_pressed : t -> bool
@@ -1065,7 +1073,7 @@ end (* of Button *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Slider widget
+(** Slider widget.
 
 {5 {{:graph-b_slider.html}Dependency graph}}
  *)
@@ -1091,7 +1099,7 @@ end (* of Slider *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Checkbox widget
+(** Checkbox widget.
 
 {5 {{:graph-b_check.html}Dependency graph}}
  *)
@@ -1106,7 +1114,7 @@ end (* of Check *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Multi-line text display widget
+(** Multi-line text display widget.
 
 {5 {{:graph-b_text_display.html}Dependency graph}}
  *)
@@ -1127,12 +1135,12 @@ module Text_display : sig
   val para : string -> words
   val paragraphs_of_string : string -> words list
 
-  (** {2 Creating the widgets}
+  (** {2 Creating the widget}
 
        Use {!Widget.text_display}
 *)
 
-  (** {2 Modifying the widgets} *)
+  (** {2 Modifying the widget} *)
 
   val replace : by:t -> t -> unit
 (** [replace ~by:t2 t1] replaces the text content of [t1] by the one of [t2]. *)
@@ -1143,7 +1151,7 @@ end (* Text_display *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** One-line text-input widget
+(** One-line text-input widget.
 
 {5 {{:graph-b_text_input.html}Dependency graph}}
  *)
@@ -1158,7 +1166,7 @@ end (* of Text_input *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Box widget
+(** Box widget.
 
 {5 {{:graph-b_box.html}Dependency graph}}
 *)
@@ -1174,7 +1182,7 @@ end (* of Box *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** SDL Area widget
+(** SDL Area widget.
 
     You can use an Sdl_area widget to draw whatever you want using all the power
     of the
@@ -1616,7 +1624,7 @@ end (* of Update *)
    obtained by combining several layouts together.  *)
 
 
-(** The main, all-purpose graphics container
+(** The main, all-purpose graphics container.
 
  A layout is a "box" (a rectangle) whose purpose is to place onscreen the
    various elements composing the GUI. It can contain a single widget, or a list
@@ -1990,7 +1998,7 @@ end (* of Layout *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Adjust various spacings and sizes of layouts
+(** Adjust various spacings and sizes of layouts.
 
 These functions {e do not take effect immediately!} They will be executed, in
    the order of their invocation, at the next graphics frame (or at startup if
@@ -2033,7 +2041,7 @@ end (* of Space *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Convert Bogue objects to strings for debugging
+(** Convert Bogue objects to strings for debugging.
 
 {5 {{:graph-b_print.html}Dependency graph}}
 *)
@@ -2054,7 +2062,7 @@ end (* of Print *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Create an image from a Layout
+(** Create an image from a Layout.
 
 {5 {{:graph-b_snapshot.html}Dependency graph}}
 *)
@@ -2069,7 +2077,7 @@ end (* of Snapshot *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Handle large lists by not displaying all elements at once
+(** Handle large lists by not displaying all elements at once.
 
 Very quickly, displaying a list of layouts (for instance, listing files in a
    directory) can run the computer out of memory if it tries to keep in memory
@@ -2111,7 +2119,7 @@ end (* of Long_list *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Switch between layouts using Tabs
+(** Switch between layouts using Tabs.
 
 {5 {{:graph-b_tabs.html}Dependency graph}}
 *)
@@ -2126,7 +2134,7 @@ end (* of Tabs *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Put layouts on top of others
+(** Put layouts on top of others.
 
 {e Warning:} For all functions in this module, the destination layout must be a
    house, not a single resident.
@@ -2184,7 +2192,7 @@ end (* of Popup *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Various types of menus
+(** Various types of menus.
 
 The generic {!create} function produces menus whose entries can be arbitrary
    layouts located at arbitrary places. But for usual entries, it is enough to
@@ -2243,7 +2251,7 @@ end
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Drop-down select list
+(** Drop-down select list.
 
 It's the usual select box which opens a drop-down list when clicked on, similar
    to the [<select>] html tag.
@@ -2270,7 +2278,7 @@ end (* of Select *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Check list with a single choice
+(** Check list with a single choice.
 
     Each item of the list is displayed with a 'radio button' in front of it, and
    at most one item can be selected, similarly to [<input type="radio"...>] in
@@ -2302,7 +2310,7 @@ end (* of Radiolist *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Tables with sortable columns and selectable rows
+(** Tables with sortable columns and selectable rows.
 
 {5 {{:graph-b_table.html}Dependency graph}}
 *)
@@ -2383,7 +2391,7 @@ Because a GUI continuously waits for user interaction, everything has to run
    inside a loop. You start the loop with {!run}, and this is usually the last
    command of your Bogue code.  *)
 
-(** Control the workflow of the GUI mainloop
+(** Control the workflow of the GUI mainloop.
 
 {5 {{:graph-b_main.html}Dependency graph}}
 *)
