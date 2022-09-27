@@ -119,6 +119,10 @@ dune build
 opam install .
 ```
 
+### CI
+
+https://ci.ocamllabs.io/github/sanette/bogue
+
 # Documentation
 
 It's good to first have a look at Bogue's

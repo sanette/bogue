@@ -98,9 +98,9 @@ let create_surface_from ~like:surf bigarray =
   go(Sdl.create_rgb_surface_from bigarray ~w ~h ~depth ~pitch r g b a)
 
 let free_surface surface =
-  Sdl.free_surface surface;
   let w,h = Sdl.get_surface_size surface in
   printd debug_memory "Freeing surface (%i,%i)" w h;
+  Sdl.free_surface surface;
   decr surfaces_in_memory
 
 (* Sdl.get_surface_format. See issue in tsdl.ml *)
@@ -202,7 +202,8 @@ let rec open_font file size =
 
 let ttf_render font text color =
   if text = ""
-  then create_rgb_surface ~w:0 ~h:0 ~depth:32 (Int32.zero,Int32.zero,Int32.zero,Int32.zero)
+  then create_rgb_surface ~w:0 ~h:0 ~depth:32
+      (Int32.zero,Int32.zero,Int32.zero,Int32.zero)
   else begin
     incr surfaces_in_memory;
     printd debug_memory "Create surface_ttf (%s)" text;
@@ -891,6 +892,7 @@ let get_dpi () =
 let detect_set_scale () =
     let dpi = default (get_dpi ()) default_dpi in
     let s = if dpi <= 110 then 1. else (float dpi /. (float default_dpi)) in
+    let s = if Theme.integer_scale then Float.round s else s in
     printd (debug_graphics+debug_warning) "Using SCALE=%f" s;
     Theme.scale := s
 

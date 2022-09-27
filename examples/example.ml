@@ -332,16 +332,17 @@ let example15 () =
 
 let desc16 = "Buttons with labels or icon."
 let example16 () =
-  let b = W.button "Press Me" in
-  let c = W.button ~kind:Button.Switch "Click Me" in
+  let action b = print_endline (sprintf "Button: %b" b) in
+  let b = W.button ~action "Press Me" in
+  let c = W.button ~kind:Button.Switch ~action "Click Me" in
   let fg = Draw.(opaque black) in
   let bg_off = Style.color_bg Draw.none in
   (* let bg_on = Style.color_bg Draw.(opaque blue) in *)
-  let bg_over = Style.opaque_bg Draw.grey in
+  let bg_over = Some (Style.opaque_bg Draw.grey) in
   let d = W.button ~bg_off (* ~bg_on *) ~bg_over ~kind:Button.Switch
       ~label_on:(Label.icon ~fg "train")
       ~label_off:(Label.icon ~fg:(Draw.(lighter (lighter fg))) "train")
-      "" in
+      ~action "" in
   let layout = L.flat_of_w [b;c;d] in
   let board = of_layout layout in
   run board
@@ -403,20 +404,22 @@ let example21 () =
   let popup = L.tower_of_w [l;ti;close_btn] in
   let layout = L.tower_of_w [b;td] in
   let screen = Popup.attach ~show:false ~bg:(Draw.(set_alpha 220 (pale green))) layout popup in
+  (* TODO use actions *)
   let button = W.button ~kind:Button.Switch
       ~border_radius:4 ~border_color:Draw.(opaque grey) "Popup" in
   let release b =
     let state = Button.state (W.get_button b) in
     L.set_show popup state;
     L.set_show screen state in
-  W.on_release ~release button;
-  let close b =
-    Button.reset (W.get_button b);
-    release b  in
-  let c = W.connect_main close_btn button (fun _ b _ -> close b) T.buttons_up in
+  W.on_button_release ~release button;
+  let close _ =
+    Button.reset (W.get_button button);
+    release button  in
+  W.on_button_release ~release:close close_btn;
+  (* let c = W.connect_main close_btn button (fun _ b _ -> close b) T.buttons_up in *)
 
   let global = L.tower [L.resident button; layout] in
-  let board = of_layout ~connections:[c] global in
+  let board = of_layout global in
   run board
 
 let desc21bis = "Close popup"

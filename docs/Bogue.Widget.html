@@ -192,8 +192,15 @@
 <pre><span id="VALon_release"><span class="keyword">val</span> on_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
-     which will be executed when the mouse button is released on this widget.
+      which will be executed when the mouse button is released on this widget.
       <em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em></p>
+</div>
+</div>
+
+<pre><span id="VALon_button_release"><span class="keyword">val</span> on_button_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Similar to <a href="Bogue.Widget.html#VALon_release"><code class="code"><span class="constructor">Widget</span>.on_release</code></a> but specialised to button widgets. It also checks
+      the key used to activate buttons (currently, the Return key).</p>
 </div>
 </div>
 
@@ -269,7 +276,7 @@
 </div>
 <h4 id="3_Textinput">Text input</h4>
 <pre><span id="VALtext_input"><span class="keyword">val</span> text_input</span> : <code class="type">?text:string -&gt;<br>       ?prompt:string -&gt;<br>       ?size:int -&gt;<br>       ?filter:<a href="Bogue.Text_input.html#TYPEfilter">Text_input.filter</a> -&gt; ?max_size:int -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Buttons">Buttons</h4>
-<pre><span id="VALbutton"><span class="keyword">val</span> button</span> : <code class="type">?kind:<a href="Bogue.Button.html#TYPEkind">Button.kind</a> -&gt;<br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?state:bool -&gt;<br>       ?border_radius:int -&gt;<br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Sliders">Sliders</h4>
+<pre><span id="VALbutton"><span class="keyword">val</span> button</span> : <code class="type">?kind:<a href="Bogue.Button.html#TYPEkind">Button.kind</a> -&gt;<br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -&gt;<br>       ?state:bool -&gt;<br>       ?border_radius:int -&gt;<br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?action:(bool -&gt; unit) -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Sliders">Sliders</h4>
 <pre><span id="VALslider"><span class="keyword">val</span> slider</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -&gt;<br>       ?step:int -&gt;<br>       ?value:int -&gt;<br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -&gt;<br>       ?var:(int <a href="Bogue.Avar.html#TYPEt">Avar.t</a>, int) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a> -&gt;<br>       ?length:int -&gt;<br>       ?thickness:int -&gt;<br>       ?tick_size:int -&gt; ?lock:bool -&gt; ?w:int -&gt; ?h:int -&gt; int -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALslider_with_action"><span class="keyword">val</span> slider_with_action</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -&gt;<br>       ?step:int -&gt;<br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -&gt;<br>       value:int -&gt;<br>       ?length:int -&gt;<br>       ?thickness:int -&gt;<br>       ?tick_size:int -&gt; action:(int -&gt; unit) -&gt; int -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">

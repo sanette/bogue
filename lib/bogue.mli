@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220823
+@version 20220927
 
 @author Vu Ngoc San
 
@@ -138,6 +138,7 @@ v}
   the hardware size in pixels.
   If set to [0.] or not specified, it is autodetected to match your screen DPI
   (using [xdpyinfo], if present).
+- [INT_SCALE]: set to "true" to force integer scale when using auto-detection.
 - [SEL_BG_COLOR]: background color for selected items in lists.
 - [SEL_FG_COLOR]: text color for selected items in lists.
 - [SMALL_FONT_SIZE]: integer. Used for instance for tooltips popups.
@@ -343,8 +344,8 @@ module Timeout : sig
   type t
 
   val add : int -> (unit -> unit) -> t
-  (** [add delay action] will execute
-     [action ()] after the delay of [delay] ms.
+  (** [add delay action] will execute [action ()] (in the main thread) after the
+      delay of [delay] ms.
      @return the Timeout element.
 
      Warning: don't expect the delay to be
@@ -1053,9 +1054,10 @@ module Button : sig
     ?fg:Draw.color ->
     ?bg_on:Style.background ->
     ?bg_off:Style.background ->
-    ?bg_over:Style.background ->
+    ?bg_over:(Style.background option) ->
     ?label:Label.t ->
-    ?label_on:Label.t -> ?label_off:Label.t -> ?state:bool -> string -> t
+    ?label_on:Label.t -> ?label_off:Label.t -> ?state:bool ->
+    ?action:(bool -> unit) -> kind -> string -> t
   val state : t -> bool
   val reset : t -> unit
   val is_pressed : t -> bool
@@ -1413,8 +1415,12 @@ let l = get_label w in
 
   val on_release : release:(t -> unit) -> t -> unit
   (** [on_release ~release:f w] registers on the widget [w] the action [f],
-     which will be executed when the mouse button is released on this widget.
+      which will be executed when the mouse button is released on this widget.
       {e Uses [priority=Main]} *)
+
+  val on_button_release : release:(t -> unit) -> t -> unit
+  (** Similar to {!on_release} but specialised to button widgets. It also checks
+      the key used to activate buttons (currently, the Return key). *)
 
   val on_click : click:(t -> unit) -> t -> unit
   (** {e Uses [priority=Main]} *)
@@ -1492,9 +1498,10 @@ let l = get_label w in
     ?label_on:Label.t -> ?label_off:Label.t ->
     ?fg:Draw.color ->
     ?bg_on:Style.background -> ?bg_off:Style.background ->
-    ?bg_over:Style.background ->
+    ?bg_over:(Style.background option) ->
     ?state:bool ->
-    ?border_radius:int -> ?border_color:Draw.color -> string -> t
+    ?border_radius:int -> ?border_color:Draw.color ->
+    ?action:(bool -> unit) -> string -> t
 
   (** {3 Sliders} *)
 

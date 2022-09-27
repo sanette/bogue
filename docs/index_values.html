@@ -37,8 +37,8 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Timeout.html#VALadd">add</a> [<a href="Bogue.Timeout.html">Bogue.Timeout</a>]</td>
 <td><div class="info">
-<p><code class="code">add&nbsp;delay&nbsp;action</code> will execute
-     <code class="code">action&nbsp;()</code> after the delay of <code class="code">delay</code> ms.</p>
+<p><code class="code">add&nbsp;delay&nbsp;action</code> will execute <code class="code">action&nbsp;()</code> (in the main thread) after the
+      delay of <code class="code">delay</code> ms.</p>
 
 </div>
 </td></tr>
@@ -954,6 +954,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Widget.html#VALon_button_release">on_button_release</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.Widget.html#VALon_release"><code class="code"><span class="constructor">Widget</span>.on_release</code></a> but specialised to button widgets.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Widget.html#VALon_click">on_click</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p><em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em></p>
@@ -969,7 +975,7 @@
 <tr><td><a href="Bogue.Widget.html#VALon_release">on_release</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 <p><code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
-     which will be executed when the mouse button is released on this widget.</p>
+      which will be executed when the mouse button is released on this widget.</p>
 
 </div>
 </td></tr>

@@ -126,7 +126,6 @@ let buttons_down = E.[mouse_button_down; finger_down]
 let buttons_up = E.[mouse_button_up; finger_up]
 let pointer_motion = E.[mouse_motion; finger_motion]
 
-
 (* This event is used by the main loop, and sometimes we need to send it to
    other threads. In this case we create a new event for the main loop, using
    renew_my_event below. *)

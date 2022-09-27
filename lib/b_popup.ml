@@ -140,7 +140,7 @@ let one_button ?w ?h ~button ~dst content =
     Layout.hide popup;
     Layout.hide screen;
     Layout.fade_out screen in
-  Widget.on_release ~release:close close_btn
+  Widget.on_button_release ~release:close close_btn
 
 (* a text and a close button. *)
 (* TODO the ?w and ?h define the size of the text_display (not automatically
@@ -171,8 +171,8 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   let do2 _ =
     close ();
     action2 () in
-  Widget.on_release ~release:do1 btn1;
-  Widget.on_release ~release:do2 btn2
+  Widget.on_button_release ~release:do1 btn1;
+  Widget.on_button_release ~release:do2 btn2
 
 let yesno ?w ?h ?button_w ?button_h ?(yes="Yes") ?(no="No")
     ~yes_action ~no_action text dst =

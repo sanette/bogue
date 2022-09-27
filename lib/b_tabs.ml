@@ -25,7 +25,8 @@ let bg_off = Style.Solid Draw.(opaque Button.color_off)
    part, ça forçait à "modifier" le contenu du layout à chaque changement de tab
    actif, ce qui n'est pas très joli. *)
 let create_one ?slide title room dest_room =
-  let l = W.create_empty (W.Button (Button.create ~bg_on ~bg_off title)) in
+  let l = W.create_empty
+      (W.Button (Button.create ~bg_on ~bg_off Button.Trigger title)) in
   (* the first action sets the button to 'pressed' when we click (button_down)
      on it. Below we will add another action to reset all other buttons to 'not
      pressed' *)

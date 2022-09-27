@@ -18,25 +18,33 @@ type kind =
                Trigger module*)
   | Switch (* two states *)
 
+type action = bool -> unit
+
 type t =
-  { label_on : Label.t;
+  { kind : kind;
+    label_on : Label.t;
     label_off : Label.t;
     state : bool Var.t;
     pressed : bool Var.t;
     mutable mouse_over : bool;
+    keyboard_focus : bool Var.t;
     box_on : Box.t; (* TODO Var.t ? *)
     box_off : Box.t; (* TODO Var.t ? *)
-    box_over : Box.t option
+    box_over : Box.t option;
+    action : action option
   }
 
 let color_on = Draw.find_color Theme.button_color_on
 let color_off = Draw.find_color Theme.button_color_off
+let bg_over = Style.gradient
+    Draw.[opaque color_off; opaque color_off; opaque color_on]
 
 (* if label_on and/or label_off is provided, then label is ignored *)
 let create ?size ?border_radius ?border_color ?fg
     ?(bg_on = Style.color_bg Draw.(opaque color_on))
     ?(bg_off = Style.color_bg Draw.(opaque color_off))
-    ?bg_over ?label ?label_on ?label_off ?(state=false) text =
+    ?(bg_over = Some bg_over) ?label ?label_on ?label_off ?(state=false)
+    ?action kind text =
   let label_on, label_off = match label, label_on, label_off with
     | None, None, None -> let l = Label.create ?size ?fg text in l,l
     | Some l, None, None -> l,l
@@ -62,15 +70,18 @@ let create ?size ?border_radius ?border_color ?fg
   in
   let style_on = Style.create ~background:bg_on ?border:border_on () in
   let style_off = Style.create ~background:bg_off ?border:border_off () in
-  { label_on;
+  { kind;
+    action;
+    label_on;
     label_off;
     state = Var.create state;
     pressed = Var.create state;
     mouse_over = false;
+    keyboard_focus = Var.create false;
     box_on = Box.(create ~style:style_on ());
     box_off = Box.(create ~style:style_off ());
     box_over = map_option bg_over (fun bg ->
-        let style = Style.create ~background:bg () in
+        let style = Style.with_bg bg style_off in
         Box.create ~style ())
   }
 
@@ -83,6 +94,12 @@ let unload l =
 
 (* TODO *)
 let free = unload
+
+let has_keyboard_focus b = Var.get b.keyboard_focus
+
+let set_focus b = Var.set b.keyboard_focus true
+
+let unfocus b = Var.set b.keyboard_focus false
 
 let state b =
   Var.get b.state
@@ -117,25 +134,48 @@ let release b =
   (* TODO: verify true click *)
   if is_pressed b then begin
     Var.set b.pressed false;
-    Var.set b.state (not (Var.get b.state))
+    let s = not (Var.get b.state) in
+    Var.set b.state s;
+    do_option b.action (fun f -> f s)
     (* TODO; this is not exactly what we want with Trigger *)
   end
 
 (* called by button_up in case of kind=Switch *)
-let switch b ev =
-  if Trigger.has_full_click ev
+let switch ?(keyboard=false) b ev =
+  if keyboard || Trigger.has_full_click ev
   then begin
-    Var.set b.state (not (Var.get b.state));
+    let s = not (Var.get b.state) in
+    Var.set b.state s;
     printd debug_event "Switch button to [pressed=%b] [state=%b]"
-      (is_pressed b) (Var.get b.state);
+      (is_pressed b) s;
+    do_option b.action (fun f -> f s)
   end;
   Var.set b.pressed (Var.get b.state)
 
 let mouse_enter b =
-  b.mouse_over <- true
+  b.mouse_over <- true;
+  set_focus b
 
 let mouse_leave b =
-  b.mouse_over <- false
+  b.mouse_over <- false;
+  unfocus b
+
+let check_key b ev =
+  has_keyboard_focus b &&
+  Tsdl.Sdl.Event.(get ev keyboard_keycode) = Tsdl.Sdl.K.return
+
+(* TODO use also TAB or ENTER or SPACE...? *)
+let receive_key b ev =
+  if check_key b ev
+  then match Trigger.event_kind ev with
+    | `Key_down -> press b
+    | `Key_up -> begin match b.kind with
+        | Trigger -> release b
+        | Switch -> switch ~keyboard:true b ev
+      end
+    | _ -> printd (debug_event+debug_error)
+             "Wrong event (%s) for Button.receive_key" (Trigger.sprint_ev ev)
+
 
 (************* display ***********)
 
@@ -161,7 +201,7 @@ let display canvas layer b g =
   let (dx,dy) = if is_pressed b then (0, 1) else (0, 0) in
   let box = if is_pressed b
     then b.box_on
-    else if b.mouse_over
+    else if b.mouse_over || has_keyboard_focus b
     then default b.box_over b.box_off
     else b.box_off in
   (*let margin = if is_pressed b then 0 else button_margin in*)

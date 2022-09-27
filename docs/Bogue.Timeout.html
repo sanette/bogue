@@ -34,8 +34,8 @@
 
 <pre><span id="VALadd"><span class="keyword">val</span> add</span> : <code class="type">int -&gt; (unit -&gt; unit) -&gt; <a href="Bogue.Timeout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">add&nbsp;delay&nbsp;action</code> will execute
-     <code class="code">action&nbsp;()</code> after the delay of <code class="code">delay</code> ms.</p>
+<p><code class="code">add&nbsp;delay&nbsp;action</code> will execute <code class="code">action&nbsp;()</code> (in the main thread) after the
+      delay of <code class="code">delay</code> ms.</p>
 </div>
 <ul class="info-attributes">
 <li><b>Returns</b> the Timeout element.

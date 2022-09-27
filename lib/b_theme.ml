@@ -22,7 +22,8 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20220823"  (* see VERSION file *)
+let this_version = "20220927"  (* see VERSION file *)
+(* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
     (* Debug: *)
@@ -119,6 +120,10 @@ let load_vars config_file =
     with e -> raise e in
   printd debug_io "Reading config file [%s]. BOGUE Version [%s]"
     config_file version;
+  if version > this_version
+  then printd debug_warning
+      "The version indicated in the config file (%s) is more recent than your \
+       this version of Bogue (%s)" version this_version;
   let rec loop list =
     skip_comment buffer;
     try
@@ -373,6 +378,7 @@ let mono_font = get_font_path (get_var "MONO_FONT")
 let room_margin = get_int ~default:10 "ROOM_MARGIN"
 let fa_dir = sub_file common (get_var "FA_DIR")
 let fa_font = sub_file fa_dir "fonts/fontawesome-webfont.ttf"
+let integer_scale = get_bool "INT_SCALE"
 let scale = ref (get_float ~default:0. "SCALE")
 let opengl_multisample = get_bool "OPENGL_MULTISAMPLE"
 let fa_font_size = 18

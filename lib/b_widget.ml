@@ -451,13 +451,15 @@ let image_from_svg ?w ?h ?bg file =
 let image_copy ?rotate w =
   create_empty (Image (Image.copy ?rotate (get_image w)))
 
+(* action is executed "on release" (mouse or keyboard). If you need an action
+   that depends on the button itself, use on_button_release instead.  *)
 let button ?(kind = Button.Trigger) ?label ?label_on ?label_off
     ?fg ?bg_on ?bg_off ?bg_over ?state
-    ?border_radius ?border_color text =
+    ?border_radius ?border_color ?action text =
   let b = create_empty
       (Button (Button.create ?label ?label_on ?label_off ?fg
                  ?bg_on ?bg_off ?bg_over
-                 ?border_radius ?border_color ?state text)) in
+                 ?border_radius ?border_color ?state ?action kind text)) in
   let press = fun _ _ _ -> Button.press (get_button b) in
   let c = connect_main b b press Trigger.buttons_down in
   add_connection b c;
@@ -473,8 +475,10 @@ let button ?(kind = Button.Trigger) ?label ?label_on ?label_off
   let c = connect_main b b (fun b _ _ -> Button.mouse_leave (get_button b))
       [Trigger.mouse_leave] in
   add_connection b c;
+  let c = connect_main b b (fun b _ ev -> Button.receive_key (get_button b) ev)
+      [Trigger.key_down; Trigger.key_up] in
+  add_connection b c;
   b
-(* TODO: actions *)
 
 (* use ~lock if the user is not authorized to slide *)
 let slider ?(priority=Main) ?step ?value ?kind ?var ?length ?thickness
@@ -595,8 +599,8 @@ let check_box_with_label text =
 (* some useful connections *)
 (* the disadvantage is that these functions do not take advantage of the two
    widgets + event entry. Thus they are less 'functional' and require more
-   global variables. Also, they all work with "connect_main", so are ok only for
-   very fast actions. *)
+   global variables (closures). Also, they all work with "connect_main", so are
+   ok only for very fast actions. *)
 
 let mouse_over ?(enter = nop) ?(leave = nop) w =
   let c = connect w w (fun w _ _ -> enter w) [Trigger.mouse_enter] in
@@ -611,6 +615,13 @@ let on_click ~click w =
 let on_release ~release w =
   let c = connect_main w w (fun w _ _ -> release w)
       Trigger.buttons_up in
+  add_connection w c
+
+let on_button_release ~release w =
+  let c = connect_main w w (fun w _ ev ->
+      if Trigger.of_event ev <> Trigger.key_up
+      || Button.check_key (get_button w) ev
+      then release w) (Trigger.key_up :: Trigger.buttons_up) in
   add_connection w c
 
 (****)
@@ -737,21 +748,22 @@ let set_keyboard_focus w =
   match w.kind with
   | TextInput _ -> () (* already done by the widget *)
   | Slider s -> Slider.set_focus s
+  | Button b -> Button.set_focus b
   | _ -> ()
 
 let remove_keyboard_focus w =
   match w.kind with
   | TextInput ti -> Text_input.stop ti
   | Slider s -> Slider.unfocus s
+  | Button b -> Button.unfocus b
   | _ -> ()
 
 let guess_unset_keyboard_focus w =
   match w.kind with
   | TextInput _ -> Some false
   | Slider _ -> Some false
+  | Button _ -> Some false
   | _ -> None
-(* TODO: buttons could have keyboard focus... to activate them with TAB or ENTER
-   or SPACE... *)
 
 (*************************)
 (* Some examples of "pure" actions (actions that don't depend on external
