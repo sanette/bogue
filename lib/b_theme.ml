@@ -460,8 +460,6 @@ let color_names = load_colors ()
 (* http://www.rapidtables.com/web/color/html-color-codes.htm *)
 
 
-
-
 (* some unused functions, just for me... *)
 let print_bin c =
   let rec loop code list =

@@ -70,6 +70,8 @@ a delay.
 |-----|-----|
 |![demo1](tabs1.png)| ![demo2](tabs2.png) |
 
+See [here](https://github.com/sanette/bogue-demo) for the source code
+of this demo.
 
 ## Videos
 
