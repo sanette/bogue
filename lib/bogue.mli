@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20220927
+@version 20221002
 
 @author Vu Ngoc San
 
@@ -2167,6 +2167,11 @@ module Popup : sig
   (** Add to the layout a modal popup with two yes/no buttons. By default,
       [yes="Yes"] and [no="No"]. Use the optional parameters [w,h] to impose the
       common size of the two buttons. *)
+
+  val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
+    button:string -> dst:Layout.t -> Layout.t -> unit
+  (** Here the optional parameters [w] and [h] set the width and height of the
+      button.*)
 
   val two_buttons : ?w:int -> ?h:int -> label1:string -> label2:string ->
     action1:(unit -> unit) -> action2:(unit -> unit) ->

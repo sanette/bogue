@@ -133,13 +133,17 @@ let slide_in ~dst content buttons =
   (* Layout.slide_in ~dst popup; *)
   popup, screen
 
-let one_button ?w ?h ~button ~dst content =
+let one_button ?w ?h ?on_close ~button ~dst content =
   let close_btn = Widget.button ~border_radius:3 button in
   let popup, screen = slide_in ~dst content (Layout.resident ?w ?h close_btn) in
   let close _ =
     Layout.hide popup;
     Layout.hide screen;
-    Layout.fade_out screen in
+    Layout.fade_out screen;
+    let _ = Timeout.add Layout.default_duration (fun () ->
+        Layout.detach screen;
+        Layout.detach popup) in
+    do_option on_close run in
   Widget.on_button_release ~release:close close_btn
 
 (* a text and a close button. *)
@@ -160,10 +164,14 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   let popup, screen = slide_in ~dst content buttons in
   let close () =
     let open Layout in
+    let _ = Timeout.add Layout.default_duration (fun () ->
+        Layout.detach screen;
+        Layout.detach popup) in
     (*Layout.hide popup;*)
     fade_out ~hide:true popup;
     (*Layout.hide screen*)
-    fade_out ~hide:true screen;
+    fade_out ~hide:true screen
+
   in
   let do1 _ =
     close ();

@@ -1667,6 +1667,8 @@ let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
       printd (debug_error + debug_board)
         "Room %s should not be added to %s because it belongs to another house \
          (%s). We do it anyway." (sprint_id room) (sprint_id dst) (sprint_id h);
+      (* This is actually quite bad error because then the other house will be
+         garbage collected (finalized), its rooms will be GCed too... *)
       true
     | None -> true
 

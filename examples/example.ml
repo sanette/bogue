@@ -394,7 +394,7 @@ let example20 () =
   let board = of_layout layout in
   run board
 
-let desc21 = "popup"
+let desc21 = "user defined re-usable popup"
 let example21 () =
   let b = W.check_box () in
   let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in

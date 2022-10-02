@@ -35,7 +35,7 @@ let create timeout action =
 let execute t =
   if !Utils.debug then assert (not t.cancelled);
   if Time.(now () >> t.timeout)
-  then (Utils.(printd (debug_board + debug_custom) "Executing timeout %i" t.id);
+  then (Utils.(printd debug_board "Executing timeout %i" t.id);
         t.action (); true)
   else false
 
@@ -76,7 +76,7 @@ let insert_sublist sublist list =
   let add delay action =
     let timeout = Time.now () + delay in
   let t = create timeout action in
-  Utils.(printd debug_custom "Adding timeout %i" t.id);
+    Utils.(printd debug_board "Adding timeout %i" t.id);
   Var.protect_fn stack (fun list ->
       Var.set stack (insert list t));
   t
@@ -93,7 +93,7 @@ let remove_old t stack =
 (* Cancel a Timeout from the global stack. It will not be executed and will be
    effectively removed from the stack by the next call to [iter]. *)
 let cancel t =
-  Utils.(printd debug_custom "Cancelling Timeout %i" t.id);
+  Utils.(printd debug_board "Cancelling Timeout %i" t.id);
   t.cancelled <- true
 
 let iter stack =
@@ -103,7 +103,8 @@ let iter stack =
   let list = Var.protect_fn stack (fun list ->
       Var.set stack [];
       list) in
-  Utils.(printd debug_custom "Iter timeout stack of size %i" (List.length list));
+  (* Utils.(printd debug_custom "Iter timeout stack of size %i" (List.length
+     list)); *)
   let rec loop l =
     match l with
     | [] -> []
@@ -113,7 +114,7 @@ let iter stack =
       else l (* the action t was not executed, we leave it in the stack *)
   in
   let remaining = loop list in
-  Utils.(printd debug_custom "Remaining size %i" (List.length remaining));
+  (* Utils.(printd debug_custom "Remaining size %i" (List.length remaining)); *)
   Var.protect_fn stack (fun modified ->
       Var.set stack (insert_sublist modified remaining))
 
