@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20221002
+@version 20221008
 
 @author Vu Ngoc San
 
@@ -62,7 +62,7 @@ module L = Bogue.Layout]}
 
     A number of variables control the appearance of your Bogue application. They are called {%html:<a href="#path">Theme variables</a>%}.
  They take effect when you start your application up (no need to recompile).
-For quick experimentation, they can be modified as environment variables, for instance:
+For quick experimentation, they can be modified as environment variables, for instance in a terminal:
 {v
 export BOGUE_SCALE=2.5
 v}
@@ -124,12 +124,12 @@ v}
 - [FAINT_COLOR]: A non-obstrusive color for disabled options or
   text of little importance.
 - [LABEL_COLOR]: The color for text or icon labels.
-- [LABEL_FONT]: path of a TTF font for text labels. Eg: [Ubuntu-R.ttf].
+- [LABEL_FONT]: path of a TTF font for text labels. If your system has [fontconfig], any installed font (as listed by [fc-list]) can be specified without the full path. Eg: [Ubuntu-R.ttf].
 - [LABEL_FONT_SIZE]: integer, eg [14].
 - [LOG_TO_FILE]: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory.
 - [MENU_HL_COLOR]: the color for highlighting selected menu entries.
 - [MENU_BG_COLOR]
-- [MONO_FONT]: monospace font.
+- [MONO_FONT]: monospace font. See [LABEL_FONT].
 - [OPENGL_MULTISAMPLE]: set to "true" to enable this opengl attribute.
 - [ROOM_MARGIN]
 - [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.],
@@ -143,7 +143,7 @@ v}
 - [SEL_FG_COLOR]: text color for selected items in lists.
 - [SMALL_FONT_SIZE]: integer. Used for instance for tooltips popups.
 - [TEXT_COLOR]: color of standard text displays.
-- [TEXT_FONT]
+- [TEXT_FONT]: used for text displays. See [LABEL_FONT].
 - [TEXT_FONT_SIZE]
 - [THEME]: the name of the theme to use.
   It should be the name of the directory within the [themes] dir.
@@ -184,13 +184,35 @@ module Theme : sig
   (** {2 Accessing Theme variables}
 
      Theme variables are essentially for Bogue's internal use, but sometimes it
-     can be useful to access their values. See above for their description. *)
+     can be useful to access or modify their values. See above for their
+     description.
+
+     {b Warning:} Theme variables are global variables and should be modified
+     (by the main thread) {e before} starting the main loop (with {!Main.run})
+     if you want predictable results. *)
 
   val room_margin : int
 
   val scale_int : int -> int
 (** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
    obtained by multiplying by [SCALE]. *)
+
+  val set_text_font : string -> unit
+  val set_label_font : string -> unit
+  val set_scale : float -> unit
+  val set_integer_scale : bool -> unit
+
+  (** {2 Accessing files installed along with your application}
+
+      Files distributed with you application built with Bogue should be
+      installed in a "share" directory, for instance using the [install] stanza
+      of [dune] with [(section share)]. *)
+
+  val find_share : string -> string -> string option
+  (** [find_share app file] returns a guessed location for your application
+      share directory (if it exists). The [app] string should be the system name
+      of your application. The returned location is quaranteed to contain the
+      given [file]. *)
 
 end (* of Theme *)
 
@@ -665,6 +687,9 @@ module Draw: sig
 
   val set_color : Tsdl.Sdl.renderer -> color -> unit
   (** Equivalent to [Sdl.set_render_draw_color]. *)
+
+  val set_text_color : rgb -> unit
+    (** Overrides the {!Theme} [TEXT_COLOR] variable. *)
 
   (** {2:drawing_functions Drawing functions}
 

@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20221002"  (* see VERSION file *)
+let this_version = "20221008"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -82,7 +82,8 @@ let default_vars = [
      to the user, and be applied only at the last moment, when dealing directly
      with rendering functions, or when creating blits. It might be a good idea
      to have a different scale per window, in case of multiple monitors. SCALE=0
-     will try to autodetect: *)
+       will try to autodetect: *)
+    "INT_SCALE", "false";
     "SCALE", "0";
     "OPENGL_MULTISAMPLE", "false";
     (* https://wiki.libsdl.org/SDL_GLattr#multisample *)
@@ -251,6 +252,28 @@ let download_conf () =
   Sys.chdir cwd;
   sprintf "%s/bogue/themes" conf
 
+(* Look for a share dir for [prog] either of the form "prefix/share/prog" or
+   "prefix/share" that contains the given [file]. This is a utility for other
+   programs using Bogue, not for Bogue itself. *)
+let find_share prog file =
+  let cwd = Sys.getcwd () in
+  let queue = Queue.create () in
+  let exec_dir = Filename.dirname Sys.executable_name in
+  let prefix_dir = Sys.chdir exec_dir; Sys.chdir ".."; Sys.getcwd ()  in
+  if Filename.basename (Filename.basename exec_dir) = "bin"
+  then Queue.add (Filename.concat prefix_dir "share") queue;
+  let () = try let system = Unix.open_process_in "opam var share" in
+      let res = input_line system in
+      Queue.add (Filename.concat res prog) queue
+    with _ -> () in
+  Sys.chdir cwd;
+  match Queue.fold (fun list path ->
+      if Sys.file_exists (Filename.concat path file)
+      then List.cons path list else list) [] queue with
+  | [] -> printd debug_error "Cannot find share directory for %s/%s!"
+            prog file; None
+  | path :: _ -> Some path
+
 (* We try to locate the theme dir. *)
 (* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes
 
@@ -347,11 +370,13 @@ let get_font_path name =
         check_file (sub_file fonts_dir name) (fun () ->
             let fclist = Unix.open_process_in
                 (Printf.sprintf "fc-list : file | grep %s" name) in
-            let res = input_line fclist in
-            match Unix.close_process_in fclist with
-            | Unix.WEXITED 0 ->
-              String.sub res 0 (String.rindex res ':')
-            | _ -> printd debug_error "Cannot find font %s" name; name
+            try
+              let res = input_line fclist in
+              match Unix.close_process_in fclist with
+              | Unix.WEXITED 0 ->
+                String.sub res 0 (String.rindex res ':')
+              | _ -> printd debug_error "Cannot find font %s" name; name
+            with End_of_file -> printd debug_error "Cannot find font %s" name; name
           )
       )
 
@@ -370,15 +395,15 @@ let label_color = get_var "LABEL_COLOR"
 let menu_hl_color = get_var "MENU_HL_COLOR"
 let menu_bg_color = get_var "MENU_BG_COLOR"
 let label_font_size = get_int ~default:14 "LABEL_FONT_SIZE"
-let label_font = get_font_path (get_var "LABEL_FONT")
-let text_font = get_font_path (get_var "TEXT_FONT")
+let label_font = ref (get_font_path (get_var "LABEL_FONT"))
+let text_font = ref (get_font_path (get_var "TEXT_FONT"))
 let text_font_size = get_int ~default:14 "TEXT_FONT_SIZE"
 let small_font_size = get_int ~default:10 "SMALL_FONT_SIZE"
 let mono_font = get_font_path (get_var "MONO_FONT")
 let room_margin = get_int ~default:10 "ROOM_MARGIN"
 let fa_dir = sub_file common (get_var "FA_DIR")
 let fa_font = sub_file fa_dir "fonts/fontawesome-webfont.ttf"
-let integer_scale = get_bool "INT_SCALE"
+let integer_scale = ref (get_bool "INT_SCALE")
 let scale = ref (get_float ~default:0. "SCALE")
 let opengl_multisample = get_bool "OPENGL_MULTISAMPLE"
 let fa_font_size = 18
@@ -388,6 +413,19 @@ let symbols = [
 "check_empty", "\239\130\150";
 "check", "\239\129\134";
 ]
+
+let set var x = var := x
+
+let set_text_font f = text_font := get_font_path f
+let set_label_font f = label_font := get_font_path f
+
+let set_scale s =
+  let s = if !integer_scale then Float.floor s else s in
+  scale := s
+
+let set_integer_scale b =
+  integer_scale := b;
+  if b then set_scale !scale
 
 let scale_int i =
   round (!scale *. float i)

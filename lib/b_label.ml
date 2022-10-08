@@ -21,7 +21,7 @@ type t =
     fg : (Draw.color option) Var.t; (* foreground color *)
   }
 
-let create ?(size = Theme.label_font_size) ?(font = File Theme.label_font)
+let create ?(size = Theme.label_font_size) ?(font = File !Theme.label_font)
     ?(style = Ttf.Style.normal) ?fg ?(align = Draw.Center) text =
   Draw.ttf_init (); (* we init here so that one can get the size of the widget *)
   { text = Var.create text;

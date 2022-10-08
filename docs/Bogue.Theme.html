@@ -12,6 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Accessing Theme variables" rel="Section" href="#2_AccessingThemevariables">
+<link title="Accessing files installed along with your application" rel="Section" href="#2_Accessingfilesinstalledalongwithyourapplication">
 <title>Bogue.Theme</title>
 </head>
 <body>
@@ -26,7 +27,7 @@
 
 <p>A number of variables control the appearance of your Bogue application. They are called <a href="#path">Theme variables</a>.
  They take effect when you start your application up (no need to recompile).
-For quick experimentation, they can be modified as environment variables, for instance:</p>
+For quick experimentation, they can be modified as environment variables, for instance in a terminal:</p>
 <pre class="verbatim">export BOGUE_SCALE=2.5</pre><p>They can also be saved in configuration files, and you may organize as many config files as you want into <em>themes</em>.</p>
 
 <h4 id="config">Where are the config files?</h4>
@@ -76,12 +77,12 @@ BACKGROUND = color:azure</pre></li>
 <li><code class="code"><span class="constructor">FAINT_COLOR</span></code>: A non-obstrusive color for disabled options or
   text of little importance.</li>
 <li><code class="code"><span class="constructor">LABEL_COLOR</span></code>: The color for text or icon labels.</li>
-<li><code class="code"><span class="constructor">LABEL_FONT</span></code>: path of a TTF font for text labels. Eg: <code class="code"><span class="constructor">Ubuntu</span>-<span class="constructor">R</span>.ttf</code>.</li>
+<li><code class="code"><span class="constructor">LABEL_FONT</span></code>: path of a TTF font for text labels. If your system has <code class="code">fontconfig</code>, any installed font (as listed by <code class="code">fc-list</code>) can be specified without the full path. Eg: <code class="code"><span class="constructor">Ubuntu</span>-<span class="constructor">R</span>.ttf</code>.</li>
 <li><code class="code"><span class="constructor">LABEL_FONT_SIZE</span></code>: integer, eg <code class="code">14</code>.</li>
 <li><code class="code"><span class="constructor">LOG_TO_FILE</span></code>: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory.</li>
 <li><code class="code"><span class="constructor">MENU_HL_COLOR</span></code>: the color for highlighting selected menu entries.</li>
 <li><code class="code"><span class="constructor">MENU_BG_COLOR</span></code></li>
-<li><code class="code"><span class="constructor">MONO_FONT</span></code>: monospace font.</li>
+<li><code class="code"><span class="constructor">MONO_FONT</span></code>: monospace font. See <code class="code"><span class="constructor">LABEL_FONT</span></code>.</li>
 <li><code class="code"><span class="constructor">OPENGL_MULTISAMPLE</span></code>: set to "true" to enable this opengl attribute.</li>
 <li><code class="code"><span class="constructor">ROOM_MARGIN</span></code></li>
 <li><code class="code"><span class="constructor">SCALE</span></code>: global scale (any non-negative float). For instance if <code class="code"><span class="constructor">SCALE</span>&nbsp;=&nbsp;2.</code>,
@@ -95,7 +96,7 @@ BACKGROUND = color:azure</pre></li>
 <li><code class="code"><span class="constructor">SEL_FG_COLOR</span></code>: text color for selected items in lists.</li>
 <li><code class="code"><span class="constructor">SMALL_FONT_SIZE</span></code>: integer. Used for instance for tooltips popups.</li>
 <li><code class="code"><span class="constructor">TEXT_COLOR</span></code>: color of standard text displays.</li>
-<li><code class="code"><span class="constructor">TEXT_FONT</span></code></li>
+<li><code class="code"><span class="constructor">TEXT_FONT</span></code>: used for text displays. See <code class="code"><span class="constructor">LABEL_FONT</span></code>.</li>
 <li><code class="code"><span class="constructor">TEXT_FONT_SIZE</span></code></li>
 <li><code class="code"><span class="constructor">THEME</span></code>: the name of the theme to use.
   It should be the name of the directory within the <code class="code">themes</code> dir.
@@ -126,13 +127,35 @@ then the <code class="code">%</code> char is replaced by the Bogue dir, for inst
 <hr width="100%">
 <h3 id="2_AccessingThemevariables">Accessing Theme variables</h3>
 <p>Theme variables are essentially for Bogue's internal use, but sometimes it
-     can be useful to access their values. See above for their description.</p>
+     can be useful to access or modify their values. See above for their
+     description.</p>
+
+<p><b>Warning:</b> Theme variables are global variables and should be modified
+     (by the main thread) <em>before</em> starting the main loop (with <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>)
+     if you want predictable results.</p>
 
 <pre><span id="VALroom_margin"><span class="keyword">val</span> room_margin</span> : <code class="type">int</code></pre>
 <pre><span id="VALscale_int"><span class="keyword">val</span> scale_int</span> : <code class="type">int -&gt; int</code></pre><div class="info ">
 <div class="info-desc">
 <p>Conversion: Bogue dimension -&gt; hardware pixel dimension. The latter is
    obtained by multiplying by <code class="code"><span class="constructor">SCALE</span></code>.</p>
+</div>
+</div>
+
+<pre><span id="VALset_text_font"><span class="keyword">val</span> set_text_font</span> : <code class="type">string -&gt; unit</code></pre>
+<pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -&gt; unit</code></pre>
+<pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -&gt; unit</code></pre>
+<pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -&gt; unit</code></pre><h3 id="2_Accessingfilesinstalledalongwithyourapplication">Accessing files installed along with your application</h3>
+<p>Files distributed with you application built with Bogue should be
+      installed in a "share" directory, for instance using the <code class="code">install</code> stanza
+      of <code class="code">dune</code> with <code class="code">(section&nbsp;share)</code>.</p>
+
+<pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -&gt; string -&gt; string option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">find_share&nbsp;app&nbsp;file</code> returns a guessed location for your application
+      share directory (if it exists). The <code class="code">app</code> string should be the system name
+      of your application. The returned location is quaranteed to contain the
+      given <code class="code">file</code>.</p>
 </div>
 </div>
 </body></html>

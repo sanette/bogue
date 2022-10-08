@@ -52,7 +52,7 @@ let uint_filter s = List.mem s ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"
 let and_filter f1 f2 = function
     s -> (f1 s) && (f2 s)
 
-let default_font = Label.File Theme.text_font
+let default_font = Label.File !Theme.text_font
 
 let create ?(max_size = 2048) ?(prompt = "Enter text")
       ?(size = Theme.text_font_size)
@@ -605,7 +605,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
     | None ->
       let start_time = Unix.gettimeofday () in (* =for debug only *)
       let keys = Var.get ti.keys in
-      let fg = if keys <> [] then Draw.(opaque text_color) else
+      let fg = if keys <> [] then Draw.(opaque !text_color) else
           (* if is_active ti then Draw.(opaque pale_grey) else *)
           Draw.(opaque faint_color) in
       let keys = if keys = [] && not (is_active ti) then [ti.prompt] else keys in

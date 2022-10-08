@@ -185,7 +185,7 @@ let rec open_font file size =
              Hashtbl.add fc (file,size) f;
              f);
       | Result.Error _ ->  (* use default font if error *)
-         if file = Theme.label_font
+         if file = !Theme.label_font
          then begin
              printd (debug_io + debug_error)
                "(FATAL) default font %s (%u) cannot be loaded" file size;
@@ -196,7 +196,7 @@ let rec open_font file size =
              printd (debug_io + debug_error)
                "Font %s (%u) could not be loaded. Using default font instead"
                file size;
-             open_font Theme.label_font size
+             open_font !Theme.label_font size
            end
     end
 
@@ -480,7 +480,7 @@ let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8
 let bg_color = find_color Theme.bg_color
 let cursor_color = find_color Theme.cursor_color
 let faint_color = find_color Theme.faint_color
-let text_color = find_color Theme.text_color
+let text_color = ref (find_color Theme.text_color)
 let sel_bg_color = find_color Theme.sel_bg_color
 let sel_fg_color = find_color Theme.sel_fg_color
 let label_color = find_color Theme.label_color
@@ -488,6 +488,9 @@ let menu_hl_color = find_color Theme.menu_hl_color
 let menu_bg_color = find_color Theme.menu_bg_color
 (* TODO put in VAR: *)
 let scrollbar_color = set_alpha 20 blue
+
+let set_text_color c =
+  text_color := c
 
 let opaque = set_alpha 255
 
@@ -892,9 +895,8 @@ let get_dpi () =
 let detect_set_scale () =
     let dpi = default (get_dpi ()) default_dpi in
     let s = if dpi <= 110 then 1. else (float dpi /. (float default_dpi)) in
-    let s = if Theme.integer_scale then Float.round s else s in
-    printd (debug_graphics+debug_warning) "Using SCALE=%f" s;
-    Theme.scale := s
+    Theme.set_scale s;
+    printd (debug_graphics+debug_warning) "Using SCALE=%f" !Theme.scale
 
 let video_init () =
   if Sdl.was_init (Some Sdl.Init.video) = Sdl.Init.video

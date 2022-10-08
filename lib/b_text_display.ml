@@ -40,7 +40,7 @@ type t =
       mutable h: int option; (* height in pixels. See above. *)
     }
 
-let default_font = Label.File Theme.text_font
+let default_font () = Label.File !Theme.text_font
 
 let unload td =
     match Var.get td.render with
@@ -144,7 +144,7 @@ let ( ++ ) = append
 (*   [para "Hello"; para "World"]  *)
 let page list : words list = list
 
-let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font)
+let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ())
       paragraphs =
   Draw.ttf_init ();
   { paragraphs = Var.create (List.rev ([Style Ttf.Style.normal] :: (List.rev paragraphs)));
@@ -162,12 +162,12 @@ let paragraphs_of_string text =
 let paragraphs_of_lines lines =
   List.map split_line lines
 
-let create_from_string ?(size = Theme.text_font_size) ?w ?h ?(font = default_font) text =
+let create_from_string ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ()) text =
   let paragraphs = paragraphs_of_string text in
   create ~size ?w ?h ~font paragraphs
 
 
-let create_from_lines ?(size = Theme.text_font_size) ?w ?h ?(font = default_font) lines =
+let create_from_lines ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ()) lines =
   let paragraphs = paragraphs_of_lines lines in
   create ~size ?w ?h ~font paragraphs
 
@@ -238,7 +238,7 @@ let paragraphs_of_html src =
 (* *** *)
 
 let create_from_html ?(size = Theme.text_font_size) ?w ?h
-    ?(font = default_font) html =
+    ?(font = default_font ()) html =
   let paragraphs = paragraphs_of_html html in
   create ~size ?w ?h ~font paragraphs
 
@@ -326,7 +326,7 @@ let display canvas layer td g =
     | None ->
       begin
         let font = get_font td in
-        let fg = opaque text_color in
+        let fg = opaque !text_color in
         let lineskip = Ttf.font_line_skip font in
         let space = fst (Label.physical_size_text font " ") in (* idem *)
         let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in
