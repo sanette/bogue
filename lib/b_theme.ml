@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20221008"  (* see VERSION file *)
+let this_version = "20221020"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -91,7 +91,7 @@ let default_vars = [
 
 let id x = x
 
-let sub_file = Filename.concat
+let (//) = Filename.concat
 
 (* Some global environment variables *)
 let home = Sys.getenv "HOME"
@@ -99,7 +99,7 @@ let home = Sys.getenv "HOME"
 (* Home config directory *)
 (* TODO use https://github.com/ocamlpro/directories *)
 let conf = try Sys.getenv "XDG_CONFIG_HOME" with
-  | Not_found -> sub_file home ".config"
+  | Not_found -> home // ".config"
 
 let skip_comment buffer =
   let rec loop () =
@@ -149,8 +149,8 @@ let conf_file = "bogue.conf"
    precedence. The theme config file will be loaded afterwards, see below. *)
 let all_conf_files () = [
   conf_file;
-  sub_file home ("." ^ conf_file);
-  sub_file conf @@ sub_file "bogue" conf_file
+  home // ("." ^ conf_file);
+  conf // "bogue" // conf_file
 ]
 
 let user_vars =
@@ -217,7 +217,7 @@ let load_theme_vars dir vars =
     | (name, value)::rest ->
        if name = "THEME"
        then
-         let theme_path = sub_file dir @@ sub_file value conf_file in
+         let theme_path = dir // value // conf_file in
          (name, value) :: (rev_insert_theme_vars theme_path newv rest)
        else loop ((name, value)::newv) rest
   in
@@ -258,20 +258,25 @@ let download_conf () =
 let find_share prog file =
   let cwd = Sys.getcwd () in
   let queue = Queue.create () in
-  let exec_dir = Filename.dirname Sys.executable_name in
-  let prefix_dir = Sys.chdir exec_dir; Sys.chdir ".."; Sys.getcwd ()  in
-  if Filename.basename (Filename.basename exec_dir) = "bin"
-  then Queue.add (Filename.concat prefix_dir "share") queue;
-  let () = try let system = Unix.open_process_in "opam var share" in
-      let res = input_line system in
-      Queue.add (Filename.concat res prog) queue
+  let bin_dir = Filename.dirname Sys.executable_name in
+  let prefix_dir = Sys.chdir bin_dir; Sys.chdir ".."; Sys.getcwd () in
+  let b = Filename.basename bin_dir in
+  if b = "bin"
+  then Queue.add (prefix_dir // "share" // prog) queue;
+  if Filename.basename b = "bin"
+  then Queue.add (prefix_dir // "share") queue;
+  let () =
+    try let system = Unix.open_process_in "opam var share" in
+        let res = input_line system in
+        Queue.add (res // prog) queue
     with _ -> () in
   Sys.chdir cwd;
   match Queue.fold (fun list path ->
-      if Sys.file_exists (Filename.concat path file)
-      then List.cons path list else list) [] queue with
-  | [] -> printd debug_error "Cannot find share directory for %s/%s!"
-            prog file; None
+            print_endline path;
+            if Sys.file_exists (path // file)
+            then List.cons path list else list) [] queue with
+  | [] -> printd debug_error "Cannot find share directory for %s/%s! bin_dir=%s, prefix_dir=%s"
+            prog file bin_dir prefix_dir; None
   | path :: _ -> Some path
 
 (* We try to locate the theme dir. *)
@@ -289,7 +294,7 @@ let dir =
   let dir = get_var "DIR" in
   if Sys.file_exists dir && Sys.is_directory dir
   then dir
-  else let config = sub_file conf "bogue/themes" in
+  else let config = conf // "bogue" // "themes" in
     if Sys.file_exists config && Sys.is_directory config
     then if dir = ""
       then begin
@@ -331,13 +336,13 @@ let dir =
 *)
 let () = user_vars := load_theme_vars dir !user_vars
 
-let current = sub_file dir (get_var "THEME")
+let current = dir // (get_var "THEME")
 
 let () =  print_endline
     (Printf.sprintf "Loading Bogue %s with config dir %s" this_version current)
 
-let common = sub_file dir "common"
-let fonts_dir = sub_file common "fonts"
+let common = dir // "common"
+let fonts_dir = common // "fonts"
 
 (* A file starting with "/" is considered a global path. If the file starts with
    "%", that char is replaced by the shared bogue dir/. Otherwise it will be
@@ -348,12 +353,12 @@ let get_path file =
   if file.[0] = '/' then file
   else if file.[0] = '%'
   then let file = String.sub file 1 (String.length file - 1) in
-    (sub_file (Filename.dirname dir) file)
+    ((Filename.dirname dir) // file)
   else if Sys.file_exists file
   then file
   else (printd debug_io "File %S does not exist in current dir %s"
           file (Sys.getcwd ());
-        sub_file current file)
+        current // file)
 
 let get_fa_or_path s =
   if startswith s "fa:" then s else get_path s
@@ -367,7 +372,7 @@ let get_font_path name =
          if Sys.file_exists file then file else fail () in
     (* stupid construction, I know hehe) *)
     check_file name (fun () ->
-        check_file (sub_file fonts_dir name) (fun () ->
+        check_file (fonts_dir // name) (fun () ->
             let fclist = Unix.open_process_in
                 (Printf.sprintf "fc-list : file | grep %s" name) in
             try
@@ -401,8 +406,8 @@ let text_font_size = get_int ~default:14 "TEXT_FONT_SIZE"
 let small_font_size = get_int ~default:10 "SMALL_FONT_SIZE"
 let mono_font = get_font_path (get_var "MONO_FONT")
 let room_margin = get_int ~default:10 "ROOM_MARGIN"
-let fa_dir = sub_file common (get_var "FA_DIR")
-let fa_font = sub_file fa_dir "fonts/fontawesome-webfont.ttf"
+let fa_dir = common // (get_var "FA_DIR")
+let fa_font = fa_dir // "fonts/fontawesome-webfont.ttf"
 let integer_scale = ref (get_bool "INT_SCALE")
 let scale = ref (get_float ~default:0. "SCALE")
 let opengl_multisample = get_bool "OPENGL_MULTISAMPLE"
@@ -444,7 +449,7 @@ let unscale_to_float i =
 
 (** font awesome variables *)
 let load_fa_variables () =
-  let file = sub_file fa_dir "less/variables.less" in
+  let file = fa_dir // "less" // "variables.less" in
   let buffer = Scanf.Scanning.from_file file in
   let rec loop list =
     try
@@ -475,7 +480,7 @@ let fa_symbol name =
     List.assoc "question" fa_symbols
 
 let load_colors () =
-  let file = sub_file common "colors/liste.txt" in
+  let file = common // "colors" // "liste.txt" in
   let buffer = Scanf.Scanning.from_file file in
   let rec loop list =
     try
