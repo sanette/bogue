@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20221020
+@version 20221028
 
 @author Vu Ngoc San
 
@@ -2445,8 +2445,7 @@ module Main : sig
      connections can be empty, because connections can be added afterwards. Each
      Layout in the list will open as a new window.
 
-      @param shortcuts This optional argument is a list of shortcut triples of
-     the form [keycode, keymod, action].
+      @param shortcuts This optional argument is a {%html:<a href="#shortcuts">shortcut map</a>%}.
 
       @param on_user_event This optional argument is a function to be executed
      (by the main thread) when a {!Trigger.user_event} is emmitted.
@@ -2471,9 +2470,9 @@ module Main : sig
 
   val make : ?shortcuts:shortcuts ->
     (Widget.connection list) -> Layout.t list -> board
-  (* Similar to {!of_layouts}.
+  (** Similar to {!of_layouts}.
 
-     @Deprecated since 20220418. Use {!of_layouts} or {!create} instead. *)
+     @deprecated   (since 20220418). Use {!of_layouts} or {!create} instead. *)
 
   val run :
     ?before_display:(unit -> unit) ->
@@ -2484,7 +2483,7 @@ module Main : sig
      case at least one window was created), or when the {!Exit} exception is
      raised. *)
 
-  (** {3 Creating global keyboard shortcuts} *)
+  (** {3:shortcuts Creating global keyboard shortcuts} *)
 
   type shortcut_action = board -> unit
 
@@ -2499,7 +2498,7 @@ module Main : sig
     int -> shortcut_action -> shortcuts
 
   val shortcuts_of_list : (int * int * shortcut_action) list -> shortcuts
-  (** List of (SDL keycode, SDL keymod, action) *)
+  (** Construct shortcuts from a list of (SDL keycode, SDL keymod, action). *)
 
   (** {2 Using Bogue together with another graphics loop}
 

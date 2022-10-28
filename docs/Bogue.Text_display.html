@@ -39,21 +39,21 @@
 
 <h3 id="2_Preparingthetext">Preparing the text</h3>
 <pre><span id="VALexample"><span class="keyword">val</span> example</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALraw"><span class="keyword">val</span> raw</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALbold"><span class="keyword">val</span> bold</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALitalic"><span class="keyword">val</span> italic</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALnormal"><span class="keyword">val</span> normal</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALunderline"><span class="keyword">val</span> underline</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALstrikethrough"><span class="keyword">val</span> strikethrough</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALpage"><span class="keyword">val</span> page</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> list -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre>
-<pre><span id="VALpara"><span class="keyword">val</span> para</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALparagraphs_of_string"><span class="keyword">val</span> paragraphs_of_string</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre><h3 id="2_Creatingthewidget">Creating the widget</h3>
+<pre><span id="VALraw"><span class="keyword">val</span> raw</span> : <code class="type">string -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALbold"><span class="keyword">val</span> bold</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALitalic"><span class="keyword">val</span> italic</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALnormal"><span class="keyword">val</span> normal</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALunderline"><span class="keyword">val</span> underline</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALstrikethrough"><span class="keyword">val</span> strikethrough</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALpage"><span class="keyword">val</span> page</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> list -> <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre>
+<pre><span id="VALpara"><span class="keyword">val</span> para</span> : <code class="type">string -> <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
+<pre><span id="VALparagraphs_of_string"><span class="keyword">val</span> paragraphs_of_string</span> : <code class="type">string -> <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre><h3 id="2_Creatingthewidget">Creating the widget</h3>
 <p>Use <a href="Bogue.Widget.html#VALtext_display"><code class="code"><span class="constructor">Widget</span>.text_display</code></a></p>
 <h3 id="2_Modifyingthewidget">Modifying the widget</h3>
-<pre><span id="VALreplace"><span class="keyword">val</span> replace</span> : <code class="type">by:<a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALreplace"><span class="keyword">val</span> replace</span> : <code class="type">by:<a href="Bogue.Text_display.html#TYPEt">t</a> -> <a href="Bogue.Text_display.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">replace&nbsp;~by:t2&nbsp;t1</code> replaces the text content of <code class="code">t1</code> by the one of <code class="code">t2</code>.</p>
 </div>
 </div>
 
-<pre><span id="VALupdate_verbatim"><span class="keyword">val</span> update_verbatim</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; string -&gt; unit</code></pre></body></html>
+<pre><span id="VALupdate_verbatim"><span class="keyword">val</span> update_verbatim</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEt">t</a> -> string -> unit</code></pre></body></html>

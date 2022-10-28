@@ -695,6 +695,10 @@ let guess_top () =
 let is_top layout =
   layout.house = None && layout.canvas <> None
 
+(* Shoud this be a public function? The house it not always the one we
+   imagine. For instance [make_clip] will change the room. Maybe we should
+   enforce in [make_clip] and others that the original room should not belong to
+   a house to start with. *)
 let get_house layout =
   layout.house
 

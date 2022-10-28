@@ -37,7 +37,7 @@
 </div>
 <hr width="100%">
 <h3 id="2_Debugging">Debugging</h3>
-<pre><span id="VALprintd"><span class="keyword">val</span> printd</span> : <code class="type">int -&gt; ('a, unit, string, unit) Stdlib.format4 -&gt; 'a</code></pre><div class="info ">
+<pre><span id="VALprintd"><span class="keyword">val</span> printd</span> : <code class="type">int -> ('a, unit, string, unit) Stdlib.format4 -> 'a</code></pre><div class="info ">
 <div class="info-desc">
 <p>For instance <code class="code">printd&nbsp;debug_warning&nbsp;<span class="string">"The&nbsp;value&nbsp;x=%u&nbsp;is&nbsp;too&nbsp;big"</span>&nbsp;x</code> will
      print a message in the console only if the <a href="Bogue.Utils.html#VALdebug"><code class="code"><span class="constructor">Utils</span>.debug</code></a> variable contains the
@@ -63,25 +63,25 @@
 <pre><span id="VALdebug_event"><span class="keyword">val</span> debug_event</span> : <code class="type">int</code></pre>
 <pre><span id="VALdebug_custom"><span class="keyword">val</span> debug_custom</span> : <code class="type">int</code></pre><h3 id="2_Maths">Maths</h3>
 <pre><span id="VALpi"><span class="keyword">val</span> pi</span> : <code class="type">float</code></pre>
-<pre><span id="VALround"><span class="keyword">val</span> round</span> : <code class="type">float -&gt; int</code></pre><div class="info ">
+<pre><span id="VALround"><span class="keyword">val</span> round</span> : <code class="type">float -> int</code></pre><div class="info ">
 <div class="info-desc">
 <p>Round float to nearest integer.</p>
 </div>
 </div>
 
-<pre><span id="VALimax"><span class="keyword">val</span> imax</span> : <code class="type">int -&gt; int -&gt; int</code></pre><div class="info ">
+<pre><span id="VALimax"><span class="keyword">val</span> imax</span> : <code class="type">int -> int -> int</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">imax&nbsp;a&nbsp;b</code> returns max(<code class="code">a</code>, <code class="code">b</code>). (Same as <code class="code"><span class="constructor">Int</span>.max</code>).</p>
 </div>
 </div>
 
-<pre><span id="VALimin"><span class="keyword">val</span> imin</span> : <code class="type">int -&gt; int -&gt; int</code></pre><div class="info ">
+<pre><span id="VALimin"><span class="keyword">val</span> imin</span> : <code class="type">int -> int -> int</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">imin&nbsp;a&nbsp;b</code> returns min(<code class="code">a</code>, <code class="code">b</code>). (Same as <code class="code"><span class="constructor">Int</span>.min</code>).</p>
 </div>
 </div>
 <h3 id="2_TsdlResult">Tsdl Result</h3>
-<pre><span id="VALgo"><span class="keyword">val</span> go</span> : <code class="type">'a Tsdl.Sdl.result -&gt; 'a</code></pre><div class="info ">
+<pre><span id="VALgo"><span class="keyword">val</span> go</span> : <code class="type">'a Tsdl.Sdl.result -> 'a</code></pre><div class="info ">
 <div class="info-desc">
 <p>Transform a <code class="code">result</code> into a standard value, or fail with an error. Used
       for SDL functions only.</p>
@@ -90,19 +90,19 @@
 <h3 id="2_Options">Options</h3>
 <p>Monadic style operations on optional variables.</p>
 
-<pre><span id="VALmap_option"><span class="keyword">val</span> map_option</span> : <code class="type">'a option -&gt; ('a -&gt; 'b) -&gt; 'b option</code></pre><div class="info ">
+<pre><span id="VALmap_option"><span class="keyword">val</span> map_option</span> : <code class="type">'a option -> ('a -> 'b) -> 'b option</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">map_option&nbsp;o&nbsp;f</code> is the same as <code class="code"><span class="constructor">Option</span>.map&nbsp;f&nbsp;o</code>.</p>
 </div>
 </div>
 
-<pre><span id="VALdo_option"><span class="keyword">val</span> do_option</span> : <code class="type">'a option -&gt; ('a -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALdo_option"><span class="keyword">val</span> do_option</span> : <code class="type">'a option -> ('a -> unit) -> unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">do_option&nbsp;o&nbsp;f</code> is the same as <code class="code"><span class="constructor">Option</span>.iter&nbsp;f&nbsp;o</code>.</p>
 </div>
 </div>
 
-<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type">'a option -&gt; 'a -&gt; 'a</code></pre><div class="info ">
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type">'a option -> 'a -> 'a</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">default&nbsp;o&nbsp;v&nbsp;</code> is the same as <code class="code"><span class="constructor">Option</span>.value&nbsp;o&nbsp;~default:v</code>. Warning: <code class="code">v</code> is
       evaluated even if it is not used.</p>
@@ -111,14 +111,14 @@
 
 <pre><span id="EXCEPTIONNone_option"><span class="keyword">exception</span> None_option</span></pre>
 
-<pre><span id="VALremove_option"><span class="keyword">val</span> remove_option</span> : <code class="type">'a option -&gt; 'a</code></pre><div class="info ">
+<pre><span id="VALremove_option"><span class="keyword">val</span> remove_option</span> : <code class="type">'a option -> 'a</code></pre><div class="info ">
 <div class="info-desc">
 <p>Like <code class="code"><span class="constructor">Option</span>.get</code>. Warning: <code class="code">remove_option&nbsp;<span class="constructor">None</span></code> will raise the
      <a href="Bogue.Utils.html#EXCEPTIONNone_option"><code class="code"><span class="constructor">Utils</span>.<span class="constructor">None_option</span></code></a> exception.</p>
 </div>
 </div>
 <h3 id="2_Others">Others</h3>
-<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">(unit -&gt; 'a) -&gt; 'a</code></pre><div class="info ">
+<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">(unit -> 'a) -> 'a</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">run&nbsp;f</code> is equivalent to <code class="code">f&nbsp;()</code>.</p>
 </div>

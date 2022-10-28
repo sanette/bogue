@@ -57,7 +57,7 @@ let protect_do v action =
       (* The variable is now locked *)
       if !debug then assert (v.thread_id = None); (* just for debugging *)
       v.thread_id <- Some Thread.(id (self ()));
-      let result = action () in
+      let result = try action () with exn -> release v; raise exn in
       release v;
       (* The variable is now unlocked *)
       result
@@ -71,7 +71,7 @@ let protect_do v action =
       Mutex.lock v.mutex;
       v.thread_id <- Some Thread.(id (self ()));
       printd debug_thread "...ok, the variable was unlocked, we proceed.";
-      let result = action () in
+      let result = try action () with exn -> release v; raise exn in
       release v;
       result
     end

@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20221020"  (* see VERSION file *)
+let this_version = "20221028"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -267,14 +267,13 @@ let find_share prog file =
   then Queue.add (prefix_dir // "share") queue;
   let () =
     try let system = Unix.open_process_in "opam var share" in
-        let res = input_line system in
-        Queue.add (res // prog) queue
+      let res = input_line system in
+      Queue.add (res // prog) queue
     with _ -> () in
   Sys.chdir cwd;
   match Queue.fold (fun list path ->
-            print_endline path;
-            if Sys.file_exists (path // file)
-            then List.cons path list else list) [] queue with
+      if Sys.file_exists (path // file)
+      then List.cons path list else list) [] queue with
   | [] -> printd debug_error "Cannot find share directory for %s/%s! bin_dir=%s, prefix_dir=%s"
             prog file bin_dir prefix_dir; None
   | path :: _ -> Some path

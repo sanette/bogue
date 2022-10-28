@@ -177,7 +177,7 @@ let example6 () =
       "Merry Christmas !" in
   let layout = L.flat_of_w ~align:Draw.Center [b;l] in
   let shortcuts = shortcuts_of_list [exit_on_escape] in
-  let board = make ~shortcuts [] [layout] in
+  let board = of_layout ~shortcuts layout in
   run board
 
 let desc7 = "Click on the button to change the label."

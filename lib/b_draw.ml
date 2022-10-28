@@ -1229,7 +1229,8 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   let px = Sdl.get_window_pixel_format win in
   printd debug_graphics "Window pixel format = %s" (Sdl.get_pixel_format_name px);
   let renderer = match window with
-    | None -> go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win)
+    | None -> go (Sdl.create_renderer
+                    ~flags:Sdl.Renderer.(targettexture + presentvsync) win)
     | Some win -> match Sdl.get_renderer win with
       | Ok w -> printd debug_graphics "Using existing renderer"; w
       | Error _ ->
