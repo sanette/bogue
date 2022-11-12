@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20221028
+@version 20221112
 
 @author Vu Ngoc San
 
@@ -41,12 +41,12 @@ Copyright: see LICENCE
 
 (** {1 List of Modules}
 
-The only thing that [open Bogue] does is to bring these modules into your
-   namespace. The have quite common names, so beware of conflict. In case of
-   doubt, don't open [Bogue], and access to the modules by using the [Bogue]
-   prefix, for instance [Bogue.Widget.label]. The {!Widget} and {!Layout}
-   modules are probably the ones that you will find yourself using the most, so
-   it's a good idea to alias them:
+    The only thing that [open Bogue] does is to bring these modules into your
+    namespace. They have quite common names, so beware of conflict. In case of
+    doubt, don't open [Bogue], and access the modules by using the [Bogue]
+    prefix, for instance [Bogue.Widget.label]. The {!Widget} and {!Layout}
+    modules are probably the ones that you will find yourself using the most, so
+    it's a good idea to alias them:
 
 {[module W = Bogue.Widget
 module L = Bogue.Layout]}
@@ -58,50 +58,49 @@ module L = Bogue.Layout]}
 
 
 
-(** Theming variables.
+(** Theme variables.
 
-    A number of variables control the appearance of your Bogue application. They are called {%html:<a href="#path">Theme variables</a>%}.
- They take effect when you start your application up (no need to recompile).
-For quick experimentation, they can be modified as environment variables, for instance in a terminal:
-{v
-export BOGUE_SCALE=2.5
-v}
-They can also be saved in configuration files, and you may organize as many config files as you want into {e themes}.
+    A number of variables control the appearance of your Bogue application. They
+    are called {%html:<a href="#path">Theme variables</a>%}.  They take effect
+    when you start your application up (no need to recompile).  For quick
+    experimentation, they can be modified as environment variables, for instance
+    in a terminal: {v export BOGUE_SCALE=2.5 v} They can also be saved in
+    configuration files, and you may organize as many config files as you want
+    into {e themes}.
 
 {3:config Where are the config files?}
 
-The config files are all called [bogue.conf]. Several locations are used.
-    Upon installing Bogue, a system wide Bogue share directory is created. If you used an {b opam} install, this will be
-{v
-$(opam var share)/bogue
-v}
-The share directory contains a [themes] directory, which itself contains a [default] dir.
-This is where the default configuration file resides.
+    The config files are all called [bogue.conf]. Several locations are used.
+    Upon installing Bogue, a system wide Bogue share directory is created. If
+    you used an {b opam} install, this will be {v $(opam var share)/bogue v} The
+    share directory contains a [themes] directory, which itself contains a
+    [default] dir.  This is where the default configuration file resides.
 
-However, {b if you want to modify the themes}, it is advisable to create your own Bogue share dir.
-    This personal Bogue dir should be [$(XDG_CONFIG_HOME)/bogue].
-    (If [$XDG_CONFIG_HOME] is not defined in your system, you may use [$HOME/.config/bogue]).
-So, this is what you can do for creating your personal Bogue dir for the first time:
-{v
-cp -r $(opam var share)/bogue $HOME/.config/bogue
-v}
+    However, {b if you want to modify the themes}, it is advisable to create
+    your own Bogue share dir.  This personal Bogue dir should be
+    [$(XDG_CONFIG_HOME)/bogue].  (If [$XDG_CONFIG_HOME] is not defined in your
+    system, you may use [$HOME/.config/bogue]).  So, this is what you can do for
+    creating your personal Bogue dir for the first time: {v cp -r $(opam var
+    share)/bogue $HOME/.config/bogue v}
 
 
-- Each theme has its own directory inside the Bogue share dir, in which there is a  [bogue.conf] file where the
-  Theme variables are defined.
-- A global user config file [$HOME/.config/bogue/bogue.conf] overrides
-  the theme files.
-- A [bogue.conf] file in the same directory as the executable overrides the other
-  config files.
-- The syntax of the config file is [VARIABLE = value], one entry per line.
-  Notice the spaces surroundind [=]. Comment lines starting by [#] are ignored.
-  For instance:
+    - Each theme has its own directory inside the Bogue share dir, in which
+    there is a [bogue.conf] file where the Theme variables are defined.
+
+    - A global user config file [$HOME/.config/bogue/bogue.conf] overrides the
+    theme files.
+
+    - A [bogue.conf] file in the same directory as the executable overrides the
+    other config files.
+
+    - The syntax of the config file is [VARIABLE = value], one entry per line.
+    Notice the spaces surroundind [=]. Comment lines starting by [#] are
+    ignored.  For instance:
 {v
 ## BOGUE version 20220115
 THEME = dark
 BACKGROUND = color:azure
 v}
-
     The first line <code>## BOGUE version XXX</code> is compulsory.
 
 {3:list Here is the list of Theme variables:}
@@ -121,7 +120,7 @@ v}
 - [CURSOR_COLOR]
 - [DIR]:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
 - [FA_DIR]: The fontawesome directory inside [DIR/common/].
-- [FAINT_COLOR]: A non-obstrusive color for disabled options or
+- [FAINT_COLOR]: A non-obtrusive color for disabled options or
   text of little importance.
 - [LABEL_COLOR]: The color for text or icon labels.
 - [LABEL_FONT]: path of a TTF font for text labels. If your system has [fontconfig], any installed font (as listed by [fc-list]) can be specified without the full path. Eg: [Ubuntu-R.ttf].
@@ -204,7 +203,7 @@ module Theme : sig
 
   (** {2 Accessing files installed along with your application}
 
-      Files distributed with you application built with Bogue should be
+      Files distributed with your application built with Bogue should be
       installed in a "share" directory, for instance using the [install] stanza
       of [dune] with [(section share)]. *)
 
@@ -1041,7 +1040,7 @@ module Label : sig
 
   val create : ?size:int -> ?font:font -> ?style:style ->
                ?fg:Draw.color -> ?align:Draw.align -> string -> t
-  (** Create a new {!Label.t}. Most of the tit of the time, you'd rather want to create a
+  (** Create a new {!Label.t}. Most of the time, you'd rather want to create a
      {!Widget.t} by using {!Widget.label}. *)
 
   val icon : ?size:int -> ?fg:Draw.color -> string -> t
@@ -1183,6 +1182,12 @@ end (* Text_display *)
 module Text_input : sig
   type t
   type filter = string -> bool
+
+
+  (** {2 Creating the widget}
+
+       Use {!Widget.text_input}
+  *)
 
   val uint_filter : filter
   val text : t -> string

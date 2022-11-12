@@ -23,40 +23,53 @@
 
 <pre><span id="MODULETheme"><span class="keyword">module</span> Theme</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Theme.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Theming variables.</p>
+<p>Theme variables.</p>
 
-<p>A number of variables control the appearance of your Bogue application. They are called <a href="#path">Theme variables</a>.
- They take effect when you start your application up (no need to recompile).
-For quick experimentation, they can be modified as environment variables, for instance in a terminal:</p>
-<pre class="verbatim">export BOGUE_SCALE=2.5</pre><p>They can also be saved in configuration files, and you may organize as many config files as you want into <em>themes</em>.</p>
+<p>A number of variables control the appearance of your Bogue application. They
+    are called <a href="#path">Theme variables</a>.  They take effect
+    when you start your application up (no need to recompile).  For quick
+    experimentation, they can be modified as environment variables, for instance
+    in a terminal:</p>
+<pre class="verbatim">export BOGUE_SCALE=2.5</pre><p>They can also be saved in
+    configuration files, and you may organize as many config files as you want
+    into <em>themes</em>.</p>
 
 <h4 id="config">Where are the config files?</h4>
 <p>The config files are all called <code class="code">bogue.conf</code>. Several locations are used.
-    Upon installing Bogue, a system wide Bogue share directory is created. If you used an <b>opam</b> install, this will be</p>
-<pre class="verbatim">$(opam var share)/bogue</pre><p>The share directory contains a <code class="code">themes</code> directory, which itself contains a <code class="code">default</code> dir.
-This is where the default configuration file resides.</p>
+    Upon installing Bogue, a system wide Bogue share directory is created. If
+    you used an <b>opam</b> install, this will be</p>
+<pre class="verbatim">$(opam var share)/bogue</pre><p>The
+    share directory contains a <code class="code">themes</code> directory, which itself contains a
+    <code class="code">default</code> dir.  This is where the default configuration file resides.</p>
 
-<p>However, <b>if you want to modify the themes</b>, it is advisable to create your own Bogue share dir.
-    This personal Bogue dir should be <code class="code">$(<span class="constructor">XDG_CONFIG_HOME</span>)/bogue</code>.
-    (If <code class="code">$<span class="constructor">XDG_CONFIG_HOME</span></code> is not defined in your system, you may use <code class="code">$<span class="constructor">HOME</span>/.config/bogue</code>).
-So, this is what you can do for creating your personal Bogue dir for the first time:</p>
-<pre class="verbatim">cp -r $(opam var share)/bogue $HOME/.config/bogue</pre>
+<p>However, <b>if you want to modify the themes</b>, it is advisable to create
+    your own Bogue share dir.  This personal Bogue dir should be
+    <code class="code">$(<span class="constructor">XDG_CONFIG_HOME</span>)/bogue</code>.  (If <code class="code">$<span class="constructor">XDG_CONFIG_HOME</span></code> is not defined in your
+    system, you may use <code class="code">$<span class="constructor">HOME</span>/.config/bogue</code>).  So, this is what you can do for
+    creating your personal Bogue dir for the first time:</p>
+<pre class="verbatim">cp -r $(opam var
+    share)/bogue $HOME/.config/bogue</pre>
 <ul>
-<li>Each theme has its own directory inside the Bogue share dir, in which there is a  <code class="code">bogue.conf</code> file where the
-  Theme variables are defined.</li>
-<li>A global user config file <code class="code">$<span class="constructor">HOME</span>/.config/bogue/bogue.conf</code> overrides
-  the theme files.</li>
-<li>A <code class="code">bogue.conf</code> file in the same directory as the executable overrides the other
-  config files.</li>
+<li>Each theme has its own directory inside the Bogue share dir, in which
+    there is a <code class="code">bogue.conf</code> file where the Theme variables are defined.</li>
+</ul>
+<ul>
+<li>A global user config file <code class="code">$<span class="constructor">HOME</span>/.config/bogue/bogue.conf</code> overrides the
+    theme files.</li>
+</ul>
+<ul>
+<li>A <code class="code">bogue.conf</code> file in the same directory as the executable overrides the
+    other config files.</li>
+</ul>
+<ul>
 <li>The syntax of the config file is <code class="code"><span class="constructor">VARIABLE</span>&nbsp;=&nbsp;value</code>, one entry per line.
-  Notice the spaces surroundind <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are ignored.
-  For instance:
+    Notice the spaces surroundind <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are
+    ignored.  For instance:
 <pre class="verbatim">## BOGUE version 20220115
 THEME = dark
-BACKGROUND = color:azure</pre></li>
+BACKGROUND = color:azure</pre>
+    The first line <code class="code"><span class="keywordsign">#</span><span class="keywordsign">#</span>&nbsp;<span class="constructor">BOGUE</span>&nbsp;version&nbsp;<span class="constructor">XXX</span></code> is compulsory.</li>
 </ul>
-<p>The first line <code class="code"><span class="keywordsign">#</span><span class="keywordsign">#</span>&nbsp;<span class="constructor">BOGUE</span>&nbsp;version&nbsp;<span class="constructor">XXX</span></code> is compulsory.</p>
-
 <h4 id="list">Here is the list of Theme variables:</h4>
 <ul>
 <li><code class="code"><span class="constructor">BACKGROUND</span></code>: the default background for all windows. It can be a color
@@ -74,7 +87,7 @@ BACKGROUND = color:azure</pre></li>
 <li><code class="code"><span class="constructor">CURSOR_COLOR</span></code></li>
 <li><code class="code"><span class="constructor">DIR</span></code>:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code></li>
 <li><code class="code"><span class="constructor">FA_DIR</span></code>: The fontawesome directory inside <code class="code"><span class="constructor">DIR</span>/common/</code>.</li>
-<li><code class="code"><span class="constructor">FAINT_COLOR</span></code>: A non-obstrusive color for disabled options or
+<li><code class="code"><span class="constructor">FAINT_COLOR</span></code>: A non-obtrusive color for disabled options or
   text of little importance.</li>
 <li><code class="code"><span class="constructor">LABEL_COLOR</span></code>: The color for text or icon labels.</li>
 <li><code class="code"><span class="constructor">LABEL_FONT</span></code>: path of a TTF font for text labels. If your system has <code class="code">fontconfig</code>, any installed font (as listed by <code class="code">fc-list</code>) can be specified without the full path. Eg: <code class="code"><span class="constructor">Ubuntu</span>-<span class="constructor">R</span>.ttf</code>.</li>
@@ -146,7 +159,7 @@ then the <code class="code">%</code> char is replaced by the Bogue dir, for inst
 <pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -> unit</code></pre>
 <pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -> unit</code></pre>
 <pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -> unit</code></pre><h3 id="2_Accessingfilesinstalledalongwithyourapplication">Accessing files installed along with your application</h3>
-<p>Files distributed with you application built with Bogue should be
+<p>Files distributed with your application built with Bogue should be
       installed in a "share" directory, for instance using the <code class="code">install</code> stanza
       of <code class="code">dune</code> with <code class="code">(section&nbsp;share)</code>.</p>
 
