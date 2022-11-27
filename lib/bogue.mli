@@ -568,10 +568,10 @@ module Mixer : sig
         available. *)
 
   val create_mixer : ?tracks:int -> ?freq:int -> string option -> t
-  (** [create devname] creates the mixer an open sound device. If [devname] is
-      [None], a dummy mixer is returned, but will produce no sound. Only [s16le]
-      format is supported by the callback at this time. The mixer is initially
-      paused, you need to {!unpause} it before playing anything. *)
+  (** [create devname] creates the mixer an opens the sound device. If [devname]
+      is [None], a dummy mixer is returned, which will produce no sound. Only
+      [s16le] format is supported by the callback at this time. The mixer is
+      initially paused, you need to {!unpause} it before playing anything. *)
 
   val load_chunk : t -> string -> sound
   (** Load a WAV file. *)

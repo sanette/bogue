@@ -34,6 +34,7 @@ type t = {
   tracks : (track option) array (* this array is manipulated by the callback thread. Any other manipulation thus requires locking= TODO *)
 }
 
+(* Currently this only returns either None or Some "default". *)
 let init  () =
   match Sdl.(init_sub_system Init.audio) with
   | Error (`Msg e) ->
@@ -58,7 +59,7 @@ let init  () =
                                  how to find out its real name... *)
 (* let devname = go(Sdl.get_audio_device_name 0 false) in printd debug_io "Using
    audio device #%d: ('%s')..." 0 devname; *)
-(*Some  devname*)
+(* Some devname *)
 
 let print_spec spec =
   let open Sdl in
@@ -226,13 +227,20 @@ let create_mixer ?(tracks=8) ?(freq=44100) devname =
     let callback = Sdl.audio_callback int16_signed (callback mixer) in
     mixer.callback <- Some callback;
     let spec = { tmp_spec with Sdl.as_callback = Some callback } in
-    let dev_id, spec' =
-      go(Sdl.open_audio_device devname false spec 0 (* try also Sdl.Audio.allow_any_change*) ) in
-    print_spec spec';
-    if spec'.Sdl.as_format <> format
-    then printd (debug_io + debug_error) "Audio device doesn't support s16le format. Prepare to hear weird sounds.";
-    mixer.dev_id <- Some dev_id;
-    mixer.have <- spec';
+    let () = match Sdl.open_audio_device devname false spec 0 with
+      (* try also Sdl.Audio.allow_any_change *)
+      | Error (`Msg e) ->
+        printd (debug_io + debug_error)
+          "Cannot open audio device. SDL error: %s" e
+      | Ok (dev_id, spec') ->
+        print_spec spec';
+        if spec'.Sdl.as_format <> format
+        then printd (debug_io + debug_error)
+            "Audio device doesn't support s16le format. Prepare to hear weird \
+             sounds.";
+        mixer.dev_id <- Some dev_id;
+        mixer.have <- spec';
+    in
     mixer
 
 (* TODO verify it works for signed too *)

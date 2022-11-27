@@ -148,22 +148,22 @@ then the <code class="code">%</code> char is replaced by the Bogue dir, for inst
      if you want predictable results.</p>
 
 <pre><span id="VALroom_margin"><span class="keyword">val</span> room_margin</span> : <code class="type">int</code></pre>
-<pre><span id="VALscale_int"><span class="keyword">val</span> scale_int</span> : <code class="type">int -&gt; int</code></pre><div class="info ">
+<pre><span id="VALscale_int"><span class="keyword">val</span> scale_int</span> : <code class="type">int -> int</code></pre><div class="info ">
 <div class="info-desc">
 <p>Conversion: Bogue dimension -&gt; hardware pixel dimension. The latter is
    obtained by multiplying by <code class="code"><span class="constructor">SCALE</span></code>.</p>
 </div>
 </div>
 
-<pre><span id="VALset_text_font"><span class="keyword">val</span> set_text_font</span> : <code class="type">string -&gt; unit</code></pre>
-<pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -&gt; unit</code></pre>
-<pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -&gt; unit</code></pre>
-<pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -&gt; unit</code></pre><h3 id="2_Accessingfilesinstalledalongwithyourapplication">Accessing files installed along with your application</h3>
+<pre><span id="VALset_text_font"><span class="keyword">val</span> set_text_font</span> : <code class="type">string -> unit</code></pre>
+<pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -> unit</code></pre>
+<pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -> unit</code></pre>
+<pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -> unit</code></pre><h3 id="2_Accessingfilesinstalledalongwithyourapplication">Accessing files installed along with your application</h3>
 <p>Files distributed with your application built with Bogue should be
       installed in a "share" directory, for instance using the <code class="code">install</code> stanza
       of <code class="code">dune</code> with <code class="code">(section&nbsp;share)</code>.</p>
 
-<pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -&gt; string -&gt; string option</code></pre><div class="info ">
+<pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -> string -> string option</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">find_share&nbsp;app&nbsp;file</code> returns a guessed location for your application
       share directory (if it exists). The <code class="code">app</code> string should be the system name

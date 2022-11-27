@@ -36,28 +36,28 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALvertical"><span class="keyword">val</span> vertical</span> : <code class="type">?name:string -&gt;<br>       ?click_on_label:bool -&gt; ?selected:int -&gt; string array -&gt; <a href="Bogue.Radiolist.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALvertical"><span class="keyword">val</span> vertical</span> : <code class="type">?name:string -><br>       ?click_on_label:bool -> ?selected:int -> string array -> <a href="Bogue.Radiolist.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>A radiolist with the usual vertical layout of items. The option <code class="code">click_on_label</code> is true be default: one can click on the label to select it.</p>
 </div>
 </div>
 
-<pre><span id="VALof_widgets"><span class="keyword">val</span> of_widgets</span> : <code class="type">?selected:int -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -&gt; <a href="Bogue.Radiolist.html#TYPEt">t</a></code></pre>
-<pre><span id="VALlayout"><span class="keyword">val</span> layout</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALof_widgets"><span class="keyword">val</span> of_widgets</span> : <code class="type">?selected:int -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list -> <a href="Bogue.Radiolist.html#TYPEt">t</a></code></pre>
+<pre><span id="VALlayout"><span class="keyword">val</span> layout</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>The layout to display the radiolist.</p>
 </div>
 </div>
 
-<pre><span id="VALget_index"><span class="keyword">val</span> get_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; int option</code></pre>
-<pre><span id="VALset_index"><span class="keyword">val</span> set_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; int option -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALget_index"><span class="keyword">val</span> get_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -> int option</code></pre>
+<pre><span id="VALset_index"><span class="keyword">val</span> set_index</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -> int option -> unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set the selected entry to the specified index and directly activate the
      button's connections with the <a href="Bogue.Trigger.html#VALvar_changed"><code class="code"><span class="constructor">Trigger</span>.var_changed</code></a> event.</p>
 </div>
 </div>
 
-<pre><span id="VALactive_widgets"><span class="keyword">val</span> active_widgets</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list</code></pre><div class="info ">
+<pre><span id="VALactive_widgets"><span class="keyword">val</span> active_widgets</span> : <code class="type"><a href="Bogue.Radiolist.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">Widget.t</a> list</code></pre><div class="info ">
 <ul class="info-attributes">
 <li><b>Returns</b> the list of widgets that are active for selecting entries (<em>     i.e.</em> either radiobuttons or radiobuttons and labels, depending on
      <code class="code">click_on_label</code>.</li>
