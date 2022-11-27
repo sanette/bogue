@@ -1,7 +1,7 @@
 (lang dune 2.7)
 (cram enable)
 (name bogue)
-(version "20221112")
+(version "20221127")
 (generate_opam_files true)
 (license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")

@@ -17,41 +17,53 @@ type repeat = Repeat of int | Forever
 type sound_effect = sound -> unit
 
 type track = {
-    mutable soundpos : int;  (* this should only be modified by the callback *)
-    soundlen : int;
-    mutable repeat : repeat; (* note that (Repeat n) in fact means "play n times" *)
-    sound : sound;
-    mutable volume : float;  (* factor between 0 and 1. It is applied
-                               dynamically. Can be changed on the fly. *)
-    effects : sound_effect list;
-  }
+  mutable soundpos : int;  (* this should only be modified by the callback *)
+  soundlen : int;
+  mutable repeat : repeat; (* note that (Repeat n) in fact means "play n times" *)
+  sound : sound;
+  mutable volume : float;  (* factor between 0 and 1. It is applied
+                              dynamically. Can be changed on the fly. *)
+  effects : sound_effect list;
+}
 
 type t = {
   mutable dev_id : Sdl.audio_device_id option; (* set when creating mixer *)
-  devname : string option;
+  devname : string option; (* None if no audio is available *)
   mutable callback : Sdl.audio_callback option;
   mutable have: audio_spec; (* idem *)
   tracks : (track option) array (* this array is manipulated by the callback thread. Any other manipulation thus requires locking= TODO *)
 }
 
-(* Currently this always returns None. *)
 let init  () =
-  go (Sdl.(init_sub_system Init.audio));
-  begin
-    match Sdl.get_current_audio_driver () with
-    | None -> printd debug_error "mixer.ml: cannot find audio driver."
-    | Some s -> printd debug_io "Using audio driver: %s." s
-  end;
-  if go(Sdl.get_num_audio_drivers ()) < 1
-  then failwith "Don't see any specific audio devices!";
-  (*let devname = go(Sdl.get_audio_device_name 0 false) in
-    printd debug_io "Using audio device #%d: ('%s')..." 0 devname; *)
-  (*Some devname*) None (* this will select the default device; I don't know how
-  to find out its name... *)
+  match Sdl.(init_sub_system Init.audio) with
+  | Error (`Msg e) ->
+    printd (debug_error + debug_io) "Cannot initialize audio. SDL error! %s" e;
+    None
+  | Ok () ->
+    begin
+      match Sdl.get_current_audio_driver () with
+      | None -> printd (debug_error + debug_io)
+                  "mixer.ml: cannot find audio driver."
+      | Some s -> printd debug_io "Using audio driver: %s." s
+    end;
+    match Sdl.get_num_audio_drivers () with
+    | Error (`Msg e) ->
+      printd (debug_error + debug_io) "Cannot get number of audio drivers. SDL error! %s" e;
+      None
+    | Ok i -> if i < 1
+      then begin
+        printd (debug_error + debug_io) "Don't see any specific audio devices!";
+        None
+      end else Some "default" (* This will select the default device; I don't know
+                                 how to find out its real name... *)
+(* let devname = go(Sdl.get_audio_device_name 0 false) in printd debug_io "Using
+   audio device #%d: ('%s')..." 0 devname; *)
+(*Some  devname*)
 
 let print_spec spec =
   let open Sdl in
-  printd debug_io "as_freq=%d, as_format=%d, as_channels=%d, as_silence=%d as_samples=%d as_size = %ld"
+  printd debug_io "as_freq=%d, as_format=%d, as_channels=%d, as_silence=%d \
+                   as_samples=%d as_size = %ld"
     spec.as_freq
     spec.as_format
     spec.as_channels
@@ -67,8 +79,8 @@ let bytes_to_value_s16le b1 b2 =
 
 let value_to_bytes_s16le value =
   let value = if value < 0
-              then (-value) lxor 65535 + 1
-              else value in
+    then (-value) lxor 65535 + 1
+    else value in
   value land 255, value lsr 8
 
 (* clipping is performed only if last=true *)
@@ -83,32 +95,32 @@ let blit_or_sum first last volume chunk output =
     let d = Array1.dim chunk in
     if first
     then for i = 0 to d-1 do
-           let value = round (volume *. (float (Array1.unsafe_get chunk i))) in
-           Array1.unsafe_set output i value
-         done
+        let value = round (volume *. (float (Array1.unsafe_get chunk i))) in
+        Array1.unsafe_set output i value
+      done
     else begin
-        for i = 0 to d-1 do
-          let value1 = Array1.unsafe_get chunk i in
-          let value2 = Array1.unsafe_get output i in
-          let value' = (round (volume *. (float value1)) + value2) in
-          let value' = if last then
-                         (* saturation should be clipped only for last sum,
-                         because the idea is than when you sum many sounds, in
-                         general values cancel each others and saturation is
-                         less common than with only 2 sounds... *)
-                         if value' > 32767 (* signed 16 bits *)
-                         then (incr clipping; 32767)
-                         else if value' < -32768
-                         then (incr clipping; -32768)
-                         else value'
-                       else value' in
-          Array1.unsafe_set output i value';
-        done;
-        if !clipping > 0
-        then printd (debug_io + debug_warning) "Sound had to be clipped %u times for saturation" !clipping
-      end
+      for i = 0 to d-1 do
+        let value1 = Array1.unsafe_get chunk i in
+        let value2 = Array1.unsafe_get output i in
+        let value' = (round (volume *. (float value1)) + value2) in
+        let value' = if last then
+            (* saturation should be clipped only for last sum, because the idea
+               is than when you sum many sounds, in general values cancel each
+               others and saturation is less common than with only 2
+               sounds... *)
+            if value' > 32767 (* signed 16 bits *)
+            then (incr clipping; 32767)
+            else if value' < -32768
+            then (incr clipping; -32768)
+            else value'
+          else value' in
+        Array1.unsafe_set output i value';
+      done;
+      if !clipping > 0
+      then printd (debug_io + debug_warning) "Sound had to be clipped %u times for saturation" !clipping
+    end
 
-(* this is the main application *)
+(* This is the main application *)
 (* NOTE: this callback is executed in a different thread. Hence, when used in
    Bogue, there is no need to create an additional new thread: use
    Widget.connect_main, not widget.connect *)
@@ -137,7 +149,8 @@ let callback mixer =
             List.iter (fun f -> f chunk) track.effects;
             if cpy = chunk_length
             then blit_or_sum !first (last = i) track.volume chunk output
-            else blit_or_sum !first (last = i) track.volume chunk (Array1.sub output 0 cpy);
+            else blit_or_sum !first (last = i) track.volume chunk
+                (Array1.sub output 0 cpy);
             track.soundpos <- track.soundpos + cpy;
             filled := imax !filled cpy;
             first := false;
@@ -203,22 +216,24 @@ let create_mixer ?(tracks=8) ?(freq=44100) devname =
     callback = None;
     tracks = Array.make tracks None
   } in
-  let callback = Sdl.audio_callback int16_signed (callback mixer) in
-  mixer.callback <- Some callback;
-  let spec = { tmp_spec with Sdl.as_callback = Some callback } in
-  let dev_id, spec' =
-    go(Sdl.open_audio_device devname false spec 0 (* try also Sdl.Audio.allow_any_change*) ) in
-  print_spec spec';
-  (* (OLD) note that the new spec has no callback. Therefore we need to save the
-     previous one, otherwise the callback will be reclaimed by Ocaml's GC,
-     leading to Fatal error: exception Ctypes_ffi_stubs.CallToExpiredClosure.
-     This still has to be corrected in tsdl. For the time being, I have made a
-     hack in tsdl.ml. *)
-  if spec'.Sdl.as_format <> format
-  then printd (debug_io + debug_error) "Audio device doesn't support s16le format. Prepare to hear weird sounds.";
-  mixer.dev_id <- Some dev_id;
-  mixer.have <- spec';
-  mixer
+  match devname with
+  | None ->
+    printd (debug_io + debug_warning)
+      "Creating a dummy mixer: no audio available.";
+    mixer
+  | Some devname ->
+    let devname = if devname = "default" then None else Some devname in
+    let callback = Sdl.audio_callback int16_signed (callback mixer) in
+    mixer.callback <- Some callback;
+    let spec = { tmp_spec with Sdl.as_callback = Some callback } in
+    let dev_id, spec' =
+      go(Sdl.open_audio_device devname false spec 0 (* try also Sdl.Audio.allow_any_change*) ) in
+    print_spec spec';
+    if spec'.Sdl.as_format <> format
+    then printd (debug_io + debug_error) "Audio device doesn't support s16le format. Prepare to hear weird sounds.";
+    mixer.dev_id <- Some dev_id;
+    mixer.have <- spec';
+    mixer
 
 (* TODO verify it works for signed too *)
 let convert_from_32le _ b2 =
@@ -245,73 +260,73 @@ let convert mixer spec sound =
     let sound_channels = spec.Sdl.as_channels in
     if sound_format = target_format && target_channels = sound_channels then sound
     else begin
-        if target_channels <> 2
-        then printd (debug_error + debug_io) "Only 2 audio channels are implemented.";
-        let bitsize = sound_format land 255 in
-        let sound_bps = bitsize lsr 3 in (* / 8 *)
-        (* see: https://wiki.libsdl.org/SDL_AudioFormat *)
-        if sound_bps = 0 then failwith "invalid sound format";
-        let soundlen = Array1.dim sound in
-        let targetlen = (target_bps / ba_bytes_size) * target_channels * soundlen / (sound_bps / ba_bytes_size) / sound_channels in
-        printd debug_io "Converting sound with length %u ==> %u."
-          soundlen targetlen;
-        let target = Array1.create int16_signed c_layout targetlen in
-        let () =
-          if sound_bps = 1
-          then (* TODO check this is indeed u8 *)
-            let () = printd debug_io "Converting (u8,%u) to (s16le,%u)."
-                       sound_channels target_channels in
-            for j = 0 to soundlen - 1 do
-              (* j is pos in the original sound *)
-              (* i is the index of the target array *)
-              let i = 2 * target_channels * j / sound_channels in
-              let v = Array1.unsafe_get sound j in
-              Array1.unsafe_set target i (v land 255);
-              Array1.unsafe_set target (i+1) (v lsr 8);
+      if target_channels <> 2
+      then printd (debug_error + debug_io) "Only 2 audio channels are implemented.";
+      let bitsize = sound_format land 255 in
+      let sound_bps = bitsize lsr 3 in (* / 8 *)
+      (* see: https://wiki.libsdl.org/SDL_AudioFormat *)
+      if sound_bps = 0 then failwith "invalid sound format";
+      let soundlen = Array1.dim sound in
+      let targetlen = (target_bps / ba_bytes_size) * target_channels * soundlen / (sound_bps / ba_bytes_size) / sound_channels in
+      printd debug_io "Converting sound with length %u ==> %u."
+        soundlen targetlen;
+      let target = Array1.create int16_signed c_layout targetlen in
+      let () =
+        if sound_bps = 1
+        then (* TODO check this is indeed u8 *)
+          let () = printd debug_io "Converting (u8,%u) to (s16le,%u)."
+              sound_channels target_channels in
+          for j = 0 to soundlen - 1 do
+            (* j is pos in the original sound *)
+            (* i is the index of the target array *)
+            let i = 2 * target_channels * j / sound_channels in
+            let v = Array1.unsafe_get sound j in
+            Array1.unsafe_set target i (v land 255);
+            Array1.unsafe_set target (i+1) (v lsr 8);
+          done
+        else if sound_bps = 2
+        then if sound_format = Sdl.Audio.s16_msb ||
+                (sound_format = Sdl.Audio.s16_sys && Sys.big_endian)
+          then
+            let () = printd debug_io "Converting (s16be,%u) to (s16le,%u)."
+                sound_channels target_channels in
+            for i = 0 to targetlen - 1 do
+              let j = sound_channels * i / target_channels in
+              (* j = index of the original array *)
+              Array1.unsafe_set target i (convert_from_s16be
+                                            (Array1.unsafe_get sound j))
             done
-          else if sound_bps = 2
-          then if sound_format = Sdl.Audio.s16_msb ||
-                    (sound_format = Sdl.Audio.s16_sys && Sys.big_endian)
-               then
-                 let () = printd debug_io "Converting (s16be,%u) to (s16le,%u)."
-                            sound_channels target_channels in
-                 for i = 0 to targetlen - 1 do
-                   let j = sound_channels * i / target_channels in
-                   (* j = index of the original array *)
-                   Array1.unsafe_set target i (convert_from_s16be
-                                                 (Array1.unsafe_get sound j))
-                 done
-               else
-                 let () = printd debug_io "Converting (s16le,%u) to (s16le,%u)."
-                            sound_channels target_channels in
-                 (* in fact here sound_channels=1 and target_channels=2... *)
-                 for j = 0 to soundlen - 1 do
-                   let x = Array1.unsafe_get sound j in
-                   Array1.unsafe_set target (2*j) x;
-                   Array1.unsafe_set target (2*j+1) x
-                 done
-          else if sound_bps = 4
-          then let convert_sample = if sound_format land (1 lsl 12) <> 0
-                                    then convert_from_32be (* TODO check *)
-                                    else convert_from_32le in (* TODO check *)
-               for i = 0 to targetlen - 1 do
-                 let j = 2 * sound_channels * i / target_channels in
-                 let v = convert_sample
-                           (Array1.unsafe_get sound j)
-                           (Array1.unsafe_get sound (j+1)) in
-                 Array1.unsafe_set target i v;
-               done
-          else printd (debug_io + debug_error)
-                 "Conversion from format %u not supported." sound_format in
-        printd debug_io "Sound converted in %u msec." (Time.now() - t);
-        target
-      end
+          else
+            let () = printd debug_io "Converting (s16le,%u) to (s16le,%u)."
+                sound_channels target_channels in
+            (* in fact here sound_channels=1 and target_channels=2... *)
+            for j = 0 to soundlen - 1 do
+              let x = Array1.unsafe_get sound j in
+              Array1.unsafe_set target (2*j) x;
+              Array1.unsafe_set target (2*j+1) x
+            done
+        else if sound_bps = 4
+        then let convert_sample = if sound_format land (1 lsl 12) <> 0
+               then convert_from_32be (* TODO check *)
+               else convert_from_32le in (* TODO check *)
+          for i = 0 to targetlen - 1 do
+            let j = 2 * sound_channels * i / target_channels in
+            let v = convert_sample
+                (Array1.unsafe_get sound j)
+                (Array1.unsafe_get sound (j+1)) in
+            Array1.unsafe_set target i v;
+          done
+        else printd (debug_io + debug_error)
+            "Conversion from format %u not supported." sound_format in
+      printd debug_io "Sound converted in %u msec." (Time.now() - t);
+      target
+    end
 
 let rec gcd a b =
   if a < b then gcd b a
   else let r = a mod b in
-       if r = 0 then b
-       else gcd b r;;
+    if r = 0 then b
+    else gcd b r;;
 
 (* linear interpolation e1 points -> e2 points *)
 (* data2 is filled with interpolated values *)
@@ -331,41 +346,41 @@ let interpolate e1 e2 data1 data2 =
   if Array1.dim data1 < ch
   then failwith "invalid format"
   else begin
-      (* il n'y a qu'un petit (e2) nombre de "x", on les stocke (efficace ??) *)
-      (* x.(i) = fractional part of e1 *. i/. e2 *)
-      let x = Array.init e2 (fun i -> (float ((e1 * i) mod e2) /. float e2)) in
-      let value1left = ref (Array1.unsafe_get data1 0) in
-      let value2left = ref 0 in
-      let value1right = ref (Array1.unsafe_get data1 1) in
-      let value2right = ref 0 in
-      let ii = ref 0 in
-      for i = 0 to (Array1.dim data2)/ch - 1 do
-        let pos = (e1 * i) / e2 in
-        let rest = (*(float ((e1 * i) mod e2) /. float e2)*) Array.unsafe_get x !ii in
-        (* ii = i mod e2 *)
-        let j = (pos + 1) * ch and jj = i * ch in
+    (* il n'y a qu'un petit (e2) nombre de "x", on les stocke (efficace ??) *)
+    (* x.(i) = fractional part of e1 *. i/. e2 *)
+    let x = Array.init e2 (fun i -> (float ((e1 * i) mod e2) /. float e2)) in
+    let value1left = ref (Array1.unsafe_get data1 0) in
+    let value2left = ref 0 in
+    let value1right = ref (Array1.unsafe_get data1 1) in
+    let value2right = ref 0 in
+    let ii = ref 0 in
+    for i = 0 to (Array1.dim data2)/ch - 1 do
+      let pos = (e1 * i) / e2 in
+      let rest = (*(float ((e1 * i) mod e2) /. float e2)*) Array.unsafe_get x !ii in
+      (* ii = i mod e2 *)
+      let j = (pos + 1) * ch and jj = i * ch in
 
-        (* interpolate_sample jj j rest value1left value2left; *) (* left sample *)
-        (* we inline this: (but this doesn't speed up) *)
-        value2left := Array1.unsafe_get data1 j;
-        let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
-                    then !value1left
-                    else round (float !value1left +. rest *. (float (!value2left - !value1left))) in
-        Array1.unsafe_set data2 jj value;
-        value1left := !value2left;
+      (* interpolate_sample jj j rest value1left value2left; *) (* left sample *)
+      (* we inline this: (but this doesn't speed up) *)
+      value2left := Array1.unsafe_get data1 j;
+      let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
+        then !value1left
+        else round (float !value1left +. rest *. (float (!value2left - !value1left))) in
+      Array1.unsafe_set data2 jj value;
+      value1left := !value2left;
 
-        (* interpolate_sample (jj + 1) (j + 1) rest value1right value2right; *) (* right sample *)
-        (* inlined: *)
-        value2right := Array1.unsafe_get data1 (j + 1);
-        let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
-                    then !value1right
-                    else round (float !value1right +. rest *. (float (!value2right - !value1right))) in
-        Array1.unsafe_set data2 (jj+1) value;
-        value1right := !value2right;
+      (* interpolate_sample (jj + 1) (j + 1) rest value1right value2right; *) (* right sample *)
+      (* inlined: *)
+      value2right := Array1.unsafe_get data1 (j + 1);
+      let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
+        then !value1right
+        else round (float !value1right +. rest *. (float (!value2right - !value1right))) in
+      Array1.unsafe_set data2 (jj+1) value;
+      value1right := !value2right;
 
-        incr ii; if !ii = e2 then ii:=0;
-      done
-    end;;
+      incr ii; if !ii = e2 then ii:=0;
+    done
+  end;;
 
 (* stretch frequency (f1 => f2) for a s16le sound with 2 channels *)
 let stretch f1 f2 sound =
@@ -397,7 +412,7 @@ let stretch f1 f2 sound =
 
   (* TODO remove trailing zeroes *)
   printd debug_io "Sound was stretched in %u msec." (Time.now() -t);
-  output;;
+  output
 
 let load_chunk mixer filename =
   let open Sdl in
@@ -426,14 +441,19 @@ let load_chunk mixer filename =
     if audio_spec.as_format <> mixer.have.as_format
     || audio_spec.as_channels <> mixer.have.as_channels
     then begin
-      printd (debug_io+debug_warning) "WAV chunk has different format (%u,%u) than the mixer (%u,%u). Will try to convert." audio_spec.as_format audio_spec.as_channels mixer.have.as_format mixer.have.as_channels;
+      printd (debug_io + debug_warning)
+        "WAV chunk has different format (%u,%u) than the mixer (%u,%u). Will try \
+         to convert." audio_spec.as_format audio_spec.as_channels
+        mixer.have.as_format mixer.have.as_channels;
       convert mixer audio_spec sound
     end
     else sound in
   let chunk =
     if audio_spec.as_freq <> mixer.have.as_freq
     then begin
-      printd (debug_io+debug_warning) "WAV chunk has different freq (%u) than the mixer (%u). We try to interpolate." audio_spec.as_freq mixer.have.as_freq;
+      printd (debug_io + debug_warning)
+        "WAV chunk has different freq (%u) than the mixer (%u). We try to \
+         interpolate." audio_spec.as_freq mixer.have.as_freq;
       stretch audio_spec.as_freq mixer.have.as_freq chunk
     end
     else chunk in
@@ -442,46 +462,46 @@ let load_chunk mixer filename =
 (* play chunk on the desired track number. If track is not specified, find an
    available track. Return chosen track number, or None *)
 (* Warning: this should be called by the main Thread (I think...) *)
-let play_chunk ?track ?(effects=[]) ?(volume=1.) ?(repeat = Repeat 1) mixer sound =
-  printd debug_io "Locking audio device...";
+let play_chunk ?track ?(effects=[]) ?(volume=1.) ?(repeat = Repeat 1)
+    mixer sound =
+  (* printd debug_io "Locking audio device..."; *)
   (* do_option mixer.dev_id Sdl.lock_audio_device; *) (* this may freeze... *)
   (* find available track: *)
   let tracks = Array.length mixer.tracks in
   let track = match track with
     | None -> let rec loop i =
-               if i = tracks then None
-               else if mixer.tracks.(i) = None then Some i
-               else loop (i+1) in
-             loop 0
+                if i = tracks then None
+                else if mixer.tracks.(i) = None then Some i
+                else loop (i+1) in
+      loop 0
     | Some i -> if 0 <= i && i < tracks && mixer.tracks.(i) = None
-               then Some i else None
+      then Some i else None
   in
   let () = match track with
     | None ->
-       printd (debug_io + debug_error)
-         "No available track for playing chunk.";
-       printd debug_io "Unlocking audio.";
-       do_option mixer.dev_id Sdl.unlock_audio_device;
+      printd (debug_io + debug_error) "No available track for playing chunk.";
+      printd debug_io "Unlocking audio.";
+      do_option mixer.dev_id Sdl.unlock_audio_device;
     | Some i -> begin
         let soundlen = Array1.dim sound in
         printd debug_io "Playing sound of length %u on track #%u." soundlen i;
         let track = {
-            soundpos = 0;
-            soundlen;
-            repeat;
-            sound;
-            volume;
-            effects
-          } in
+          soundpos = 0;
+          soundlen;
+          repeat;
+          sound;
+          volume;
+          effects
+        } in
         mixer.tracks.(i) <- Some track;
         do_option mixer.dev_id (fun d ->
             printd debug_io "Unlocking audio.";
             Sdl.unlock_audio_device d;
-          (* printd debug_io "Unpause mixer"; *)
-          (* REMARK: using Sld.pause_audio_device too often may lead to
-          lockups... Don't know why. Hence we remove it from here. The user has
-          to invoke Mixer.unpause manually. Idem with lock ??? *)
-          (* Sdl.pause_audio_device d false *)
+            (* printd debug_io "Unpause mixer"; *)
+            (* REMARK: using Sld.pause_audio_device too often may lead to
+               lockups... Don't know why. Hence we remove it from here. The user has
+               to invoke Mixer.unpause manually. Idem with lock ??? *)
+            (* Sdl.pause_audio_device d false *)
           );
       end in
   track

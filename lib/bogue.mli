@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20221112
+@version 20221127
 
 @author Vu Ngoc San
 
@@ -564,12 +564,14 @@ module Mixer : sig
 
   val init : unit -> string option
   (** Initialize SDL audio.
-      @return the name of the audio driver. *)
+      @return the name of the audio driver, or [None] if no audio is
+        available. *)
 
   val create_mixer : ?tracks:int -> ?freq:int -> string option -> t
-  (** Create the mixer an open sound device. Only [s16le] format is supported by
-     the callback at this time. The mixer is initially paused, you need to
-      {!unpause} it before playing anything. *)
+  (** [create devname] creates the mixer an open sound device. If [devname] is
+      [None], a dummy mixer is returned, but will produce no sound. Only [s16le]
+      format is supported by the callback at this time. The mixer is initially
+      paused, you need to {!unpause} it before playing anything. *)
 
   val load_chunk : t -> string -> sound
   (** Load a WAV file. *)
@@ -1161,13 +1163,15 @@ module Text_display : sig
 
   (** {2 Creating the widget}
 
-       Use {!Widget.text_display}
+       Use {!Widget.text_display} or {!Widget.verbatim} for plain text, or
+       {!Widget.rich_text} for "rich text" (containing bold, italics, etc. using
+       the functions listed above.)
 *)
 
   (** {2 Modifying the widget} *)
 
   val replace : by:t -> t -> unit
-(** [replace ~by:t2 t1] replaces the text content of [t1] by the one of [t2]. *)
+(** [replace ~by:t2 t1] replaces the text content of [t1] by the one of [t2]. See also {!Widget.get_text_display}. *)
 
   val update_verbatim : t -> string -> unit
 
@@ -1738,7 +1742,7 @@ module Layout : sig
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
     Widget.t list -> t
-  (** Horizontal arrangement. See {!flat}. *)
+  (** Horizontal arrangement of widgets. See {!flat}. *)
 
   val tower_of_w :
     ?name:string -> ?sep:int -> ?w:int ->
@@ -1746,7 +1750,7 @@ module Layout : sig
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
     Widget.t list -> t
-    (** Vertical arrangement. See {!tower}. *)
+    (** Vertical arrangement of widgets. See {!tower}. *)
 
   (** {3 Create layouts from other layouts} *)
 

@@ -50,7 +50,7 @@
 
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -><br>       ?border_radius:int -><br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -><br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?state:bool -><br>       ?action:(bool -> unit) -> <a href="Bogue.Button.html#TYPEkind">kind</a> -> string -> <a href="Bogue.Button.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -&gt;<br>       ?border_radius:int -&gt;<br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -&gt;<br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?state:bool -&gt;<br>       ?action:(bool -&gt; unit) -&gt; <a href="Bogue.Button.html#TYPEkind">kind</a> -&gt; string -&gt; <a href="Bogue.Button.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>The <code class="code">action</code> parameter is executed (with the current button state as
         argument) just after the button state is modified by mouse clicking or
@@ -60,6 +60,6 @@
 </div>
 </div>
 
-<pre><span id="VALstate"><span class="keyword">val</span> state</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -> bool</code></pre>
-<pre><span id="VALreset"><span class="keyword">val</span> reset</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALis_pressed"><span class="keyword">val</span> is_pressed</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -> bool</code></pre></body></html>
+<pre><span id="VALstate"><span class="keyword">val</span> state</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -&gt; bool</code></pre>
+<pre><span id="VALreset"><span class="keyword">val</span> reset</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -&gt; unit</code></pre>
+<pre><span id="VALis_pressed"><span class="keyword">val</span> is_pressed</span> : <code class="type"><a href="Bogue.Button.html#TYPEt">t</a> -&gt; bool</code></pre></body></html>

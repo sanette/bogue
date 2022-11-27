@@ -100,27 +100,27 @@
 
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?background:<a href="Bogue.Style.html#TYPEbackground">background</a> -><br>       ?border:<a href="Bogue.Style.html#TYPEborder">border</a> -><br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">shadow</a> -> unit -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?background:<a href="Bogue.Style.html#TYPEbackground">background</a> -&gt;<br>       ?border:<a href="Bogue.Style.html#TYPEborder">border</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">shadow</a> -&gt; unit -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
 <pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type"><a href="Bogue.Style.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_bg"><span class="keyword">val</span> of_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEbackground">background</a> -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_border"><span class="keyword">val</span> of_border</span> : <code class="type"><a href="Bogue.Style.html#TYPEborder">border</a> -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_shadow"><span class="keyword">val</span> of_shadow</span> : <code class="type"><a href="Bogue.Style.html#TYPEshadow">shadow</a> -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
-<pre><span id="VALwith_bg"><span class="keyword">val</span> with_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEbackground">background</a> -> <a href="Bogue.Style.html#TYPEt">t</a> -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
-<pre><span id="VALwith_border"><span class="keyword">val</span> with_border</span> : <code class="type"><a href="Bogue.Style.html#TYPEborder">border</a> -> <a href="Bogue.Style.html#TYPEt">t</a> -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
-<pre><span id="VALwith_shadow"><span class="keyword">val</span> with_shadow</span> : <code class="type"><a href="Bogue.Style.html#TYPEshadow">shadow</a> -> <a href="Bogue.Style.html#TYPEt">t</a> -> <a href="Bogue.Style.html#TYPEt">t</a></code></pre><h3 id="2_Constructingbackgrounds">Constructing backgrounds</h3>
+<pre><span id="VALof_bg"><span class="keyword">val</span> of_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEbackground">background</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
+<pre><span id="VALof_border"><span class="keyword">val</span> of_border</span> : <code class="type"><a href="Bogue.Style.html#TYPEborder">border</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
+<pre><span id="VALof_shadow"><span class="keyword">val</span> of_shadow</span> : <code class="type"><a href="Bogue.Style.html#TYPEshadow">shadow</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
+<pre><span id="VALwith_bg"><span class="keyword">val</span> with_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEbackground">background</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
+<pre><span id="VALwith_border"><span class="keyword">val</span> with_border</span> : <code class="type"><a href="Bogue.Style.html#TYPEborder">border</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre>
+<pre><span id="VALwith_shadow"><span class="keyword">val</span> with_shadow</span> : <code class="type"><a href="Bogue.Style.html#TYPEshadow">shadow</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a> -&gt; <a href="Bogue.Style.html#TYPEt">t</a></code></pre><h3 id="2_Constructingbackgrounds">Constructing backgrounds</h3>
 <pre><span id="VALtheme_bg"><span class="keyword">val</span> theme_bg</span> : <code class="type"><a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALcolor_bg"><span class="keyword">val</span> color_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALopaque_bg"><span class="keyword">val</span> opaque_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">Draw.rgb</a> -> <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALimage_bg"><span class="keyword">val</span> image_bg</span> : <code class="type"><a href="Bogue.Image.html#TYPEt">Image.t</a> -> <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALgradient"><span class="keyword">val</span> gradient</span> : <code class="type">?angle:float -> <a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -> <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALhgradient"><span class="keyword">val</span> hgradient</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -> <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
-<pre><span id="VALvgradient"><span class="keyword">val</span> vgradient</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -> <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre><h3 id="2_Constructingborders">Constructing borders</h3>
-<pre><span id="VALmk_line"><span class="keyword">val</span> mk_line</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?width:int -> ?style:<a href="Bogue.Style.html#TYPEline_style">line_style</a> -> unit -> <a href="Bogue.Style.html#TYPEline">line</a></code></pre>
-<pre><span id="VALmk_border"><span class="keyword">val</span> mk_border</span> : <code class="type">?radius:int -> <a href="Bogue.Style.html#TYPEline">line</a> -> <a href="Bogue.Style.html#TYPEborder">border</a></code></pre><div class="info ">
+<pre><span id="VALcolor_bg"><span class="keyword">val</span> color_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALopaque_bg"><span class="keyword">val</span> opaque_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">Draw.rgb</a> -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALimage_bg"><span class="keyword">val</span> image_bg</span> : <code class="type"><a href="Bogue.Image.html#TYPEt">Image.t</a> -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALgradient"><span class="keyword">val</span> gradient</span> : <code class="type">?angle:float -&gt; <a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALhgradient"><span class="keyword">val</span> hgradient</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre>
+<pre><span id="VALvgradient"><span class="keyword">val</span> vgradient</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> list -&gt; <a href="Bogue.Style.html#TYPEbackground">background</a></code></pre><h3 id="2_Constructingborders">Constructing borders</h3>
+<pre><span id="VALmk_line"><span class="keyword">val</span> mk_line</span> : <code class="type">?color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?width:int -&gt; ?style:<a href="Bogue.Style.html#TYPEline_style">line_style</a> -&gt; unit -&gt; <a href="Bogue.Style.html#TYPEline">line</a></code></pre>
+<pre><span id="VALmk_border"><span class="keyword">val</span> mk_border</span> : <code class="type">?radius:int -&gt; <a href="Bogue.Style.html#TYPEline">line</a> -&gt; <a href="Bogue.Style.html#TYPEborder">border</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Note: currently, a border with positive <code class="code">radius</code> is not compatible with a
      transparent background.</p>
 </div>
 </div>
 <h3 id="2_Constructingshadows">Constructing shadows</h3>
-<pre><span id="VALmk_shadow"><span class="keyword">val</span> mk_shadow</span> : <code class="type">?offset:int * int -><br>       ?size:int -> ?width:int -> ?radius:int -> unit -> <a href="Bogue.Style.html#TYPEshadow">shadow</a></code></pre></body></html>
+<pre><span id="VALmk_shadow"><span class="keyword">val</span> mk_shadow</span> : <code class="type">?offset:int * int -&gt;<br>       ?size:int -&gt; ?width:int -&gt; ?radius:int -&gt; unit -&gt; <a href="Bogue.Style.html#TYPEshadow">shadow</a></code></pre></body></html>
