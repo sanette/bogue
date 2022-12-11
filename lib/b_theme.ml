@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20221127"  (* see VERSION file *)
+let this_version = "20221211"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -267,7 +267,8 @@ let find_share prog file =
   then Queue.add (prefix_dir // "share") queue;
   let () =
     try let system = Unix.open_process_in "opam var share" in
-      let res = input_line system in
+        let res = input_line system in
+        (* We could also use [sprintf "opam var %s:share" prog] *)
       Queue.add (res // prog) queue
     with _ -> () in
   Sys.chdir cwd;

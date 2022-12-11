@@ -384,8 +384,19 @@ let destroy_canvas c =
      that was destroyed this way, it will in fact most probably refer to a new
      texture with same id that was created after this... Hence the
      Gc.full_major, I didn't test whether this is sufficient. *)
+  do_option c.gl_context Sdl.gl_delete_context;
+  c.gl_context <- None;
   Sdl.destroy_window c.window;
-  do_option c.gl_context Sdl.gl_delete_context
+   (* The following is a workaround for the weird bug on Mac OS 13.0.1 with
+      cocoa video driver which prevents SDL windows to close in an interactive
+      toplevel session. For some reason the window will close if we initialise a
+      subsystem that was not already initialised, here joystick. *)
+  if !Sys.interactive && Sdl.get_current_video_driver () = Some "cocoa"
+  then begin
+    printd (debug_memory + debug_graphics) "Cocoa workaround";
+    go @@ Sdl.(init Init.joystick);
+    Sdl.(quit_sub_system Init.joystick)
+  end
 
 type geometry = {
   x : int;

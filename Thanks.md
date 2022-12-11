@@ -4,6 +4,10 @@ I know I'm not always very good at this. Don't hesitate to contact me
 if I forgot to mention you here.
 
 
+# 20221112
+thanks to arbipher for reporting (and help debugging) a case of Sdl.open_audio_device failure in WSL2 on Windows
+https://github.com/sanette/bogue/issues/11
+
 # 20220605
 thanks to slegrand45 for debugging black window issue in Chromebook+Debian 11
 https://github.com/sanette/bogue/issues/10
