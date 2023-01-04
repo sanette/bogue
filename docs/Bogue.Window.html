@@ -34,7 +34,7 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?on_close:(<a href="Bogue.Window.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> <a href="Bogue.Window.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?on_close:(<a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Window.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a window from the given layout. The layout must not belong to any
      room. If the layout is hidden, the window will be created but not shown.</p>
@@ -46,19 +46,19 @@
      the sole open window, clicking on the close button will also emit the
      'Quit' event, and will terminate Bogue anyways.</div>
 
-<pre><span id="VALon_close"><span class="keyword">val</span> on_close</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -> (<a href="Bogue.Window.html#TYPEt">t</a> -> unit) option -> unit</code></pre><div class="info ">
+<pre><span id="VALon_close"><span class="keyword">val</span> on_close</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -&gt; (<a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit) option -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Modify the on_close parameter of <a href="Bogue.Window.html#VALcreate"><code class="code"><span class="constructor">Window</span>.create</code></a>.</p>
 </div>
 </div>
 
-<pre><span id="VALdestroy"><span class="keyword">val</span> destroy</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALdestroy"><span class="keyword">val</span> destroy</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Ask Bogue to destroy the window.</p>
 </div>
 </div>
 
-<pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">w:int -> h:int -> <a href="Bogue.Window.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">w:int -&gt; h:int -&gt; <a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set window size in physical pixels. Only works after the window is
      physically created by . However, you may use <code class="code">set_size</code> in
@@ -66,7 +66,7 @@
 </div>
 </div>
 
-<pre><span id="VALmaximize_width"><span class="keyword">val</span> maximize_width</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALmaximize_width"><span class="keyword">val</span> maximize_width</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>See remarks in <a href="Bogue.Window.html#VALset_size"><code class="code"><span class="constructor">Window</span>.set_size</code></a>.</p>
 </div>

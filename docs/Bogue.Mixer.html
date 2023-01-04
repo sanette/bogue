@@ -26,13 +26,17 @@
 <p>Basic audio mixer for sound effects.</p>
 
 <p>This simple audio mixer makes it possible to play quick sounds, for instance
-   when clicking on buttons, or for game sounds effects.</p>
+    when clicking on buttons, or for game sounds effects.</p>
 
-<p>Only WAV files are supported. For playing MP3 music, and for more options, it is
-   advisable to use the SDL_Mixer library.</p>
+<p>Only WAV files are supported. For playing MP3 music, and for more options,
+    it is advisable to use the SDL_Mixer library.</p>
 
-<p><em>Remark:</em> This module is essentially independent of the rest of Bogue, so its
-   source can, with very few modifications, be used for any SDL application.</p>
+<p><em>Remark:</em> This module is essentially independent of the rest of Bogue, so
+    its source can, with very few modifications, be used for any SDL
+    application.</p>
+
+<p><em>Remark:</em> Under Windows, using WLS2, it was reported that sound works if
+    <code class="code">wslg</code> is installed.</p>
 
 <h6 id="5_graphbmixerhtmlDependencygraph"><a href="graph-b_mixer.html">Dependency graph</a></h6></div>
 </div>
@@ -62,8 +66,8 @@
 
 
 
-<pre><span id="VALtest"><span class="keyword">val</span> test</span> : <code class="type">unit -> unit</code></pre>
-<pre><span id="VALinit"><span class="keyword">val</span> init</span> : <code class="type">unit -> string option</code></pre><div class="info ">
+<pre><span id="VALtest"><span class="keyword">val</span> test</span> : <code class="type">unit -&gt; unit</code></pre>
+<pre><span id="VALinit"><span class="keyword">val</span> init</span> : <code class="type">unit -&gt; string option</code></pre><div class="info ">
 <div class="info-desc">
 <p>Initialize SDL audio.</p>
 </div>
@@ -73,7 +77,7 @@
 </ul>
 </div>
 
-<pre><span id="VALcreate_mixer"><span class="keyword">val</span> create_mixer</span> : <code class="type">?tracks:int -> ?freq:int -> string option -> <a href="Bogue.Mixer.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate_mixer"><span class="keyword">val</span> create_mixer</span> : <code class="type">?tracks:int -&gt; ?freq:int -&gt; string option -&gt; <a href="Bogue.Mixer.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">create&nbsp;devname</code> creates the mixer an opens the sound device. If <code class="code">devname</code>
       is <code class="code"><span class="constructor">None</span></code>, a dummy mixer is returned, which will produce no sound. Only
@@ -82,13 +86,13 @@
 </div>
 </div>
 
-<pre><span id="VALload_chunk"><span class="keyword">val</span> load_chunk</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> string -> <a href="Bogue.Mixer.html#TYPEsound">sound</a></code></pre><div class="info ">
+<pre><span id="VALload_chunk"><span class="keyword">val</span> load_chunk</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -&gt; string -&gt; <a href="Bogue.Mixer.html#TYPEsound">sound</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Load a WAV file.</p>
 </div>
 </div>
 
-<pre><span id="VALplay_chunk"><span class="keyword">val</span> play_chunk</span> : <code class="type">?track:int -><br>       ?effects:(<a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit) list -><br>       ?volume:float -><br>       ?repeat:<a href="Bogue.Mixer.html#TYPErepeat">repeat</a> -><br>       <a href="Bogue.Mixer.html#TYPEt">t</a> -> <a href="Bogue.Mixer.html#TYPEsound">sound</a> -> int option</code></pre><div class="info ">
+<pre><span id="VALplay_chunk"><span class="keyword">val</span> play_chunk</span> : <code class="type">?track:int -&gt;<br>       ?effects:(<a href="Bogue.Mixer.html#TYPEsound">sound</a> -&gt; unit) list -&gt;<br>       ?volume:float -&gt;<br>       ?repeat:<a href="Bogue.Mixer.html#TYPErepeat">repeat</a> -&gt;<br>       <a href="Bogue.Mixer.html#TYPEt">t</a> -&gt; <a href="Bogue.Mixer.html#TYPEsound">sound</a> -&gt; int option</code></pre><div class="info ">
 <div class="info-desc">
 <p>Play chunk on the desired track number. If <code class="code">track</code> is not specified, find
      an available track. By default <code class="code">repeat&nbsp;=&nbsp;<span class="constructor">Repeat</span>&nbsp;1</code>.</p>
@@ -98,12 +102,12 @@
 </ul>
 </div>
 
-<pre><span id="VALchange_volume"><span class="keyword">val</span> change_volume</span> : <code class="type">float -> <a href="Bogue.Mixer.html#TYPEsound">sound</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALchange_volume"><span class="keyword">val</span> change_volume</span> : <code class="type">float -&gt; <a href="Bogue.Mixer.html#TYPEsound">sound</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Multiply sound intensity by a float factor</p>
 </div>
 </div>
 
-<pre><span id="VALpause"><span class="keyword">val</span> pause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALunpause"><span class="keyword">val</span> unpause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALclose"><span class="keyword">val</span> close</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -> unit</code></pre></body></html>
+<pre><span id="VALpause"><span class="keyword">val</span> pause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -&gt; unit</code></pre>
+<pre><span id="VALunpause"><span class="keyword">val</span> unpause</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -&gt; unit</code></pre>
+<pre><span id="VALclose"><span class="keyword">val</span> close</span> : <code class="type"><a href="Bogue.Mixer.html#TYPEt">t</a> -&gt; unit</code></pre></body></html>

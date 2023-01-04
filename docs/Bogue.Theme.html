@@ -26,7 +26,7 @@
 <p>Theme variables.</p>
 
 <p>A number of variables control the appearance of your Bogue application. They
-    are called <a href="#path">Theme variables</a>.  They take effect
+    are called <a href="#list">Theme variables</a>.  They take effect
     when you start your application up (no need to recompile).  For quick
     experimentation, they can be modified as environment variables, for instance
     in a terminal:</p>
@@ -76,7 +76,7 @@ BACKGROUND = color:azure</pre>
   (eg. <code class="code">color:darkturquoise</code> or <code class="code">color:<span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>), or an image file
     (eg. <code class="code">file:myimage.png</code>). See <a href="#path">below</a>
      for how to specify paths.</li>
-<li><code class="code"><span class="constructor">BG_COLOR</span></code>: A background color (eg. <code class="code">darkturquoise</code>, or <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>)
+<li><code class="code"><span class="constructor">BG_COLOR</span></code>: a background color (eg. <code class="code">darkturquoise</code>, or <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>)
   that is used by default by some widgets/layouts.
   It should be clearly visible over the <code class="code"><span class="constructor">BACKGROUND</span></code>.</li>
 <li><code class="code"><span class="constructor">BUTTON_COLOR_ON</span></code>: the color of active buttons.</li>
@@ -85,14 +85,14 @@ BACKGROUND = color:azure</pre>
   (eg. <code class="code">myimage.png</code>) or a font-awesome icon (eg. <code class="code">fa:check-square-o</code>).</li>
 <li><code class="code"><span class="constructor">CHECK_OFF</span></code>: the image used for the 'unchecked' icon. See <code class="code"><span class="constructor">CHECK_ON</span></code>.</li>
 <li><code class="code"><span class="constructor">CURSOR_COLOR</span></code></li>
-<li><code class="code"><span class="constructor">DIR</span></code>:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code></li>
-<li><code class="code"><span class="constructor">FA_DIR</span></code>: The fontawesome directory inside <code class="code"><span class="constructor">DIR</span>/common/</code>.</li>
-<li><code class="code"><span class="constructor">FAINT_COLOR</span></code>: A non-obtrusive color for disabled options or
+<li><code class="code"><span class="constructor">DIR</span></code>: the directory containing the themes subdirectories. Default: auto   detected at startup, usually <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes</code></li>
+<li><code class="code"><span class="constructor">FA_DIR</span></code>: the fontawesome directory inside <code class="code"><span class="constructor">DIR</span>/common/</code>.</li>
+<li><code class="code"><span class="constructor">FAINT_COLOR</span></code>: a non-obtrusive color for disabled options or
   text of little importance.</li>
-<li><code class="code"><span class="constructor">LABEL_COLOR</span></code>: The color for text or icon labels.</li>
+<li><code class="code"><span class="constructor">LABEL_COLOR</span></code>: the color for text or icon labels.</li>
 <li><code class="code"><span class="constructor">LABEL_FONT</span></code>: path of a TTF font for text labels. If your system has <code class="code">fontconfig</code>, any installed font (as listed by <code class="code">fc-list</code>) can be specified without the full path. Eg: <code class="code"><span class="constructor">Ubuntu</span>-<span class="constructor">R</span>.ttf</code>.</li>
 <li><code class="code"><span class="constructor">LABEL_FONT_SIZE</span></code>: integer, eg <code class="code">14</code>.</li>
-<li><code class="code"><span class="constructor">LOG_TO_FILE</span></code>: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory.</li>
+<li><code class="code"><span class="constructor">LOG_TO_FILE</span></code>: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory. Log files can be viewed on an ANSI terminal with <code class="code">less&nbsp;-<span class="constructor">R</span></code> or with emacs using xterm-color-colorize-buffer (from the xterm-color package).</li>
 <li><code class="code"><span class="constructor">MENU_HL_COLOR</span></code>: the color for highlighting selected menu entries.</li>
 <li><code class="code"><span class="constructor">MENU_BG_COLOR</span></code></li>
 <li><code class="code"><span class="constructor">MONO_FONT</span></code>: monospace font. See <code class="code"><span class="constructor">LABEL_FONT</span></code>.</li>
@@ -148,22 +148,22 @@ then the <code class="code">%</code> char is replaced by the Bogue dir, for inst
      if you want predictable results.</p>
 
 <pre><span id="VALroom_margin"><span class="keyword">val</span> room_margin</span> : <code class="type">int</code></pre>
-<pre><span id="VALscale_int"><span class="keyword">val</span> scale_int</span> : <code class="type">int -> int</code></pre><div class="info ">
+<pre><span id="VALscale_int"><span class="keyword">val</span> scale_int</span> : <code class="type">int -&gt; int</code></pre><div class="info ">
 <div class="info-desc">
 <p>Conversion: Bogue dimension -&gt; hardware pixel dimension. The latter is
    obtained by multiplying by <code class="code"><span class="constructor">SCALE</span></code>.</p>
 </div>
 </div>
 
-<pre><span id="VALset_text_font"><span class="keyword">val</span> set_text_font</span> : <code class="type">string -> unit</code></pre>
-<pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -> unit</code></pre>
-<pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -> unit</code></pre>
-<pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -> unit</code></pre><h3 id="2_Accessingfilesinstalledalongwithyourapplication">Accessing files installed along with your application</h3>
+<pre><span id="VALset_text_font"><span class="keyword">val</span> set_text_font</span> : <code class="type">string -&gt; unit</code></pre>
+<pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -&gt; unit</code></pre>
+<pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -&gt; unit</code></pre>
+<pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -&gt; unit</code></pre><h3 id="2_Accessingfilesinstalledalongwithyourapplication">Accessing files installed along with your application</h3>
 <p>Files distributed with your application built with Bogue should be
       installed in a "share" directory, for instance using the <code class="code">install</code> stanza
       of <code class="code">dune</code> with <code class="code">(section&nbsp;share)</code>.</p>
 
-<pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -> string -> string option</code></pre><div class="info ">
+<pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -&gt; string -&gt; string option</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">find_share&nbsp;app&nbsp;file</code> returns a guessed location for your application
       share directory (if it exists). The <code class="code">app</code> string should be the system name

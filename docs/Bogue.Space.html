@@ -33,7 +33,7 @@
 </div>
 <hr width="100%">
 
-<pre><span id="VALhfill"><span class="keyword">val</span> hfill</span> : <code class="type">?right_margin:int -> unit -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALhfill"><span class="keyword">val</span> hfill</span> : <code class="type">?right_margin:int -&gt; unit -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>When used in a <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> structure, this special empty layout will
      automatically expand in order to fill the available width in the parent
@@ -43,22 +43,22 @@
 </div>
 </div>
 
-<pre><span id="VALmake_hfill"><span class="keyword">val</span> make_hfill</span> : <code class="type">?right_margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
-<pre><span id="VALfull_width"><span class="keyword">val</span> full_width</span> : <code class="type">?right_margin:int -> ?left_margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALmake_hfill"><span class="keyword">val</span> make_hfill</span> : <code class="type">?right_margin:int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre>
+<pre><span id="VALfull_width"><span class="keyword">val</span> full_width</span> : <code class="type">?right_margin:int -&gt; ?left_margin:int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>This will set the width of the room (layout) in order to occupy the whole
      width of its house.</p>
 </div>
 </div>
 
-<pre><span id="VALmake_vfill"><span class="keyword">val</span> make_vfill</span> : <code class="type">?bottom_margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALmake_vfill"><span class="keyword">val</span> make_vfill</span> : <code class="type">?bottom_margin:int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Like <a href="Bogue.Space.html#VALhfill"><code class="code"><span class="constructor">Space</span>.hfill</code></a>, but applies to the specified layout instead of creating an
       empty one.</p>
 </div>
 </div>
 
-<pre><span id="VALvfill"><span class="keyword">val</span> vfill</span> : <code class="type">?bottom_margin:int -> unit -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALvfill"><span class="keyword">val</span> vfill</span> : <code class="type">?bottom_margin:int -&gt; unit -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>When used in a <a href="Bogue.Layout.html#VALtower"><code class="code"><span class="constructor">Layout</span>.tower</code></a> structure, this special empty layout will
      automatically expand in order to fill the available height in the parent
@@ -66,6 +66,6 @@
 </div>
 </div>
 
-<pre><span id="VALfull_height"><span class="keyword">val</span> full_height</span> : <code class="type">?top_margin:int -> ?bottom_margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
-<pre><span id="VALkeep_bottom"><span class="keyword">val</span> keep_bottom</span> : <code class="type">?reset_scaling:bool -> ?margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre>
-<pre><span id="VALkeep_right"><span class="keyword">val</span> keep_right</span> : <code class="type">?reset_scaling:bool -> ?margin:int -> <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -> unit</code></pre></body></html>
+<pre><span id="VALfull_height"><span class="keyword">val</span> full_height</span> : <code class="type">?top_margin:int -&gt; ?bottom_margin:int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre>
+<pre><span id="VALkeep_bottom"><span class="keyword">val</span> keep_bottom</span> : <code class="type">?reset_scaling:bool -&gt; ?margin:int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre>
+<pre><span id="VALkeep_right"><span class="keyword">val</span> keep_right</span> : <code class="type">?reset_scaling:bool -&gt; ?margin:int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre></body></html>

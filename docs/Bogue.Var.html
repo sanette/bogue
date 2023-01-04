@@ -43,14 +43,14 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">'a -> 'a <a href="Bogue.Var.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">'a -&gt; 'a <a href="Bogue.Var.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">create&nbsp;v</code> returns a Var with initial value <code class="code">v</code>.</p>
 </div>
 </div>
 
-<pre><span id="VALget"><span class="keyword">val</span> get</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -> 'a</code></pre>
-<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -> 'a -> unit</code></pre><div class="info ">
+<pre><span id="VALget"><span class="keyword">val</span> get</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -&gt; 'a</code></pre>
+<pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -&gt; 'a -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">set&nbsp;v&nbsp;value</code> waits until no thread is accessing the Var <code class="code">v</code>
         and then sets its value to <code class="code">value</code>.</p>

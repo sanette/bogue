@@ -76,7 +76,7 @@
 <pre><span id="TYPEconnection"><span class="keyword">type</span> <code class="type"></code>connection</span> </pre>
 
 
-<pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">t</a> -> Tsdl.Sdl.event -> unit</code> </pre>
+<pre><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; Tsdl.Sdl.event -&gt; unit</code> </pre>
 <div class="info ">
 <div class="info-desc">
 <p>An action is a function with three parameters <code class="code">w1&nbsp;w2&nbsp;ev</code>, where
@@ -143,7 +143,7 @@
 
 
 
-<pre><span id="VALconnect"><span class="keyword">val</span> connect</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
+<pre><span id="VALconnect"><span class="keyword">val</span> connect</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt;<br>       <a href="Bogue.Widget.html#TYPEt">t</a> -&gt;<br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -&gt;<br>       ?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -&gt;<br>       ?update_target:bool -&gt;<br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -&gt;<br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -&gt; <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
       <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
@@ -155,14 +155,14 @@
 </div>
 <div class="param_info"><code class="code">priority</code> : indicates the desired priority policy. Default is <code class="code"><span class="constructor">Forget</span></code>.</div>
 
-<pre><span id="VALconnect_main"><span class="keyword">val</span> connect_main</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEt">t</a> -><br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -><br>       ?update_target:bool -><br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -><br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -> <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
+<pre><span id="VALconnect_main"><span class="keyword">val</span> connect_main</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt;<br>       <a href="Bogue.Widget.html#TYPEt">t</a> -&gt;<br>       <a href="Bogue.Widget.html#TYPEaction">action</a> -&gt;<br>       ?update_target:bool -&gt;<br>       ?join:<a href="Bogue.Widget.html#TYPEconnection">connection</a> -&gt;<br>       <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list -&gt; <a href="Bogue.Widget.html#TYPEconnection">connection</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Alias for <code class="code">connect&nbsp;~priority:<span class="constructor">Main</span></code>. Should be used for very fast actions
       that can be run in the main thread.</p>
 </div>
 </div>
 
-<pre><span id="VALadd_connection"><span class="keyword">val</span> add_connection</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEconnection">connection</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALadd_connection"><span class="keyword">val</span> add_connection</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEconnection">connection</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Registers the connection with the widget. This should systematically be
      done after each connection creation, when the connection is created <em>     after</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
@@ -179,7 +179,7 @@
 </div>
 </div>
 
-<pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALupdate"><span class="keyword">val</span> update</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">update&nbsp;w</code> asks the widget <code class="code">w</code> to refresh at next frame. The most probable
      use of <code class="code">update</code> is within the code of an <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a>. It can happen that the
@@ -189,7 +189,7 @@
 </div>
 </div>
 <h4 id="3_Predefinedconnections">Predefined connections</h4>
-<pre><span id="VALon_release"><span class="keyword">val</span> on_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALon_release"><span class="keyword">val</span> on_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">on_release&nbsp;~release:f&nbsp;w</code> registers on the widget <code class="code">w</code> the action <code class="code">f</code>,
       which will be executed when the mouse button is released on this widget.
@@ -197,21 +197,21 @@
 </div>
 </div>
 
-<pre><span id="VALon_button_release"><span class="keyword">val</span> on_button_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALon_button_release"><span class="keyword">val</span> on_button_release</span> : <code class="type">release:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Similar to <a href="Bogue.Widget.html#VALon_release"><code class="code"><span class="constructor">Widget</span>.on_release</code></a> but specialised to button widgets. It also checks
       the key used to activate buttons (currently, the Return key).</p>
 </div>
 </div>
 
-<pre><span id="VALon_click"><span class="keyword">val</span> on_click</span> : <code class="type">click:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<pre><span id="VALon_click"><span class="keyword">val</span> on_click</span> : <code class="type">click:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><em>Uses <code class="code">priority=<span class="constructor">Main</span></code></em></p>
 </div>
 </div>
 
-<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -><br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -> unit) -> <a href="Bogue.Widget.html#TYPEt">t</a> -> unit</code></pre><h3 id="widget_create">Creation of Widgets</h3><h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
-<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -> ?h:int -> ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt;<br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="widget_create">Creation of Widgets</h3><h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
+<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Box widget, which simply displays a rectangle, optionally with
      rounded corners and drop shadow. It is often used for the background of a
@@ -220,26 +220,26 @@
 </div>
 <h4 id="3_Checkboxes">Check boxes</h4><p>The standard on/off check boxes.</p>
 
-<pre><span id="VALcheck_box"><span class="keyword">val</span> check_box</span> : <code class="type">?state:bool -> ?style:<a href="Bogue.Check.html#TYPEstyle">Check.style</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALset_check_state"><span class="keyword">val</span> set_check_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool -> unit</code></pre><h4 id="3_Textdisplay">Text display</h4><p>Use this for multi-line text.</p>
+<pre><span id="VALcheck_box"><span class="keyword">val</span> check_box</span> : <code class="type">?state:bool -&gt; ?style:<a href="Bogue.Check.html#TYPEstyle">Check.style</a> -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALset_check_state"><span class="keyword">val</span> set_check_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; bool -&gt; unit</code></pre><h4 id="3_Textdisplay">Text display</h4><p>Use this for multi-line text.</p>
 
-<pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -> ?h:int -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -><br>       ?w:int -> ?h:int -> <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALhtml"><span class="keyword">val</span> html</span> : <code class="type">?w:int -> ?h:int -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -&gt;<br>       ?w:int -&gt; ?h:int -&gt; <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALhtml"><span class="keyword">val</span> html</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Display basic html text by interpreting the following tags:
       <code class="code">&lt;em&gt;,&lt;/em&gt;,&nbsp;&lt;b&gt;,&lt;/b&gt;,&nbsp;&lt;strong&gt;,&lt;/strong&gt;,&nbsp;&lt;p&gt;,&lt;/p&gt;,&nbsp;&lt;br&gt;</code></p>
 </div>
 </div>
 <h4 id="3_Labelsoricons">Labels or icons</h4>
-<pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -> ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -&gt; ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Label widget with a one-line text.</p>
 </div>
 </div>
 
-<pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -> ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type">?size:int -&gt; ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Label widget with a
      <a href="https://lab.artlung.com/font-awesome-sample/">FontAwesome</a> icon.</p>
@@ -249,36 +249,36 @@
 </div>
 </div>
 <h4 id="3_Empty">Empty</h4>
-<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">w:int -> h:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">w:int -&gt; h:int -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a widget that does not display anything but still gets focus and
      reacts to events.</p>
 </div>
 </div>
 <h4 id="3_Image">Image</h4>
-<pre><span id="VALimage"><span class="keyword">val</span> image</span> : <code class="type">?w:int -><br>       ?h:int -><br>       ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?noscale:bool -> ?angle:float -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALimage"><span class="keyword">val</span> image</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?noscale:bool -&gt; ?angle:float -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Load image file.</p>
 </div>
 </div>
 
-<pre><span id="VALimage_from_svg"><span class="keyword">val</span> image_from_svg</span> : <code class="type">?w:int -> ?h:int -> ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALimage_from_svg"><span class="keyword">val</span> image_from_svg</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?bg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Requires <code class="code">rsvg</code>.</p>
 </div>
 </div>
 
-<pre><span id="VALimage_copy"><span class="keyword">val</span> image_copy</span> : <code class="type">?rotate:float -> <a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALimage_copy"><span class="keyword">val</span> image_copy</span> : <code class="type">?rotate:float -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Return a new "Image" widget linked to the same image (same underlying
      <code class="code"><span class="constructor">Image</span>.t</code>, hence same texture.)</p>
 </div>
 </div>
 <h4 id="3_Textinput">Text input</h4>
-<pre><span id="VALtext_input"><span class="keyword">val</span> text_input</span> : <code class="type">?text:string -><br>       ?prompt:string -><br>       ?size:int -><br>       ?filter:<a href="Bogue.Text_input.html#TYPEfilter">Text_input.filter</a> -> ?max_size:int -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Buttons">Buttons</h4>
-<pre><span id="VALbutton"><span class="keyword">val</span> button</span> : <code class="type">?kind:<a href="Bogue.Button.html#TYPEkind">Button.kind</a> -><br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -><br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -><br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -><br>       ?state:bool -><br>       ?border_radius:int -><br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -><br>       ?action:(bool -> unit) -> string -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Sliders">Sliders</h4>
-<pre><span id="VALslider"><span class="keyword">val</span> slider</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?step:int -><br>       ?value:int -><br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -><br>       ?var:(int <a href="Bogue.Avar.html#TYPEt">Avar.t</a>, int) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a> -><br>       ?length:int -><br>       ?thickness:int -><br>       ?tick_size:int -> ?lock:bool -> ?w:int -> ?h:int -> int -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALslider_with_action"><span class="keyword">val</span> slider_with_action</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -><br>       ?step:int -><br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -><br>       value:int -><br>       ?length:int -><br>       ?thickness:int -><br>       ?tick_size:int -> action:(int -> unit) -> int -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALtext_input"><span class="keyword">val</span> text_input</span> : <code class="type">?text:string -&gt;<br>       ?prompt:string -&gt;<br>       ?size:int -&gt;<br>       ?filter:<a href="Bogue.Text_input.html#TYPEfilter">Text_input.filter</a> -&gt; ?max_size:int -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Buttons">Buttons</h4>
+<pre><span id="VALbutton"><span class="keyword">val</span> button</span> : <code class="type">?kind:<a href="Bogue.Button.html#TYPEkind">Button.kind</a> -&gt;<br>       ?label:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_on:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?label_off:<a href="Bogue.Label.html#TYPEt">Label.t</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?bg_on:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_off:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?bg_over:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> option -&gt;<br>       ?state:bool -&gt;<br>       ?border_radius:int -&gt;<br>       ?border_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?action:(bool -&gt; unit) -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><h4 id="3_Sliders">Sliders</h4>
+<pre><span id="VALslider"><span class="keyword">val</span> slider</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -&gt;<br>       ?step:int -&gt;<br>       ?value:int -&gt;<br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -&gt;<br>       ?var:(int <a href="Bogue.Avar.html#TYPEt">Avar.t</a>, int) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a> -&gt;<br>       ?length:int -&gt;<br>       ?thickness:int -&gt;<br>       ?tick_size:int -&gt; ?lock:bool -&gt; ?w:int -&gt; ?h:int -&gt; int -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALslider_with_action"><span class="keyword">val</span> slider_with_action</span> : <code class="type">?priority:<a href="Bogue.Widget.html#TYPEaction_priority">action_priority</a> -&gt;<br>       ?step:int -&gt;<br>       ?kind:<a href="Bogue.Slider.html#TYPEkind">Slider.kind</a> -&gt;<br>       value:int -&gt;<br>       ?length:int -&gt;<br>       ?thickness:int -&gt;<br>       ?tick_size:int -&gt; action:(int -&gt; unit) -&gt; int -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a slider that executes an action each time the local value of the
      slider is modified by the user.</p>
@@ -287,13 +287,13 @@
 <h4 id="3_SdlArea">Sdl Area</h4><p>You can use an Sdl_area widget to draw whatever you want
      using all the power of the SDL Renderer API.</p>
 
-<pre><span id="VALsdl_area"><span class="keyword">val</span> sdl_area</span> : <code class="type">w:int -> h:int -> ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -> unit -> <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALsdl_area"><span class="keyword">val</span> sdl_area</span> : <code class="type">w:int -&gt; h:int -&gt; ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>See <a href="Bogue.Sdl_area.html#VALcreate"><code class="code"><span class="constructor">Sdl_area</span>.create</code></a> regarding the size <code class="code">(w,h)</code>.</p>
 </div>
 </div>
 <h3 id="2_Creationofcombinedwidgets">Creation of combined widgets</h3>
-<pre><span id="VALcheck_box_with_label"><span class="keyword">val</span> check_box_with_label</span> : <code class="type">string -> <a href="Bogue.Widget.html#TYPEt">t</a> * <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALcheck_box_with_label"><span class="keyword">val</span> check_box_with_label</span> : <code class="type">string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> * <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code"><span class="keyword">let</span>&nbsp;b,l&nbsp;=&nbsp;check_box_with_label&nbsp;text</code> creates a check box <code class="code">b</code>, a label
      <code class="code">l</code>, and connect them so that clicking on the text will also act on the
@@ -311,40 +311,40 @@
      longer form <a href="Bogue.Button.html#VALstate"><code class="code"><span class="constructor">Button</span>.state</code></a><code class="code">&nbsp;(get_button&nbsp;t)</code>. Indeed the latter will fail
      if <code class="code">t</code> happens not to be a Button.</p>
 
-<pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
+<pre><span id="VALget_state"><span class="keyword">val</span> get_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; bool</code></pre><div class="info ">
 <div class="info-desc">
 <p>Query a boolean state. Works for Button and Check.</p>
 </div>
 </div>
 
-<pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string</code></pre><div class="info ">
+<pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; string</code></pre><div class="info ">
 <div class="info-desc">
 <p>Return the text of the widget. Works for Button, TextDisplay, Label, and
      TextInput.</p>
 </div>
 </div>
 
-<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> int * int</code></pre><div class="info ">
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; int * int</code></pre><div class="info ">
 <div class="info-desc">
 <p>If the widget is not rendered yet, a default size may be returned instead
      of the true size.</p>
 </div>
 </div>
 
-<pre><span id="VALset_state"><span class="keyword">val</span> set_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> bool -> unit</code></pre><div class="info ">
+<pre><span id="VALset_state"><span class="keyword">val</span> set_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; bool -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set a boolean state. Works for Button and Check.</p>
 </div>
 </div>
 
-<pre><span id="VALset_text"><span class="keyword">val</span> set_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> string -> unit</code></pre><div class="info ">
+<pre><span id="VALset_text"><span class="keyword">val</span> set_text</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; string -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Change the text of a widget. Works for Button, TextDisplay, Label,
      and TextInput.</p>
 </div>
 </div>
 
-<pre><span id="VALset_cursor"><span class="keyword">val</span> set_cursor</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> Tsdl.Sdl.cursor option -> unit</code></pre><div class="info ">
+<pre><span id="VALset_cursor"><span class="keyword">val</span> set_cursor</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; Tsdl.Sdl.cursor option -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set the cursor that should be displayed for this widget. Note that the Sdl
      functions for creating cursor are only available after SDL
@@ -356,16 +356,16 @@
 <p>These functions raise <code class="code"><span class="constructor">Invalid_argument</span></code> whenever their argument is not of
      the correct type.</p>
 
-<pre><span id="VALget_box"><span class="keyword">val</span> get_box</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Box.html#TYPEt">Box.t</a></code></pre>
-<pre><span id="VALget_check"><span class="keyword">val</span> get_check</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Check.html#TYPEt">Check.t</a></code></pre>
-<pre><span id="VALget_label"><span class="keyword">val</span> get_label</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Label.html#TYPEt">Label.t</a></code></pre>
-<pre><span id="VALget_button"><span class="keyword">val</span> get_button</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Button.html#TYPEt">Button.t</a></code></pre>
-<pre><span id="VALget_slider"><span class="keyword">val</span> get_slider</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Slider.html#TYPEt">Slider.t</a></code></pre>
-<pre><span id="VALget_text_display"><span class="keyword">val</span> get_text_display</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Text_display.html#TYPEt">Text_display.t</a></code></pre>
-<pre><span id="VALget_text_input"><span class="keyword">val</span> get_text_input</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Text_input.html#TYPEt">Text_input.t</a></code></pre>
-<pre><span id="VALget_image"><span class="keyword">val</span> get_image</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Image.html#TYPEt">Image.t</a></code></pre>
-<pre><span id="VALget_sdl_area"><span class="keyword">val</span> get_sdl_area</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -> <a href="Bogue.Sdl_area.html#TYPEt">Sdl_area.t</a></code></pre><h3 id="2_Genericactions">Generic actions</h3>
-<pre><span id="VALmap_text"><span class="keyword">val</span> map_text</span> : <code class="type">(string -> string) -> <a href="Bogue.Widget.html#TYPEaction">action</a></code></pre><div class="info ">
+<pre><span id="VALget_box"><span class="keyword">val</span> get_box</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Box.html#TYPEt">Box.t</a></code></pre>
+<pre><span id="VALget_check"><span class="keyword">val</span> get_check</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Check.html#TYPEt">Check.t</a></code></pre>
+<pre><span id="VALget_label"><span class="keyword">val</span> get_label</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Label.html#TYPEt">Label.t</a></code></pre>
+<pre><span id="VALget_button"><span class="keyword">val</span> get_button</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Button.html#TYPEt">Button.t</a></code></pre>
+<pre><span id="VALget_slider"><span class="keyword">val</span> get_slider</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Slider.html#TYPEt">Slider.t</a></code></pre>
+<pre><span id="VALget_text_display"><span class="keyword">val</span> get_text_display</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_display.html#TYPEt">Text_display.t</a></code></pre>
+<pre><span id="VALget_text_input"><span class="keyword">val</span> get_text_input</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_input.html#TYPEt">Text_input.t</a></code></pre>
+<pre><span id="VALget_image"><span class="keyword">val</span> get_image</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Image.html#TYPEt">Image.t</a></code></pre>
+<pre><span id="VALget_sdl_area"><span class="keyword">val</span> get_sdl_area</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Sdl_area.html#TYPEt">Sdl_area.t</a></code></pre><h3 id="2_Genericactions">Generic actions</h3>
+<pre><span id="VALmap_text"><span class="keyword">val</span> map_text</span> : <code class="type">(string -&gt; string) -&gt; <a href="Bogue.Widget.html#TYPEaction">action</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">map_text&nbsp;f</code> is a <a href="Bogue.Widget.html#TYPEaction"><code class="code"><span class="constructor">Widget</span>.action</code></a> that replaces the text of the second widget
      by <code class="code">f</code> applied to the text of the first widget.</p>
