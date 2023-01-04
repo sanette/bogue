@@ -302,7 +302,7 @@ let check_mouse_hover board =
 (* This also sets the cursor. Overriding cursor is always possible by reacting
    to the mouse_leave/enter events. We try to keep at most one mouse_leave event
    and at most one mouse_enter event in the queue (however see remark in
-   trigger.ml line 476). The rule is that this function is called only when
+   trigger.ml). The rule is that this function is called only when
    there is no pending event, which means that no mouse_enter/leave event will
    be sent until the previous ones are dealt with.  Therefore it is NOT
    guaranteed that all widgets receive their due mouse_enter/leave events, in
@@ -333,8 +333,6 @@ let check_mouse_motion ?target board =
             push_mouse_leave (w1.Layout.id);
             (* we send mouse_enter to w2 *)
             push_mouse_enter (w2.Layout.id);
-            (* TODO its is NOT good to send 2 events at the same time in case of
-               animation... *)
             set_cursor (Some w2)
            ) in
   board.mouse_focus <- mf
@@ -600,6 +598,11 @@ let filter_board_events board e =
     Trigger.(flush remove_layout); (* not necessary in principle *)
     check_removed board;
     None
+  | `Render_targets_reset
+  | `Render_device_reset ->
+    printd (debug_graphics + debug_error) "TODO! Reset all textures";
+    Sdl.log "reset event";
+    None
   | _ -> Some e
 
 
@@ -836,7 +839,7 @@ let event_loop anim new_anim board =
        and we return the evo_widget for the widgets *)
     let evo_widget = check_option evo_layout (filter_drag_and_drop_event board)
     in
-    (* Now, the widget has the event *)
+    (* Now, the widget has the event (TODO sortir de la boucle ? ou dans une autre?) *)
     (* note that the widget will usually emit a redraw event *)
     do_option evo_widget (fun ev ->
         do_option (target_widget board ev) (Widget.wake_up_all ev));

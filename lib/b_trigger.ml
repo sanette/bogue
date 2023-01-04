@@ -680,7 +680,7 @@ let widget_id = E.user_code
 
    What makes this possible is
 
-   1. only one event is treated per iteration
+   1. only one event is treated per iteration (2022: not true anymore)
    2. there might be quite a long delay in the loop in case of animation
 
    This behaviour has a drawback: during an animation, mouse_enter/leave events

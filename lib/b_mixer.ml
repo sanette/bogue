@@ -126,7 +126,7 @@ let blit_or_sum first last volume chunk output =
    Bogue, there is no need to create an additional new thread: use
    Widget.connect_main, not widget.connect *)
 let callback mixer =
-  let no_sound = ref true in  (* inutilisé *)
+  let no_sound = ref true in
   fun output ->
     let chunk_length =  Array1.dim output in
     let first = ref true in
@@ -166,10 +166,12 @@ let callback mixer =
                   end
                   else begin
                     track.soundpos <- 0;
-                    printd debug_io "%u repeat%s remaining for sample in track #%u."
+                    printd debug_io
+                      "%u repeat%s remaining for sample in track #%u."
                       (n-1) (if n>2 then "s" else "") i
                   end
-                | Forever -> printd debug_io "Repeat sample forever in track #%u." i)
+                | Forever ->
+                  printd debug_io "Repeat sample forever in track #%u." i)
           end)
     done;
     if !filled <> chunk_length
@@ -507,8 +509,8 @@ let play_chunk ?track ?(effects=[]) ?(volume=1.) ?(repeat = Repeat 1)
             Sdl.unlock_audio_device d;
             (* printd debug_io "Unpause mixer"; *)
             (* REMARK: using Sld.pause_audio_device too often may lead to
-               lockups... Don't know why. Hence we remove it from here. The user has
-               to invoke Mixer.unpause manually. Idem with lock ??? *)
+               lockups... Don't know why. Hence we remove it from here. The user
+               has to invoke Mixer.unpause manually. Idem with lock ??? *)
             (* Sdl.pause_audio_device d false *)
           );
       end in
@@ -538,7 +540,7 @@ let close mixer =
   mixer.callback <- None;
   for i = 0 to Array.length mixer.tracks - 1 do
     mixer.tracks.(i) <- None
-  done;;
+  done
 
 (* let free_chunk = Sdl.free_wav *)
 (* DONT USE THIS, the chunks will be freed (hopefully) by Ocaml's GC. *)
@@ -556,7 +558,7 @@ let test () =
   let chunk1 = load_chunk mixer "%assets/audio/chunk.wav" in
   (* 16000 Hz, stretched in < 6ms *)
 
-  Gc.compact (); (* this makes it crash with original tsdl 0.9.1 *)
+  Gc.compact (); (* this makes it crash with tsdl 0.9.1 *)
   unpause mixer;
   print_endline "Playing music...";
   let sia = play_chunk ~volume:0.8 mixer chunk2 in

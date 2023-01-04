@@ -274,7 +274,7 @@ let display canvas layer w geom =
 (* anyway, it is not clear if the user_window_id field for created event types
    is really supported by (T)SDL *)
 let update w =
-  printd debug_board "Please refresh";
+  printd debug_board "Please refresh widget #%i" w.wid;
   Var.set w.fresh false;
   (* if !draw_boxes then Trigger.(push_event refresh_event) *)
   (* else *)

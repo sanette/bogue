@@ -355,15 +355,14 @@ module Engine = struct
     end
 
   (* mouse_enter (and mouse_motion?). mouse_motion will be useful only when we
-     add keyboard support. WARNING: when touching a new entry, both mouse_enter
-     and button_down are triggered... so the menu opens and then quickly
-     closes...(not anymore, why?) *)
+     add keyboard support. *)
   let mouse_over screen entry =
     pre "MOUSE_OVER";
     if entry.enabled && not entry.selected then begin
       highlight_entry entry;
       close_others ~timeout:true screen entry;
-      set_keyboard_focus entry.layout; (* mettre dans le timeout *)
+      (* set_keyboard_focus entry.layout; *)
+      (* Attention ça génère des mouse_enter/leave... *)
       match entry.kind with
       | Menu menu ->
         if (not menu.active) && entry.parent_menu.active
@@ -388,6 +387,8 @@ module Engine = struct
      its submenus. *)
   (* TODO here we use up/down as if the menu were vertical. What about if the
      menu is horizontal, or even custom?? *)
+  (* TODO vérifier pourquoi ça génère MOUSE_OVER *)
+  (* TODO selectionner la bonne entrée lorsqu'elle a été mouse_over'ed *)
   let key_down screen entry keycode =
     pre "KEY_DOWN";
     if keycode = Sdl.K.escape then close_tree screen entry.parent_menu

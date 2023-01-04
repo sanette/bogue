@@ -394,6 +394,7 @@ let destroy_canvas c =
   if !Sys.interactive && Sdl.get_current_video_driver () = Some "cocoa"
   then begin
     printd (debug_memory + debug_graphics) "Cocoa workaround";
+    Sdl.delay 100l;
     go @@ Sdl.(init Init.joystick);
     Sdl.(quit_sub_system Init.joystick)
   end

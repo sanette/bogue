@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20221211
+@version 20230104
 
 @author Vu Ngoc San
 
@@ -61,7 +61,7 @@ module L = Bogue.Layout]}
 (** Theme variables.
 
     A number of variables control the appearance of your Bogue application. They
-    are called {%html:<a href="#path">Theme variables</a>%}.  They take effect
+    are called {%html:<a href="#list">Theme variables</a>%}.  They take effect
     when you start your application up (no need to recompile).  For quick
     experimentation, they can be modified as environment variables, for instance
     in a terminal: {v export BOGUE_SCALE=2.5 v} They can also be saved in
@@ -109,7 +109,7 @@ v}
   (eg. [color:darkturquoise] or [color:#00CED1]), or an image file
     (eg. [file:myimage.png]). See {%html:<a href="#path">below</a>%}
      for how to specify paths.
-- [BG_COLOR]: A background color (eg. [darkturquoise], or [#00CED1])
+- [BG_COLOR]: a background color (eg. [darkturquoise], or [#00CED1])
   that is used by default by some widgets/layouts.
   It should be clearly visible over the [BACKGROUND].
 - [BUTTON_COLOR_ON]: the color of active buttons.
@@ -118,14 +118,14 @@ v}
   (eg. [myimage.png]) or a font-awesome icon (eg. [fa:check-square-o]).
 - [CHECK_OFF]: the image used for the 'unchecked' icon. See [CHECK_ON].
 - [CURSOR_COLOR]
-- [DIR]:  The directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
-- [FA_DIR]: The fontawesome directory inside [DIR/common/].
-- [FAINT_COLOR]: A non-obtrusive color for disabled options or
+- [DIR]: the directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
+- [FA_DIR]: the fontawesome directory inside [DIR/common/].
+- [FAINT_COLOR]: a non-obtrusive color for disabled options or
   text of little importance.
-- [LABEL_COLOR]: The color for text or icon labels.
+- [LABEL_COLOR]: the color for text or icon labels.
 - [LABEL_FONT]: path of a TTF font for text labels. If your system has [fontconfig], any installed font (as listed by [fc-list]) can be specified without the full path. Eg: [Ubuntu-R.ttf].
 - [LABEL_FONT_SIZE]: integer, eg [14].
-- [LOG_TO_FILE]: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory.
+- [LOG_TO_FILE]: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory. Log files can be viewed on an ANSI terminal with [less -R] or with emacs using xterm-color-colorize-buffer (from the xterm-color package).
 - [MENU_HL_COLOR]: the color for highlighting selected menu entries.
 - [MENU_BG_COLOR]
 - [MONO_FONT]: monospace font. See [LABEL_FONT].
@@ -544,14 +544,18 @@ end (* of Trigger *)
 
 (** Basic audio mixer for sound effects.
 
-This simple audio mixer makes it possible to play quick sounds, for instance
-   when clicking on buttons, or for game sounds effects.
+    This simple audio mixer makes it possible to play quick sounds, for instance
+    when clicking on buttons, or for game sounds effects.
 
-Only WAV files are supported. For playing MP3 music, and for more options, it is
-   advisable to use the SDL_Mixer library.
+    Only WAV files are supported. For playing MP3 music, and for more options,
+    it is advisable to use the SDL_Mixer library.
 
-{e Remark:} This module is essentially independent of the rest of Bogue, so its
-   source can, with very few modifications, be used for any SDL application.
+    {e Remark:} This module is essentially independent of the rest of Bogue, so
+    its source can, with very few modifications, be used for any SDL
+    application.
+
+    {e Remark:} Under Windows, using WLS2, it was reported that sound works if
+    [wslg] is installed.
 
 {5 {{:graph-b_mixer.html}Dependency graph}} *)
 module Mixer : sig

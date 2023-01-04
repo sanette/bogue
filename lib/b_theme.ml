@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20221211"  (* see VERSION file *)
+let this_version = "20230104"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -279,6 +279,10 @@ let find_share prog file =
             prog file bin_dir prefix_dir; None
   | path :: _ -> Some path
 
+let app_share_dir = match Filename.basename Sys.executable_name with
+  | "ocaml" | "utop" | "utop.exe" -> None
+  | app -> printd debug_io "Executable=%s" app; find_share app "."
+
 (* We try to locate the theme dir. *)
 (* We first check [conf]/bogue/themes, then `opam var share`/bogue/themes
 
@@ -344,21 +348,29 @@ let () =  print_endline
 let common = dir // "common"
 let fonts_dir = common // "fonts"
 
+let load_path = List.fold_left (fun l -> function
+    | Some p -> p::l
+    | None -> l) [] [app_share_dir; Some ""; Some current; Some common]
+
 (* A file starting with "/" is considered a global path. If the file starts with
    "%", that char is replaced by the shared bogue dir/. Otherwise it will be
-   searched in the current directory, or if it does not exist, in the current
-   theme directory. *)
-let get_path file =
+   searched in the [path] (by default = [load_path]) *)
+let get_path ?(path = load_path) file =
   if file = "" then invalid_arg "[Theme.get_path]: filename empty";
   if file.[0] = '/' then file
   else if file.[0] = '%'
   then let file = String.sub file 1 (String.length file - 1) in
     ((Filename.dirname dir) // file)
-  else if Sys.file_exists file
-  then file
-  else (printd debug_io "File %S does not exist in current dir %s"
-          file (Sys.getcwd ());
-        current // file)
+  else let rec loop = function
+      | [] ->
+        printd (debug_error + debug_io)
+          "File %S not found in path: %s (current dir=%s)"
+          file (String.concat ":" path) (Sys.getcwd ());
+        file
+      | dir::rest ->
+        let p = dir // file in
+        if Sys.file_exists p then p else loop rest in
+    loop path
 
 let get_fa_or_path s =
   if startswith s "fa:" then s else get_path s
@@ -481,11 +493,12 @@ let fa_symbol name =
 
 let load_colors () =
   let file = common // "colors" // "liste.txt" in
+  printd debug_io "Reading color names from [%s]." file;
   let buffer = Scanf.Scanning.from_file file in
   let rec loop list =
     try
       let name,_,r,g,b = Scanf.bscanf buffer "%s #%x rgb(%u,%u,%u)\n" (fun n h r g b -> n,h,r,g,b) in
-      printd debug_io "Reading color [%s]=(%u,%u,%u)" name r g b;
+      (* printd debug_io "Reading color [%s]=(%u,%u,%u)" name r g b; *)
       loop ( (name,(r,g,b))::list )
     with
     | End_of_file ->
