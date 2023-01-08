@@ -1,10 +1,10 @@
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono|Fira+Sans:300,400|Roboto+Slab|Roboto:400i");
-/* line 27, ../sass/style.scss */
+/* line 28, ../sass/style.scss */
 html {
   background-image: linear-gradient(to right, #aabbcc, #ffffff 8%, #aabbcc 500%);
 }
 
-/* line 31, ../sass/style.scss */
+/* line 32, ../sass/style.scss */
 body {
   width: 80%;
   max-width: 900px;
@@ -17,103 +17,103 @@ body {
   padding-bottom: 3em;
 }
 
-/* line 42, ../sass/style.scss */
+/* line 43, ../sass/style.scss */
 body > h1 > img {
   vertical-align: top;
   height: 35px;
   margin-right: 10px;
 }
 
-/* line 47, ../sass/style.scss */
+/* line 48, ../sass/style.scss */
 table {
   font-size: 11pt;
 }
 
-/* line 51, ../sass/style.scss */
+/* line 52, ../sass/style.scss */
 hr {
   display: none;
 }
 
-/* line 54, ../sass/style.scss */
+/* line 55, ../sass/style.scss */
 em {
   font-family: 'Roboto', serif;
 }
 
-/* line 57, ../sass/style.scss */
+/* line 58, ../sass/style.scss */
 .navbar {
-  border-bottom: 1px solid #4aa69d;
-  color: #4aa69d;
+  border-bottom: 1px solid #556a90;
+  color: #556a90;
 }
-/* line 60, ../sass/style.scss */
+/* line 61, ../sass/style.scss */
 .navbar .pre {
   float: left;
   width: 48%;
 }
-/* line 68, ../sass/style.scss */
+/* line 69, ../sass/style.scss */
 .navbar .post {
   float: right;
 }
-/* line 71, ../sass/style.scss */
+/* line 72, ../sass/style.scss */
 .navbar a {
-  color: #4aa69d;
+  color: #556a90;
 }
-/* line 74, ../sass/style.scss */
+/* line 75, ../sass/style.scss */
 .navbar a:hover {
   text-decoration: none;
   color: #d1371f;
 }
 
-/* line 80, ../sass/style.scss */
+/* line 81, ../sass/style.scss */
 *:target, :target {
   background: rgba(74, 166, 157, 0.3);
   box-shadow: 0 0 2px 2px rgba(74, 166, 157, 0.3), 0 0 10px 1px #d1371f;
 }
 
-/* line 84, ../sass/style.scss */
+/* line 85, ../sass/style.scss */
 .keyword, .kw {
   color: #3d547f;
   font-weight: bold;
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 89, ../sass/style.scss */
+/* line 90, ../sass/style.scss */
 [id^=VAL] {
   color: #32716b;
   font-weight: bold;
 }
-/* line 92, ../sass/style.scss */
+/* line 93, ../sass/style.scss */
 [id^=VAL] .keyword {
   color: #3d547f;
   font-size: 11pt;
 }
 
-/* line 97, ../sass/style.scss */
+/* line 98, ../sass/style.scss */
 .keywordsign {
   color: #C04600;
 }
 
-/* line 100, ../sass/style.scss */
+/* line 101, ../sass/style.scss */
 .comment {
   color: #3a837c;
 }
 
-/* line 103, ../sass/style.scss */
+/* line 104, ../sass/style.scss */
 .constructor {
   color: black;
 }
 
-/* line 106, ../sass/style.scss */
+/* line 107, ../sass/style.scss */
 .string, .st {
   color: Maroon;
 }
 
-/* line 109, ../sass/style.scss */
+/* line 110, ../sass/style.scss */
 .warning {
   color: #d1371f;
   font-weight: bold;
 }
 
-/* line 113, ../sass/style.scss */
+/* line 114, ../sass/style.scss */
 .info.top {
   width: 100%;
   margin-left: 0;
@@ -122,28 +122,28 @@ em {
   padding-bottom: 1ex;
 }
 
-/* line 120, ../sass/style.scss */
+/* line 121, ../sass/style.scss */
 .info {
   margin-left: 3em;
   margin-right: 3em;
   margin-bottom: 14pt;
 }
 
-/* line 125, ../sass/style.scss */
+/* line 126, ../sass/style.scss */
 td {
   vertical-align: top;
 }
-/* line 127, ../sass/style.scss */
+/* line 128, ../sass/style.scss */
 td .info {
   margin-bottom: 0;
 }
 
-/* line 131, ../sass/style.scss */
+/* line 132, ../sass/style.scss */
 td:first-child {
   /* width: 16em;*/
 }
 
-/* line 134, ../sass/style.scss */
+/* line 135, ../sass/style.scss */
 .param_info {
   margin-top: 4px;
   margin-left: 3em;
@@ -151,80 +151,80 @@ td:first-child {
   margin-bottom: 1em;
 }
 
-/* line 140, ../sass/style.scss */
+/* line 141, ../sass/style.scss */
 .type, pre code.type, .code, p code, code.ocaml {
   color: #a24d25;
   font-family: 'Fira Mono', monospace;
 }
-/* line 143, ../sass/style.scss */
+/* line 144, ../sass/style.scss */
 .type a, pre code.type a, .code a, p code a, code.ocaml a {
   color: #a24d25;
 }
 
-/* line 147, ../sass/style.scss */
+/* line 148, ../sass/style.scss */
 code.ocaml a {
   color: #602e17;
 }
 
-/* line 157, ../sass/style.scss */
+/* line 158, ../sass/style.scss */
 code {
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 160, ../sass/style.scss */
+/* line 161, ../sass/style.scss */
 code.code {
   background: #c5dbe68f;
 }
 
-/* line 163, ../sass/style.scss */
+/* line 164, ../sass/style.scss */
 pre code.code {
   background: none;
 }
 
-/* line 166, ../sass/style.scss */
+/* line 167, ../sass/style.scss */
 .typetable {
   margin-left: 1em;
   border-style: hidden;
 }
 
-/* line 170, ../sass/style.scss */
+/* line 171, ../sass/style.scss */
 .paramstable {
   border-style: hidden;
   padding: 5pt 5pt;
 }
 
-/* line 176, ../sass/style.scss */
+/* line 177, ../sass/style.scss */
 td.typefieldcomment {
   font-size: smaller;
 }
-/* line 179, ../sass/style.scss */
+/* line 180, ../sass/style.scss */
 td.typefieldcomment p {
   margin: 0;
 }
 
-/* line 182, ../sass/style.scss */
+/* line 183, ../sass/style.scss */
 div.sig_block {
   margin-left: 2em;
 }
 
-/* line 185, ../sass/style.scss */
+/* line 186, ../sass/style.scss */
 h1, h2, h3 {
   font-family: 'Fira Sans', sans-serif;
   font-weight: 500;
 }
 
-/* line 189, ../sass/style.scss */
+/* line 190, ../sass/style.scss */
 h1 {
   font-size: 20pt;
   padding-top: 7px;
   color: #7b6963;
 }
-/* line 194, ../sass/style.scss */
+/* line 195, ../sass/style.scss */
 h1 a {
   color: black;
 }
 
-/* line 198, ../sass/style.scss */
+/* line 199, ../sass/style.scss */
 h2 {
   font-size: 18pt;
   font-weight: 450;
@@ -235,7 +235,7 @@ h2 {
   border-top: 1px solid #43849d;
 }
 
-/* line 207, ../sass/style.scss */
+/* line 208, ../sass/style.scss */
 h3 {
   font-size: 16pt;
   margin-top: 30px;
@@ -246,7 +246,7 @@ h3 {
   display: table;
 }
 
-/* line 216, ../sass/style.scss */
+/* line 217, ../sass/style.scss */
 h4, h5, h6 {
   font-size: 14pt;
   margin-top: 5px;
@@ -255,7 +255,7 @@ h4, h5, h6 {
   padding: 2px;
 }
 
-/* line 223, ../sass/style.scss */
+/* line 224, ../sass/style.scss */
 h5, h6 {
   text-align: right;
   font-size: inherit;
@@ -263,7 +263,7 @@ h5, h6 {
   margin: 0;
 }
 
-/* line 231, ../sass/style.scss */
+/* line 232, ../sass/style.scss */
 div.h7 {
   font-size: 20pt;
   border: 1px solid #000000;
@@ -273,7 +273,7 @@ div.h7 {
   padding: 2px;
 }
 
-/* line 239, ../sass/style.scss */
+/* line 240, ../sass/style.scss */
 div.h8 {
   font-size: 20pt;
   border: 1px solid #000000;
@@ -284,18 +284,18 @@ div.h8 {
   padding: 2px;
 }
 
-/* line 248, ../sass/style.scss */
+/* line 249, ../sass/style.scss */
 a {
   color: #43849d;
   text-decoration: none;
 }
 
-/* line 252, ../sass/style.scss */
+/* line 253, ../sass/style.scss */
 a:hover {
   text-decoration: underline;
 }
 
-/* line 254, ../sass/style.scss */
+/* line 255, ../sass/style.scss */
 pre, .typetable {
   background-color: #c5dbe68f;
   margin-bottom: 4px;
@@ -306,7 +306,7 @@ pre, .typetable {
   font-family: 'Fira Mono', monospace;
 }
 
-/* line 261, ../sass/style.scss */
+/* line 262, ../sass/style.scss */
 pre {
   width: -moz-fit-content;
   width: -webkit-fit-content;
@@ -316,36 +316,36 @@ pre {
   margin-top: 0;
   white-space: pre-wrap;
 }
-/* line 269, ../sass/style.scss */
+/* line 270, ../sass/style.scss */
 pre a {
   color: black;
 }
 
-/* line 273, ../sass/style.scss */
+/* line 274, ../sass/style.scss */
 pre.verbatim, pre.codepre {
   border: 1px solid darkgrey;
 }
 
-/* line 276, ../sass/style.scss */
+/* line 277, ../sass/style.scss */
 .indextable {
   border: 1px #ddd solid;
   border-collapse: collapse;
 }
 
-/* line 280, ../sass/style.scss */
+/* line 281, ../sass/style.scss */
 .indextable td, .indextable th {
   border: 1px #ddd solid;
   min-width: 80px;
 }
 
-/* line 284, ../sass/style.scss */
+/* line 285, ../sass/style.scss */
 .indextable td.module {
   background-color: rgba(74, 166, 157, 0.3);
   padding-left: 2px;
   padding-right: 2px;
 }
 
-/* line 289, ../sass/style.scss */
+/* line 290, ../sass/style.scss */
 .indextable td.module a {
   color: #4E6272;
   text-decoration: none;
@@ -353,31 +353,31 @@ pre.verbatim, pre.codepre {
   width: 100%;
 }
 
-/* line 295, ../sass/style.scss */
+/* line 296, ../sass/style.scss */
 .indextable td.module a:hover {
   text-decoration: underline;
   background-color: transparent;
 }
 
-/* line 299, ../sass/style.scss */
+/* line 300, ../sass/style.scss */
 .deprecated {
   color: #888;
   font-style: italic;
 }
 
-/* line 303, ../sass/style.scss */
+/* line 304, ../sass/style.scss */
 .indextable tr td div.info {
   margin-left: 2px;
   margin-right: 2px;
 }
 
-/* line 307, ../sass/style.scss */
+/* line 308, ../sass/style.scss */
 ul.indexlist {
   margin-left: 0;
   padding-left: 0;
 }
 
-/* line 311, ../sass/style.scss */
+/* line 312, ../sass/style.scss */
 ul.indexlist li {
   list-style-type: none;
   margin-left: 0;
@@ -385,90 +385,90 @@ ul.indexlist li {
 }
 
 @media only screen and (max-width: 767px) {
-  /* line 318, ../sass/style.scss */
+  /* line 319, ../sass/style.scss */
   h1, h2, h3, h4, h5, h6, h7, h8, h9 {
     text-align: center;
   }
 }
 /* Graphes */
-/* line 325, ../sass/style.scss */
+/* line 326, ../sass/style.scss */
 #container, div.caption {
   width: 95%;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 330, ../sass/style.scss */
+/* line 331, ../sass/style.scss */
 svg {
   background: #c5dbe68f;
 }
-/* line 332, ../sass/style.scss */
+/* line 333, ../sass/style.scss */
 svg > g > polygon {
   fill: none;
 }
-/* line 335, ../sass/style.scss */
+/* line 336, ../sass/style.scss */
 svg ellipse {
   stroke: #4aa69d;
   fill: rgba(74, 166, 157, 0.3);
   transition: all 0.2s ease;
 }
-/* line 340, ../sass/style.scss */
+/* line 341, ../sass/style.scss */
 svg text {
   font: 12pt "Roboto Slab", sans-serif;
   fill: black;
 }
-/* line 345, ../sass/style.scss */
+/* line 346, ../sass/style.scss */
 svg g.edge path {
   stroke: #a24d25;
   transition: all 0.2s ease;
   stroke-width: 1px;
 }
-/* line 350, ../sass/style.scss */
+/* line 351, ../sass/style.scss */
 svg g.edge polygon {
   stroke: #d1371f;
   fill: #d1371f;
   transition: all 0.2s ease;
 }
-/* line 357, ../sass/style.scss */
+/* line 358, ../sass/style.scss */
 svg g.edge:hover path {
   stroke: #d1371f;
 }
-/* line 360, ../sass/style.scss */
+/* line 361, ../sass/style.scss */
 svg g.edge:hover path, svg g.edge:hover polygon {
   stroke-width: 5px;
 }
-/* line 366, ../sass/style.scss */
+/* line 367, ../sass/style.scss */
 svg g.edge.from path {
   stroke: #4aa69d;
 }
-/* line 369, ../sass/style.scss */
+/* line 370, ../sass/style.scss */
 svg g.edge.from polygon {
   stroke: #4aa69d;
   fill: #4aa69d;
 }
-/* line 375, ../sass/style.scss */
+/* line 376, ../sass/style.scss */
 svg g a:hover ellipse {
   stroke-width: 7px;
 }
 
-/* line 384, ../sass/style.scss */
+/* line 385, ../sass/style.scss */
 div.figure {
   margin-left: auto;
   margin-right: auto;
   width: 90%;
   max-width: 400px;
 }
-/* line 389, ../sass/style.scss */
+/* line 390, ../sass/style.scss */
 div.figure img {
   max-width: 100%;
 }
-/* line 392, ../sass/style.scss */
+/* line 393, ../sass/style.scss */
 div.figure .caption {
   text-align: center;
   margin-top: -2em;
 }
 
-/* line 400, ../sass/style.scss */
+/* line 401, ../sass/style.scss */
 td img {
   width: 100%;
 }

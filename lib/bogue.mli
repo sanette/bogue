@@ -208,11 +208,12 @@ module Theme : sig
       of [dune] with [(section share)]. *)
 
   val find_share : string -> string -> string option
-  (** [find_share "my_app" file] returns a guessed location for your
-      application share directory (if it exists), for instance
+  (** [find_share app file] returns a guessed location for your application
+      share directory (if it exists), for instance
       [/usr/local/share/my_app]. The [app] string should be the system name of
-      your application. The returned location is quaranteed to contain the given
-      [file]. If you don't have any file to search, you may use [file="."].
+      your application (for instance [app="my_app"]). The returned location is
+      quaranteed to contain the given [file]. If you don't have any file to
+      search, you may use [file="."].
 
       {b Warning:} The directory returned by [find_share] is not necessarily
       writeable. If you want a directory where the users of your application can

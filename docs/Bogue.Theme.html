@@ -165,11 +165,12 @@ then the <code class="code">%</code> char is replaced by the Bogue dir, for inst
 
 <pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -&gt; string -&gt; string option</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">find_share&nbsp;<span class="string">"my_app"</span>&nbsp;file</code> returns a guessed location for your
-      application share directory (if it exists), for instance
+<p><code class="code">find_share&nbsp;app&nbsp;file</code> returns a guessed location for your application
+      share directory (if it exists), for instance
       <code class="code">/usr/local/share/my_app</code>. The <code class="code">app</code> string should be the system name of
-      your application. The returned location is quaranteed to contain the given
-      <code class="code">file</code>. If you don't have any file to search, you may use <code class="code">file=<span class="string">"."</span></code>.</p>
+      your application (for instance <code class="code">app=<span class="string">"my_app"</span></code>). The returned location is
+      quaranteed to contain the given <code class="code">file</code>. If you don't have any file to
+      search, you may use <code class="code">file=<span class="string">"."</span></code>.</p>
 
 <p><b>Warning:</b> The directory returned by <code class="code">find_share</code> is not necessarily
       writeable. If you want a directory where the users of your application can
