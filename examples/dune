@@ -8,7 +8,6 @@
 
 (rule
  (alias runtest)
- (deps runtime.sh)
  (action (setenv SDL_VIDEODRIVER dummy
           (setenv BOGUE_DEBUG true
            (run ./example.exe 00)))))
