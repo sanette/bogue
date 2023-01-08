@@ -13,3 +13,5 @@ then
 	chmod 0700 "${XDG_RUNTIME_DIR}"
     fi
 fi
+
+dune exec ./example.exe 00
