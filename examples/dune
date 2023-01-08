@@ -9,4 +9,6 @@
 (rule
  (alias runtest)
  (deps test.sh)
- (action (run ./test.sh)))
+ (action (progn
+          (run ./test.sh)
+          (run ./example.exe -h))))
