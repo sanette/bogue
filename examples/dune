@@ -11,5 +11,6 @@
  (deps runtime.sh)
  (action (progn
           (run ./runtime.sh)
-           ;(run ./example.exe -h)
+          (setenv SDL_VIDEODRIVER dummy
+           (run ./example.exe -h))
 )))

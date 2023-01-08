@@ -16,4 +16,4 @@ fi
 
 export BOGUE_DEBUG=true
 export SDL_VIDEODRIVER=dummy
-dune exec ./boguex.exe 00
+#dune exec ./boguex.exe 00
