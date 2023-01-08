@@ -9,9 +9,6 @@
 (rule
  (alias runtest)
  (deps runtime.sh)
- (action (progn
-         ; (run ./runtime.sh)
-          (setenv SDL_VIDEODRIVER dummy
-                  (setenv BOGUE_DEBUG true
-                   (run ./example.exe 00)))
-)))
+ (action (setenv SDL_VIDEODRIVER dummy
+          (setenv BOGUE_DEBUG true
+           (run ./example.exe 00)))))
