@@ -8,7 +8,5 @@
 
 (rule
  (alias runtest)
- (deps runtime.sh)
- (action (progn
-          (run ./runtime.sh)
-          (run ./example.exe 00))))
+ (deps test.sh)
+ (action (run ./test.sh)))
