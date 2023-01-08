@@ -7,8 +7,8 @@
  (package bogue))
 
 (rule
- (alias  runtest)
+ (alias runtest)
  (deps runtime.sh)
  (action (progn
-          (run  ./runtime.sh)
+          (run ./runtime.sh)
           (run ./example.exe 00))))
