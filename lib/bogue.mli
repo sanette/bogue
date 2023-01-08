@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230104
+@version 20230108
 
 @author Vu Ngoc San
 
@@ -208,10 +208,15 @@ module Theme : sig
       of [dune] with [(section share)]. *)
 
   val find_share : string -> string -> string option
-  (** [find_share app file] returns a guessed location for your application
-      share directory (if it exists). The [app] string should be the system name
-      of your application. The returned location is quaranteed to contain the
-      given [file]. *)
+  (** [find_share "my_app" file] returns a guessed location for your
+      application share directory (if it exists), for instance
+      [/usr/local/share/my_app]. The [app] string should be the system name of
+      your application. The returned location is quaranteed to contain the given
+      [file]. If you don't have any file to search, you may use [file="."].
+
+      {b Warning:} The directory returned by [find_share] is not necessarily
+      writeable. If you want a directory where the users of your application can
+      save their preferences, you should rather use [Sdl.get_pref_path]. *)
 
 end (* of Theme *)
 

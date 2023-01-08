@@ -1,6 +1,7 @@
 (* A simple SDL mixer *)
-(* (c) San Vu Ngoc, 2107 *)
-(* for more features (like loading mp3), see SDL_mixer *)
+(* (c) San Vu Ngoc, 2017-2023 *)
+(* for more features (like loading mp3), see SDL_mixer
+   https://github.com/sanette/tsdl-mixer *)
 
 open Bigarray
 open B_utils (* can easily make this independent of Utils if needed *)
@@ -31,7 +32,7 @@ type t = {
   devname : string option; (* None if no audio is available *)
   mutable callback : Sdl.audio_callback option;
   mutable have: audio_spec; (* idem *)
-  tracks : (track option) array (* this array is manipulated by the callback thread. Any other manipulation thus requires locking= TODO *)
+  tracks : (track option) array (* this array is manipulated by the callback thread. Any other manipulation thus requires locking = TODO *)
 }
 
 (* Currently this only returns either None or Some "default". *)
