@@ -1,3 +1,5 @@
 #!/bin/bash
 
-BOGUE_DEBUG=true SDL_VIDEODRIVER=dummy dune exec ./example.exe 00
+export BOGUE_DEBUG=true
+export SDL_VIDEODRIVER=dummy
+dune exec ./example.exe 00
