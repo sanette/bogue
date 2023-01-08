@@ -12,5 +12,6 @@
  (action (progn
           (run ./runtime.sh)
           (setenv SDL_VIDEODRIVER dummy
-           (run ./example.exe -h))
+                  (setenv BOGUE_DEBUG true
+                   (run ./example.exe 00)))
 )))
