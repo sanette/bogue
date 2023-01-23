@@ -1,7 +1,7 @@
 (library
  (name bogue)
  (public_name bogue)
- (libraries str tsdl tsdl-image tsdl-ttf))
+ (libraries directories str tsdl tsdl-image tsdl-ttf))
 
 (install
  (section share)
