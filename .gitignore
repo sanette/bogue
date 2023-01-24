@@ -1,8 +1,8 @@
 # Dune
-/_build/
+_build
 
 # Opam
-/_opam/
+_opam
 
 # DKML
-/_cpkgs/
+_cpkgs

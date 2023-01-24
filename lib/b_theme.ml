@@ -93,20 +93,21 @@ let id x = x
 
 let (//) = Filename.concat
 
-(* Some global environment variables *)
-let home =
-  if Sys.unix then
-    Sys.getenv "HOME"
-  else
-    try Sys.getenv "USERPROFILE" with
-    | Not_found -> Sys.getenv "HOME"
+module User_dirs = Directories.User_dirs ()
+module Project_dirs = Directories.Project_dirs (struct
+  let qualifier = "org"
+  let organization = "sanette"
+  let application = "bogue"
+end
+)
 
-(* Home config directory *)
-(* TODO use https://github.com/ocamlpro/directories *)
-let conf = try Sys.getenv "XDG_CONFIG_HOME" with
-  | Not_found ->
-    try Sys.getenv "APPDATA" with
-    | Not_found -> home // ".config"
+let home = match User_dirs.home_dir with
+  | None -> failwith "can't compute home directory path"
+  | Some home -> home
+
+let conf = match Project_dirs.config_dir with
+  | None -> failwith "can't compute configuration directory path"
+  | Some config_dir -> config_dir
 
 let skip_comment buffer =
   let rec loop () =
@@ -157,7 +158,7 @@ let conf_file = "bogue.conf"
 let all_conf_files () = [
   conf_file;
   home // ("." ^ conf_file);
-  conf // "bogue" // conf_file
+  conf // conf_file
 ]
 
 let user_vars =
