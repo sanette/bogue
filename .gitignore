@@ -1,0 +1,8 @@
+# Dune
+/_build/
+
+# Opam
+/_opam/
+
+# DKML
+/_cpkgs/

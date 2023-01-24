@@ -94,12 +94,19 @@ let id x = x
 let (//) = Filename.concat
 
 (* Some global environment variables *)
-let home = Sys.getenv "HOME"
+let home =
+  if Sys.unix then
+    Sys.getenv "HOME"
+  else
+    try Sys.getenv "USERPROFILE" with
+    | Not_found -> Sys.getenv "HOME"
 
 (* Home config directory *)
 (* TODO use https://github.com/ocamlpro/directories *)
 let conf = try Sys.getenv "XDG_CONFIG_HOME" with
-  | Not_found -> home // ".config"
+  | Not_found ->
+    try Sys.getenv "APPDATA" with
+    | Not_found -> home // ".config"
 
 let skip_comment buffer =
   let rec loop () =
