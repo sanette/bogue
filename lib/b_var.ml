@@ -41,15 +41,15 @@ let protect v =
 let release v =
   match v.thread_id with
   | Some i when i = Thread.(id (self ())) ->
-     Mutex.unlock v.mutex;
-     v.thread_id <- None
+    Mutex.unlock v.mutex;
+    v.thread_id <- None
   | Some i ->
-     printd (debug_thread + debug_error)
-       "Thread %u cannot release variable locked by thread %u"
-       Thread.(id (self ())) i
+    printd (debug_thread + debug_error)
+      "Thread %u cannot release variable locked by thread %u"
+      Thread.(id (self ())) i
   | None ->
-     printd (debug_thread + debug_error)
-       "Trying to release a variable that was not locked"
+    printd (debug_thread + debug_error)
+      "Trying to release a variable that was not locked"
 
 (* Execute an action on the given variable if it is not locked by *another*
    thread. Can be used in recursions. *)

@@ -136,6 +136,8 @@ let exit_board board =
   Trigger.flush_all ();
   flush_log ()
 
+(* TODO: this is not enough cleaning. + one needs an "init" function to
+   restart. *)
 let quit = Draw.quit
 
 
