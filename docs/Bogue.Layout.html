@@ -132,7 +132,7 @@
 
 <pre><span id="VALopaque_bg"><span class="keyword">val</span> opaque_bg</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">Draw.rgb</a> -&gt; <a href="Bogue.Layout.html#TYPEbackground">background</a></code></pre><div class="info ">
 <div class="info-desc">
-<p>Construct a background from a RGB (ie non-transparent) color.</p>
+<p>Construct a background from an RGB (ie non-transparent) color.</p>
 </div>
 </div>
 
@@ -282,10 +282,10 @@
 <pre><span id="VALget_content"><span class="keyword">val</span> get_content</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEroom_content">room_content</a></code></pre>
 <pre><span id="VALget_rooms"><span class="keyword">val</span> get_rooms</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list</code></pre>
 <pre><span id="VALhas_resident"><span class="keyword">val</span> has_resident</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; bool</code></pre><h3 id="2_Modifyexistinglayouts">Modify existing layouts</h3>
-<p>These functions will not work if there is an animation running acting of
-     the variable we want to set. Most of these functions will stop the
-     automatic resizing mechanism of the room. Use <a href="Bogue.Layout.html#VALauto_scale"><code class="code"><span class="constructor">Layout</span>.auto_scale</code></a> to reactivate
-     it.</p>
+<p>Layouts should be modified only by the main Thread. If you want to modify
+      a Layout within a <a href="Bogue.Widget.html#TYPEconnection"><code class="code"><span class="constructor">Widget</span>.connection</code></a> without <code class="code"><span class="constructor">Main</span></code> priority,
+      you should use <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a>, or properly lock it using
+      <a href="Bogue.Layout.html#VALlock"><code class="code"><span class="constructor">Layout</span>.lock</code></a>/<a href="Bogue.Layout.html#VALunlock"><code class="code"><span class="constructor">Layout</span>.unlock</code></a>.</p>
 
 <pre><span id="VALauto_scale"><span class="keyword">val</span> auto_scale</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
@@ -304,16 +304,24 @@
 <pre><span id="VALon_resize"><span class="keyword">val</span> on_resize</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; (unit -&gt; unit) -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room's house (or
-     the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>), in
-     addition to the already registered resized functions. Warning: placing the
-     room in another layout will likely reset the resize function (unless you
-     set the <code class="code">scale_content</code> flag to <code class="code"><span class="keyword">false</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the remark
-     below that). Hence <code class="code">on_resize</code> should be called after the room is hosted in
-     its house.</p>
+      the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>),
+      in addition to the already registered resized functions. Warning: placing
+      the room in another layout will likely reset the resize function (unless
+      you set the <code class="code">scale_content</code> flag to <code class="code"><span class="keyword">false</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the
+      remark below that). Hence <code class="code">on_resize</code> should be called after the room is
+      hosted in its house.</p>
 </div>
 </div>
 
-<pre><span id="VALset_width"><span class="keyword">val</span> set_width</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
+<pre><span id="VALset_width"><span class="keyword">val</span> set_width</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">set_width</code> and similar functions will not work if there is an animation
+      running acting of the variable we want to set (here, the width). Most of
+      these functions will stop the automatic resizing mechanism of the
+      room. Use <a href="Bogue.Layout.html#VALauto_scale"><code class="code"><span class="constructor">Layout</span>.auto_scale</code></a> to reactivate it.</p>
+</div>
+</div>
+
 <pre><span id="VALset_height"><span class="keyword">val</span> set_height</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
 <pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int * int -&gt; unit</code></pre>
 <pre><span id="VALsetx"><span class="keyword">val</span> setx</span> : <code class="type">?keep_resize:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
@@ -362,10 +370,14 @@
 <pre><span id="VALlock"><span class="keyword">val</span> lock</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre>
 <pre><span id="VALunlock"><span class="keyword">val</span> unlock</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p>Since layouts can be modified by different threads, it might be useful to
-     lock it with a mutex. This does *not* always prevent from modifying it, but
-     another <code class="code">lock</code> statement will wait for the previous lock to be removed by
-     <a href="Bogue.Layout.html#VALunlock"><code class="code"><span class="constructor">Layout</span>.unlock</code></a>.</p>
+<p>In general, modifying a layout should by done by the main Thread or by
+      using a <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a>. However, in case you need a layout to be modified by
+      different threads, you should lock it with <a href="Bogue.Layout.html#VALlock"><code class="code"><span class="constructor">Layout</span>.lock</code></a>. Once a layout is
+      locked, another <code class="code">lock</code> statement from another thread will wait for the
+      previous lock to be removed by <a href="Bogue.Layout.html#VALunlock"><code class="code"><span class="constructor">Layout</span>.unlock</code></a>. Locking twice by the same thread
+      is allowed, and will not block, which allows recursive locking, but this
+      practice should be avoided because it is difficult to debug. If you need a
+      higher level locking API, wrap the layout in a <a href="Bogue.Var.html#TYPEt"><code class="code"><span class="constructor">Var</span>.t</code></a> variable.</p>
 </div>
 </div>
 <h3 id="2_Animations">Animations</h3>

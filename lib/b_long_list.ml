@@ -344,8 +344,8 @@ let addup_entries ll ~start ~height direction =
   h,i
 
 let update_voffset container dv =
-  if dv <> 0 (* this test is important because shift_offset creates a new
-               animation... *)
+  if dv <> 0 (* This test is important because shift_offset creates a
+                new animation... *)
   then Layout.shift_voffset container dv
 
 (* Given the required new value offset for of ll.offset we do all the necessary
@@ -365,7 +365,7 @@ let update_room ll container o =
   in
   let h = Layout.height container in
   let ll_height = total_height ll in
-  Var.protect Layout.(container.geometry.voffset); (* useful? *)
+  (* Var.protect Layout.(container.geometry.voffset); *) (* useful? *)
   let offset = Avar.get (Var.get ll.offset) in
   let voffset = Layout.get_voffset container in
   let offset, o =
@@ -390,7 +390,7 @@ let update_room ll container o =
            mouse wheel scroll to go past the computed room. *)
         update_voffset container (voffset2 - voffset);  (* = offset - o *)
         (* ==> the new value of the container voffset is voffset2 *)
-        Var.release Layout.(container.geometry.voffset);
+        (* Var.release Layout.(container.geometry.voffset); *)
         ll.container_voffset <- voffset2;
       end
       else begin
@@ -414,7 +414,7 @@ let update_room ll container o =
             (* Avar.set (Var.get ll.offset) o; *) (* redundant with tvar... *)
             let new_voffset = voffset2 - dh in
             update_voffset container (new_voffset - voffset);
-            Var.release Layout.(container.geometry.voffset);
+            (* Var.release Layout.(container.geometry.voffset); *)
             ll.container_voffset <- new_voffset;
             room'
           end
@@ -435,7 +435,7 @@ let update_room ll container o =
             (* Avar.set (Var.get ll.offset) o; *)
             let new_voffset = voffset2 + dh in
             update_voffset container (new_voffset - voffset);
-            Var.release Layout.(container.geometry.voffset);
+            (* Var.release Layout.(container.geometry.voffset); *)
             ll.container_voffset <- new_voffset;
             room'
           end

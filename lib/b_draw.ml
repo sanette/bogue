@@ -134,26 +134,26 @@ let rec create_texture renderer format access ~w ~h =
 let rec create_texture_from_surface renderer surface =
   match Sdl.create_texture_from_surface renderer surface with
   | Error _ ->
-     printd draw_error "create_texture_from_surface error: %s" (Sdl.get_error ());
-     let w,h = Sdl.get_surface_size surface in
-     let wmax, hmax = max_texture_size renderer in
-     if wmax < w || hmax < h
-     then (printd draw_error "The requested texture size (%u,%u) exceeds the max \
-                              size (%u,%u)." w h wmax hmax;
-           (* now we scale the surface (loosing quality of course)--- and cross
+    printd draw_error "create_texture_from_surface error: %s" (Sdl.get_error ());
+    let w,h = Sdl.get_surface_size surface in
+    let wmax, hmax = max_texture_size renderer in
+    if wmax < w || hmax < h
+    then (printd draw_error "The requested texture size (%u,%u) exceeds the max \
+                             size (%u,%u)." w h wmax hmax;
+          (* now we scale the surface (loosing quality of course)--- and cross
              fingers *)
-           let rect = Sdl.Rect.create ~x:0 ~y:0 ~h ~w in
-           let w = imin w wmax in
-           let h = imin h hmax in
-           let new_surf = create_surface_like surface ~w ~h in
-           go(Sdl.blit_scaled ~src:surface (Some rect) ~dst:new_surf None);
-           let t = create_texture_from_surface renderer new_surf in
-           free_surface new_surf;
-           t)
-     else exit 1
+          let rect = Sdl.Rect.create ~x:0 ~y:0 ~h ~w in
+          let w = imin w wmax in
+          let h = imin h hmax in
+          let new_surf = create_surface_like surface ~w ~h in
+          go(Sdl.blit_scaled ~src:surface (Some rect) ~dst:new_surf None);
+          let t = create_texture_from_surface renderer new_surf in
+          free_surface new_surf;
+          t)
+    else exit 1
   | Ok t ->
-     incr textures_in_memory;
-     t
+    incr textures_in_memory;
+    t
 
 let create_system_cursor = memo ~name:"cursor" Sdl.create_system_cursor
 
@@ -964,11 +964,8 @@ let load_image renderer file =
   let file = Theme.get_path file in
   printd debug_io "Loading image file %s" file;
   img_init ();
-  let surf = sdl_image_load file in
-  let tex = create_texture_from_surface renderer surf in
-  printd debug_io "Done loading %s, format=%s" file
-    Sdl.(get_pixel_format_name (get_surface_format_enum surf));
-  free_surface surf;
+  let tex = go (TImage.load_texture renderer file) in
+  printd debug_io "Done loading %s" file;
   tex
 
 (* either load an image (eg: "images.png") or a font-awesome symbol (eg:

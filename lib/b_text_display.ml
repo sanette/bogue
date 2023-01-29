@@ -111,14 +111,12 @@ let tab_to_space ?(sep = 8) s =
 
 (** change the content of the text on the fly *)
 let update ?w ?h t paragraphs =
-  Var.protect t.render;
-  let texo = Var.get t.render in
-  Var.set t.render None;
+  Var.update t.render (fun texo ->
   do_option texo Draw.forget_texture;
   Var.set t.paragraphs paragraphs;
   t.w <- w;
   t.h <- h;
-  Var.release t.render
+  None)
 
 let split_line line =
   full_split (regexp " ") line
@@ -320,58 +318,56 @@ let get_font td = Label.get_font_var td.font (Theme.scale_int td.size)
 
 let display canvas layer td g =
   let open Draw in
-  Var.protect td.render;
-  let tex = match Var.get td.render with
-    | Some t -> t
-    | None ->
-      begin
-        let font = get_font td in
-        let fg = opaque !text_color in
-        let lineskip = Ttf.font_line_skip font in
-        let space = fst (Label.physical_size_text font " ") in (* idem *)
-        let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in
+  match Var.update_get td.render (function
+            | Some t -> Some t
+            | None -> begin
+                let font = get_font td in
+                let fg = opaque !text_color in
+                let lineskip = Ttf.font_line_skip font in
+                let space = fst (Label.physical_size_text font " ") in (* idem *)
+                let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in
 
-        let rec loop list dx dy =
-          if dy > g.h then ()
-          else match list with
-            | [] -> ();
-            | []::rest -> loop rest 0 (dy + lineskip)
-            | (entity::rest_line)::rest ->
-              match entity with
-              | Word w ->
-                let surf = render_word ~fg font w in
-                let rect = Sdl.get_clip_rect surf in
-                let tw,th = Sdl.Rect.(w rect, h rect) in
-                if dx <> 0 && dx+tw >= g.w then begin
-                  free_surface surf;
-                  (* this word will hence be rendered twice. This could be
-                     optimized of course. *)
-                  loop list 0 (dy + lineskip); (* =we go to new line *)
-                end
-                else (go (Sdl.blit_surface ~src:surf (Some rect) ~dst:target_surf
-                            (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
-                      free_surface surf;
-                      loop (rest_line::rest) (dx + tw) dy)
-              | Space ->
-                let space = if Ttf.Style.(test (Ttf.get_font_style font) italic)
-                  then (round (float space *. 0.6)) else space in
-                loop (rest_line::rest) (dx + space) dy
-              (* TODO Space should be rendered in case of underline or
-                 strikethrough. But not when we break at the end of the line, of
-                 course *)
-              | Style s ->
-                let current_style = Ttf.get_font_style font in
-                let new_style = if s =  Ttf.Style.normal
-                  then s else Ttf.Style.(s + current_style) in
-                ttf_set_font_style font new_style;
-                loop (rest_line::rest) dx dy
-        in
-        loop (paragraphs td) 0 0;
-        let tex = create_texture_from_surface canvas.renderer target_surf in
-        free_surface target_surf;
-        Var.set td.render (Some tex); tex
-      end
-  in
-  Var.release td.render;
-  let dst = geom_to_rect g in
-  [make_blit ~voffset:g.voffset ~dst canvas layer tex]
+                let rec loop list dx dy =
+                  if dy > g.h then ()
+                  else match list with
+                       | [] -> ();
+                       | []::rest -> loop rest 0 (dy + lineskip)
+                       | (entity::rest_line)::rest ->
+                          match entity with
+                          | Word w ->
+                             let surf = render_word ~fg font w in
+                             let rect = Sdl.get_clip_rect surf in
+                             let tw,th = Sdl.Rect.(w rect, h rect) in
+                             if dx <> 0 && dx+tw >= g.w then begin
+                                 free_surface surf;
+                                 (* this word will hence be rendered twice. This could be
+                                    optimized of course. *)
+                                 loop list 0 (dy + lineskip); (* =we go to new line *)
+                               end
+                             else (go (Sdl.blit_surface ~src:surf (Some rect) ~dst:target_surf
+                                         (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
+                                   free_surface surf;
+                                   loop (rest_line::rest) (dx + tw) dy)
+                          | Space ->
+                             let space = if Ttf.Style.(test (Ttf.get_font_style font) italic)
+                                         then (round (float space *. 0.6)) else space in
+                             loop (rest_line::rest) (dx + space) dy
+                          (* TODO Space should be rendered in case of underline or
+                             strikethrough. But not when we break at the end of the line, of
+                             course *)
+                          | Style s ->
+                             let current_style = Ttf.get_font_style font in
+                             let new_style = if s =  Ttf.Style.normal
+                                             then s else Ttf.Style.(s + current_style) in
+                             ttf_set_font_style font new_style;
+                             loop (rest_line::rest) dx dy
+                in
+                loop (paragraphs td) 0 0;
+                let tex = create_texture_from_surface canvas.renderer target_surf in
+                free_surface target_surf;
+                Some tex;
+              end) with
+  | Some tex ->
+     let dst = geom_to_rect g in
+     [make_blit ~voffset:g.voffset ~dst canvas layer tex]
+  | None -> failwith "Text_display.display error" (* should not happen *)

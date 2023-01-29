@@ -19,13 +19,10 @@ module Trigger =  B_trigger
 let threads_created = Var.create []
 
 let add_thread t =
-  Var.protect_fn threads_created (fun thc ->
-      Var.set threads_created (t :: thc))
+  Var.update threads_created (List.cons t)
 
 let remove_thread t =
-  Var.protect_fn threads_created (fun thc ->
-      let list = List.filter (fun t' -> t' <> t) thc in
-      Var.set threads_created list)
+  Var.update threads_created (List.filter (fun t' -> t' <> t))
 
 type 'a t = {
   id : int;

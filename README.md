@@ -7,7 +7,8 @@ _Bogue_ is an all-purpose GUI (Graphical user interface) library for
 * Can be used to add interactivity to any program.
 * Can work within an already existing event loop, for instance to add
   GUI elements to a game.
-* Uses the __SDL2 renderer__ library, which makes it quite fast.
+* Uses __GPU acceleration__ (thanks to the _SDL2 renderer_ library),
+  which makes it quite fast.
 * Can deal with several windows.
 * _Bogue_ is __themable__, and does not try to look like your
   desktop. Instead, it will look the same on every platform.

@@ -87,7 +87,7 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
   (* Here the structure of menu_layout is
      [ menu_layout =
       [ formatted_label =
-        [ selected_layout = [label "banana"]] [ caret-down ];
+       [ selected_layout = [label "banana"]] [ caret-down ];
       ]
      ]
    *)
@@ -177,8 +177,8 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
         Layout.set_size tmp_dst (w,(Layout.height menu_layout + h));
         (* TODO ou plutôt faire un relocate, comme au-dessus, mais dans le dst *)
       (* on peut aussi fournir en sortir la fonction qui fait le relocate dans un
-       layout de son choix, qu'on n'est pas obligé de construire exprès --cf
-       examples/displays *)
+         layout de son choix, qu'on n'est pas obligé de construire exprès --cf
+         examples/displays *)
       end;
 
   tmp_dst

@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20230108"  (* see VERSION file *)
+let this_version = "20230129"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -93,6 +93,7 @@ let id x = x
 
 let (//) = Filename.concat
 
+(* Some global environment variables *)
 module User_dirs = Directories.User_dirs ()
 module Project_dirs = Directories.Project_dirs (struct
   let qualifier = "org"
@@ -240,6 +241,7 @@ let () =
     log_channel := open_out log_file
   end
 
+(* TODO this won't work with native Windows; use ocaml-crunch? *)
 let download_conf () =
   let open Printf in
   let rescue = "bogue_conf.tgz" in

@@ -1005,6 +1005,7 @@ let make ?shortcuts connections layouts =
    textures have been calculated and rendered. Of course these two will not be
    executed at all if there is no event to trigger display. *)
 let run ?before_display ?after_display board =
+  printd debug_board "==> Running board!";
   Trigger.flush_all ();
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();

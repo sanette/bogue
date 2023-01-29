@@ -252,30 +252,27 @@ let set_indicator t j =
 
 (* refreshes the table by creating a new long_list *)
 let refresh t =
-  Var.protect t.layout;
-  match (Var.get t.layout) with
-  | None -> failwith "table.ml: field t.layout should not be None"
-  (* TODO don't crash here and provide a default ? But this should never
-       happen *)
-  | Some r ->
-    let w,h,g,titles_row =
-      let open Layout in
-      match r.content with
-      | Rooms [titles_row; long_old] ->
-        width titles_row, height long_old,
-        long_old.geometry, titles_row
-      | _ -> failwith "table.ml: layout content is corrupted"
-      (* TODO don't crash ? *)
-    in
-    let long = make_long_list ~w ~h t in
+  Var.protect_fn t.layout (function
+      | None -> failwith "table.ml: field t.layout should not be None"
+      (* TODO don't crash here and provide a default ? But this should never
+         happen *)
+      | Some r ->
+         let w,h,g,titles_row =
+           let open Layout in
+           match r.content with
+           | Rooms [titles_row; long_old] ->
+              width titles_row, height long_old,
+              long_old.geometry, titles_row
+           | _ -> failwith "table.ml: layout content is corrupted"
+                           (* TODO don't crash ? *)
+         in
+         let long = make_long_list ~w ~h t in
 
-    (* this is the dangerous part: *)
-    Layout.(long.geometry <- g);
-    Layout.(long.current_geom <- to_current_geom g);
-    (* = not really necessary, because I have removed do_adjust in set_rooms *)
-    Layout.set_rooms r [titles_row; long];
-
-    Var.release t.layout
+         (* this is the dangerous part: *)
+         Layout.(long.geometry <- g);
+         Layout.(long.current_geom <- to_current_geom g);
+         (* = not really necessary, because I have removed do_adjust in set_rooms *)
+         Layout.set_rooms r [titles_row; long])
 
 (* changes sorting order. We don't try to modify the long_list in-place, we
    create a new one *)

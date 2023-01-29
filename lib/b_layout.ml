@@ -2,19 +2,22 @@
 
 (* Layout is the main object type. *)
 
-(* a layout is a 'box' which can contain 'sub-boxes'. We use the terminology of
-   houses: a house contains several rooms. Each room can be viewed as a house
-   which contains other rooms etc. Thus, this is a simple graph with variable
-   degree. A leaf (a room which does not contain subrooms) is called a resident;
-   it contains a Widget. In the whole (connected) tree, the summit is the main
-   layout: the only one which does not belong to any house; it is called the
-   top_house, and corresponds to a "physical" SDL window.  The size of the SDL
-   window should always match the size of the top_house. *)
+(* a layout is a 'box' which can contain 'sub-boxes'. We use the
+   terminology of houses: a house contains several rooms. Each room
+   can be viewed as a house which contains other rooms etc. Thus, this
+   is a simple graph with variable degree. A leaf (a room which does
+   not contain subrooms) is called a resident; it contains a
+   Widget. In the whole (connected) tree, the summit is the main
+   layout: the only one which does not belong to any house; it is
+   called the top_house, and corresponds to a "physical" SDL window.
+   The size of the SDL window should always match the size of the
+   top_house. *)
 
 (* Warning: a widget should *not* appear twice (or more) inside a
-   Layout. Otherwise, the results are not going to be satisfactory: a widget is
-   associated to a geometry in a layout. Instead one should use two differents
-   widgets with a connection between them to synchronize the data *)
+   Layout. Otherwise, the results are not going to be satisfactory: a
+   widget is associated to a geometry in a layout. Instead one should
+   use two differents widgets with a connection between them to
+   synchronize the data *)
 
 
 open Tsdl
@@ -36,10 +39,11 @@ module Slider = B_slider
 module Selection = B_selection
 
 type background =
-  (* TODO instead we should keep track of how the box was created... in case we
-     want to recreate (eg. use it for another window... ?) *)
+  (* TODO instead we should keep track of how the box was
+     created... in case we want to recreate (eg. use it for another
+     window...?) *)
   | Style of Style.t
-  | Box of Box.t (* for caching, should not be set directly *)
+  | Box of Box.t
 
 let color_bg color =
   Style (Style.(of_bg (color_bg color)))
@@ -60,36 +64,37 @@ type adjust =
   | Height
   | Nothing
 
-type transform =
-  { angle : float Avar.t;
+type transform = {
+    angle : float Avar.t;
     center : (Sdl.point option) Avar.t;
     flip : Sdl.flip Avar.t;
     alpha : float Avar.t
   }
 
 type geometry = {
-  x : int Avar.t;
-  y : int Avar.t;
-  (* The (x,y) coords define the position of the layout wrt its container (the
-     house). Origin is top-left. *)
-  w : int Avar.t;
-  h : int Avar.t;
-  voffset : (int Avar.t) Var.t;
-  (* The [voffset] is the vertical offset = the y value of where the content of
-     the layout will be drawn. It is typically used for scrolling. It is similar
-     to the 'y' variable', except that:
+    x : int Avar.t;
+    y : int Avar.t;
+    (* The (x,y) coords define the position of the layout wrt its
+       container (the house). Origin is top-left. *)
+    w : int Avar.t;
+    h : int Avar.t;
+    voffset : (int Avar.t) Var.t;
+    (* The [voffset] is the vertical offset = the y value of where the content of
+       the layout will be drawn. It is typically used for scrolling. It is similar
+       to the 'y' variable', except that:
 
-     1. the clipping rect (if defined) is *not* translated in case of voffset
-     2. the background is not translated either *)
-  transform: transform;
-}
+       1. the clipping rect (if defined) is *not* translated in case of voffset
+       2. the background is not translated either *)
+    transform: transform;
+  }
 
 type current_geom = {
-  x : int;
-  y : int;
-  w : int;
-  h : int;
-  voffset : int; }
+    x : int;
+    y : int;
+    w : int;
+    h : int;
+    voffset : int
+  }
 
 (* convert between same type in Draw... *)
 let to_draw_geom (g : current_geom) =
@@ -109,13 +114,9 @@ and room = {
     name : string option;
     (* If needed for debugging, one can give a name to the room. *)
     lock : Mutex.t;
-    (* Lock for concurrent access to mutable fields. Anything that modifies the
-       layout should lock; this way, we may write functions acting on a layout
-       without risking the layout being modified in the middle of the
-       function. Instead, we could use Var.t to encapsulate the layout (or all
-       the mutable fields, if we think that blocking one field should not block
-       the others), but maybe that would be heavier *)
+    (* Lock for concurrent access by several threads. *)
     mutable thread_id : int;
+    (* Id of the thread holding the lock. TODO use Var.t instead. *)
     adjust : adjust;
     (* should we adjust the size of this room to fit its content? *)
     (* not implemented yet *)
@@ -474,7 +475,6 @@ let current_geom ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) () : current_geom =
   { x; y; w; h; voffset}
 
 (* Transform geometry into current_geom *)
-(* lock the layout? *)
 let to_current_geom (g : geometry) : current_geom =
   { x = Avar.get g.x;
     y = Avar.get g.y;
@@ -629,9 +629,11 @@ let check_cemetery () =
   cemetery := newlist;
   empty
 
-(* lock the layout to make it available only by the locking thread. Hence two
-   consecutive locks by the same thread will not block. TODO mutualize with Var?
-   Probably better to use protect_fn anyways. *)
+(* Kind of recursive Mutex. Bad style? TODO remove this necessity...
+   Here we lock the layout to make it available only by the locking
+   thread. Hence two consecutive locks by the same thread will not
+   block. TODO mutualize with Var?  Probably better to use protect_fn
+   anyways. *)
 let lock l =
   if Mutex.try_lock l.lock
   then begin
@@ -648,9 +650,12 @@ let lock l =
         Mutex.lock l.lock;
         l.thread_id <- id
       end
-    else printd debug_thread
-           "Layout %s was locked, but by the same thread: we continue."
-           (sprint_id l)
+    else begin
+        printd (debug_thread + debug_error + debug_user)
+          "!! Layout %s was locked, but by the same thread: we \
+           continue, but this should be corrected."
+          (sprint_id l)
+      end
 
 let unlock l =
   printd debug_thread "Unlocking layout %s" (sprint_id l);
@@ -725,7 +730,7 @@ let get_background l =
   l.background
 
 (* force compute background at current size. Canvas must be created *)
-let compute_background ?(mustlock = true) room =
+let compute_background room =
   do_option room.background (
     fun bg ->
       let g = room.current_geom in
@@ -733,9 +738,7 @@ let compute_background ?(mustlock = true) room =
       let box = match bg with
         | Style style ->
           let b = Box.(create ~width:g.w ~height:g.h ~style ()) in
-          if mustlock then lock room;
           room.background <- (Some (Box b));
-          if mustlock then unlock room;
           b
         | Box b -> Box.unload b; b in
       ignore (Box.display (get_canvas room) (get_layer room) box
@@ -747,15 +750,11 @@ let compute_background ?(mustlock = true) room =
    use a background of type Box in case the box already belongs to another
    room...) *)
 let set_background l b =
-  lock l;
   unload_background l;
-  l.background <- b;
-  unlock l
+  l.background <- b
 
 let set_shadow l s =
-  lock l;
-  l.shadow <- s;
-  unlock l
+  l.shadow <- s
 
 (** get size of layout *)
 let get_size l =
@@ -814,7 +813,6 @@ let adjust_window_size l =
 (* TODO faire un module Resize avec keep_resize=true par défaut. *)
 let set_size ?(keep_resize = false) ?(check_window = true)
       ?(update_bg = false) ?w ?h l  =
-  lock l;
   let () = match w,h with
     | Some w, Some h ->
        l.current_geom <- { l.current_geom with w; h };
@@ -828,11 +826,10 @@ let set_size ?(keep_resize = false) ?(check_window = true)
        Avar.set l.geometry.h h
     | None, None -> () in
 
-  if update_bg && l.canvas <> None then compute_background ~mustlock:false l;
+  if update_bg && l.canvas <> None then compute_background l;
   (* = ou plutot unload_background ?? *)
   if not keep_resize then disable_resize l;
   if check_window && is_top l then adjust_window_size l;
-  unlock l;
   resize_content l
 
 let set_height ?keep_resize ?check_window ?update_bg l h =
@@ -845,7 +842,7 @@ let set_width ?keep_resize ?check_window ?update_bg l w =
 let set_size ?keep_resize ?check_window ?update_bg l (w,h) =
   set_size ?keep_resize ?check_window ?update_bg ~w ~h l
 
-(** get voffset *)
+(* get voffset *)
 let get_voffset l =
   (* l.current_geom.voffset;; *)
   Avar.get (Var.get l.geometry.voffset)
@@ -889,58 +886,51 @@ let gety l =
 let get_oldy l =
   Avar.old l.geometry.y
 
-(** change x of layout, without adjusting parent house. Warning, by default this
-   disables the resize function. *)
-(* this is the x coordinate wrt the containing house *)
-(* this won't work if there is an animation running (see Avar.set) *)
+(* Change x of layout, without adjusting parent house. Warning, by
+   default this disables the resize function. *)
+(* This is the x coordinate wrt the containing house *)
+(* This won't work if there is an animation running (see Avar.set) *)
 let setx ?(keep_resize = false) l x =
-  lock l;
   let x0 = getx l in
   l.current_geom <- { l.current_geom with x = l.current_geom.x + x - x0 };
   Avar.set l.geometry.x x;
-  if not keep_resize then disable_resize l; (* TODO à vérifier, cf dans "flat" et "tower" *)
-  unlock l
+  if not keep_resize then disable_resize l
+  (* :TODO à vérifier, cf dans "flat" et "tower" *)
 
-(** change y of layout, without adjusting parent house *)
+(* Change y of layout, without adjusting parent house. *)
 (* see above *)
 let sety ?(keep_resize = false) l y =
-  lock l;
   let y0 = get_oldy l in
   l.current_geom <- { l.current_geom with y = l.current_geom.y + y - y0 };
   Avar.set l.geometry.y y;
-  if not keep_resize then disable_resize l;
-  unlock l
+  if not keep_resize then disable_resize l
 
 (* see above *)
 (* warning, it the animation is not finished, using Avar.set has almost no
    effect *)
 let set_voffset l vo =
-  lock l;
   Avar.set (Var.get l.geometry.voffset) vo;
-  l.current_geom <-  { l.current_geom with voffset = vo };
-  unlock l
+  l.current_geom <-  { l.current_geom with voffset = vo }
 
 (* use this to shift the voffset by a constant amount without stopping an
    animation *)
-let shift_voffset_generic vset l dv =
-  let av = Var.get l.geometry.voffset in
+let shift_voffset l dv =
+  Var.update l.geometry.voffset (fun av ->
   if Avar.finished av
-  then set_voffset l (Avar.get av + dv)
-  else let av_new = Avar.apply (fun y -> y + dv) av in
-    (* let _ = Avar.get av_new in *)
-    (* in order to start the animation. Useful?? *)
-       vset l.geometry.voffset av_new
-
-let shift_voffset = shift_voffset_generic Var.set
+  then begin
+      let vo = Avar.get av + dv in
+      Avar.set av vo;
+      l.current_geom <-  { l.current_geom with voffset = vo };
+      av
+    end
+  else Avar.apply (fun y -> y + dv) av)
 
 (* not used... *)
 let reset_pos l =
-  lock l;
   let w,h = get_size l in
   let g = geometry ~w ~h () in (* or modify l.geometry fields in-place? *)
   l.geometry <- g;
-  l.current_geom <- to_current_geom g;
-  unlock l
+  l.current_geom <- to_current_geom g
 
 (* [get_window_pos] is meaningful only when the window is created, that is after
    calling Bogue.make. The corresponding SDL window is created only after
@@ -962,7 +952,6 @@ let set_window_pos layout (x,y) =
     layout.current_geom <- { g with x; y }
   | Some _ -> Draw.set_window_position (window layout) x y
 
-(* lock l? *)
 let get_transform l =
   let t = l.geometry.transform in
   let angle = Avar.get t.angle in
@@ -977,32 +966,25 @@ let get_alpha l =
 let draggable l =
   l.draggable
 
-(* we don't lock because it will be modified only by the main loop *)
 let set_draggable l =
   l.draggable <- true
 
 let set_clip l =
-  lock l;
-  l.clip <- true;
-  unlock l
+  l.clip <- true
 
 let unset_clip l =
-  lock l;
-  l.clip <- false;
-  unlock l
+  l.clip <- false
 
 let set_show l b =
-  lock l;
-  l.show <- b;
-  unlock l
+  l.show <- b
 
-let rec rec_set_show b l =
-  lock l;
-  l.show <- b;
-  let () = match l.content with
-  | Resident _ -> ()
-  | Rooms list -> List.iter (rec_set_show b) list in
-  unlock l
+let rec_set_show b l =
+  let rec loop b l =
+    l.show <- b;
+    match l.content with
+    | Resident _ -> ()
+    | Rooms list -> List.iter (loop b) list in
+  loop b l
 
 let show_window t =
   set_show (top_house t) true;
@@ -1312,7 +1294,6 @@ let has_keyboard_focus r =
    currently, even if the room doesn't have the keyboard_focus flag, this does
    not prevent the board to register it as keyboard focus... TODO: what to
    do? *)
-(* we don't lock because it will be modified only by the main loop *)
 let set_keyboard_focus r =
   match r.keyboard_focus with
   | Some b ->
@@ -1483,7 +1464,6 @@ let resize_fix_y room =
    top_house should be (0,0), we don't check this here. The (x,y) of l is set to
    (0,0). Should be called dynamically after main loop starts. *)
 let maximize l =
-  lock l;
   setx l 0;
   sety l 0;
   let w,h = get_size (top_house l) in
@@ -1491,7 +1471,6 @@ let maximize l =
   Avar.set l.geometry.h h;
   Avar.set l.geometry.w w;
   scale_resize_list (w,h) [l];
-  unlock l;
   resize_content l
 
 (* check if a sublayer is deeper (= below = Chain.<) than the main layer, which
@@ -1524,16 +1503,12 @@ let check_layers room =
 (*       | Resident _ -> () *)
 (*   end;; *)
 let set_canvas canvas room =
-  lock room;
   room.canvas <- Some canvas;
-  if !debug then check_layers room;
-  unlock room
+  if !debug then check_layers room
 
 (** Set the canvas for layout and all children *)
-let global_set_canvas ?(mustlock=true) room canvas =
-  if mustlock then lock room;
-  iter (fun r -> r.canvas <- Some canvas) room;
-  if mustlock then unlock room
+let global_set_canvas room canvas =
+  iter (fun r -> r.canvas <- Some canvas) room
 
 let check_layer_error room house =
   if not (Chain.same_stack room.layer house.layer)
@@ -1609,7 +1584,6 @@ let create_win_house windows =
 (* remember that a room with no house will be considered a "top layout" *)
 (* see WARNING of the "kill" fn. If the detached room is still pointed to by the
    board (eg. mouse_focus...=> the mouse will not find what you expect) *)
-(* TODO lock ? *)
 (* not used *)
 let detach_rooms layout =
   match layout.content with
@@ -1626,20 +1600,16 @@ let detach_rooms layout =
 (* Detach a room from its house. See detach_rooms. Warning, the textures are not
    freed. *)
 let detach room =
-  lock room;
-  let () = match room.house with
-    | None -> printd debug_error "Cannot detach because room %s has no house"
-                (sprint_id room)
-    | Some h ->
-      lock h;
-      room.house <- None;
-      room.canvas <- None;
-      let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
-      h.content <- Rooms rooms;
-      printd debug_warning "Room %s was detached from House %s."
-        (sprint_id room) (sprint_id h);
-      unlock h in
-  unlock room
+  match room.house with
+  | None -> printd debug_error "Cannot detach because room %s has no house"
+              (sprint_id room)
+  | Some h ->
+    room.house <- None;
+    room.canvas <- None;
+    let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
+    h.content <- Rooms rooms;
+    printd debug_warning "Room %s was detached from House %s."
+      (sprint_id room) (sprint_id h)
 
 (* Sets the required fields for [room] to be a room of [dst], but does not
    install it within the rooms list. This has to be done separately. See for
@@ -1648,12 +1618,13 @@ let attach ~dst room =
   room.house <- Some dst;
   move_to_stack ~dst room;
   (* if there is a canvas in layout, we copy it to all rooms *)
-  do_option dst.canvas (global_set_canvas ~mustlock:false room)
+  do_option dst.canvas (global_set_canvas room)
 
 (* Check if [room] can be added to the content of [dst]. If [already = true] we
    accept to add a room in a house that already contains it... (this is used
    when we want to re-order rooms). If [loop_error = false] it doesn't raise an
    error when room = dst, we just return false. *)
+
 let ok_to_add_room ?(already = false) ?(loop_error = true) ~dst room =
   if equal room dst
   then begin
@@ -1712,7 +1683,7 @@ let set_rooms layout rooms =
                                   want to survive longer than you
                                   think... see WARNING in 'kill' *)
     layout.content <- Rooms rooms
-    (*fit_content layout*)
+(*fit_content layout*)
 
 let set_rooms layout ?(sync=true) rooms =
   (if sync then Sync.push else run) (fun () -> set_rooms layout rooms)
@@ -1728,8 +1699,6 @@ let replace_rooms_NO layout rooms =
 (* Warning: the old content is not freed from memory *)
 (* TODO: move everything to Sync (not only set_rooms) ? *)
 let copy ~src ~dst =
-  lock src;
-  lock dst;
   let dx = dst.current_geom.x - src.current_geom.x in
   let dy = dst.current_geom.y - src.current_geom.y in
   global_translate src dx dy;
@@ -1743,9 +1712,7 @@ let copy ~src ~dst =
     | Rooms rooms -> set_rooms dst rooms
   end;
   dst.keyboard_focus <- src.keyboard_focus;
-  dst.draggable <- src.draggable;
-  unlock src;
-  unlock dst
+  dst.draggable <- src.draggable
 
 (* Add a room to the dst layout content (END of the list). This does *not*
    enlarge the containing house. The resize function of the room is cancelled. *)
@@ -1757,8 +1724,6 @@ let add_room ?valign ?halign ~dst room =
     check_layer_error room dst;
     let rooms = get_rooms dst in
     (* we cannot add room to layout which already contains a Resident *)
-    lock dst;
-    lock room;
     (* We now check oversize. But this should not happen. The user should not
        rely on this. If the added room is too large, beware that nothing outside
        of the geometry of the destination room will never have mouse focus
@@ -1782,16 +1747,12 @@ let add_room ?valign ?halign ~dst room =
     sety room y;
     attach ~dst room;
 
-    dst.content <- Rooms (List.rev (room :: (List.rev rooms)));
+    dst.content <- Rooms (List.rev (room :: (List.rev rooms)))
     (*  fit_content dst;; *)
-    unlock dst;
-    unlock room
   end
 
 let set_layer ?(debug = !debug) room layer =
-  lock room;
   room.layer <- layer;
-  unlock room;
   if debug then check_layers room
 
 (* TODO: do some "move layer" or translate layer instead *)
@@ -1859,26 +1820,7 @@ let h_align ~align layout x0 w =
                  let x = Draw.align align x0 w w0 in
                  setx r x)
 
-
-(* create a vertical layout ("tower") from a list of widgets *)
-let tower_of_w_old ?name ?(sep = Theme.room_margin) ?w ?align
-    (* ?(adjust = Fit) *) ?background ?widget_bg
-    ?canvas widgets =
-  let rec loop list rooms (x,y) =
-    match list with
-    | [] -> rooms, (x,y)
-    | wg::rest ->
-      let room = resident ?w ~x:sep ~y ?background:widget_bg ?canvas wg in
-      let w,h = get_size room in
-      loop rest (room::rooms) (max x (w+2*sep), y+sep+h) in
-  let rooms, (w,h) = loop widgets [] (sep,sep) in
-  (* let background = Solid (Draw.(lighter (opaque grey))) in *)
-  let layout = create (geometry ~w ~h ()) ?name ?background (Rooms (List.rev rooms)) ?canvas in
-  do_option align (fun align -> h_align ~align layout sep (w-2*sep));
-  scale_resize_list (w,h) rooms;
-  layout
-
-(** create a tower from a list of rooms *)
+(* Create a tower from a list of rooms *)
 (* sep = vertical space between two rooms *)
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
@@ -1909,7 +1851,7 @@ let tower ?name ?(sep = Theme.room_margin/2) ?margins
 (* Construct a tower directly from a list of widgets that we convert to
    Residents. *)
 let tower_of_w ?name ?(sep = Theme.room_margin) ?w ?align ?background ?widget_bg
-    ?canvas ?scale_content widgets =
+      ?canvas ?scale_content widgets =
   let rooms =
     List.map (fun wg ->
         let name = map_option name (fun s -> "Resident of [" ^ s ^ "]") in
@@ -1969,7 +1911,9 @@ let superpose ?w ?h ?name ?background ?canvas ?(center=false)
     ?(scale_content=true) rooms =
   let x,y,bw,bh = bounding_geometry rooms in
   (* We translate the rooms: *)
-  List.iter (fun r -> setx r (getx r - x); sety r (gety r - y)) rooms;
+  List.iter (fun r ->
+      setx r (getx r - x);
+      sety r (gety r - y)) rooms;
   let w = default w bw in
   let h = default h bh in
   if center then List.iter (fun r ->
@@ -2002,35 +1946,26 @@ let rec ask_update room =
 (* animations with Anim are deprecated, use Avar instead *)
 
 let animate_x room x =
-  lock room;
   let g = room.geometry in
   Avar.stop g.x;
-  room.geometry <- { g with x };
-  unlock room
+  room.geometry <- { g with x }
 
 let animate_y room y =
-  lock room;
   let g = room.geometry in
   Avar.stop g.y;
-  room.geometry <- { g with y };
-  unlock room
+  room.geometry <- { g with y }
 
 let animate_w room w =
-  lock room;
   let g = room.geometry in
   Avar.stop g.w;
-  room.geometry <- { g with w };
-  unlock room
+  room.geometry <- { g with w }
 
 let animate_h room h =
-  lock room;
   let g = room.geometry in
   Avar.stop g.h;
-  room.geometry <- { g with h };
-  unlock room
+  room.geometry <- { g with h }
 
 let animate_voffset room voffset =
-  lock room;
   let g = room.geometry in
   let avar = Var.get g.voffset in
   let is_current = Avar.started avar && not (Avar.finished avar) in
@@ -2039,31 +1974,24 @@ let animate_voffset room voffset =
   (* if the animation was already running we need to start immediately,
      otherwise the value that we set here will be valid only for the next
      iteration, which may cause non-immediate transitions: useful ???*)
-  if is_current then ignore (get_voffset room);
-  unlock room
+  if is_current then ignore (get_voffset room)
 
 let animate_alpha room alpha =
-  lock room;
   let g = room.geometry in
   Avar.stop g.transform.alpha;
   room.geometry <- { g with transform = { g.transform with alpha }};
-  unlock room;
   ask_update room
 
 let animate_angle room angle =
-  lock room;
   let g = room.geometry in
   Avar.stop g.transform.angle;
-  room.geometry <- { g with transform = { g.transform with angle }};
-  unlock room
+  room.geometry <- { g with transform = { g.transform with angle }}
 
 let stop_pos room =
   printd debug_graphics "Stop position animation for layout %s." (sprint_id room);
-  lock room;
   let g = room.geometry in
   Avar.stop g.x;
-  Avar.stop g.y;
-  unlock room
+  Avar.stop g.y
 
 (** get desired room (relative) geometry after applying animation *)
 let geom r =
@@ -2368,8 +2296,9 @@ let follow_mouse ?dx ?dy ?modifierx ?modifiery room =
 (* Clip a room inside a smaller container and make it scrollable, and optionally
    add a scrollbar widget (which should appear only when necessary). Currently
    only vertical scrolling is implemented.  *)
-let make_clip ?w ?(scrollbar = true) ?(scrollbar_inside = false)
-    ?(scrollbar_width = 10) ~h room =
+let make_clip
+      ?w ?(scrollbar = true) ?(scrollbar_inside = false)
+      ?(scrollbar_width = 10) ~h room =
   (* iter_rooms disable_resize room; *)
   let name = (default room.name "") ^ ":clip" in
   if w <> None
@@ -2524,12 +2453,8 @@ let replace_room ~by room =
     printd debug_warning "Replacing room %s by room %s inside %s."
       (sprint_id room) (sprint_id by) (sprint_id h);
     detach room;
-    lock h;
-    lock by;
     attach ~dst:h by;
     h.content <- Rooms (list_replace (equal room) (get_rooms h) by);
-    unlock by;
-    unlock h
   | _ -> printd (debug_board + debug_error) "Cannot replace room %s"
            (sprint_id room)
 
@@ -2539,7 +2464,6 @@ let replace_room ~by room =
 (* WARNING this doesn't take voffset into account, so it won't work if a 'hide'
    animation was used to the room. *)
 let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
-  lock room;
   (* TODO check they have the same top_house? *)
   let x0,y0 = compute_pos dst in
   let x1,y1 = compute_pos room in
@@ -2553,7 +2477,7 @@ let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
                           dst=%i" y2 y1 y0 (height room) (height dst);
       if y2 <= height dst then room
       else begin (* [here++] TODO If scroll=true it's probably better to use
-                    make clip anyway, just in case the size of the housr
+                    make clip anyway, just in case the size of the house
                     shrinks. *)
         (* sety room 0; *)
         make_clip ~h:(height dst - y1 + y0) ~scrollbar_inside:true
@@ -2565,7 +2489,6 @@ let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
   setx room2 (x1-x0);
   sety room2 (y1-y0);
   if auto_scale then scale_resize room2;
-  unlock room;
   room2
 
 (********************)
@@ -2597,9 +2520,9 @@ let show_keyboard_focus room _transform rect =
       canvas layer (scale_rect rect) in
   List.iter Draw.blit_to_layer blits
 
-(** Display a room: *)
-(* this function sends all the blits to be displayed to the layers *)
-(* it does not directly interact with the renderer *)
+(* Display a room: *)
+(* this function sends all the blits to be displayed to the layers, *)
+(* it does not directly interact with the renderer. *)
 (* pos0 is the position of the house containing the room *)
 let display ?pos0 room =
   let x0,y0 = match pos0 with
@@ -2654,9 +2577,7 @@ let display ?pos0 room =
                   (* let style = Style.create ~background:(Style.Solid c)
                    *     ?shadow:r.shadow () in *)
                   let b = Box.(create ~width:g.w ~height:g.h ~style ()) in
-                  lock r;
                   r.background <- (Some (Box b));
-                  unlock r;
                   b
                 | Box b -> b in
               let blits = Box.display (get_canvas r) (get_layer r) box
@@ -2722,11 +2643,9 @@ let display ?pos0 room =
 let get_focus room =
   room.mouse_focus
 
-(* we don't lock because it will be modified only by the main loop *)
 let set_focus room =
   room.mouse_focus <- true
 
-(* we don't lock because it will be modified only by the main loop *)
 let unset_focus room =
   room.mouse_focus <- false
 

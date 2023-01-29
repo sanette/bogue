@@ -25,16 +25,19 @@
 <div class="info-desc">
 <p>Global variables with mutex.</p>
 
-<p>In a GUI, it is quite likely that a thread has to modify a variable owned by
-   another thread. This is particularly true in Bogue. In order to protect
-   against concurrent access to a shared variable, one should use a special kind
-   of variable. This is the goal of this module.</p>
+<p>In a GUI, it is quite likely that a thread has to modify a variable
+   owned by another thread. This is particularly true in Bogue
+   (because connections created by <a href="Bogue.Widget.html#VALconnect"><code class="code"><span class="constructor">Widget</span>.connect</code></a> use a new Thread
+   when executed, unless you specify <code class="code">~priority:<span class="constructor">Main</span></code>). In order to
+   protect against concurrent access to a shared variable, one should
+   use a special kind of variable. This is the goal of this module.</p>
 
-<p><b>Warning:</b> working with threads is subtle, and using <a href="Bogue.Var.html"><code class="code"><span class="constructor">Var</span></code></a> will not
-   magically make all problems disappear. In particular if two variables want to
-   access each other, you can end up into a stall, and freeze your program.
-   This can happen more often that one thinks, because a Var may contain a
-   <a href="Bogue.Layout.html"><code class="code"><span class="constructor">Layout</span></code></a>, and we know that sometimes layouts want to modify themselves...</p>
+<p><b>Warning:</b> working with threads is subtle, and using <a href="Bogue.Var.html"><code class="code"><span class="constructor">Var</span></code></a> will
+   not magically make all problems disappear. In particular if two
+   variables from two different threads want to access each other, you
+   can end up into a stall, and freeze your program.  This can happen
+   more often that one thinks, because a Var may contain a <a href="Bogue.Layout.html"><code class="code"><span class="constructor">Layout</span></code></a>,
+   and we know that sometimes layouts want to modify themselves...</p>
 
 <h6 id="5_graphbvarhtmlDependencygraph"><a href="graph-b_var.html">Dependency graph</a></h6></div>
 </div>
@@ -54,6 +57,13 @@
 <div class="info-desc">
 <p><code class="code">set&nbsp;v&nbsp;value</code> waits until no thread is accessing the Var <code class="code">v</code>
         and then sets its value to <code class="code">value</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALprotect_fn"><span class="keyword">val</span> protect_fn</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -&gt; ('a -&gt; 'b) -&gt; 'b</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">protect_fn&nbsp;v&nbsp;f</code> applies <code class="code">f</code> to the value of <code class="code">v</code>, while protecting <code class="code">v</code>
+      from the access of any other thread.</p>
 </div>
 </div>
 </body></html>

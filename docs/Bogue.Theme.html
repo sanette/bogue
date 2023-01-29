@@ -163,6 +163,9 @@ then the <code class="code">%</code> char is replaced by the Bogue dir, for inst
       installed in a "share" directory, for instance using the <code class="code">install</code> stanza
       of <code class="code">dune</code> with <code class="code">(section&nbsp;share)</code>.</p>
 
+<p>Another solution is to embed your files with the main binary using
+      <code class="code">ppx_blob</code>(https://github.com/johnwhitington/ppx_blob).</p>
+
 <pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -&gt; string -&gt; string option</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">find_share&nbsp;app&nbsp;file</code> returns a guessed location for your application

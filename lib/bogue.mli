@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230108
+@version 20230129
 
 @author Vu Ngoc San
 
@@ -205,7 +205,10 @@ module Theme : sig
 
       Files distributed with your application built with Bogue should be
       installed in a "share" directory, for instance using the [install] stanza
-      of [dune] with [(section share)]. *)
+      of [dune] with [(section share)].
+
+      Another solution is to embed your files with the main binary using
+      [ppx_blob](https://github.com/johnwhitington/ppx_blob). *)
 
   val find_share : string -> string -> string option
   (** [find_share app file] returns a guessed location for your application
@@ -335,16 +338,19 @@ end (* of Time *)
 
 (** Global variables with mutex.
 
-   In a GUI, it is quite likely that a thread has to modify a variable owned by
-   another thread. This is particularly true in Bogue. In order to protect
-   against concurrent access to a shared variable, one should use a special kind
-   of variable. This is the goal of this module.
+   In a GUI, it is quite likely that a thread has to modify a variable
+   owned by another thread. This is particularly true in Bogue
+   (because connections created by {!Widget.connect} use a new Thread
+   when executed, unless you specify [~priority:Main]). In order to
+   protect against concurrent access to a shared variable, one should
+   use a special kind of variable. This is the goal of this module.
 
-   {b Warning:} working with threads is subtle, and using {!Var} will not
-   magically make all problems disappear. In particular if two variables want to
-   access each other, you can end up into a stall, and freeze your program.
-   This can happen more often that one thinks, because a Var may contain a
-   {!Layout}, and we know that sometimes layouts want to modify themselves...
+   {b Warning:} working with threads is subtle, and using {!Var} will
+   not magically make all problems disappear. In particular if two
+   variables from two different threads want to access each other, you
+   can end up into a stall, and freeze your program.  This can happen
+   more often that one thinks, because a Var may contain a {!Layout},
+   and we know that sometimes layouts want to modify themselves...
 
 {5 {{:graph-b_var.html}Dependency graph}} *)
 module Var : sig
@@ -358,6 +364,10 @@ module Var : sig
   val set : 'a t ->  'a -> unit
     (** [set v value] waits until no thread is accessing the Var [v]
         and then sets its value to [value]. *)
+
+  val protect_fn : 'a t -> ('a -> 'b) -> 'b
+  (** [protect_fn v f] applies [f] to the value of [v], while protecting [v]
+      from the access of any other thread. *)
 
 end (* of Var *)
 
@@ -1409,11 +1419,13 @@ let l = get_label w in
      [w1] is the source widget, [w2] the target widget, and [ev] the event
      ({!Trigger.t}) that triggered the action.
 
-     The action should regularly verify {!Trigger.should_exit}[ ev]
-     and quickly exit when this returns [true].
+     The action should regularly verify {!Trigger.should_exit}[ ev] and quickly
+     exit when that function returns [true].
 *)
 
-  (** What to do when the same action (= same connection id) is already running? *)
+  (** What happens when an event triggers an action while the same action (=
+      same connection id) is already running? Several behaviours are possible,
+      depending on the following {!action_priority} type. *)
 
   type action_priority =
     | Forget (** discard the new action *)
@@ -1712,7 +1724,7 @@ module Layout : sig
   (** Construct a background from an RGBA color.*)
 
   val opaque_bg : Draw.rgb -> background
-  (** Construct a background from a RGB (ie non-transparent) color. *)
+  (** Construct a background from an RGB (ie non-transparent) color. *)
 
   val style_bg : Style.t -> background
   (** Construct a background from the given [Style]. *)
@@ -1852,10 +1864,10 @@ module Layout : sig
 
   (** {2 Modify existing layouts}
 
-      These functions will not work if there is an animation running acting of
-     the variable we want to set. Most of these functions will stop the
-     automatic resizing mechanism of the room. Use {!auto_scale} to reactivate
-     it. *)
+      Layouts should be modified only by the main Thread. If you want to modify
+      a Layout within a {!Widget.connection} without [Main] priority,
+      you should use {!Sync.push}, or properly lock it using
+      {!lock}/{!unlock}.  *)
 
   val auto_scale : t -> unit
   (** Set the layout to automatically scale its inner rooms when the layout size
@@ -1867,15 +1879,20 @@ module Layout : sig
 
   val on_resize : t -> (unit -> unit) -> unit
   (** [on_resize room f] will execute [f ()] upon resizing the room's house (or
-     the room's window, in case the room is the top house, see {!top_house}), in
-     addition to the already registered resized functions. Warning: placing the
-     room in another layout will likely reset the resize function (unless you
-     set the [scale_content] flag to [false], see eg. {!flat} and the remark
-     below that). Hence [on_resize] should be called after the room is hosted in
-     its house. *)
+      the room's window, in case the room is the top house, see {!top_house}),
+      in addition to the already registered resized functions. Warning: placing
+      the room in another layout will likely reset the resize function (unless
+      you set the [scale_content] flag to [false], see eg. {!flat} and the
+      remark below that). Hence [on_resize] should be called after the room is
+      hosted in its house. *)
 
   val set_width : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
-                  -> t -> int -> unit
+    -> t -> int -> unit
+  (** [set_width] and similar functions will not work if there is an animation
+      running acting of the variable we want to set (here, the width). Most of
+      these functions will stop the automatic resizing mechanism of the
+      room. Use {!auto_scale} to reactivate it. *)
+
   val set_height :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
                   -> t -> int -> unit
   val set_size :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
@@ -1912,10 +1929,14 @@ module Layout : sig
 
   val lock : t -> unit
   val unlock : t -> unit
-  (** Since layouts can be modified by different threads, it might be useful to
-     lock it with a mutex. This does *not* always prevent from modifying it, but
-     another [lock] statement will wait for the previous lock to be removed by
-     {!unlock}. *)
+  (** In general, modifying a layout should by done by the main Thread or by
+      using a {!Sync.push}. However, in case you need a layout to be modified by
+      different threads, you should lock it with {!lock}. Once a layout is
+      locked, another [lock] statement from another thread will wait for the
+      previous lock to be removed by {!unlock}. Locking twice by the same thread
+      is allowed, and will not block, which allows recursive locking, but this
+      practice should be avoided because it is difficult to debug. If you need a
+      higher level locking API, wrap the layout in a {!Var.t} variable. *)
 
 
 

@@ -83,12 +83,14 @@
      <code class="code">w1</code> is the source widget, <code class="code">w2</code> the target widget, and <code class="code">ev</code> the event
      (<a href="Bogue.Trigger.html#TYPEt"><code class="code"><span class="constructor">Trigger</span>.t</code></a>) that triggered the action.</p>
 
-<p>The action should regularly verify <a href="Bogue.Trigger.html#VALshould_exit"><code class="code"><span class="constructor">Trigger</span>.should_exit</code></a><code class="code">&nbsp;ev</code>
-     and quickly exit when this returns <code class="code"><span class="keyword">true</span></code>.</p>
+<p>The action should regularly verify <a href="Bogue.Trigger.html#VALshould_exit"><code class="code"><span class="constructor">Trigger</span>.should_exit</code></a><code class="code">&nbsp;ev</code> and quickly
+     exit when that function returns <code class="code"><span class="keyword">true</span></code>.</p>
 </div>
 </div>
 
-<p>What to do when the same action (= same connection id) is already running?</p>
+<p>What happens when an event triggers an action while the same action (=
+      same connection id) is already running? Several behaviours are possible,
+      depending on the following <a href="Bogue.Widget.html#TYPEaction_priority"><code class="code"><span class="constructor">Widget</span>.action_priority</code></a> type.</p>
 
 <pre><code><span id="TYPEaction_priority"><span class="keyword">type</span> <code class="type"></code>action_priority</span> = </code></pre><table class="typetable">
 <tr>

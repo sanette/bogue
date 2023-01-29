@@ -1,18 +1,20 @@
-(** variables with mutex, to perform atomic operations *)
+(** Variables with Recursive Mutex *)
 
-(* WARNING contrary to what the OCaml Mutex doc seems to say: (fixed in ocaml
-   4.12)
+(* WARNING contrary to what the OCaml Mutex doc seems to say: (fixed
+   in ocaml 4.12)
 
    https://caml.inria.fr/pub/docs/manual-ocaml/libref/Mutex.html
 
    calling Mutex.lock on a mutex locked by the SAME thread will ALSO block.
 
-TODO starting from ocaml 4.12 one could use the Atomic module in order to avoid
-   locking. Anyways, for single reading/assignement, it seems that we can get
-   rid of locks. See
+   TODO? rewrite everything to use only simple, non-recursive mutex?
+
+   TODO starting from ocaml 4.12 one could use the Atomic module in
+   order to avoid locking. Anyways, for single reading/assignement, it
+   seems that we can get rid of locks. See
    https://discuss.ocaml.org/t/threads-and-atomicity-of-reading-and-assignement/8923/3
 
-Remark: if optimization is needed, one could check whether
+   Remark: if optimization is needed, one could check whether
    [Utils.threads_created <> 0] before playing with mutexes.  *)
 
 open B_utils
@@ -54,40 +56,58 @@ let release v =
 let protect_do v action =
   let was_free = Mutex.try_lock v.mutex in
   if was_free then begin (* this should be the vast majority of cases *)
-      (* The variable is now locked *)
-      if !debug then assert (v.thread_id = None); (* just for debugging *)
-      v.thread_id <- Some Thread.(id (self ()));
-      let result = try action () with exn -> release v; raise exn in
-      release v;
-      (* The variable is now unlocked *)
-      result
-    end else if v.thread_id = Some (Thread.(id (self ())))
+    (* The variable is now locked *)
+    if !debug then assert (v.thread_id = None); (* just for debugging *)
+    v.thread_id <- Some Thread.(id (self ()));
+    let result = try action () with exn -> release v; raise exn in
+    release v;
+    (* The variable is now unlocked *)
+    result
+  end
+  else if v.thread_id = Some (Thread.(id (self ())))
   then begin
-      printd debug_thread "We can access the variable because it was locked by same thread.";
-      action ()
-    end else begin (* the variable was already locked by another thread *)
-      printd debug_thread "Waiting for locked variable (thread #%i) to unlock..."
-        (default v.thread_id (-1));
-      Mutex.lock v.mutex;
-      v.thread_id <- Some Thread.(id (self ()));
-      printd debug_thread "...ok, the variable was unlocked, we proceed.";
-      let result = try action () with exn -> release v; raise exn in
-      release v;
-      result
-    end
+    printd (debug_thread + debug_warning)
+      "!! We can access the variable because it was locked by same thread.";
+    action ()
+  end else begin (* the variable was already locked by another thread *)
+    printd debug_thread "Waiting for locked variable (thread #%i) to unlock..."
+      (default v.thread_id (-1));
+    protect v;
+    printd debug_thread "...ok, the variable was unlocked, we proceed.";
+    let result = try action () with exn -> release v; raise exn in
+    release v;
+    result
+  end
 
 let protect_fn v f =
   protect_do v (fun () -> f v.data)
 
-(* usually we don't need to protect when getting the value. (But if the value
-   itself is a reference, then one should explicitely protect the target when
-   needed...) *)
+let update_get v f =
+  protect_do v (fun () ->
+      let res = f v.data in
+      v.data <- res;
+      res)
 
-(* Some people think that in fact one should. See
+let update v f =
+  protect_do v (fun () ->
+      let res = f v.data in
+      v.data <- res)
+
+(* Just getting the value without locking will not corrupt the
+   data. However, if another thread is playing with the value it may
+   put it in an intermediate state which is not supposed to be a valid
+   value until the computation is done. Hence it's safer to check the
+   lock for reading. *)
+
+(* See also
    https://en.wikipedia.org/wiki/Readers%E2%80%93writers_problem
 
-But probably not for Ocaml. TODO starting 4.12, use Atomic.  *)
-let get v = v.data
+   TODO? starting 4.12, use Atomic?  *)
+let get v =
+  protect v;
+  let res = v.data in
+  release v;
+  res
 
 let unsafe_get v = v.data
 
@@ -101,11 +121,12 @@ let set_old v value =
    prevents other threads to modify the value at the same time. But in Ocaml,
    assignement is (essentially?) atomic. Hence, for the moment I don't see in
    which case [safe_set] should be required... *)
-let safe_set v value =
-  protect_fn v (fun () -> v.data <- value)
-
-(* [set] will set the value without touching the thread_id field. *)
 let set v value =
+  protect_do v (fun () -> v.data <- value)
+
+(* [unsafe_set] will set the value without locking nor touching the
+   thread_id field. *)
+let unsafe_set v value =
   v.data <- value
 
 let incr v =

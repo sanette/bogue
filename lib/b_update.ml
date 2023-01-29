@@ -34,10 +34,8 @@ let push w =
   if mem w then
     printd debug_event "Widget #%u is already in the Update.table" w.Widget.wid
   else begin
-    Var.protect table;
-    Var.set table (w::(Var.get table));
+    Var.update table (List.cons w);
     Trigger.push_update w.Widget.wid;
-    Var.release table
   end
 
 let push_all () =
@@ -53,14 +51,15 @@ let execute_one e w =
 
 let execute e =
   match Var.get table with
-  | [] -> () (* we don't want to reset the table to [] if it was already empty *)
+  | [] -> () (* Optimization (?) we don't want to reset the table to
+                [] if it was already empty *)
   | list -> (
       Var.protect table;
       let wid = Trigger.get_update_wid e in
       let list_e, other = List.partition (fun w -> w.Widget.wid = wid) list in
       printd debug_memory "Udpate Table: remaining size=%i" (List.length other);
       (* we keep the widgets that do not correspond to the event e *)
-      Var.set table other;
+      Var.unsafe_set table other;
       Var.release table;
       (* we release the table before execution so that one can still push to
          the new table while the old one is being executed *)

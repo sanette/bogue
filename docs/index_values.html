@@ -1000,8 +1000,8 @@
 <tr><td><a href="Bogue.Layout.html#VALon_resize">on_resize</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room's house (or
-     the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>), in
-     addition to the already registered resized functions.</p>
+      the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>),
+      in addition to the already registered resized functions.</p>
 
 </div>
 </td></tr>
@@ -1023,7 +1023,7 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALopaque_bg">opaque_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>Construct a background from a RGB (ie non-transparent) color.</p>
+<p>Construct a background from an RGB (ie non-transparent) color.</p>
 
 </div>
 </td></tr>
@@ -1098,6 +1098,13 @@
 <td><div class="info">
 <p><code class="code">progress&nbsp;v</code> is a float in [0,1] giving the percentage of the animation
      when the last <code class="code">v.value</code> was computed.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Var.html#VALprotect_fn">protect_fn</a> [<a href="Bogue.Var.html">Bogue.Var</a>]</td>
+<td><div class="info">
+<p><code class="code">protect_fn&nbsp;v&nbsp;f</code> applies <code class="code">f</code> to the value of <code class="code">v</code>, while protecting <code class="code">v</code>
+      from the access of any other thread.</p>
 
 </div>
 </td></tr>
@@ -1368,7 +1375,12 @@
 <tr><td><a href="Bogue.Sdl_area.html#VALset_texture">set_texture</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_width">set_width</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p><code class="code">set_width</code> and similar functions will not work if there is an animation
+      running acting of the variable we want to set (here, the width).</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALset_window_pos">set_window_pos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p><code class="code">set_window_pos&nbsp;layout&nbsp;x&nbsp;y</code> sets the position of the window containing
@@ -1575,8 +1587,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALunlock">unlock</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>Since layouts can be modified by different threads, it might be useful to
-     lock it with a mutex.</p>
+<p>In general, modifying a layout should by done by the main Thread or by
+      using a <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a>.</p>
 
 </div>
 </td></tr>

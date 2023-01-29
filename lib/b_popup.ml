@@ -18,19 +18,22 @@ let new_layer_above base =
   printd debug_graphics "Create new layer";
   Chain.insert_after base (Draw.new_layer ())
 
-(* search top_layer inside the layout. *)
-(* use the global toplayer instead (Chain.last) or at least the top_layer of the
-   whole connected component? (top_layer (Layout.top_house layout)). In fact
-   since the top_house is supposed to contain all the graphics of the window,
-   and there is one layer chain per window, the two choices should give the same
-   answer. Thus it's better to use Chain.last layer. OK see below ... *)
+(* Search top_layer inside the layout. *)
+(* One could also use the global toplayer instead (Chain.last) or at
+   least the top_layer of the whole connected component (top_layer
+   (Layout.top_house layout)). In fact since the top_house is supposed
+   to contain all the graphics of the window, and there is one layer
+   chain per window, the two choices should give the same answer. Thus
+   it's better to use Chain.last layer, see below. *)
 let rec top_layer layout =
   let open Layout in
   match layout.content with
   | Resident _ -> get_layer layout
-  | Rooms r -> match list_max Chain.compare (List.map top_layer r) with
-    | None -> printd debug_error "Error: there should be a top layer"; get_layer layout
-    | Some l -> l
+  | Rooms r ->
+     match list_max Chain.compare (List.map top_layer r) with
+     | None -> printd debug_error "Error: there should be a top layer";
+               get_layer layout
+     | Some l -> l
 
 let global_top_layer layout : Draw.layer =
   Chain.last (Layout.get_layer layout)
@@ -56,32 +59,31 @@ let resize_same_as model room =
   in
   room.resize <- resize
 
-(* create a box of the dimension of the layout *)
+(* Create a box of the dimension of the layout. *)
 let filter_screen ?color ?layer ?keyboard_focus layout =
   let w,h = Layout.(width layout, height layout) in
   printd debug_graphics "Create filter screen (%d,%d)" w h;
   let b = match color with
     | None -> Widget.empty ~w ~h ()
     | Some color ->
-      let style = Style.create ~background:(Style.Solid color)() in
-      Widget.box ~w ~h ~style () in
-  let screen = (* Layout.(flat_of_w ~sep:0 layout.canvas [b]) in *)
+       let style = Style.create ~background:(Style.Solid color) () in
+       Widget.box ~w ~h ~style () in
+  let screen = 
     Layout.(resident ~name:"_filter" ?canvas:layout.canvas b) in
-  (* Layout.(screen.geometry <- {screen.geometry with w; h}); *)
   do_option layer (Layout.set_layer screen);
   screen.Layout.keyboard_focus <- keyboard_focus;
   screen
 
-(** add a screen on top of the layout. This can be useful to make the whole
-   layout clickable as a whole. To make sure this works as expected, it should
-   be called dynamically and not statically before running the board, because if
-   other layers are created afterwards, the screen might endup not being on top
-   of everything. *)
+(* Add a screen on top of the layout. This can be useful to make the
+   layout clickable as a whole. To make sure this works as expected,
+   it should be called dynamically and not statically before running
+   the board, because if other layers are created afterwards, the
+   screen might endup not being on top of everything. *)
 let add_screen ?(color = Draw.(transp red) (* DEBUG *) ) layout =
   let base_layer = top_layer layout in
   let screen_layer = new_layer_above base_layer in
   let screen = filter_screen ~color ~layer:screen_layer
-      ~keyboard_focus:true layout in
+                 ~keyboard_focus:true layout in
   Layout.add_room ~dst:layout screen;
   Layout.resize_follow_house screen;
   screen
@@ -156,7 +158,7 @@ let info ?w ?h ?button_w ?button_h ?(button="Close") text dst =
 
 (* ?w and ?h to specify a common size for both buttons *)
 let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
-    ~content dst =
+      ~content dst =
   let btn1 = Widget.button ~border_radius:3 label1 in
   let btn2 = Widget.button ~border_radius:3 label2 in
   let buttons = Layout.(flat ~vmargin:0 ~sep:(2*Theme.room_margin)
@@ -165,8 +167,8 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   let close () =
     let open Layout in
     let _ = Timeout.add Layout.default_duration (fun () ->
-        Layout.detach screen;
-        Layout.detach popup) in
+                Layout.detach screen;
+                Layout.detach popup) in
     (*Layout.hide popup;*)
     fade_out ~hide:true popup;
     (*Layout.hide screen*)
@@ -183,20 +185,22 @@ let two_buttons ?w ?h ~label1 ~label2 ~action1 ~action2
   Widget.on_button_release ~release:do2 btn2
 
 let yesno ?w ?h ?button_w ?button_h ?(yes="Yes") ?(no="No")
-    ~yes_action ~no_action text dst =
-  let dst = if Layout.has_resident dst
+      ~yes_action ~no_action text dst =
+  let dst =
+    if Layout.has_resident dst
     then begin
-      printd (debug_error + debug_user)
-        "The [yesno] popup requires a destination layout which is not a single \
-         resident (as %s). We're trying anyways, but please correct your code."
-        (Layout.sprint_id dst);
-      match Layout.guess_top () with
-      | Some r -> Layout.top_house r
-      | None -> failwith "Cannot find a valid layout!"
-    end
+        printd (debug_error + debug_user)
+          "The [yesno] popup requires a destination layout which is not a single \
+           resident (as %s). We're trying anyways, but please correct your code."
+          (Layout.sprint_id dst);
+        match Layout.guess_top () with
+        | Some r -> Layout.top_house r
+        | None -> failwith "Cannot find a valid layout!"
+      end
     else dst in
-  let content = Widget.text_display ?w ?h text
-                |> Layout.resident in
+  let content =
+    Widget.text_display ?w ?h text
+    |> Layout.resident in
   two_buttons ?w:button_w ?h:button_h ~label1:yes ~label2:no
     ~action1:yes_action ~action2:no_action
     ~content dst

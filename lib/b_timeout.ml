@@ -73,12 +73,11 @@ let insert_sublist sublist list =
 (* Immediately registers a new timeout and returns it. In general it's better to
    use push in order to get a correct starting time, unless we know this is done
    dynamically during the main loop. *)
-  let add delay action =
-    let timeout = Time.now () + delay in
+let add delay action =
+  let timeout = Time.now () + delay in
   let t = create timeout action in
-    Utils.(printd debug_board "Adding timeout %i" t.id);
-  Var.protect_fn stack (fun list ->
-      Var.set stack (insert list t));
+  Utils.(printd debug_board "Adding timeout %i" t.id);
+  Var.update stack (fun list -> (insert list t));
   t
 
 let not_equal t1 t2 =
@@ -87,8 +86,7 @@ let not_equal t1 t2 =
 (* (Not used) Remove a Timeout from stack. Should not be called while
    iterating. *)
 let remove_old t stack =
-  Var.protect_fn stack (fun list ->
-      Var.set stack (List.filter (not_equal t) list))
+  Var.update stack (fun list -> List.filter (not_equal t) list)
 
 (* Cancel a Timeout from the global stack. It will not be executed and will be
    effectively removed from the stack by the next call to [iter]. *)
@@ -100,23 +98,23 @@ let iter stack =
   (* We pop the whole list and push back an empty stack in case the actions in
      the list, or some other thread, want to add new timeouts while we are
      processing. *)
-  let list = Var.protect_fn stack (fun list ->
-      Var.set stack [];
-      list) in
+  let list =
+    Var.protect_fn stack (fun list ->
+        Var.unsafe_set stack [];
+        list) in
   (* Utils.(printd debug_custom "Iter timeout stack of size %i" (List.length
      list)); *)
   let rec loop l =
     match l with
     | [] -> []
     | t :: l' ->
-      if t.cancelled || execute t
-      then loop l'
-      else l (* the action t was not executed, we leave it in the stack *)
+       if t.cancelled || execute t
+       then loop l'
+       else l (* the action t was not executed, we leave it in the stack *)
   in
   let remaining = loop list in
   (* Utils.(printd debug_custom "Remaining size %i" (List.length remaining)); *)
-  Var.protect_fn stack (fun modified ->
-      Var.set stack (insert_sublist modified remaining))
+  Var.update stack (fun modified -> insert_sublist modified remaining)
 
 let run () =
   (* the stack should be empty most of the time, so we add a test to be faster *)
