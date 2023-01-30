@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230129
+@version 20230130
 
 @author Vu Ngoc San
 
@@ -549,7 +549,9 @@ module Trigger : sig
     | `Bogue_destroy_window
     | `Bogue_update
     | `Bogue_sync_action
-    | `Bogue_redraw ]
+    | `Bogue_redraw
+    | `Bogue_keymap_changed
+    ]
 
   val event_kind : Tsdl.Sdl.event -> [sdl_event | bogue_event]
   (** Union of {!sdl_event} and {!bogue_event} *)

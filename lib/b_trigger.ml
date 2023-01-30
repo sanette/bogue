@@ -202,7 +202,9 @@ type bogue_event =
   | `Bogue_destroy_window
   | `Bogue_update
   | `Bogue_sync_action
-  | `Bogue_redraw ]
+  | `Bogue_redraw
+  | `Bogue_keymap_changed (* SDL event, which was missing in Tsdl. *)
+  ]
 
 let generalize_sdl_event ev = (ev : sdl_event :> [> sdl_event | bogue_event])
 let generalize_bogue_event ev = (ev : bogue_event :> [> sdl_event | bogue_event])
@@ -228,6 +230,10 @@ let event_kind ev : [> sdl_event | bogue_event] =
        | i when i = update -> `Bogue_update
        | i when i = redraw -> `Bogue_redraw
        | i when i = sync_action -> `Bogue_sync_action
+       | i when i = 0x304 -> `Bogue_keymap_changed
+       (* keymap_changed was forgotten, but corrected in recent Tsdl.
+          https://github.com/dbuenzli/tsdl/issues/76#event-6708707941 See also:
+          https://github.com/libsdl-org/SDL/issues/5520 *)
        | _ -> printd debug_event "UNKNOWN EVENT=0x%x" x;
               `Unknown x
      end

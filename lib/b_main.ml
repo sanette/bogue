@@ -117,7 +117,7 @@ let check_cemetery () =
   end
 
 (* Call this to close everything. Don't use the layouts after this! *)
-(* However in principle you can run board again, and then the layouts are
+(* However in principle you can run the board again, and then the layouts are
    usable(?) *)
 let exit_board board =
   if Sync.execute 1000
@@ -166,7 +166,7 @@ let resize window =
   if Window.size window <> Layout.get_physical_size layout
   then begin
     printd debug_graphics "Resize window (Layout #%u)" layout.Layout.id;
-    Layout.resize_from_window layout;
+    Layout.resize_from_window ~flip:false layout;
     Window.to_refresh window
   end
 
