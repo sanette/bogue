@@ -50,3 +50,4 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/sanette/bogue.git"
+available: [ (os-distribution != "opensuse-leap" | os-version >= 16) ]

@@ -1,0 +1,1 @@
+available: [ (os-distribution != "opensuse-leap" | os-version >= 16) ]
