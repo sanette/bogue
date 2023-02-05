@@ -881,7 +881,7 @@ let event_loop anim new_anim board =
 
 (* [one_step] is what is executed during the main loop *)
 let one_step ?before_display anim (start_fps, fps) ?clear board =
-  Timeout.run ();
+  let (_ : Time.t option) = Timeout.run () in
   let new_anim = has_anim board in
   if new_anim && not anim then start_fps ();
   event_loop anim new_anim board;

@@ -854,18 +854,28 @@ let check_mouse_rest =
       then t := None;
       Unix.gettimeofday () -. t0
 
+let no_timeout () = None
+
+let clamp ~low ~hi t =
+    let open B_time in
+    if low >> t then low
+    else if t >> hi then hi
+    else t
+
+let poll_noevent_fps = B_time.make_fps ()
+
 (* Wait for next event. Returns the SAME event structure e (modified) *)
-(* Remark: (Sdl.wait_event (Some e); Some e) is supposed to to the job, but
-   (quoted from DOC) as of SDL 2.0, this function does not put the application's
-   process to sleep waiting for events; it polls for events in a loop
-   internally. This may change in the future to improve power savings. *)
-(* ME: as a result, it seems that Sdl.wait_event prevents other threads from
-   executing nicely *)
-let rec wait_event ?(action = nop) e =
-  action ();
-  if Sdl.poll_event (Some e) then e
+let rec wait_event ?(action = no_timeout) e =
+  let limit = 1000 in
+  let timeout =
+    action ()
+    |> Option.value ~default:limit
+    |> clamp ~low:1 ~hi:limit
+  in
+  poll_noevent_fps 100;
+  let has_event = Sdl.wait_event_timeout (Some e) timeout in
   (* TODO send an event instead, and reset mouse *)
-  else begin
+  begin
     let t = check_mouse_rest () in (* TODO use Timeout instead *)
     if t > 1. && not !is_mouse_at_rest
     then (is_mouse_at_rest := true;
@@ -873,9 +883,9 @@ let rec wait_event ?(action = nop) e =
     (* TODO save mouse position in event *)
     else if t < 1. && !is_mouse_at_rest
     then is_mouse_at_rest := false; (* the mouse has moved *)
-    Thread.delay 0.01;
-    wait_event ~action e
-  end
+  end;
+  if has_event then e
+  else wait_event ~action e
 
 let mm_pressed ev =
   Int32.logand E.(get ev mouse_motion_state) (Sdl.Button.lmask) <> 0l

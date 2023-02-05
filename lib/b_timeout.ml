@@ -114,8 +114,13 @@ let iter stack =
   in
   let remaining = loop list in
   (* Utils.(printd debug_custom "Remaining size %i" (List.length remaining)); *)
-  Var.update stack (fun modified -> insert_sublist modified remaining)
+  Var.update stack (fun modified -> insert_sublist modified remaining);
+  match Var.get stack with
+  | [] -> None
+  | hd :: _ ->
+    Some (Time.(hd.timeout - Time.now ()))
 
 let run () =
   (* the stack should be empty most of the time, so we add a test to be faster *)
   if Var.get stack <> [] then iter stack
+  else None
