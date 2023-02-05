@@ -8,6 +8,7 @@
 (authors "Vu Ngoc San <san.vu-ngoc@laposte.net>")
 (source (github sanette/bogue))
 (documentation "http://sanette.github.io/bogue/Bogue.html")
+(formatting disabled)
 
 (package
  (name bogue)
