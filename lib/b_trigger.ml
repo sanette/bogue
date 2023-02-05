@@ -859,19 +859,15 @@ let check_mouse_rest =
         start_timer ()
       end
 
-let no_timeout () = None
+let no_timeout () = -1
 
 let poll_noevent_fps = B_time.make_fps ()
 
 (* Wait for next event. Returns the SAME event structure e (modified) *)
 let rec wait_event ?(action = no_timeout) e =
   check_mouse_rest ();
-  let timeout =
-    action ()
-    |> Option.value ~default:(-1)
-  in
+  let timeout = action () in
   poll_noevent_fps 100;
-  let timeout = if timeout = 0 then 1 else timeout in
   let has_event = Sdl.wait_event_timeout (Some e) timeout in
   if has_event then e
   else wait_event ~action e
