@@ -14,6 +14,7 @@ open Tsdl
 open B_utils
 module E = Sdl.Event
 module Var = B_var
+module Timeout = B_timeout
 open Result
 
 (* We initialize SDL with only the events subsystem *)
@@ -840,50 +841,38 @@ let mouse_pos () =
 (* check if mouse didn't move for a while *)
 (* TODO use get_touch_finger *)
 let check_mouse_rest =
-  let pos0 = ref (0,0)
-  and t = ref (Some 0.) in
+  let t = ref None in
+  let on_mouse_idle () =
+    push_event @@ create_event mouse_at_rest
+  in
+  let start_timer () =
+      t := Some (mouse_pos (), Timeout.add 1000 on_mouse_idle)
+  in
   fun () ->
     match !t with
-    | None -> (* we start timer *)
-      t := Some (Unix.gettimeofday ());
-      pos0 := mouse_pos ();
-      0.
-    | Some t0 ->
+    | None -> start_timer ()
+    | Some (pos0, timeout)  ->
       let p = mouse_pos () in
-      if p <> !pos0 (* we have moved *)
-      then t := None;
-      Unix.gettimeofday () -. t0
+      if p <> pos0 (* we have moved *)
+      then begin
+        Timeout.cancel timeout;
+        start_timer ()
+      end
 
 let no_timeout () = None
-
-let clamp ~low ~hi t =
-    let open B_time in
-    if low >> t then low
-    else if t >> hi then hi
-    else t
 
 let poll_noevent_fps = B_time.make_fps ()
 
 (* Wait for next event. Returns the SAME event structure e (modified) *)
 let rec wait_event ?(action = no_timeout) e =
-  let limit = 1000 in
+  check_mouse_rest ();
   let timeout =
     action ()
-    |> Option.value ~default:limit
-    |> clamp ~low:1 ~hi:limit
+    |> Option.value ~default:(-1)
   in
   poll_noevent_fps 100;
+  let timeout = if timeout = 0 then 1 else timeout in
   let has_event = Sdl.wait_event_timeout (Some e) timeout in
-  (* TODO send an event instead, and reset mouse *)
-  begin
-    let t = check_mouse_rest () in (* TODO use Timeout instead *)
-    if t > 1. && not !is_mouse_at_rest
-    then (is_mouse_at_rest := true;
-          push_event (create_event mouse_at_rest))
-    (* TODO save mouse position in event *)
-    else if t < 1. && !is_mouse_at_rest
-    then is_mouse_at_rest := false; (* the mouse has moved *)
-  end;
   if has_event then e
   else wait_event ~action e
 
