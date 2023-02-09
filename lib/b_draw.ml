@@ -925,6 +925,7 @@ let detect_set_scale () =
    else float dpi
   in
   let s = if dpi <= float default_dpi then 1. else (dpi /. (float default_dpi)) in
+  let s = Float.round (4. *. s) /. 4. in (* 0.25 increments for scale *)
   Theme.set_scale s;
   printd (debug_graphics+debug_warning) "Using SCALE=%f" !Theme.scale
 
