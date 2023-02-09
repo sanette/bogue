@@ -863,12 +863,17 @@ let no_timeout () = -1
 
 let poll_noevent_fps = B_time.make_fps ()
 
+let wait_event_timeout =
+    let major, minor, patch = Sdl.get_version () in
+    if (major, minor, patch) >= (2,0,16) then Sdl.wait_event_timeout
+    else fun ev _ -> Sdl.poll_event ev
+
 (* Wait for next event. Returns the SAME event structure e (modified) *)
 let rec wait_event ?(action = no_timeout) e =
   check_mouse_rest ();
   let timeout = action () in
   poll_noevent_fps 100;
-  let has_event = Sdl.wait_event_timeout (Some e) timeout in
+  let has_event = wait_event_timeout (Some e) timeout in
   if has_event then e
   else wait_event ~action e
 
