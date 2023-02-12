@@ -878,6 +878,7 @@ let event_loop anim new_anim board =
   let e = !Trigger.my_event in
   continue e 0
 
+let nop_event_fps = Time.make_fps ()
 
 (* [one_step] is what is executed during the main loop *)
 let one_step ?before_display anim (start_fps, fps) ?clear board =
@@ -919,7 +920,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   end;
   (* else *)
 
-  if anim then fps () else Thread.delay 0.005;
+  if anim then fps ();
   (* even when there is no anim, we need to to be nice to other treads, in
      particular when an event is triggered very rapidly (mouse_motion) and
      captured by a connection, without anim. Should we put also here a FPS?? *)
@@ -929,6 +930,11 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   printd debug_graphics "==> Rendering took %u ms" (Time.now () - t);
   Avar.new_frame (); (* This is used for updating animated variables. *)
   printd debug_graphics "---------- end of loop -----------";
+  if not anim then
+  if Layout.is_fresh board.windows_house then
+    nop_event_fps 60
+  else
+    Thread.delay 0.005;
   anim
 
 (* Create an SDL window for each top layout. *)
