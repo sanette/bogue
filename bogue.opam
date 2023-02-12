@@ -31,7 +31,7 @@ depends: [
   "tsdl-image" {>= "0.3.0"}
   "tsdl-ttf" {>= "0.3"}
   "ocaml" {>= "4.08.0"}
-  "tsdl" {>= "0.9.9"}
+  "tsdl" {> "0.9.9"}
   "directories"
   "odoc" {with-doc}
 ]

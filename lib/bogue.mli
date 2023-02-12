@@ -319,7 +319,7 @@ module Time : sig
   (** Time elapsed from the initialization of SDL (roughly, since the start of
       your program). *)
 
-  val adaptive_fps : int -> (unit -> unit) * (unit -> unit)
+  val adaptive_fps : ?vsync:bool -> int -> (unit -> unit) * (unit -> unit)
   (** Create helper functions to help controlling the frame rate of the graphics
       loop. This is only useful if you have your own graphics loop, and do not
       use {!Main.run}.
@@ -330,7 +330,16 @@ module Time : sig
       rate. It works on average: if some frames take longer, it will shorten the
       next frame to keep up. However, it tries to be nice to the CPU: even if one
       is really too slow, it will guarantee a 5ms sleep to the CPU and {e not}
-      try to keep up. *)
+      try to keep up.
+
+      [vsync] is [false] by default, when [true] it sets GL swap interval to [1]
+      to wait for next vsync, and if it can't keep up with that during animation
+      it will set swap interval to [-1] if supported by platform to use
+      adaptive vsync.
+      (which should avoid forcing the animation rate to an integer ratio of monitor refresh rate)
+
+      @see {!Main.get_monitor_refresh_rate}
+    *)
 
 end (* of Time *)
 
@@ -2451,6 +2460,11 @@ module Main : sig
 
 *)
 
+  val get_monitor_refresh_rate: board -> int option
+  (** [get_monitor_refresh_rate board] returns the monitor refresh rate,
+    for the monitor containing [board].
+  *)
+
   val of_windows :  ?shortcuts:shortcuts ->
     ?connections:(Widget.connection list) ->
     ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
@@ -2474,13 +2488,17 @@ module Main : sig
      @deprecated   (since 20220418). Use {!of_layouts} or {!create} instead. *)
 
   val run :
+    ?vsync:bool ->
     ?before_display:(unit -> unit) ->
     ?after_display:(unit -> unit) -> board -> unit
   (** This is finally how you run your app! It creates the SDL windows
      associated with the {!Window.t}s registered with the board, and launches
      the main loop. This function only returns when all windows are closed (in
      case at least one window was created), or when the {!Exit} exception is
-     raised. *)
+     raised.
+    [vsync] defaults to [true] and enables synchronization to monitor refresh rate
+    where possible, otherwise a 60 FPS {!Time.adaptive_fps} is used.
+    *)
 
   (** {3:shortcuts Creating global keyboard shortcuts} *)
 
