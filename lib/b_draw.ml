@@ -905,29 +905,11 @@ let get_dpi () =
 
 (* Choose a reasonable scale. Probably not OK in case of multiple monitors. *)
 let detect_set_scale () =
-  let dpi = default (get_dpi ()) default_dpi in
-  printd debug_graphics "DPI from system: %d" dpi;
-  let dpi =
-   if Sdl.get_current_video_driver () = Some "wayland" then
-   match Sdl.create_window ~w:10 ~h:10 "SCALE detect"
-          Sdl.Window.(windowed + resizable + hidden +
-                      opengl + allow_highdpi) with
-   | Ok win ->
-      let w, h = Sdl.get_window_size win in
-      let w', h' = Sdl.gl_get_drawable_size win in
-      Sdl.destroy_window win;
-      printd debug_graphics "Autodetect multiplier: window(%d,%d), drawable(%d,%d)" w h w' h';
-      float dpi *. Float.(max (float w' /. float w) 1.)
-   | Error (`Msg m) ->
-    printd (debug_error+debug_graphics)
-      "SDL autodetect DPI window creation error: %s" m;
-    float dpi
-   else float dpi
-  in
-  let s = if dpi <= float default_dpi then 1. else (dpi /. (float default_dpi)) in
-  let s = Float.round (4. *. s) /. 4. in (* 0.25 increments for scale *)
-  Theme.set_scale s;
-  printd (debug_graphics+debug_warning) "Using SCALE=%f" !Theme.scale
+    let dpi = default (get_dpi ()) default_dpi in
+    let s = if dpi <= 110 then 1. else (float dpi /. (float default_dpi)) in
+    let s = Float.round (4. *. s) /. 4. in (* 0.25 increments for scale *)
+    Theme.set_scale s;
+    printd (debug_graphics+debug_warning) "Using SCALE=%f" !Theme.scale
 
 let video_init () =
   if Sdl.was_init (Some Sdl.Init.video) = Sdl.Init.video
@@ -1263,7 +1245,7 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
       | Ok w -> printd debug_graphics "Using existing renderer"; w
       | Error _ ->
         go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
-  let rw, rh = Sdl.gl_get_drawable_size win in
+  let rw, rh = go (Sdl.get_renderer_output_size renderer) in
   if window = None && (rw, rh) <> (w,h) then begin
     dpi_xscale := float rw /. float w;
     dpi_yscale := float rh /. float h;
