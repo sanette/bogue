@@ -33,6 +33,6 @@ Threads when non-blocking reactions are needed.")
   (tsdl-image (>= 0.3.0))
   (tsdl-ttf (>= 0.3))
   (ocaml (>= 4.08.0))
-  (tsdl (and (>= 0.9.7) (< 0.9.9)))
+  (tsdl (and (> 0.9.9)))
   directories
 ))

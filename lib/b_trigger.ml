@@ -138,55 +138,7 @@ let renew_my_event () =
 let of_event ev =
   E.(get ev typ)
 
-(* See tsdl.mli *)
-(* TODO when we switch to Tsdl 0.9.8, we should use their 'Event.enum' type
-   instead, so that we don't become incompatible every time they add a new
-   variant...  See PR https://github.com/dbuenzli/tsdl/pull/54 *)
-(* Or, one could copy here the function 'enum' from tsdl.ml *)
-
-type sdl_event =
-[ `App_did_enter_background
-| `App_did_enter_foreground
-| `App_low_memory
-| `App_terminating
-| `App_will_enter_background
-| `App_will_enter_foreground
-| `Clipboard_update
-| `Controller_axis_motion
-| `Controller_button_down
-| `Controller_button_up
-| `Controller_device_added
-| `Controller_device_remapped
-| `Controller_device_removed
-| `Dollar_gesture
-| `Dollar_record
-| `Drop_file
-| `Finger_down
-| `Finger_motion
-| `Finger_up
-| `Joy_axis_motion
-| `Joy_ball_motion
-| `Joy_button_down
-| `Joy_button_up
-| `Joy_device_added
-| `Joy_device_removed
-| `Joy_hat_motion
-| `Key_down
-| `Key_up
-| `Mouse_button_down
-| `Mouse_button_up
-| `Mouse_motion
-| `Mouse_wheel
-| `Multi_gesture
-| `Quit
-| `Sys_wm_event
-| `Text_editing
-| `Text_input
-| `Unknown of int
-| `User_event
-| `Window_event
-| `Display_event
-| `Sensor_update ]
+type sdl_event = Sdl.Event.enum
 
 type bogue_event =
   [ `Bogue_startup

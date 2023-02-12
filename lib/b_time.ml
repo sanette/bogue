@@ -40,27 +40,47 @@ let delay x = Thread.delay (float x /. 1000.)
    ie. about 24 days. TODO change this? *)
 let now () : t = Int32.to_int (Sdl.get_ticks ())
 
-let make_fps () =
+let make_fps ?(min_delay=5) () =
+  assert (min_delay >= 0);
   let start = ref 0 in
   fun fps ->
-    if !start = 0 then (delay 5; start := now ())
+    if !start = 0 then (delay min_delay; start := now ())
     else
       let round_trip = now () - !start in begin
-        let wait = max 5 ((1000 / fps) - round_trip) in
+        let wait = max min_delay ((1000 / fps) - round_trip) in
         printd debug_graphics "FPS:%u (round_trip=%u)\n" (1000 / (round_trip + wait)) round_trip;
-        delay wait;
+        if wait > 0 then
+          delay wait;
         start := now ();
       end
 
-let adaptive_fps fps =
+let set_swap_interval =
+    let swap_interval = ref min_int in
+    fun desired ->
+      if !swap_interval <> desired then begin
+        match Sdl.gl_set_swap_interval desired with
+        | Ok () ->
+          swap_interval := desired;
+          true;
+        | Error (`Msg m) ->
+          printd (debug_graphics+debug_warning) "Failed to set desired swap interval to %u: %s" desired m;
+          false
+      end else true
+
+let adaptive_fps ?(vsync=false) fps =
   let start = ref 0 in
   let frame = ref 1 in
   let total_wait = ref 0 in (* only for debugging *)
+  let vsync_used = ref false in
 
   (* the start function *)
   (fun () ->
      start := now ();
      total_wait := 0;
+     if vsync then begin
+         vsync_used := set_swap_interval 1;
+         printd debug_graphics "VSync used: %b" !vsync_used;
+     end;
      frame := 1),
 
   (* the main function *)
@@ -78,7 +98,23 @@ let adaptive_fps fps =
               frame := 0;
               total_wait := 0;
               start := now ();
+              if !vsync_used then
+                  (* turn on adaptive vsync if supported *)
+                  if set_swap_interval (-1) then
+                      printd debug_graphics "Warning: Adaptive VSync enabled"
+                  else begin
+                      printd debug_graphics "Warning: Disabling VSync";
+                      (* fall back to turning vsync off *)
+                      let (_:bool) = set_swap_interval 0 in
+                      vsync_used := false
+                  end;
               5)
+        else if !vsync_used then
+            (* trust VSync and the released runtime lock in Sdl.render_present
+               to maintain FPS, but use the usual 5ms to allow other OCaml code
+               to run if needed
+             *)
+            5
         else (printd debug_graphics "Wait=%u, Avg.=%u" wait (!total_wait / !frame);
               wait) in
       delay wait;
