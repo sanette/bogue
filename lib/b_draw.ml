@@ -877,8 +877,16 @@ let set_window_position win x y =
 let window_size canvas =
   get_window_size canvas.window
 
+let inch_of_mm mm = float mm /. 25.4
+let diag w h = sqrt (w *. w +. h *. h)
+
+let get_display_dpi idx =
+  match Sdl.get_display_dpi idx, Sdl.get_video_driver idx with
+  | Ok _, Ok "wayland" -> Error (`Msg "DPI is unreliable in SDL2+wayland")
+  | r, _ -> r
+
 let get_dpi () =
-  match Sdl.get_display_dpi 0 with
+  match get_display_dpi 0 with
   | Ok (x,_,_) -> Some (round x)
   | Error (`Msg m) ->
     printd (debug_error+debug_graphics)
@@ -887,20 +895,28 @@ let get_dpi () =
       (* Try to obtain the monitor's DPI on linux systems. Does not work with
          multiple monitors. *)
       let proc = Unix.open_process_in
-          "xdpyinfo | grep resolution | awk '{print $2}'" in
+          "xrandr --query | awk 'match($0, /connected primary ([0-9]+)x([0-9]+).+ ([0-9]+)mm x ([0-9]+)mm/, m) {print m[1],m[2],m[3],m[4]}'"
+      in
       let res = input_line proc in
-      match Unix.close_process_in proc with
-      | Unix.WEXITED 0 ->
-        let i = String.index res 'x' in
-        let dpi =int_of_string (String.sub res 0 i) in
-        printd debug_graphics "Detected DPI=%u" dpi;
-        Some dpi
+      match Unix.close_process_in proc, String.split_on_char ' ' res with
+      | Unix.WEXITED 0, [w_px; h_px; w_mm; h_mm] ->
+        let w_px = int_of_string w_px
+        and h_px = int_of_string h_px
+        and w_mm = int_of_string w_mm
+        and h_mm = int_of_string h_mm in
+        printd debug_graphics "xrandr w=%u px,h=%u px; w=%u mm,h=%u mm" w_px h_px w_mm h_mm;
+        let dpi =
+            (diag (float w_px) (float h_px)) /.
+            diag (inch_of_mm w_mm) (inch_of_mm h_mm)
+        in
+        printd debug_graphics "Detected DPI=%f" dpi;
+        Some (round dpi)
       | _ -> printd debug_warning
                "Cannot get monitor's DPI from [%s]." res;
         None
     with
     | _ -> printd debug_warning
-             "Cannot get monitor's DPI from xdpyinfo.";
+             "Cannot get monitor's DPI from xrandr.";
       None
 
 (* Choose a reasonable scale. Probably not OK in case of multiple monitors. *)
