@@ -60,10 +60,15 @@
 </div>
 </div>
 
-<pre><span id="VALprotect_fn"><span class="keyword">val</span> protect_fn</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -&gt; ('a -&gt; 'b) -&gt; 'b</code></pre><div class="info ">
+<pre><span id="VALwith_protect"><span class="keyword">val</span> with_protect</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -&gt; ('a -&gt; 'b) -&gt; 'b</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">protect_fn&nbsp;v&nbsp;f</code> applies <code class="code">f</code> to the value of <code class="code">v</code>, while protecting <code class="code">v</code>
+<p><code class="code">with_protect&nbsp;v&nbsp;f</code> applies <code class="code">f</code> to the value of <code class="code">v</code>, while protecting <code class="code">v</code>
       from the access of any other thread.</p>
 </div>
+</div>
+
+<pre><span id="VALprotect_fn"><span class="keyword">val</span> protect_fn</span> : <code class="type">'a <a href="Bogue.Var.html#TYPEt">t</a> -&gt; ('a -&gt; 'b) -&gt; 'b</code></pre><div class="info ">
+<div class="info-deprecated">
+<span class="warning">Deprecated. </span>Same as <a href="Bogue.Var.html#VALwith_protect"><code class="code"><span class="constructor">Var</span>.with_protect</code></a>.</div>
 </div>
 </body></html>

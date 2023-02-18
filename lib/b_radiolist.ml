@@ -5,6 +5,8 @@
    can also create from scratch a layout containg a standard radiolist with
    round button and labels.  *)
 
+(* TODO offer a horizontal layout too *)
+
 open Tsdl
 open B_utils
 module W = B_widget

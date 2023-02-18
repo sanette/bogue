@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230130
+@version 20230218
 
 @author Vu Ngoc San
 
@@ -292,6 +292,7 @@ module Utils : sig
   (** [default o v ] is the same as [Option.value o ~default:v]. Warning: [v] is
       evaluated even if it is not used. *)
 
+
   exception None_option
 
   val remove_option : 'a option -> 'a
@@ -299,6 +300,8 @@ module Utils : sig
      {!None_option} exception. *)
 
   (** {2 Others} *)
+
+  val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 
   val run : (unit -> 'a) -> 'a
   (**  [run f] is equivalent to [f ()]. *)
@@ -365,9 +368,12 @@ module Var : sig
     (** [set v value] waits until no thread is accessing the Var [v]
         and then sets its value to [value]. *)
 
-  val protect_fn : 'a t -> ('a -> 'b) -> 'b
-  (** [protect_fn v f] applies [f] to the value of [v], while protecting [v]
+  val with_protect : 'a t -> ('a -> 'b) -> 'b
+  (** [with_protect v f] applies [f] to the value of [v], while protecting [v]
       from the access of any other thread. *)
+
+  val protect_fn : 'a t -> ('a -> 'b) -> 'b
+  (** @deprecated Same as {!with_protect}. *)
 
 end (* of Var *)
 

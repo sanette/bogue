@@ -28,6 +28,14 @@
 <li>Built-in audio mixer.</li>
 </ul>
 <p>Programming with <em>bogue</em> is easy if you’re used to GUIs with widgets, layouts, callbacks, and of course it has a functional flavor. ​It uses <strong><a href="https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html">Threads</a></strong> when non-blocking reactions are needed.</p>
+<h1 id="hello-world">Hello world</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">open</span> Bogue</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="kw">let</span> () =</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  Widget.label <span class="st">&quot;Hello world&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  |&gt; Layout.resident</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  |&gt; Bogue.of_layout</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>  |&gt; Bogue.run</span></code></pre></div>
 <h1 id="features">Features</h1>
 <h2 id="widgets">Widgets</h2>
 <p>Widgets are the building bricks, responsible for graphic elements that respond to events (mouse, touchscreen, keyboard, etc.).</p>

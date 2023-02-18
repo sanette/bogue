@@ -22,6 +22,18 @@ layouts, callbacks, and of course it has a functional flavor.  ​It uses
 __[Threads](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html)__
 when non-blocking reactions are needed.
 
+# Hello world
+
+```ocaml
+open Bogue
+
+let () =
+  Widget.label "Hello world"
+  |> Layout.resident
+  |> Bogue.of_layout
+  |> Bogue.run
+```
+
 # Features
 
 ## Widgets

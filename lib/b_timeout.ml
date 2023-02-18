@@ -99,7 +99,7 @@ let iter stack =
      the list, or some other thread, want to add new timeouts while we are
      processing. *)
   let list =
-    Var.protect_fn stack (fun list ->
+    Var.with_protect stack (fun list ->
         Var.unsafe_set stack [];
         list) in
   (* Utils.(printd debug_custom "Iter timeout stack of size %i" (List.length
@@ -108,9 +108,9 @@ let iter stack =
     match l with
     | [] -> []
     | t :: l' ->
-       if t.cancelled || execute t
-       then loop l'
-       else l (* the action t was not executed, we leave it in the stack *)
+      if t.cancelled || execute t
+      then loop l'
+      else l (* the action t was not executed, we leave it in the stack *)
   in
   let remaining = loop list in
   (* Utils.(printd debug_custom "Remaining size %i" (List.length remaining)); *)

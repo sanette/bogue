@@ -79,19 +79,25 @@ let protect_do v action =
     result
   end
 
-let protect_fn v f =
-  protect_do v (fun () -> f v.data)
+(** REMARK: The {!Utils.( let@ )} syntax can be convenient
+    [let@ x = with_protect v in f x].
+    WARNING: end of scope can be easily forgotten. See
+    remarks in Utils.( let@ ). *)
+let with_protect v f =
+  let@ () = protect_do v in f v.data
+
+let protect_fn = with_protect
 
 let update_get v f =
-  protect_do v (fun () ->
-      let res = f v.data in
-      v.data <- res;
-      res)
+  let@ () = protect_do v in
+  let res = f v.data in
+  v.data <- res;
+  res
 
 let update v f =
-  protect_do v (fun () ->
-      let res = f v.data in
-      v.data <- res)
+  let@ () = protect_do v in
+  let res = f v.data in
+  v.data <- res
 
 (* Just getting the value without locking will not corrupt the
    data. However, if another thread is playing with the value it may
@@ -122,7 +128,7 @@ let set_old v value =
    assignement is (essentially?) atomic. Hence, for the moment I don't see in
    which case [safe_set] should be required... *)
 let set v value =
-  protect_do v (fun () -> v.data <- value)
+  let@ () = protect_do v in v.data <- value
 
 (* [unsafe_set] will set the value without locking nor touching the
    thread_id field. *)

@@ -181,9 +181,9 @@ let rec open_font file size =
       printd debug_io "Loading font %s (%u)" file size;
       match Tsdl_ttf.Ttf.open_font file size with
       | Result.Ok f ->
-         Var.protect_fn font_cache (fun fc ->
-             Hashtbl.add fc (file,size) f;
-             f);
+        let@ fc = Var.with_protect font_cache in
+        Hashtbl.add fc (file,size) f;
+        f;
       | Result.Error _ ->  (* use default font if error *)
          if file = !Theme.label_font
          then begin
@@ -270,8 +270,8 @@ let destroy_textures () =
    If a widget is not used anymore, it is necessary to call forget_texture. *)
 (* This is thread-safe. *)
 let forget_texture tex =
-  Var.protect_fn textures_to_destroy (fun queue ->
-      Queue.push tex queue)
+  let@ queue = Var.with_protect textures_to_destroy in
+  Queue.push tex queue
 
 (* prints some memory info *)
 let memory_info () =

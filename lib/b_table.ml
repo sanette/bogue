@@ -252,7 +252,7 @@ let set_indicator t j =
 
 (* refreshes the table by creating a new long_list *)
 let refresh t =
-  Var.protect_fn t.layout (function
+  Var.with_protect t.layout (function
       | None -> failwith "table.ml: field t.layout should not be None"
       (* TODO don't crash here and provide a default ? But this should never
          happen *)
