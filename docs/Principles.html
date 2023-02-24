@@ -15,7 +15,7 @@
 	height="42px"
 	width="42px" style="vertical-align: middle;"/></a>
   </div>
-<h1 id="bogue-bogue-the-ocaml-gui"><img src="images/bogue-icon.png" alt="BOGUE" /> BOGUE, the ocaml GUI</h1>
+<h1 id="bogue-bogue-the-ocaml-guis"><img src="images/bogue-icon.png" alt="BOGUE" /> BOGUE, the ocaml GUIs</h1>
 <h2 id="about">About</h2>
 <p><a href="https://github.com/sanette/bogue">BOGUE</a> is a desktop GUI library (graphical user interface) for <a href="https://ocaml.org/">ocaml</a>, which is</p>
 <ul>
@@ -183,7 +183,7 @@
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
-<li>We make the board and run it. Done!</li>
+<li>We create the board and run it. Done!</li>
 </ol>
 <div class="sourceCode" id="cb14"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.of_layout layout <span class="kw">in</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>Bogue.run ~before_display board</span></code></pre></div>
@@ -192,7 +192,7 @@
 <p>This is only useful if you already have an application with an event/display loop (like a game) and you want to add some GUI on top of this.</p>
 <ol style="list-style-type: decimal">
 <li><p>use one of the methods above to create your board</p></li>
-<li><p>use <code>Bogue.make_windows</code> to either create news windows for the GUI, or use already existing SDL windows.</p></li>
+<li><p>use <code>Bogue.make_sdl_windows</code> to either create news windows for the GUI, or use already existing SDL windows.</p></li>
 <li><p>anytime you want to show the GUI, just call the <code>Bogue.one_step</code> function in your loop, in general after all other renderings and just before <code>Sdl.render_present</code>. When the GUI is displayed, be sure to disable all event handling functions that could interfere with BOGUE.</p></li>
 </ol>
 <p>See the file <a href="Embedded.html"><code>Embedded.md</code></a> for more details.</p>

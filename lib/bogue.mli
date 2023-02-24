@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230218
+@version 20230224
 
 @author Vu Ngoc San
 
@@ -454,8 +454,9 @@ module Trigger : sig
 
   val user_event : t
   (** Same as [Tsdl.Sdl.Event.user_event]. This special event of type
-     SDL_UserEvent can trigger a global reaction, not associated with any widget
-     in particular, through the [on_user_event] parameter of {!Main.create} *)
+      SDL_UserEvent can trigger a global reaction, not associated with any
+      widget in particular, through the [on_user_event] parameter of
+      {!Main.create} *)
 
   val buttons_down : t list
   (** A list of events containing the mouse_button_down event, and the
@@ -661,6 +662,11 @@ module Draw: sig
   type texture = Tsdl.Sdl.texture
 
   (** {2 Initialization and shutdown} *)
+
+  val video_init : unit -> unit
+  (** Manually init the SDL video system, and detect the scaling factor used by
+      Bogue. This is useful only if you don't use Bogue's mainloop (for instance
+      if you manually manage your windows and event loop). *)
 
   val quit : unit -> unit
   (** Cleanup and quit SDL. *)
@@ -1448,9 +1454,10 @@ let l = get_label w in
   (** [connect source target action triggers] creates a connection from the
       [source] widget to the [target] widget, but does not register it ({e this
       may change in the future...}). Once it is registered (either by
-      {!Main.make} or {!add_connection}), and assuming that the layout containing
-      the source widget has {e focus}, then when an event [ev] matches one of the
-      [triggers] list, the [action] is executed with arguments [source target ev].
+      {!Main.create} or {!add_connection}), and assuming that the layout
+      containing the source widget has {e focus}, then when an event [ev]
+      matches one of the [triggers] list, the [action] is executed with
+      arguments [source target ev].
 
       @param priority indicates the desired priority policy. Default is [Forget].
 
@@ -1464,10 +1471,10 @@ let l = get_label w in
   val add_connection : t -> connection -> unit
   (** Registers the connection with the widget. This should systematically be
      done after each connection creation, when the connection is created {e
-     after} {!Main.make}.
+     after} {!Main.create}.
 
-     Connections that are created {e before} {!Main.make} should rather be
-     passed as argument to {!Main.make}, and {e not} via
+     Connections that are created {e before} {!Main.create} should rather be
+     passed as argument to {!Main.create}, and {e not} via
      [add_connection]. Although this is not striclty necessary, this indicates
      that these connections are more 'pure' or at least more static, in the
      sense that they will not be modified by Bogue. These are usually much
@@ -2023,7 +2030,7 @@ module Layout : sig
   (** {2 Windows}
 
       An SDL window is created for each Layout in the list sent to
-     {!Main.make}.  *)
+     {!Main.create}.  *)
 
   val window_opt : t -> Tsdl.Sdl.window option
   (** Return the SDL window containing the layout. It will return [None] if the
@@ -2042,7 +2049,7 @@ module Layout : sig
   val set_window_pos : t -> int * int -> unit
   (** [set_window_pos layout x y] sets the position of the window containing
      [layout] to (x,y), in physical pixels. (0,0) is top-left. This should be
-     run {b after} {!Main.make}.  *)
+     run {b after} {!Main.create}.  *)
 
   val get_window_pos : t -> int option * int option
   (** Return the window position within the desktop, in physical pixels. *)
@@ -2431,9 +2438,13 @@ end (* of Table *)
 
 (** {2 Windows}
 
-    In order to display a Layout, you need to create a {!Window.t} for it, and
-   pass it as argument of {!Main.make}. Windows are create by SDL, and hence
-   will appear with the usual decorations of your Desktop Environment.  *)
+    In order to display a Layout, Bogue needs to create a {!Window.t} for it,
+    and pass it as argument of {!Main.create}. This is done automatically if you
+    use {!Main.of_layouts}, so most of the time you don't need to deal with
+    {!Window.t}'s.
+
+    Windows are created by SDL, and hence will appear with the usual decorations
+    of your Desktop Environment.  *)
 module Window : sig
   type t
   val create : ?on_close:(t -> unit) -> Layout.t -> t
@@ -2608,7 +2619,7 @@ let main () =
   let l = W.label "Hello world" in
   let layout = L.flat_of_w [b;l] in
 
-  let board = Bogue.make [] [layout] in
+  let board = Bogue.of_layout layout in
   Bogue.run board;;
 
 let () = main ();

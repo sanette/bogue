@@ -54,6 +54,14 @@
 <pre><span id="TYPEtexture"><span class="keyword">type</span> <code class="type"></code>texture</span> = <code class="type">Tsdl.Sdl.texture</code> </pre>
 
 <h3 id="2_Initializationandshutdown">Initialization and shutdown</h3>
+<pre><span id="VALvideo_init"><span class="keyword">val</span> video_init</span> : <code class="type">unit -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Manually init the SDL video system, and detect the scaling factor used by
+      Bogue. This is useful only if you don't use Bogue's mainloop (for instance
+      if you manually manage your windows and event loop).</p>
+</div>
+</div>
+
 <pre><span id="VALquit"><span class="keyword">val</span> quit</span> : <code class="type">unit -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Cleanup and quit SDL.</p>

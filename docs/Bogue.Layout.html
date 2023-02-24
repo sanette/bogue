@@ -467,7 +467,7 @@
 
 <pre><span id="VALretower"><span class="keyword">val</span> retower</span> : <code class="type">?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt; ?margins:int -&gt; ?duration:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="2_Windows">Windows</h3>
 <p>An SDL window is created for each Layout in the list sent to
-     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
+     <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
 
 <pre><span id="VALwindow_opt"><span class="keyword">val</span> window_opt</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; Tsdl.Sdl.window option</code></pre><div class="info ">
 <div class="info-desc">
@@ -496,7 +496,7 @@
 <div class="info-desc">
 <p><code class="code">set_window_pos&nbsp;layout&nbsp;x&nbsp;y</code> sets the position of the window containing
      <code class="code">layout</code> to (x,y), in physical pixels. (0,0) is top-left. This should be
-     run <b>after</b> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
+     run <b>after</b> <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
 </div>
 </div>
 

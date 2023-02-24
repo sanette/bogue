@@ -34,7 +34,7 @@
 </div>
 <ul class="info-attributes">
 <li><b>Author(s):</b> Vu Ngoc San</li>
-<li><b>Version:</b> 20230218</li>
+<li><b>Version:</b> 20230224</li>
 </ul>
 </div>
 <hr width="100%">
@@ -289,7 +289,7 @@
   <span class="keyword">let</span> l = <span class="constructor">W</span>.label <span class="string">"Hello world"</span> <span class="keyword">in</span>
   <span class="keyword">let</span> layout = <span class="constructor">L</span>.flat_of_w [b;l] <span class="keyword">in</span>
 
-  <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.make [] [layout] <span class="keyword">in</span>
+  <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.of_layout layout <span class="keyword">in</span>
   <span class="constructor">Bogue</span>.run board;;
 
 <span class="keyword">let</span> () = main ();
