@@ -15,7 +15,6 @@
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Initialization and shutdown" rel="Section" href="#2_Initializationandshutdown">
 <link title="Colors" rel="Section" href="#2_Colors">
 <link title="Drawing functions" rel="Section" href="#drawing_functions">
-<link title="Layers" rel="Section" href="#2_Layers">
 <link title="Misc" rel="Section" href="#2_Misc">
 <link title="Predefined colors" rel="Subsection" href="#3_Predefinedcolors">
 <link title="Creating colors" rel="Subsection" href="#3_Creatingcolors">
@@ -34,10 +33,10 @@
 <p>Low-level graphics and colors.</p>
 
 <p>This module is internally used for low-level graphics and a thin layer over
-   Tsdl.</p>
+    Tsdl.</p>
 
-<p>The public API is mainly useful for Color management. There are also some helper
-   functions for drawing into an <a href="Bogue.Sdl_area.html"><code class="code"><span class="constructor">Sdl_area</span></code></a>.</p>
+<p>The public API is mainly useful for Color management. There are also some
+    helper functions for drawing into an <a href="Bogue.Sdl_area.html"><code class="code"><span class="constructor">Sdl_area</span></code></a>.</p>
 
 <h6 id="5_graphbdrawhtmlDependencygraph"><a href="graph-b_draw.html">Dependency graph</a></h6></div>
 </div>
@@ -46,7 +45,8 @@
 <pre><span id="TYPEcanvas"><span class="keyword">type</span> <code class="type"></code>canvas</span> </pre>
 <div class="info ">
 <div class="info-desc">
-<p>Contains the hardware information for drawing (SDL renderer and window).</p>
+<p>Contains the hardware information for drawing (SDL renderer and
+      window).</p>
 </div>
 </div>
 
@@ -153,8 +153,8 @@
 <pre><span id="VALto_pixels"><span class="keyword">val</span> to_pixels</span> : <code class="type">int * int -&gt; int * int</code></pre><div class="info ">
 <div class="info-desc">
 <p>Convert BOGUE logical coordinates into hardware pixel coordinates. This
-     takes into account both the <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a> <code class="code"><span class="constructor">SCALE</span></code> and the high-dpi scaling of
-     some systems (mac OS retina, iOS).</p>
+      takes into account both the <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a> <code class="code"><span class="constructor">SCALE</span></code> and the high-dpi scaling of
+      some systems (mac OS retina, iOS).</p>
 </div>
 </div>
 
@@ -162,32 +162,15 @@
 <pre><span id="VALrectangle"><span class="keyword">val</span> rectangle</span> : <code class="type">?thick:int -&gt;<br>       Tsdl.Sdl.renderer -&gt;<br>       color:<a href="Bogue.Draw.html#TYPEcolor">color</a> -&gt; w:int -&gt; h:int -&gt; x:int -&gt; y:int -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">rectangle&nbsp;renderer&nbsp;~color&nbsp;~thick&nbsp;~w&nbsp;~h&nbsp;~x&nbsp;~y</code> draws a rectangle with
-     given line thickness. The coordinate of the top left corner is
-     <code class="code">(x,y)</code>. The size (including the thick line) is <code class="code">(w,h)</code>.</p>
+      given line thickness. The coordinate of the top left corner is
+      <code class="code">(x,y)</code>. The size (including the thick line) is <code class="code">(w,h)</code>.</p>
 </div>
 </div>
 
 <pre><span id="VALcircle"><span class="keyword">val</span> circle</span> : <code class="type">?thick:int -&gt;<br>       Tsdl.Sdl.renderer -&gt;<br>       color:<a href="Bogue.Draw.html#TYPEcolor">color</a> -&gt; radius:int -&gt; x:int -&gt; y:int -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">circle&nbsp;renderer&nbsp;~width&nbsp;~color&nbsp;~radius&nbsp;~x&nbsp;~y</code> draws a circle with given
-     line thickness, centered at <code class="code">(x,y)</code>, with given <code class="code">radius</code>.</p>
-</div>
-</div>
-<h3 id="2_Layers">Layers</h3>
-<pre><span id="TYPElayer"><span class="keyword">type</span> <code class="type"></code>layer</span> </pre>
-<div class="info ">
-<div class="info-desc">
-<p>Layers are used to decide the order of drawing: which graphical elements
-     (layouts) should be below, which should be above. For the most part, you
-     don't have to access them directly.</p>
-</div>
-</div>
-
-
-<pre><span id="VALuse_new_layer"><span class="keyword">val</span> use_new_layer</span> : <code class="type">unit -&gt; unit</code></pre><div class="info ">
-<div class="info-desc">
-<p>Use this when you want to switch to a completely different set of layers,
-      typically when you want to draw on another window.</p>
+      line thickness, centered at <code class="code">(x,y)</code>, with given <code class="code">radius</code>.</p>
 </div>
 </div>
 <h3 id="2_Misc">Misc</h3>

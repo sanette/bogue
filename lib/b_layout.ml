@@ -1352,8 +1352,8 @@ let v_align ~align layout y0 h =
 (* warning, the widget is always centered *)
 (* x,y specification will be overwritten if the room is then included in a flat
    or tower, which is essentially always the case... *)
-let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable ?canvas ?layer
-    ?keyboard_focus widget =
+let resident_with_layer ?layer ?name ?(x = 0) ?(y = 0) ?w ?h ?background
+    ?draggable ?canvas ?keyboard_focus widget =
   let (w',h') = Widget.default_size widget in
   let w = default w w' in
   let h = default h h' in
@@ -1362,8 +1362,13 @@ let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable ?canvas ?layer
     | Some false -> None
     | None -> Widget.guess_unset_keyboard_focus widget in
   let geometry = geometry ~x ~y ~w ~h () in
-  create ?name ?background ?keyboard_focus ?draggable ?layer ?canvas
+  create ?name ?background ?keyboard_focus ?draggable ?canvas ?layer
     geometry (Resident widget)
+
+let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable
+    ?canvas ?keyboard_focus widget =
+  resident_with_layer ?name ~x ~y ?w ?h ?background ?draggable
+    ?canvas ?keyboard_focus widget
 
 let of_widget = resident
 
@@ -2313,7 +2318,7 @@ let make_clip
      this is superfluous... *)
   let layer = get_layer room in
   let container = tower ~margins:0 ~clip:true
-      [superpose [resident ~layer active_bg; room]] in
+      [superpose [resident_with_layer ~layer active_bg; room]] in
   (* The container should be a room with a unique subroom (and the active
      background); the subroom can then be scrolled with respect to the container
   *)
@@ -2326,7 +2331,7 @@ let make_clip
          var is able to use it. This is only useful if the height of the
          container is modified after creation, for instance when the user
          resizes the window. *)
-      let bar = resident ~layer
+      let bar = resident_with_layer ~layer
           ~background:(color_bg Draw.(lighter scrollbar_color))
           (Widget.empty ~w:10 ~h:10 ()) in
       (* The scrollbar is a slider. Its Tvar takes the voffset value into the

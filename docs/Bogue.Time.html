@@ -45,8 +45,9 @@
       loop. This is only useful if you have your own graphics loop, and do not
       use <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>.</p>
 
-<p><code class="code">adaptive_fps&nbsp;60</code> returns two functions <code class="code">start,fps</code>. The statement <code class="code">start&nbsp;()</code>
-      will start the timing. At each iteration of your loop, you should call
+<p><code class="code">adaptive_fps&nbsp;60</code> returns two functions <code class="code">start,fps</code>. The statement
+      <code class="code">start&nbsp;()</code> will start the timing.
+      At each iteration of your loop, you should call
       <code class="code">fps&nbsp;()</code>, which will try to sleep long enough to achieve the desired 60FPS
       rate. It works on average: if some frames take longer, it will shorten the
       next frame to keep up. However, it tries to be nice to the CPU: even if one

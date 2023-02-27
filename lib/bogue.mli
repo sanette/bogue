@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230224
+@version 20230227
 
 @author Vu Ngoc San
 
@@ -107,8 +107,8 @@ v}
 
 - [BACKGROUND]: the default background for all windows. It can be a color
   (eg. [color:darkturquoise] or [color:#00CED1]), or an image file
-    (eg. [file:myimage.png]). See {%html:<a href="#path">below</a>%}
-     for how to specify paths.
+  (eg. [file:myimage.png]). See {%html:<a href="#path">below</a>%}
+  for how to specify paths.
 - [BG_COLOR]: a background color (eg. [darkturquoise], or [#00CED1])
   that is used by default by some widgets/layouts.
   It should be clearly visible over the [BACKGROUND].
@@ -118,14 +118,21 @@ v}
   (eg. [myimage.png]) or a font-awesome icon (eg. [fa:check-square-o]).
 - [CHECK_OFF]: the image used for the 'unchecked' icon. See [CHECK_ON].
 - [CURSOR_COLOR]
-- [DIR]: the directory containing the themes subdirectories. Default: auto   detected at startup, usually [$HOME/.config/bogue/themes]
+- [DIR]: the directory containing the themes subdirectories.
+  Default: auto-detected at startup, usually [$HOME/.config/bogue/themes]
 - [FA_DIR]: the fontawesome directory inside [DIR/common/].
 - [FAINT_COLOR]: a non-obtrusive color for disabled options or
   text of little importance.
 - [LABEL_COLOR]: the color for text or icon labels.
-- [LABEL_FONT]: path of a TTF font for text labels. If your system has [fontconfig], any installed font (as listed by [fc-list]) can be specified without the full path. Eg: [Ubuntu-R.ttf].
+- [LABEL_FONT]: path of a TTF font for text labels.
+  If your system has [fontconfig], any installed font (as listed by [fc-list])
+  can be specified without the full path. Eg: [Ubuntu-R.ttf].
 - [LABEL_FONT_SIZE]: integer, eg [14].
-- [LOG_TO_FILE]: if "false", all log messages will appear on the console. If "true", the messages are instead sent to a log file, typically in the "/tmp" directory. Log files can be viewed on an ANSI terminal with [less -R] or with emacs using xterm-color-colorize-buffer (from the xterm-color package).
+- [LOG_TO_FILE]: if "false", all log messages will appear on the console.
+  If "true", the messages are instead sent to a log file, typically in the
+  "/tmp" directory. Log files can be viewed on an ANSI terminal with
+  [less -R] or with emacs using xterm-color-colorize-buffer
+  (from the xterm-color package).
 - [MENU_HL_COLOR]: the color for highlighting selected menu entries.
 - [MENU_BG_COLOR]
 - [MONO_FONT]: monospace font. See [LABEL_FONT].
@@ -138,6 +145,7 @@ v}
   If set to [0.] or not specified, it is autodetected to match your screen DPI
   (using [xdpyinfo], if present).
 - [INT_SCALE]: set to "true" to force integer scale when using auto-detection.
+  Some games may require this to avoid small graphics artifacts.
 - [SEL_BG_COLOR]: background color for selected items in lists.
 - [SEL_FG_COLOR]: text color for selected items in lists.
 - [SMALL_FONT_SIZE]: integer. Used for instance for tooltips popups.
@@ -150,7 +158,10 @@ v}
   are loaded and override previously defined variables.
   If not specified, the default theme is initially loaded.
 
-All variables with "COLOR" in their name can be specified either with RGB hexadecimal like [#00CED1], or with a standard html name like [darkturquoise], see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color table}.
+All variables with "COLOR" in their name can be specified either with RGB
+hexadecimal like [#00CED1], or with a standard html name like [darkturquoise],
+see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color
+table}.
 
 All variables can be overriden by setting the corresponding
 environment variables, prepending "BOGUE_". For instance:
@@ -169,12 +180,13 @@ BACKGROUND = file:background.png
 v}
 you need to specify where the file should be searched. Here are the rules:
 
-First, the file is searched in current directory,
-    then in the current theme's directory (for instance [$HOME/.config/bogue/themes/default]),
-unless the file string starts with [/], in which case it should be an
-absolute path (eg. [file:/home/alice/myimage.png]).
-Finally, if the file string starts with [%], for instance [file:%assets/images/bob.png],
-then the [%] char is replaced by the Bogue dir, for instance [file:/home/bob/.config/bogue/assets/images/bob.png].
+First, the file is searched in current directory, then in the current theme's
+directory (for instance [$HOME/.config/bogue/themes/default]), unless the file
+string starts with [/], in which case it should be an absolute path
+(eg. [file:/home/alice/myimage.png]). Finally, if the file string starts with
+[%], for instance [file:%assets/images/bob.png], then the [%] char is replaced
+by the Bogue dir, for instance
+[file:/home/bob/.config/bogue/assets/images/bob.png].
 
 
 {5 {{:graph-b_theme.html}Dependency graph}} *)
@@ -182,24 +194,31 @@ module Theme : sig
 
   (** {2 Accessing Theme variables}
 
-     Theme variables are essentially for Bogue's internal use, but sometimes it
-     can be useful to access or modify their values. See above for their
-     description.
+      Theme variables are essentially for Bogue's internal use, but sometimes it
+      can be useful to access or modify their values. See above for their
+      description.
 
-     {b Warning:} Theme variables are global variables and should be modified
-     (by the main thread) {e before} starting the main loop (with {!Main.run})
-     if you want predictable results. *)
+      {b Warning:} Theme variables are global variables and should be modified
+      (by the main thread) {e before} starting the main loop (with {!Main.run})
+      if you want predictable results. *)
 
   val room_margin : int
 
   val scale_int : int -> int
-(** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
-   obtained by multiplying by [SCALE]. *)
+  (** Conversion: Bogue dimension -> hardware pixel dimension. The latter is
+      obtained by multiplying by [SCALE].
+
+      {b Warning:} Bogue scale is detected only when opening a window, typically
+      when running {!Main.run}, or manually with {!Draw.video_init}. If you use
+      [scale_int] too early you might end up with zeros... If you don't require
+      auto-detection, you can use {!set_scale}. *)
 
   val set_text_font : string -> unit
   val set_label_font : string -> unit
   val set_scale : float -> unit
+
   val set_integer_scale : bool -> unit
+    (** Set [INT_SCALE].  *)
 
   (** {2 Accessing files installed along with your application}
 
@@ -327,8 +346,9 @@ module Time : sig
       loop. This is only useful if you have your own graphics loop, and do not
       use {!Main.run}.
 
-      [adaptive_fps 60] returns two functions [start,fps]. The statement [start ()]
-      will start the timing. At each iteration of your loop, you should call
+      [adaptive_fps 60] returns two functions [start,fps]. The statement
+      [start ()] will start the timing.
+      At each iteration of your loop, you should call
       [fps ()], which will try to sleep long enough to achieve the desired 60FPS
       rate. It works on average: if some frames take longer, it will shorten the
       next frame to keep up. However, it tries to be nice to the CPU: even if one
@@ -405,15 +425,14 @@ end (* of Timeout *)
 
 (** Dealing with events.
 
-Events are simply SDL events, plus a few additional events. They are also used
-   for primitive communication between threads.
+    Events are simply SDL events, plus a few additional events. They are also
+    used for primitive communication between threads.
 
-Events are detected by Layouts, and then sent to the resident Widget. Finally,
-   the Widget decides what to do with the events. There is one exception: the
-   {!startup} event is directly sent to all Widgets.
+    Events are detected by Layouts, and then sent to the resident
+    Widget. Finally, the Widget decides what to do with the events. There is one
+    exception: the {!startup} event is directly sent to all Widgets.
 
-
-{5 {{:graph-b_trigger.html}Dependency graph}} *)
+    {5 {{:graph-b_trigger.html}Dependency graph}} *)
 module Trigger : sig
   type t = Tsdl.Sdl.event_type
 
@@ -582,7 +601,7 @@ end (* of Trigger *)
     {e Remark:} Under Windows, using WLS2, it was reported that sound works if
     [wslg] is installed.
 
-{5 {{:graph-b_mixer.html}Dependency graph}} *)
+    {5 {{:graph-b_mixer.html}Dependency graph}} *)
 module Mixer : sig
   type t
   type sound =  (int, Bigarray.int16_signed_elt) Tsdl.Sdl.bigarray
@@ -625,22 +644,22 @@ end (* of Mixer *)
 
 (** Synchronized execution queue.
 
-   Any action can be pushed to this FIFO queue, in order to be executed by
-   Bogue's main loop at the start of the next graphical frame.
+    Any action can be pushed to this FIFO queue, in order to be executed by
+    Bogue's main loop at the start of the next graphical frame.
 
-   For any action that is not super urgent, it is a good idea to use this `Sync`
-   module, instead of launching the action directly from a thread that may be
-   difficult to control. In this way, we ensure that the action is not executed
-   in the middle of rendering the graphics, or between various modifications of
-   the board (events, keyboard focus, etc.).
+    For any action that is not super urgent, it is a good idea to use this
+    `Sync` module, instead of launching the action directly from a thread that
+    may be difficult to control. In this way, we ensure that the action is not
+    executed in the middle of rendering the graphics, or between various
+    modifications of the board (events, keyboard focus, etc.).
 
-{5 {{:graph-b_sync.html}Dependency graph}} *)
+    {5 {{:graph-b_sync.html}Dependency graph}} *)
 module Sync : sig
 
   val push : (unit -> unit) -> unit
-(** [push action] registers the [action] to be executed by the mainloop at the
-   start of the next frame, or at a subsequent frame if the queue is already
-   large. *)
+  (** [push action] registers the [action] to be executed by the mainloop at the
+      start of the next frame, or at a subsequent frame if the queue is already
+      large. *)
 
 end (* of Sync *)
 
@@ -648,16 +667,17 @@ end (* of Sync *)
 
 (** Low-level graphics and colors.
 
-This module is internally used for low-level graphics and a thin layer over
-   Tsdl.
+    This module is internally used for low-level graphics and a thin layer over
+    Tsdl.
 
-The public API is mainly useful for Color management. There are also some helper
-   functions for drawing into an {!Sdl_area}.
+    The public API is mainly useful for Color management. There are also some
+    helper functions for drawing into an {!Sdl_area}.
 
-{5 {{:graph-b_draw.html}Dependency graph}} *)
+    {5 {{:graph-b_draw.html}Dependency graph}} *)
 module Draw: sig
   type canvas
-  (** Contains the hardware information for drawing (SDL renderer and window). *)
+  (** Contains the hardware information for drawing (SDL renderer and
+      window). *)
 
   type texture = Tsdl.Sdl.texture
 
@@ -724,7 +744,7 @@ module Draw: sig
   (** Equivalent to [Sdl.set_render_draw_color]. *)
 
   val set_text_color : rgb -> unit
-    (** Overrides the {!Theme} [TEXT_COLOR] variable. *)
+  (** Overrides the {!Theme} [TEXT_COLOR] variable. *)
 
   (** {2:drawing_functions Drawing functions}
 
@@ -732,8 +752,8 @@ module Draw: sig
 
   val to_pixels : (int * int) -> (int * int)
   (** Convert BOGUE logical coordinates into hardware pixel coordinates. This
-     takes into account both the {!Theme} [SCALE] and the high-dpi scaling of
-     some systems (mac OS retina, iOS). *)
+      takes into account both the {!Theme} [SCALE] and the high-dpi scaling of
+      some systems (mac OS retina, iOS). *)
 
   val line : ?thick:int -> Tsdl.Sdl.renderer ->
     color:color -> x0:int -> y0:int -> x1:int -> y1:int -> unit
@@ -741,24 +761,26 @@ module Draw: sig
   val rectangle : ?thick:int -> Tsdl.Sdl.renderer -> color:color ->
     w:int -> h:int -> x:int -> y:int -> unit
   (** [rectangle renderer ~color ~thick ~w ~h ~x ~y] draws a rectangle with
-     given line thickness. The coordinate of the top left corner is
-     [(x,y)]. The size (including the thick line) is [(w,h)]. *)
+      given line thickness. The coordinate of the top left corner is
+      [(x,y)]. The size (including the thick line) is [(w,h)]. *)
 
   val circle : ?thick:int -> Tsdl.Sdl.renderer ->
     color:color -> radius:int -> x:int -> y:int -> unit
   (** [circle renderer ~width ~color ~radius ~x ~y] draws a circle with given
-     line thickness, centered at [(x,y)], with given [radius]. *)
+      line thickness, centered at [(x,y)], with given [radius]. *)
 
+  (**/**)
   (** {2 Layers} *)
 
   (** Layers are used to decide the order of drawing: which graphical elements
-     (layouts) should be below, which should be above. For the most part, you
-     don't have to access them directly. *)
+      (layouts) should be below, which should be above. For the most part, you
+      don't have to access them directly. *)
   type layer
 
   val use_new_layer : unit -> unit
   (** Use this when you want to switch to a completely different set of layers,
       typically when you want to draw on another window. *)
+  (**/**)
 
   (** {2 Misc} *)
 
@@ -1769,7 +1791,7 @@ module Layout : sig
     ?background:background ->
     ?draggable:bool ->
     ?canvas:Draw.canvas ->
-    ?layer:Draw.layer -> ?keyboard_focus:bool -> Widget.t -> t
+    ?keyboard_focus:bool -> Widget.t -> t
   (** Create a layout (=room) from a single Widget (=resident). The content of
      such a layout cannot be modified. *)
 

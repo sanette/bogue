@@ -26,13 +26,13 @@
 <p>Synchronized execution queue.</p>
 
 <p>Any action can be pushed to this FIFO queue, in order to be executed by
-   Bogue's main loop at the start of the next graphical frame.</p>
+    Bogue's main loop at the start of the next graphical frame.</p>
 
-<p>For any action that is not super urgent, it is a good idea to use this `Sync`
-   module, instead of launching the action directly from a thread that may be
-   difficult to control. In this way, we ensure that the action is not executed
-   in the middle of rendering the graphics, or between various modifications of
-   the board (events, keyboard focus, etc.).</p>
+<p>For any action that is not super urgent, it is a good idea to use this
+    `Sync` module, instead of launching the action directly from a thread that
+    may be difficult to control. In this way, we ensure that the action is not
+    executed in the middle of rendering the graphics, or between various
+    modifications of the board (events, keyboard focus, etc.).</p>
 
 <h6 id="5_graphbsynchtmlDependencygraph"><a href="graph-b_sync.html">Dependency graph</a></h6></div>
 </div>
@@ -41,8 +41,8 @@
 <pre><span id="VALpush"><span class="keyword">val</span> push</span> : <code class="type">(unit -&gt; unit) -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">push&nbsp;action</code> registers the <code class="code">action</code> to be executed by the mainloop at the
-   start of the next frame, or at a subsequent frame if the queue is already
-   large.</p>
+      start of the next frame, or at a subsequent frame if the queue is already
+      large.</p>
 </div>
 </div>
 </body></html>
