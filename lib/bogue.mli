@@ -14,10 +14,19 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230227
+@version 20230303
 
 @author Vu Ngoc San
 
+@see <https://github.com/sanette/bogue> the source code on github
+
+*)
+
+(**
+ {e This documention is best viewed on
+ {{:https://sanette.github.io/bogue/Bogue.html}this page}. (While on
+ {{:https://ocaml.org/p/bogue/latest/doc/Bogue/index.html}ocaml.org} some links
+ may be broken.)}
 *)
 
 (** {3 Quick start}
@@ -1529,7 +1538,13 @@ let l = get_label w in
   val mouse_over : ?enter:(t -> unit) -> ?leave:(t -> unit) -> t -> unit
 
 
-  (** {2:widget_create Creation of Widgets} *)
+  (** {2:widget_create Creation of Widgets}
+
+As a general rule, widgets should be created using the functions below, which
+belong to the Widget module and create an element of type {!t}. However, for
+some specialized usage, additional features may be available from the widget
+underlying module (eg. {!Label}, {!Box}, etc.). See the {{!inner}conversion
+functions} below. *)
 
   (** {3 Simple boxes (rectangles)} *)
 
@@ -1671,7 +1686,7 @@ let l = get_label w in
      initialization. One can use a [Lazy] type or {!Sync.push} for delaying
      their execution. *)
 
-  (** {2 Conversions from the generic Widget type to the specialized inner type}
+  (** {2:inner Conversions from the generic Widget type to the specialized inner type}
 
      These functions raise [Invalid_argument] whenever their argument is not of
      the correct type.  *)

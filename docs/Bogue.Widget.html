@@ -16,7 +16,7 @@
 <link title="Creation of Widgets" rel="Section" href="#widget_create">
 <link title="Creation of combined widgets" rel="Section" href="#2_Creationofcombinedwidgets">
 <link title="Generic functions on widgets" rel="Section" href="#2_Genericfunctionsonwidgets">
-<link title="Conversions from the generic Widget type to the specialized inner type" rel="Section" href="#2_ConversionsfromthegenericWidgettypetothespecializedinnertype">
+<link title="Conversions from the generic Widget type to the specialized inner type" rel="Section" href="#inner">
 <link title="Generic actions" rel="Section" href="#2_Genericactions">
 <link title="Predefined connections" rel="Subsection" href="#3_Predefinedconnections">
 <link title="Simple boxes (rectangles)" rel="Subsection" href="#3_Simpleboxesrectangles">
@@ -213,7 +213,13 @@
 </div>
 </div>
 
-<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt;<br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="widget_create">Creation of Widgets</h3><h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
+<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt;<br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="widget_create">Creation of Widgets</h3>
+<p>As a general rule, widgets should be created using the functions below, which
+belong to the Widget module and create an element of type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>. However, for
+some specialized usage, additional features may be available from the widget
+underlying module (eg. <a href="Bogue.Label.html"><code class="code"><span class="constructor">Label</span></code></a>, <a href="Bogue.Box.html"><code class="code"><span class="constructor">Box</span></code></a>, etc.). See the <a href="Bogue.Widget.html#inner">conversion
+functions</a> below.</p>
+<h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
 <pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Box widget, which simply displays a rectangle, optionally with
@@ -355,7 +361,7 @@
      their execution.</p>
 </div>
 </div>
-<h3 id="2_ConversionsfromthegenericWidgettypetothespecializedinnertype">Conversions from the generic Widget type to the specialized inner type</h3>
+<h3 id="inner">Conversions from the generic Widget type to the specialized inner type</h3>
 <p>These functions raise <code class="code"><span class="constructor">Invalid_argument</span></code> whenever their argument is not of
      the correct type.</p>
 
