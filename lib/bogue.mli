@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230303
+@version 20230310
 
 @author Vu Ngoc San
 
@@ -668,7 +668,10 @@ module Sync : sig
   val push : (unit -> unit) -> unit
   (** [push action] registers the [action] to be executed by the mainloop at the
       start of the next frame, or at a subsequent frame if the queue is already
-      large. *)
+      large.
+
+      {b Warning:} the action should not call {!push} itself, otherwise this will
+      result in a deadlock. *)
 
 end (* of Sync *)
 
@@ -1969,10 +1972,11 @@ module Layout : sig
       thread at next frame (see {!Sync}). *)
 
   val replace_room : by:t -> t -> unit
-  (** Replace "room" by "by" inside "house" in lieu and place of the intial
-     room. No size adjustments are made. Of course this is dangerous, because it
-     modifies both the house and "by". Beware of circular dependencies... Of
-     course this assumes that "room" already belongs to "house". *)
+  (** Replace "room" by "by" inside its "house" in lieu and place of the initial
+      room. No size adjustments are made. Of course this is dangerous, because
+      it modifies both the house and "by". Beware of circular
+      dependencies... Cannot be used for the [top_house] (the window layout)
+      because that layout has no house. *)
 
   val unload_textures : t -> unit
   (** Use this to free the textures stored by the layout (and its children) for
@@ -2501,7 +2505,7 @@ module Window : sig
 
   val set_size : w:int -> h:int -> t -> unit
   (** Set window size in physical pixels. Only works after the window is
-     physically created by {Main.run}. However, you may use [set_size] in
+     physically created by {!Main.run}. However, you may use [set_size] in
      advance with {!Sync.push}. *)
 
   val maximize_width : t -> unit

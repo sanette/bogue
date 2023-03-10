@@ -352,10 +352,11 @@
 
 <pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">by:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p>Replace "room" by "by" inside "house" in lieu and place of the intial
-     room. No size adjustments are made. Of course this is dangerous, because it
-     modifies both the house and "by". Beware of circular dependencies... Of
-     course this assumes that "room" already belongs to "house".</p>
+<p>Replace "room" by "by" inside its "house" in lieu and place of the initial
+      room. No size adjustments are made. Of course this is dangerous, because
+      it modifies both the house and "by". Beware of circular
+      dependencies... Cannot be used for the <code class="code">top_house</code> (the window layout)
+      because that layout has no house.</p>
 </div>
 </div>
 

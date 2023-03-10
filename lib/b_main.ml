@@ -354,7 +354,9 @@ let target_widget board ev =
                               the mouse enter/leave event" id) id
     else match board.button_down with
       | Some r (*when !dragging*) ->
-        printd debug_board "Target: select button_down"; Some r
+        printd debug_board "Target: select button_down (%s)"
+          (Layout.sprint_id r);
+        Some r
       (* when dragging, the board.button_down has priority over all *)
       (* TODO: it happens also for push buttons, scroll bars, etc... *)
       (* OR: give board.button_down priority for ALL but for menus (find
@@ -886,7 +888,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   let new_anim = has_anim board in
   if new_anim && not anim then start_fps ();
   event_loop anim new_anim board;
-  do_option before_display (fun f -> f ());
+  do_option before_display run;
 
   let anim = new_anim in
   (* now some specifics in case of animation *)

@@ -43,6 +43,9 @@
 <p><code class="code">push&nbsp;action</code> registers the <code class="code">action</code> to be executed by the mainloop at the
       start of the next frame, or at a subsequent frame if the queue is already
       large.</p>
+
+<p><b>Warning:</b> the action should not call <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a> itself, otherwise this will
+      result in a deadlock.</p>
 </div>
 </div>
 </body></html>
