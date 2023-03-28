@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230310
+@version 20230328
 
 @author Vu Ngoc San
 
@@ -23,7 +23,7 @@ Copyright: see LICENCE
 *)
 
 (**
- {e This documention is best viewed on
+ {e This documentation is best viewed on
  {{:https://sanette.github.io/bogue/Bogue.html}this page}. (While on
  {{:https://ocaml.org/p/bogue/latest/doc/Bogue/index.html}ocaml.org} some links
  may be broken.)}
@@ -31,8 +31,10 @@ Copyright: see LICENCE
 
 (** {3 Quick start}
 
- For a quick start, see Bogue's {{:Principles.html}general principles}, and the
-   minimal {{!example}example}.
+ For a quick start, see Bogue's {{:Principles.html}general principles}, the
+ minimal {{!example}example}, and the
+ {{:https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html}tutorials}.
+
 
     The main modules are
 
@@ -103,7 +105,7 @@ module L = Bogue.Layout]}
     other config files.
 
     - The syntax of the config file is [VARIABLE = value], one entry per line.
-    Notice the spaces surroundind [=]. Comment lines starting by [#] are
+    Notice the spaces surrounding [=]. Comment lines starting by [#] are
     ignored.  For instance:
 {v
 ## BOGUE version 20220115
@@ -172,7 +174,7 @@ hexadecimal like [#00CED1], or with a standard html name like [darkturquoise],
 see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color
 table}.
 
-All variables can be overriden by setting the corresponding
+All variables can be overridden by setting the corresponding
 environment variables, prepending "BOGUE_". For instance:
 {v
 export BOGUE_LABEL_COLOR=forestgreen
@@ -243,11 +245,11 @@ module Theme : sig
       share directory (if it exists), for instance
       [/usr/local/share/my_app]. The [app] string should be the system name of
       your application (for instance [app="my_app"]). The returned location is
-      quaranteed to contain the given [file]. If you don't have any file to
+      guaranteed to contain the given [file]. If you don't have any file to
       search, you may use [file="."].
 
       {b Warning:} The directory returned by [find_share] is not necessarily
-      writeable. If you want a directory where the users of your application can
+      writable. If you want a directory where the users of your application can
       save their preferences, you should rather use [Sdl.get_pref_path]. *)
 
 end (* of Theme *)
@@ -1085,7 +1087,7 @@ module Style : sig
   val mk_border : ?radius:int -> line -> border
   (** Note: currently, a border with positive [radius] is not compatible with a
      transparent background. *)
-  (* One could optionaly make it possible by using [mask_texture] instead of
+  (* One could optionally make it possible by using [mask_texture] instead of
      [fast_mask_texture] in box.ml *)
 
   (** {2 Constructing shadows} *)
@@ -1509,7 +1511,7 @@ let l = get_label w in
 
      Connections that are created {e before} {!Main.create} should rather be
      passed as argument to {!Main.create}, and {e not} via
-     [add_connection]. Although this is not striclty necessary, this indicates
+     [add_connection]. Although this is not strictly necessary, this indicates
      that these connections are more 'pure' or at least more static, in the
      sense that they will not be modified by Bogue. These are usually much
      easier to debug.
@@ -1857,11 +1859,11 @@ module Layout : sig
      their (x,y) position. *)
 
   (** Remark: when creating a house (a layout) with [flat*], [tower*], or
-     [superpose], the size of the inner rooms will be automatically updated
-     whenever the size of the house is modified. However, as soon as one
-     manually sets the size or the position of a room inside this house with
-     {!set_width}, {!setx} and alikes, then the room will stop reacting to
-     changes of the house size. *)
+      [superpose], the size of the inner rooms will be automatically updated
+      whenever the size of the house is modified. However, as soon as one
+      manually sets the size or the position of a room inside this house with
+      {!set_width}, {!setx} and likes, then the room will stop reacting to
+      changes of the house size. *)
 
   (** {2 Some useful layout combinations} *)
 
@@ -2119,7 +2121,7 @@ end (* of Layout *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Adjust various spacings and sizes of layouts.
+(** Adjust various spacing and sizes of layouts.
 
 These functions {e do not take effect immediately!} They will be executed, in
    the order of their invocation, at the next graphics frame (or at startup if
@@ -2548,7 +2550,7 @@ module Main : sig
       @param shortcuts This optional argument is a {%html:<a href="#shortcuts">shortcut map</a>%}.
 
       @param on_user_event This optional argument is a function to be executed
-     (by the main thread) when a {!Trigger.user_event} is emmitted.
+     (by the main thread) when a {!Trigger.user_event} is emitted.
 
 *)
 

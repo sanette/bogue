@@ -63,7 +63,7 @@
 </ul>
 <ul>
 <li>The syntax of the config file is <code class="code"><span class="constructor">VARIABLE</span>&nbsp;=&nbsp;value</code>, one entry per line.
-    Notice the spaces surroundind <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are
+    Notice the spaces surrounding <code class="code">=</code>. Comment lines starting by <code class="code"><span class="keywordsign">#</span></code> are
     ignored.  For instance:
 <pre class="verbatim">## BOGUE version 20220115
 THEME = dark
@@ -130,7 +130,7 @@ hexadecimal like <code class="code"><span class="keywordsign">#</span>00<span cl
 see <a href="https://www.rapidtables.com/web/color/html-color-codes.html">this color
 table</a>.</p>
 
-<p>All variables can be overriden by setting the corresponding
+<p>All variables can be overridden by setting the corresponding
 environment variables, prepending "BOGUE_". For instance:</p>
 <pre class="verbatim">export BOGUE_LABEL_COLOR=forestgreen</pre>
 <p><br></p>
@@ -194,11 +194,11 @@ by the Bogue dir, for instance
       share directory (if it exists), for instance
       <code class="code">/usr/local/share/my_app</code>. The <code class="code">app</code> string should be the system name of
       your application (for instance <code class="code">app=<span class="string">"my_app"</span></code>). The returned location is
-      quaranteed to contain the given <code class="code">file</code>. If you don't have any file to
+      guaranteed to contain the given <code class="code">file</code>. If you don't have any file to
       search, you may use <code class="code">file=<span class="string">"."</span></code>.</p>
 
 <p><b>Warning:</b> The directory returned by <code class="code">find_share</code> is not necessarily
-      writeable. If you want a directory where the users of your application can
+      writable. If you want a directory where the users of your application can
       save their preferences, you should rather use <code class="code"><span class="constructor">Sdl</span>.get_pref_path</code>.</p>
 </div>
 </div>

@@ -4,18 +4,18 @@
 
 (* There is no data (variable) attached to a long list. Data management should
    be implemented by the user, for instance via widgets, cf example 34. Cf also
-   table.ml *)
+   b_table.ml *)
 
 (* L'interaction utilisateur vient uniquement de la barre de scrolling (slider).
    On utilise donc le TVar, comme dans les scrolling habituels (Layout.clip).
    Cependant ici la variation de cette variable doit entraîner d'autres
    modifications.
 
-* D'une part on est lié au voffset du layout principal (avec Tvar, car si le
+ * D'une part on est lié au voffset du layout principal (avec Tvar, car si le
    voffset est changé par ailleurs (ex une animation) il faut que la barre de
    scrolling change aussi)
 
-* D'autre part le voffset du Layout doit être calculé en fonction de la position
+ * D'autre part le voffset du Layout doit être calculé en fonction de la position
    actuelle de la Longue Liste. Peut-être pas de façon bidirectionnelle (sauf si
    on autorise l'utilisateur à modifier directement la position de la Longue
    Liste).
@@ -31,7 +31,7 @@
    calculée seulement par la surface (en pixels²) des textures. Ça dépend du
    scaling imposé par le thème, donc on utilise Layout.get_physical_size.
 
-Le layout virtuel qui contiendrait l'ensemble de la liste possède une hauteur
+   Le layout virtuel qui contiendrait l'ensemble de la liste possède une hauteur
    qu'il est important de connaître, pour ajuster la position de la barre de
    scrolling, mais qu'on ne connaît pas au début, puisqu'on ne veut pas générer
    toutes les entrées d'un coup. On va commencer par estimer cette hauteur
