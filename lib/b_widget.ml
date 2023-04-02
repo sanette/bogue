@@ -603,9 +603,9 @@ let check_box_with_label text =
    ok only for very fast actions. *)
 
 let mouse_over ?(enter = nop) ?(leave = nop) w =
-  let c = connect w w (fun w _ _ -> enter w) [Trigger.mouse_enter] in
+  let c = connect_main w w (fun w _ _ -> enter w) [Trigger.mouse_enter] in
   add_connection w c;
-  let c' = connect w w (fun w _ _ -> leave w) [Trigger.mouse_leave] in
+  let c' = connect_main w w (fun w _ _ -> leave w) [Trigger.mouse_leave] in
   add_connection w c'
 
 let on_click ~click w =

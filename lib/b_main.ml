@@ -881,10 +881,11 @@ let event_loop anim new_anim board =
   let e = !Trigger.my_event in
   continue e 0
 
+let nop_event_fps = Time.make_fps ()
 
 (* [one_step] is what is executed during the main loop *)
 let one_step ?before_display anim (start_fps, fps) ?clear board =
-  Timeout.run ();
+  let (_ : Time.t) = Timeout.run () in
   let new_anim = has_anim board in
   if new_anim && not anim then start_fps ();
   event_loop anim new_anim board;
@@ -922,7 +923,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   end;
   (* else *)
 
-  if anim then fps () else Thread.delay 0.005;
+  if anim then fps ();
   (* even when there is no anim, we need to to be nice to other treads, in
      particular when an event is triggered very rapidly (mouse_motion) and
      captured by a connection, without anim. Should we put also here a FPS?? *)
@@ -932,6 +933,11 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   printd debug_graphics "==> Rendering took %u ms" (Time.now () - t);
   Avar.new_frame (); (* This is used for updating animated variables. *)
   printd debug_graphics "---------- end of loop -----------";
+  if not anim then
+  if Layout.is_fresh board.windows_house then
+    nop_event_fps 60
+  else
+    Thread.delay 0.005;
   anim
 
 (* Create an SDL window for each top layout. *)
@@ -988,6 +994,17 @@ let create ?shortcuts ?(connections = []) ?on_user_event windows =
     mouse_alive = false;
     on_user_event }
 
+let get_monitor_refresh_rate board =
+    Option.bind Layout.(window_opt board.windows_house) @@ fun win ->
+    match Sdl.get_window_display_mode win with
+    | Ok Sdl.{dm_refresh_rate = Some rate; _ } -> Some rate
+    | Ok Sdl.{dm_refresh_rate = None; _ } ->
+        printd (debug_graphics + debug_warning) "No refresh rate information in display mode";
+        None
+    | Error (`Msg m) ->
+        printd (debug_graphics + debug_warning) "Cannot get display mode from window: %s" m;
+        None
+
 let of_windows = create
 
 (* Create a board from layouts. Each layout in the list will be displayed in a
@@ -1012,13 +1029,17 @@ let make ?shortcuts connections layouts =
    CTRL-L which would occur before it. "after_display" means just after all
    textures have been calculated and rendered. Of course these two will not be
    executed at all if there is no event to trigger display. *)
-let run ?before_display ?after_display board =
+let run ?(vsync=true) ?before_display ?after_display board =
   printd debug_board "==> Running board!";
   Trigger.flush_all ();
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();
   Trigger.main_tread_id := Thread.(id (self ()));
-  let fps = Time.adaptive_fps 60 in
+  let desired_fps =
+      if vsync then get_monitor_refresh_rate board |> Option.value ~default:60
+      else 60 in
+  printd debug_graphics "Desired FPS=%u" desired_fps;
+  let start, fps = Time.adaptive_fps ~vsync desired_fps in
   make_sdl_windows board;
   show board;
   Thread.delay 0.01; (* we need some delay for the initial Mouse position to be detected *)
@@ -1054,7 +1075,7 @@ let run ?before_display ?after_display board =
     (List.flatten (List.map Widget.connections (Layout.get_widgets board.windows_house)));
   Trigger.renew_my_event ();
   let rec loop anim =
-    let anim' = one_step ?before_display ~clear:true anim fps board in
+    let anim' = one_step ?before_display ~clear:true anim (start,fps) board in
     do_option after_display (fun f -> f ()); (* TODO? *)
     loop anim' in
   try

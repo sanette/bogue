@@ -1229,6 +1229,17 @@ let create_window  ?x ?y ~w ~h name =
                 should try 'export SDL_VIDEO_X11_VISUALID='";
     raise (Sdl_error ("SDL ERROR: " ^ (Sdl.get_error ())))
 
+let set_vsync () =
+    (* SDL_RendererSetVSync is not bound, but it wouldn't know about adaptive vsync *)
+    match Sdl.gl_set_swap_interval (-1) with
+    | Ok () -> printd debug_graphics "Enabled Adaptive VSync"
+    | Error (`Msg m) ->
+        printd (debug_graphics+debug_warning) "Failed to enable Adaptive VSync, falling back to regular: %s" m;
+        match Sdl.gl_set_swap_interval 1 with
+        | Ok () -> printd debug_graphics "Enabled VSync"
+        | Error (`Msg m) ->
+            printd (debug_graphics+debug_error) "Failed to enable VSync: %s" m
+
 (* Sdl init. [w,h] is the physical size of the window in pixels. In case of
    High-DPI mode, SDL might actually produce a larger window. We need to correct
    this, because we have our own DPI engine.
@@ -1295,6 +1306,8 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   end;
 
   printd debug_graphics "Canvas created";
+  if not (Theme.get_bool "NO_VSYNC") then
+      set_vsync ();
 
   let fill = default_lazy fill
       (lazy (fill_of_string renderer Theme.background)) in
