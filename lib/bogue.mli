@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20230328
+@version 20231125
 
 @author Vu Ngoc San
 
@@ -33,7 +33,9 @@ Copyright: see LICENCE
 
  For a quick start, see Bogue's {{:Principles.html}general principles}, the
  minimal {{!example}example}, and the
- {{:https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html}tutorials}.
+ {{:https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html}tutorials}. {e
+ (Again, if the links don't work, make sure you are viewing this page from
+ {{:http://sanette.github.io/bogue/Bogue.html}here}.)}
 
 
     The main modules are

@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20230328"  (* see VERSION file *)
+let this_version = "20231125"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -103,11 +103,11 @@ end
 )
 
 let home = match User_dirs.home_dir with
-  | None -> failwith "can't compute home directory path"
+  | None -> failwith "Can't compute home directory path."
   | Some home -> home
 
 let conf = match Project_dirs.config_dir with
-  | None -> failwith "can't compute configuration directory path"
+  | None -> failwith "Can't compute configuration directory path."
   | Some config_dir -> config_dir
 
 let skip_comment buffer =
@@ -254,13 +254,13 @@ let download_conf () =
   then failwith "Cannot download rescue config. Aborting."
   else if Sys.command (sprintf "tar xvfz %s" rescue) <> 0
   then failwith "Cannot extract rescue config. Aborting."
-  else if Sys.command (sprintf "mkdir -p %s/bogue" conf) <> 0
+  else if Sys.command (sprintf "mkdir -p %s" conf) <> 0
   then failwith "Cannot create config dir. Aborting."
-  else if Sys.command (sprintf "cp -r bogue/* %s/bogue/" conf) <> 0
+  else if Sys.command (sprintf "cp -r bogue/* %s/" conf) <> 0
   then failwith "Cannot copy config files. Aborting"
-  else print "Minimal config downloaded to %s/bogue." conf;
+  else print "Minimal config downloaded to %s." conf;
   Sys.chdir cwd;
-  sprintf "%s/bogue/themes" conf
+  sprintf "%s/themes" conf
 
 (* Look for a share dir for [prog] either of the form "prefix/share/prog" or
    "prefix/share" that contains the given [file]. This is a utility for other
@@ -276,15 +276,19 @@ let find_share prog file =
   if Filename.basename b = "bin"
   then Queue.add (prefix_dir // "share") queue;
   let () =
-    try let system = Unix.open_process_in "opam var share" in
+    let opam = "opam var share" in
+    try
+        let system = Unix.open_process_in opam in
         let res = input_line system in
         (* We could also use [sprintf "opam var %s:share" prog] *)
-      Queue.add (res // prog) queue
-    with _ -> () in
+        Unix.close_process_in system |> ignore;
+        Queue.add (res // prog) queue;
+        Queue.add (res // "bogue") queue;
+    with _ -> printd debug_io "Cannot execute '%s'" opam in
   Sys.chdir cwd;
   match Queue.fold (fun list path ->
-      if Sys.file_exists (path // file)
-      then List.cons path list else list) [] queue with
+            if Sys.file_exists (path // file)
+            then List.cons path list else list) [] queue with
   | [] -> printd debug_error "Cannot find share directory for %s/%s! bin_dir=%s, prefix_dir=%s"
             prog file bin_dir prefix_dir; None
   | path :: _ -> Some path
@@ -308,7 +312,7 @@ let dir =
   let dir = get_var "DIR" in
   if Sys.file_exists dir && Sys.is_directory dir
   then dir
-  else let config = conf // "bogue" // "themes" in
+  else let config = conf // "themes" in
     if Sys.file_exists config && Sys.is_directory config
     then if dir = ""
       then begin
