@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20231125"  (* see VERSION file *)
+let this_version = "20231209"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -94,6 +94,7 @@ let id x = x
 let (//) = Filename.concat
 
 (* Some global environment variables *)
+
 module User_dirs = Directories.User_dirs ()
 module Project_dirs = Directories.Project_dirs (struct
   let qualifier = "org"
@@ -132,8 +133,8 @@ let load_vars config_file =
     config_file version;
   if version > this_version
   then printd debug_warning
-      "The version indicated in the config file (%s) is more recent than your \
-       this version of Bogue (%s)" version this_version;
+         "The version indicated in the config file (%s) is more recent than your \
+          version of Bogue (%s)" version this_version;
   let rec loop list =
     skip_comment buffer;
     try
@@ -278,12 +279,13 @@ let find_share prog file =
   let () =
     let opam = "opam var share" in
     try
-        let system = Unix.open_process_in opam in
-        let res = input_line system in
-        (* We could also use [sprintf "opam var %s:share" prog] *)
-        Unix.close_process_in system |> ignore;
-        Queue.add (res // prog) queue;
-        Queue.add (res // "bogue") queue;
+      printd debug_io "Invoking opam";
+      let system = Unix.open_process_in opam in
+      let res = input_line system in
+      (* We could also use [sprintf "opam var %s:share" prog] *)
+      Unix.close_process_in system |> ignore;
+      Queue.add (res // prog) queue;
+      Queue.add (res // "bogue") queue;
     with _ -> printd debug_io "Cannot execute '%s'" opam in
   Sys.chdir cwd;
   match Queue.fold (fun list path ->
@@ -473,7 +475,7 @@ let scale_from_float x =
 let unscale_to_float i =
   !scale *. (float i)
 
-(** font awesome variables *)
+(** Font Awesome variables *)
 let load_fa_variables () =
   let file = fa_dir // "less" // "variables.less" in
   let buffer = Scanf.Scanning.from_file file in
