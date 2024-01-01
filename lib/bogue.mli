@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20231209
+@version 20240101
 
 @author Vu Ngoc San
 
@@ -2559,18 +2559,18 @@ module Main : sig
   val of_windows :  ?shortcuts:shortcuts ->
     ?connections:(Widget.connection list) ->
     ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
-  (** Synonym for {!create}. *)
+  (** Synonym for {!create}. (Since 20220418) *)
 
   val of_layouts : ?shortcuts:shortcuts ->
     ?connections:(Widget.connection list) ->
     ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t list -> board
   (** Similar to {!create}. Each layout in the list will be displayed in a
-     different window. *)
+     different window. (Since 20220418) *)
 
   val of_layout : ?shortcuts:shortcuts ->
     ?connections:(Widget.connection list) ->
     ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t -> board
-  (** Similar to {!of_layout} but with only one layout. *)
+  (** Similar to {!of_layout} but with only one layout. (Since 20220418) *)
 
   val make : ?shortcuts:shortcuts ->
     (Widget.connection list) -> Layout.t list -> board

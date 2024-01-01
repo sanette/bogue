@@ -1,5 +1,5 @@
 (executable
- (name example)
+ (name examples)
  (modules
   (:standard \ toplevel_example))
  ; toplevel_example.ml should not be compiled
@@ -16,4 +16,4 @@
    (setenv
     BOGUE_DEBUG
     true
-    (run ./example.exe 00)))))
+    (run ./examples.exe 00)))))
