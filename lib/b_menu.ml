@@ -334,7 +334,7 @@ module Engine = struct
           if entry.parent_menu.always_shown
           then entry.parent_menu.active <- false
         end else begin
-          pre (B_print.layout_down entry.layout);
+          pre (Print.layout_down entry.layout);
           set_keyboard_focus entry.layout;
           activate screen menu;
           activate screen entry.parent_menu
