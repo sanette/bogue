@@ -13,7 +13,9 @@
    empty. See
    https://blog.janestreet.com/howto-static-access-control-using-phantom-types/*)
 
-let debug = !B_utils.debug
+module Utils = B_utils
+
+let debug = !Utils.debug
 
 exception Max_insert
 
@@ -30,7 +32,7 @@ type 'a element =
     mutable next : ('a element) option
   }
 
-let new_id = B_utils.fresh_int ()
+let new_id = Utils.fresh_int ()
 
 type 'a t = 'a element option (* None = empty chain *)
 
@@ -172,7 +174,7 @@ let insert_after t value =
         (* TODO: en fait on peut encore décaler le suivant ! *)
         else x.id, x.depth + d / 2 in
   let t' = Some { id; value; depth; prev = t; next = n} in
-  B_utils.(printd debug_memory "New layer created with depth: %u\n" depth);
+  Utils.(printd debug_memory "New layer created with depth: %u\n" depth);
   do_option t (fun x -> x.next <- t');
   do_option n (fun x -> x.prev <- t');
   t'
@@ -180,7 +182,7 @@ let insert_after t value =
 let insert_after t value =
   try insert_after t value with
   | Max_insert ->
-    B_utils.(printd debug_memory "Need to evenize chain...");
+    Utils.(printd debug_memory "Need to evenize chain...");
     evenize t; insert_after t value
   | e -> raise e
 
@@ -198,7 +200,7 @@ let insert_before t value =
       (* TODO: en fait on peut encore décaler le suivant ! *)
       else x.id, x.depth - d / 2 in
   let t' = Some { id; value; depth; prev = p; next = t } in
-  B_utils.(printd debug_memory  "New layer created with depth: %u\n" depth);
+  Utils.(printd debug_memory  "New layer created with depth: %u\n" depth);
   do_option t (fun x -> x.prev <- t');
   do_option p (fun x -> x.next <- t');
   t'
@@ -206,7 +208,7 @@ let insert_before t value =
 let insert_before t value =
   try insert_before t value with
   | Max_insert ->
-    B_utils.(printd debug_memory "Need to evenize chain...");
+    Utils.(printd debug_memory "Need to evenize chain...");
     evenize t; insert_before t value
   | e -> raise e
 
@@ -333,7 +335,7 @@ let copy = function
    order. *)
 let copy_into ~dst:t = function
   | None ->
-    B_utils.(printd debug_warning "Copying an empty Chain has no effect.");
+    Utils.(printd debug_warning "Copying an empty Chain has no effect.");
     None
   | Some a as s ->
     if same_stack s t

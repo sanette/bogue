@@ -13,8 +13,9 @@
 open Tsdl
 open B_utils
 module E = Sdl.Event
-module Var = B_var
+module Time = B_time
 module Timeout = B_timeout
+module Var = B_var
 open Result
 
 (* We initialize SDL with only the events subsystem *)
@@ -861,7 +862,7 @@ let check_mouse_rest =
 
 let no_timeout () = -1
 
-let poll_noevent_fps = B_time.make_fps ()
+let poll_noevent_fps = Time.make_fps ()
 
 let wait_event_timeout =
     let major, minor, patch = Sdl.get_version () in

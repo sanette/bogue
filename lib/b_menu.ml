@@ -5,17 +5,18 @@
 
 open B_utils
 open Tsdl
-module Layout = B_layout
-module Widget = B_widget
 module Avar = B_avar
-module Chain = B_chain
-module Timeout = B_timeout
-module Trigger =  B_trigger
-module Draw = B_draw
 module Button = B_button
+module Chain = B_chain
+module Draw = B_draw
+module Layout = B_layout
 module Popup = B_popup
+module Print = B_print
 module Style = B_style
 module Sync = B_sync
+module Timeout = B_timeout
+module Trigger =  B_trigger
+module Widget = B_widget
 
 let pre = if !debug && !debug_code land debug_custom <> 0
   then fun s -> print_endline ("[Menu] " ^ s) (* for local debugging *)

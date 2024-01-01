@@ -22,21 +22,22 @@
 
 open Tsdl
 open B_utils
-module Widget = B_widget
 module Avar = B_avar
+module Box = B_box
 module Chain = B_chain
+module Draw = B_draw
+module Label = B_label
+module Mouse = B_mouse
+module Selection = B_selection
+module Slider = B_slider
+module Style = B_style
+module Sync = B_sync
 module Theme = B_theme
 module Time = B_time
-module Var = B_var
-module Tvar = B_tvar
 module Trigger = B_trigger
-module Sync = B_sync
-module Draw = B_draw
-module Mouse = B_mouse
-module Style = B_style
-module Box = B_box
-module Slider = B_slider
-module Selection = B_selection
+module Tvar = B_tvar
+module Var = B_var
+module Widget = B_widget
 
 type background =
   (* TODO instead we should keep track of how the box was
@@ -2643,10 +2644,10 @@ let display ?pos0 room =
           end;
           if !draw_boxes (* we print the room number at the end to make sure
                             it's visible *)
-          then let label = B_label.create ~size:7 ~fg:(Draw.(transp blue))
+          then let label = Label.create ~size:7 ~fg:(Draw.(transp blue))
                    (sprint_id r) in
             let geom = Draw.scale_geom {Draw.x; y; w=g.w+1; h=g.h+1; voffset} in
-            let blits = B_label.display (get_canvas r) (get_layer r) label geom in
+            let blits = Label.display (get_canvas r) (get_layer r) label geom in
             List.iter Draw.blit_to_layer blits;
             List.iter Draw.unload_blit blits
         end
