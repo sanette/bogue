@@ -47,7 +47,7 @@ let make_fps () =
     else
       let round_trip = now () - !start in begin
         let wait = max 5 ((1000 / fps) - round_trip) in
-        printd debug_graphics "FPS:%u (round_trip=%u)\n" (1000 / (round_trip + wait)) round_trip;
+        printd debug_graphics "FPS:%i (round_trip=%i)\n" (1000 / (round_trip + wait)) round_trip;
         delay wait;
         start := now ();
       end

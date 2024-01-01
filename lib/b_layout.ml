@@ -578,9 +578,14 @@ let is_removed room =
 
 (* Notify the board that the layout cannot have focus (but it can still belong
    to the layout tree). *)
-let remove room =
+let remove_one room =
   printd debug_board "Removing layout %s from focus" (sprint_id room);
-  room.removed <- true;
+  room.removed <- true
+
+let remove ?(children = false) room =
+  if children
+  then iter remove_one room
+  else remove_one room;
   Trigger.push_remove_layout (room.id)
 
 (* This one is more secure: we check if the layout is not detached. *)
@@ -1255,11 +1260,13 @@ let rec fit_content ?(sep = Theme.room_margin/2) l =
         let x0 = l.current_geom.x in
         let y0 = l.current_geom.y in
         ( List.fold_left (fun m r ->
-              if same_layer r l then imax m (r.current_geom.x - x0 + r.current_geom.w)
+              if same_layer r l
+              then imax m (r.current_geom.x - x0 + r.current_geom.w)
               else m)
               0 list,
           List.fold_left (fun m r ->
-              if same_layer r l then imax m (r.current_geom.y - y0 + r.current_geom.h)
+              if same_layer r l
+              then imax m (r.current_geom.y - y0 + r.current_geom.h)
               else m)
             0 list )
     in
@@ -1352,8 +1359,8 @@ let v_align ~align layout y0 h =
 (* warning, the widget is always centered *)
 (* x,y specification will be overwritten if the room is then included in a flat
    or tower, which is essentially always the case... *)
-let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable ?canvas ?layer
-    ?keyboard_focus widget =
+let resident_with_layer ?layer ?name ?(x = 0) ?(y = 0) ?w ?h ?background
+    ?draggable ?canvas ?keyboard_focus widget =
   let (w',h') = Widget.default_size widget in
   let w = default w w' in
   let h = default h h' in
@@ -1362,8 +1369,13 @@ let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable ?canvas ?layer
     | Some false -> None
     | None -> Widget.guess_unset_keyboard_focus widget in
   let geometry = geometry ~x ~y ~w ~h () in
-  create ?name ?background ?keyboard_focus ?draggable ?layer ?canvas
+  create ?name ?background ?keyboard_focus ?draggable ?canvas ?layer
     geometry (Resident widget)
+
+let resident ?name ?(x = 0) ?(y = 0) ?w ?h ?background ?draggable
+    ?canvas ?keyboard_focus widget =
+  resident_with_layer ?name ~x ~y ?w ?h ?background ?draggable
+    ?canvas ?keyboard_focus widget
 
 let of_widget = resident
 
@@ -1606,6 +1618,7 @@ let detach room =
   | Some h ->
     room.house <- None;
     room.canvas <- None;
+    remove ~children:true room;
     let rooms = List.filter (fun r -> not (r == room)) (get_rooms h) in
     h.content <- Rooms rooms;
     printd debug_warning "Room %s was detached from House %s."
@@ -2313,7 +2326,7 @@ let make_clip
      this is superfluous... *)
   let layer = get_layer room in
   let container = tower ~margins:0 ~clip:true
-      [superpose [resident ~layer active_bg; room]] in
+      [superpose [resident_with_layer ~layer active_bg; room]] in
   (* The container should be a room with a unique subroom (and the active
      background); the subroom can then be scrolled with respect to the container
   *)
@@ -2326,7 +2339,7 @@ let make_clip
          var is able to use it. This is only useful if the height of the
          container is modified after creation, for instance when the user
          resizes the window. *)
-      let bar = resident ~layer
+      let bar = resident_with_layer ~layer
           ~background:(color_bg Draw.(lighter scrollbar_color))
           (Widget.empty ~w:10 ~h:10 ()) in
       (* The scrollbar is a slider. Its Tvar takes the voffset value into the
@@ -2445,7 +2458,7 @@ let expand_width house =
 let replace_room ~by room =
   match room.house with
   | None ->
-    printd debug_error
+    printd (debug_error+debug_user)
       "Cannot use \"replace_room\" because room %s does not belong to a \
        house."
       (sprint_id room)
@@ -2793,6 +2806,7 @@ let make_window ?window layout =
 (* this is not executed immediately, but sent to Sync *)
 (* TODO move this directly to the render loop, since it has to be done anyway,
    and should not be done more than once per step. *)
+(* TODO combine with [adjust_window_size] *)
 let adjust_window ?(display=false) layout =
   Sync.push (fun () ->
       let top = top_house layout in

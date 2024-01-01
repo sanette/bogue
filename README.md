@@ -16,11 +16,24 @@ _Bogue_ is an all-purpose GUI (Graphical user interface) library for
   easily adapts to __Hi-DPI displays__.
 * Predefined animations (slide-in, fade-in, fade-out, rotate).
 * Built-in audio mixer.
+* Works with mouse, touchscreen, and even TAB focusing
 
 Programming with _bogue_ is easy if you're used to GUIs with widgets,
 layouts, callbacks, and of course it has a functional flavor.  ​It uses
 __[Threads](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html)__
 when non-blocking reactions are needed.
+
+# Hello world
+
+```ocaml
+open Bogue
+
+let () =
+  Widget.label "Hello world"
+  |> Layout.resident
+  |> Bogue.of_layout
+  |> Bogue.run
+```
 
 # Features
 
@@ -130,6 +143,8 @@ https://ci.ocamllabs.io/github/sanette/bogue
 
 It's good to first have a look at Bogue's
 [general principles](http://sanette.github.io/bogue/Principles.html).
+
+You can also directly try the [tutorials](https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html).
 
 The public API can be found
 [here](http://sanette.github.io/bogue/Bogue.html).

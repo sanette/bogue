@@ -72,7 +72,7 @@ let unload area =
 (* force the area to be redrawn, without clearing the cache. *)
 let update area =
   area.update <- true;
-  Var.protect_fn area.sheet Flow.rewind
+  Var.with_protect area.sheet Flow.rewind
 
 (* not for sheet *)
 let clear area =
@@ -87,7 +87,7 @@ let free area =
 
 (* Add the element to the sheet *)
 let add_element area el =
-  Var.protect_fn area.sheet (fun q ->
+  Var.with_protect area.sheet (fun q ->
       printd debug_custom "Adding element %s to the SDL Area." (sprint el);
       Flow.add el q;
       Flow.rewind q; (* we do this here just to avoid calling [update] *));
@@ -137,15 +137,15 @@ let cache area =
 (* Remove the element from the sheet. OK to be slow. *)
 let remove_element area element =
   update area;
-  Var.protect_fn area.sheet (fun q ->
-      try Flow.remove_first_match (fun el -> el.id = element.id) q
-      with Not_found ->
-        printd debug_error "Element %s not found in SDL Area" (sprint element))
+  let@ q = Var.with_protect area.sheet in
+  try Flow.remove_first_match (fun el -> el.id = element.id) q
+  with Not_found ->
+    printd debug_error "Element %s not found in SDL Area" (sprint element)
 
 let has_element area element =
-  Var.protect_fn area.sheet (fun q ->
-      Flow.rewind q;
-      Flow.exists (fun el -> el.id = element.id) q)
+  let@ q = Var.with_protect area.sheet in
+  Flow.rewind q;
+  Flow.exists (fun el -> el.id = element.id) q
 
 let disable element =
   element.disable <- true

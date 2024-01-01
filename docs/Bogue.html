@@ -34,13 +34,20 @@
 </div>
 <ul class="info-attributes">
 <li><b>Author(s):</b> Vu Ngoc San</li>
-<li><b>Version:</b> 20230130</li>
+<li><b>Version:</b> 20231209</li>
+<li><b>See also</b> <a href="https://github.com/sanette/bogue">the source code on github</a></li>
 </ul>
 </div>
 <hr width="100%">
+<p><em>This documentation is best viewed on
+ <a href="https://sanette.github.io/bogue/Bogue.html">this page</a>. (While on
+ <a href="https://ocaml.org/p/bogue/latest/doc/Bogue/index.html">ocaml.org</a> some links
+ may be broken.)</em></p>
 <h4 id="3_Quickstart">Quick start</h4>
-<p>For a quick start, see Bogue's <a href="Principles.html">general principles</a>, and the
-   minimal <a href="Bogue.html#example">example</a>.</p>
+<p>For a quick start, see Bogue's <a href="Principles.html">general principles</a>, the
+ minimal <a href="Bogue.html#example">example</a>, and the
+ <a href="https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html">tutorials</a>. <em> (Again, if the links don't work, make sure you are viewing this page from
+ <a href="http://sanette.github.io/bogue/Bogue.html">here</a>.)</em></p>
 
 <p>The main modules are</p>
 
@@ -209,7 +216,7 @@
 </div>
 
 <pre><span id="MODULESpace"><span class="keyword">module</span> <a href="Bogue.Space.html">Space</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Space.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>Adjust various spacings and sizes of layouts.</p>
+<p>Adjust various spacing and sizes of layouts.</p>
 
 </div>
 
@@ -289,7 +296,7 @@
   <span class="keyword">let</span> l = <span class="constructor">W</span>.label <span class="string">"Hello world"</span> <span class="keyword">in</span>
   <span class="keyword">let</span> layout = <span class="constructor">L</span>.flat_of_w [b;l] <span class="keyword">in</span>
 
-  <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.make [] [layout] <span class="keyword">in</span>
+  <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.of_layout layout <span class="keyword">in</span>
   <span class="constructor">Bogue</span>.run board;;
 
 <span class="keyword">let</span> () = main ();

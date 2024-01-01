@@ -181,9 +181,9 @@ let rec open_font file size =
       printd debug_io "Loading font %s (%u)" file size;
       match Tsdl_ttf.Ttf.open_font file size with
       | Result.Ok f ->
-         Var.protect_fn font_cache (fun fc ->
-             Hashtbl.add fc (file,size) f;
-             f);
+        let@ fc = Var.with_protect font_cache in
+        Hashtbl.add fc (file,size) f;
+        f;
       | Result.Error _ ->  (* use default font if error *)
          if file = !Theme.label_font
          then begin
@@ -270,8 +270,8 @@ let destroy_textures () =
    If a widget is not used anymore, it is necessary to call forget_texture. *)
 (* This is thread-safe. *)
 let forget_texture tex =
-  Var.protect_fn textures_to_destroy (fun queue ->
-      Queue.push tex queue)
+  let@ queue = Var.with_protect textures_to_destroy in
+  Queue.push tex queue
 
 (* prints some memory info *)
 let memory_info () =
@@ -367,7 +367,7 @@ let cleanup = ref []
 let at_cleanup f =
   cleanup := f :: !cleanup
 
-let destroy_canvas c =
+let destroy_canvas ?(bogue = true) c =
   Sdl.hide_window c.window;
   let t = c.textures in
   List.iter forget_texture [t.check_on; t.check_off; t.radio_on; t.radio_off ];
@@ -377,26 +377,29 @@ let destroy_canvas c =
    | _ -> ());
   destroy_textures ();
   Gc.full_major ();
-  printd (debug_graphics + debug_memory) "Destroying renderer";
-  Sdl.destroy_renderer c.renderer;
-  (* Note: this will destroy all textures attached to the renderer. And their id
-     will be available for new textures: BEWARE: If ocaml refers to a texture
-     that was destroyed this way, it will in fact most probably refer to a new
-     texture with same id that was created after this... Hence the
-     Gc.full_major, I didn't test whether this is sufficient. *)
   do_option c.gl_context Sdl.gl_delete_context;
   c.gl_context <- None;
-  Sdl.destroy_window c.window;
-   (* The following is a workaround for the weird bug on Mac OS 13.0.1 with
-      cocoa video driver which prevents SDL windows to close in an interactive
-      toplevel session. For some reason the window will close if we initialise a
-      subsystem that was not already initialised, here joystick. *)
-  if !Sys.interactive && Sdl.get_current_video_driver () = Some "cocoa"
-  then begin
-    printd (debug_memory + debug_graphics) "Cocoa workaround";
-    Sdl.delay 100l;
-    go @@ Sdl.(init Init.joystick);
-    Sdl.(quit_sub_system Init.joystick)
+
+  if bogue then begin
+    printd (debug_graphics + debug_memory) "Destroying renderer";
+    Sdl.destroy_renderer c.renderer;
+    (* Note: this will destroy all textures attached to the renderer. And their id
+       will be available for new textures: BEWARE: If ocaml refers to a texture
+       that was destroyed this way, it will in fact most probably refer to a new
+       texture with same id that was created after this... Hence the
+       Gc.full_major, I didn't test whether this is sufficient. *)
+    Sdl.destroy_window c.window;
+    (* The following is a workaround for the weird bug on Mac OS 13.0.1 with
+       cocoa video driver which prevents SDL windows to close in an interactive
+       toplevel session. For some reason the window will close if we initialise a
+       subsystem that was not already initialised, here joystick. *)
+    if !Sys.interactive && Sdl.get_current_video_driver () = Some "cocoa"
+    then begin
+      printd (debug_memory + debug_graphics) "Cocoa workaround";
+      Sdl.delay 100l;
+      go @@ Sdl.(init Init.joystick);
+      Sdl.(quit_sub_system Init.joystick)
+    end
   end
 
 type geometry = {
@@ -908,7 +911,7 @@ let detect_set_scale () =
   let dpi = default (get_dpi ()) default_dpi in
   printd debug_graphics "DPI from system: %d" dpi;
   let dpi =
-   if Sdl.get_current_video_driver () = Some "wayland" then
+   if dpi < default_dpi && Sdl.get_current_video_driver () = Some "wayland" then
    match Sdl.create_window ~w:10 ~h:10 "SCALE detect"
           Sdl.Window.(windowed + resizable + hidden +
                       opengl + allow_highdpi) with
@@ -936,18 +939,19 @@ let video_init () =
     let () = match Sdl.init_sub_system Sdl.Init.video with
       | Ok () ->
         printd debug_graphics "SDL Video initialized";
-        if !Theme.scale = 0. then detect_set_scale ();
         at_cleanup (fun () ->
             printd debug_graphics "Quitting SDL Video";
             Sdl.quit_sub_system Sdl.Init.video);
       | Error (`Msg msg) ->
         Sdl.log "%s" msg;
         printd (debug_error+debug_graphics)
-          "SDL Video init failed with: %s\nYou will not be able to open any window." msg;
+          "SDL Video init failed with: %s\nYou will not be able to open any \
+           window." msg;
         go (Sdl.init_sub_system Sdl.Init.nothing) in
     if !icon = None
     then icon := Some (sdl_image_load (Theme.current ^ "/bogue-icon.png"))
-  end
+  end;
+  if !Theme.scale = 0. then detect_set_scale ()
 
 let ttf_init () =
   let open Tsdl_ttf in

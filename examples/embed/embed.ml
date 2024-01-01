@@ -73,29 +73,30 @@ let make_board () =
 
 let main () =
   Sys.catch_break true;
-  go(Sdl.init Sdl.Init.video);
+  go (Sdl.init Sdl.Init.video);
+  Draw.video_init ();
   let w,h = Theme.(scale_int width, scale_int height) in
-  let win = go(Sdl.create_window ~w ~h "Test Window"
-                 Sdl.Window.(windowed + allow_highdpi + opengl + resizable)) in
-  let renderer = go(Sdl.create_renderer win) in
+  let win = go (Sdl.create_window ~w ~h "Test Window"
+                  Sdl.Window.(windowed + allow_highdpi + opengl + resizable)) in
+  let renderer = go (Sdl.create_renderer win) in
   (* very important: set blend mode: *)
   go (Sdl.set_render_draw_blend_mode renderer Sdl.Blend.mode_blend);
   Draw.set_color renderer bg;
-  go(Sdl.render_clear renderer);
+  go (Sdl.render_clear renderer);
   Random.self_init ();
 
   let rec rect_loop i new_list = function
     | [] -> if i < n
-            then let r = new_rect () in
-                 draw_rect renderer r;
-                 List.rev (r::new_list)
-            else List.rev new_list
+      then let r = new_rect () in
+        draw_rect renderer r;
+        List.rev (r::new_list)
+      else List.rev new_list
     | r :: rest ->
-       let r' =
-         let a = get_alpha r in
-         if a <> 0 then r else new_rect () in
-       draw_rect renderer r';
-       rect_loop (i+1) (r'::new_list) rest
+      let r' =
+        let a = get_alpha r in
+        if a <> 0 then r else new_rect () in
+      draw_rect renderer r';
+      rect_loop (i+1) (r'::new_list) rest
   in
 
   let show_gui = ref false in
@@ -106,27 +107,29 @@ let main () =
   let rec mainloop e list =
     if not !show_gui && Sdl.poll_event (Some e)
     then begin
-        match Trigger.event_kind e with
-        | `Key_up when Sdl.Event.(get e keyboard_keycode) = Sdl.K.tab ->
-           show_gui := not !show_gui;
-           print_endline (Printf.sprintf "Show GUI:%b" !show_gui)
-        | `Key_down when Sdl.Event.(get e keyboard_keycode) = Sdl.K.escape ->
-           raise Sys.Break
-        | _ -> ()
-      end;
+      match Trigger.event_kind e with
+      | `Key_up when Sdl.Event.(get e keyboard_keycode) = Sdl.K.tab ->
+        show_gui := not !show_gui;
+        print_endline (Printf.sprintf "Show GUI:%b" !show_gui)
+      | `Key_down when Sdl.Event.(get e keyboard_keycode) = Sdl.K.escape ->
+        raise Sys.Break
+      | `Window_event when Sdl.Event.(get e window_event_id = window_event_close)
+        -> raise Sys.Break
+      | _ -> ()
+    end;
     Draw.set_color renderer bg;
     go(Sdl.render_clear renderer);
     let new_list = rect_loop 0 [] list in
 
     if !show_gui
     then begin
-        Bogue.refresh_custom_windows board;
-        try if not (Bogue.one_step ~before_display true (start_fps, fps) board)
-                   (* one_step returns true if fps was executed *)
-            then fps () with
-        | Bogue.Exit -> show_gui := false
-        | e -> raise e
-      end
+      Bogue.refresh_custom_windows board;
+      try if not (Bogue.one_step ~before_display true (start_fps, fps) board)
+      (* one_step returns true if fps was executed *)
+        then fps () with
+      | Bogue.Exit -> show_gui := false
+      | e -> raise e
+    end
     else fps ();
     Sdl.render_present renderer;
     mainloop e new_list in
@@ -134,8 +137,8 @@ let main () =
   let e = Sdl.Event.create () in
   start_fps ();
   let () = try mainloop e [] with
-           | Sys.Break -> print_endline "Stop"
-           | e -> raise e in
+    | Sys.Break -> print_endline "Stop"
+    | e -> raise e in
 
   Sdl.destroy_window win;
   Draw.quit ()

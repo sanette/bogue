@@ -51,6 +51,7 @@
 <h2 id="documentation-and-examples">Documentation and examples</h2>
 <p>The <a href="Bogue.html">API</a> is available <a href="Bogue.html">here</a>.</p>
 <p>If you’re new to Bogue, I advise you to read the following paragraphs about the general <a href="#general-principles">principles</a>.</p>
+<p>You can also directly try the <a href="https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html">tutorials</a>.</p>
 <h3 id="minimal-example">Minimal example</h3>
 <p>There is a minimal <a href="Bogue.html#example">example</a> in the doc, which is slightly more informative than the “hello world” above, with a label and a check button.</p>
 <h3 id="the-50-included-boguex-examples">The 50 included <code>boguex</code> examples</h3>
@@ -164,7 +165,7 @@
 <ol start="5" style="list-style-type: decimal">
 <li>It remains to create the board and run it. That’s it!</li>
 </ol>
-<div class="sourceCode" id="cb11"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.make [c] [layout] <span class="kw">in</span></span>
+<div class="sourceCode" id="cb11"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.of_layout ~connections:[c] layout <span class="kw">in</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>Bogue.run board</span></code></pre></div>
 <p>Note that the order 1. and 2. can be swapped. In more complex examples, you cannot always separate all these steps like this, you may need to mix them, for instance because you want a widget action to modify a layout on the fly…</p>
 <h3 id="the-immediate-method">The “immediate” method</h3>
@@ -183,16 +184,16 @@
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
-<li>We make the board and run it. Done!</li>
+<li>We create the board and run it. Done!</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.make [] [layout] <span class="kw">in</span></span>
+<div class="sourceCode" id="cb14"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.of_layout layout <span class="kw">in</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>Bogue.run ~before_display board</span></code></pre></div>
 <h3 id="the-embedded-method">The “embedded” method</h3>
 <p><a href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a></p>
 <p>This is only useful if you already have an application with an event/display loop (like a game) and you want to add some GUI on top of this.</p>
 <ol style="list-style-type: decimal">
 <li><p>use one of the methods above to create your board</p></li>
-<li><p>use <code>Bogue.make_windows</code> to either create news windows for the GUI, or use already existing SDL windows.</p></li>
+<li><p>use <code>Bogue.make_sdl_windows</code> to either create news windows for the GUI, or use already existing SDL windows.</p></li>
 <li><p>anytime you want to show the GUI, just call the <code>Bogue.one_step</code> function in your loop, in general after all other renderings and just before <code>Sdl.render_present</code>. When the GUI is displayed, be sure to disable all event handling functions that could interfere with BOGUE.</p></li>
 </ol>
 <p>See the file <a href="Embedded.html"><code>Embedded.md</code></a> for more details.</p>

@@ -79,16 +79,18 @@ let set_windows board windows =
     Layout.Rooms (List.map Window.get_layout windows)
 (* TODO connections? widgets? *)
 
-let close_window_layout layout =
-  printd debug_board "Closing layout...";
+let close_window window =
+  let layout = Window.get_layout window in
+  printd debug_board "** Closing window #%u (Layout %s)"
+    (Window.id window) (Layout.sprint_id layout);
   (* TODO: stop all animations ? *)
   if !Avar.alive_animations > 0
   then begin
-      printd debug_warning "%d animation%s not stopped. We reset the counter."
-        !Avar.alive_animations (if !Avar.alive_animations = 1
-                                then " was" else "s were");
-      Avar.alive_animations := 0
-    end;
+    printd debug_warning "%d animation%s not stopped. We reset the counter."
+      !Avar.alive_animations (if !Avar.alive_animations = 1
+                              then " was" else "s were");
+    Avar.alive_animations := 0
+  end;
   List.iter Widget.remove_active_connections (Layout.get_widgets layout);
   if Sdl.is_text_input_active () then Sdl.stop_text_input ();
   (* DEBUG: clipboard sometimes causes problems *)
@@ -98,7 +100,7 @@ let close_window_layout layout =
   (* end; *)
   Layout.delete_textures layout;
   (* now we destroy the canvas (renderer and window): *)
-  Draw.destroy_canvas (Layout.get_canvas layout);
+  Draw.destroy_canvas ~bogue:window.Window.bogue (Layout.get_canvas layout);
   Layout.remove_canvas layout
 
 (* only for debugging *)
@@ -126,7 +128,7 @@ let exit_board board =
   Update.clear ();
   Timeout.clear ();
   check_cemetery ();
-  List.iter close_window_layout (get_layouts board);
+  List.iter close_window board.windows;
   board.mouse_focus <- None;
   board.keyboard_focus <- None;
   board.button_down <- None;
@@ -211,10 +213,7 @@ let remove_window board window =
   let windows = List.filter (fun w -> not (Window.equal window w))
       board.windows in
   set_windows board windows;
-  let layout = Window.get_layout window in
-  printd debug_board "** Remove window #%u (Layout #%u)"
-    (Window.id window) layout.Layout.id;
-  close_window_layout layout;
+  close_window window;
   (* We reset all focus for safety. TODO: one could reset only those that
      belonged to the removed window. *)
   board.mouse_focus <- None;
@@ -355,7 +354,9 @@ let target_widget board ev =
                               the mouse enter/leave event" id) id
     else match board.button_down with
       | Some r (*when !dragging*) ->
-        printd debug_board "Target: select button_down"; Some r
+        printd debug_board "Target: select button_down (%s)"
+          (Layout.sprint_id r);
+        Some r
       (* when dragging, the board.button_down has priority over all *)
       (* TODO: it happens also for push buttons, scroll bars, etc... *)
       (* OR: give board.button_down priority for ALL but for menus (find
@@ -725,6 +726,8 @@ let treat_layout_events board e =
         | `Close ->
           printd (debug_board+debug_event) "Asking window to close";
           do_option (window_of_event board e) (fun w ->
+              if not w.Window.bogue then (Trigger.push_event e);
+              (* : we relay the close event to the manually created window. *)
               let action = default w.on_close (remove_window board) in
               action w)
         | _ as enum ->
@@ -886,7 +889,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   let new_anim = has_anim board in
   if new_anim && not anim then start_fps ();
   event_loop anim new_anim board;
-  do_option before_display (fun f -> f ());
+  do_option before_display run;
 
   let anim = new_anim in
   (* now some specifics in case of animation *)
@@ -1004,6 +1007,9 @@ let of_layout ?shortcuts ?connections ?on_user_event layout =
 (* for backward compatibility. Use [create], [of_windows] or [of_layouts]
    instead. *)
 let make ?shortcuts connections layouts =
+  printd (debug_user + debug_warning)
+    "Bogue.make is deprecated. Use Bogue.create, Bogue.of_layout, \
+     Bogue.of_layouts, or Bogue.of_windows instead.";
   of_layouts ?shortcuts ~connections layouts
 
 (** The main function that loops indefinitely *)

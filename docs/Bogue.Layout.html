@@ -165,7 +165,7 @@
 </div>
 </div>
 <h4 id="3_Createlayoutsfromwidgets">Create layouts from widgets</h4>
-<pre><span id="VALresident"><span class="keyword">val</span> resident</span> : <code class="type">?name:string -&gt;<br>       ?x:int -&gt;<br>       ?y:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?draggable:bool -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?layer:<a href="Bogue.Draw.html#TYPElayer">Draw.layer</a> -&gt;<br>       ?keyboard_focus:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALresident"><span class="keyword">val</span> resident</span> : <code class="type">?name:string -&gt;<br>       ?x:int -&gt;<br>       ?y:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?draggable:bool -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?keyboard_focus:bool -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a layout (=room) from a single Widget (=resident). The content of
      such a layout cannot be modified.</p>
@@ -203,11 +203,11 @@
 </div>
 </div>
 <p>Remark: when creating a house (a layout) with <code class="code">flat*</code>, <code class="code">tower*</code>, or
-     <code class="code">superpose</code>, the size of the inner rooms will be automatically updated
-     whenever the size of the house is modified. However, as soon as one
-     manually sets the size or the position of a room inside this house with
-     <a href="Bogue.Layout.html#VALset_width"><code class="code"><span class="constructor">Layout</span>.set_width</code></a>, <a href="Bogue.Layout.html#VALsetx"><code class="code"><span class="constructor">Layout</span>.setx</code></a> and alikes, then the room will stop reacting to
-     changes of the house size.</p>
+      <code class="code">superpose</code>, the size of the inner rooms will be automatically updated
+      whenever the size of the house is modified. However, as soon as one
+      manually sets the size or the position of a room inside this house with
+      <a href="Bogue.Layout.html#VALset_width"><code class="code"><span class="constructor">Layout</span>.set_width</code></a>, <a href="Bogue.Layout.html#VALsetx"><code class="code"><span class="constructor">Layout</span>.setx</code></a> and likes, then the room will stop reacting to
+      changes of the house size.</p>
 <h3 id="2_Someusefullayoutcombinations">Some useful layout combinations</h3>
 <pre><span id="VALmake_clip"><span class="keyword">val</span> make_clip</span> : <code class="type">?w:int -&gt;<br>       ?scrollbar:bool -&gt;<br>       ?scrollbar_inside:bool -&gt;<br>       ?scrollbar_width:int -&gt; h:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
@@ -352,10 +352,11 @@
 
 <pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">by:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p>Replace "room" by "by" inside "house" in lieu and place of the intial
-     room. No size adjustments are made. Of course this is dangerous, because it
-     modifies both the house and "by". Beware of circular dependencies... Of
-     course this assumes that "room" already belongs to "house".</p>
+<p>Replace "room" by "by" inside its "house" in lieu and place of the initial
+      room. No size adjustments are made. Of course this is dangerous, because
+      it modifies both the house and "by". Beware of circular
+      dependencies... Cannot be used for the <code class="code">top_house</code> (the window layout)
+      because that layout has no house.</p>
 </div>
 </div>
 
@@ -467,7 +468,7 @@
 
 <pre><span id="VALretower"><span class="keyword">val</span> retower</span> : <code class="type">?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt; ?margins:int -&gt; ?duration:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="2_Windows">Windows</h3>
 <p>An SDL window is created for each Layout in the list sent to
-     <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
+     <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
 
 <pre><span id="VALwindow_opt"><span class="keyword">val</span> window_opt</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; Tsdl.Sdl.window option</code></pre><div class="info ">
 <div class="info-desc">
@@ -496,7 +497,7 @@
 <div class="info-desc">
 <p><code class="code">set_window_pos&nbsp;layout&nbsp;x&nbsp;y</code> sets the position of the window containing
      <code class="code">layout</code> to (x,y), in physical pixels. (0,0) is top-left. This should be
-     run <b>after</b> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
+     run <b>after</b> <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
 </div>
 </div>
 

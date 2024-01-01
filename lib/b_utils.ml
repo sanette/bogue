@@ -319,6 +319,21 @@ let remove_option = function
   | Some x -> x
   | None -> raise None_option
 
+let (let@) f x = f x
+(**  This can be used to write, for instance,
+     [let@ x = Var.with_protect v in foo] instead of
+     [Var.with_protect v (fun x -> foo)],
+     where [foo] is any expression using [x].
+
+     {b Warning:} the whole sequence of expressions is used. For instance
+     [let@ x = Var.with_protect v in foo; bar]
+     will use the function
+     [x -> foo; bar]
+     and hence is not the same as
+     [Var.with_protect v (fun x -> foo); bar].
+     It can be wise to write [begin let@ ... in .. end]
+
+     See also https://github.com/ocaml/ocaml/pull/9887  *)
 
 (* memo *)
 (* standard memo fns. Don't use when the variable is mutable, it would store the

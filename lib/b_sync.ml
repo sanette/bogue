@@ -42,7 +42,7 @@ let execute timeout =
   if is_empty () then false (* a quick test in order to avoid lock *)
   else let t = Time.now () in
     let rec loop () =
-      if Var.protect_fn queue Queue.is_empty then () (* we exit *)
+      if Var.with_protect queue Queue.is_empty then () (* we exit *)
       else if Time.(now () - t > timeout)
       then (* we exit but also send a action event to finish the rest of the
               queue at next iteration. *)
@@ -50,7 +50,7 @@ let execute timeout =
           printd debug_thread "Didn't have time to finish Sync queue.";
           Trigger.push_action ()
         end
-      else let action = Var.protect_fn queue Queue.pop in
+      else let action = Var.with_protect queue Queue.pop in
         printd debug_thread "Popping one action from the Sync Queue.";
         action ();
         loop ();

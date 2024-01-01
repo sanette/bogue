@@ -16,7 +16,7 @@
 <link title="Creation of Widgets" rel="Section" href="#widget_create">
 <link title="Creation of combined widgets" rel="Section" href="#2_Creationofcombinedwidgets">
 <link title="Generic functions on widgets" rel="Section" href="#2_Genericfunctionsonwidgets">
-<link title="Conversions from the generic Widget type to the specialized inner type" rel="Section" href="#2_ConversionsfromthegenericWidgettypetothespecializedinnertype">
+<link title="Conversions from the generic Widget type to the specialized inner type" rel="Section" href="#inner">
 <link title="Generic actions" rel="Section" href="#2_Genericactions">
 <link title="Predefined connections" rel="Subsection" href="#3_Predefinedconnections">
 <link title="Simple boxes (rectangles)" rel="Subsection" href="#3_Simpleboxesrectangles">
@@ -150,9 +150,10 @@
 <p><code class="code">connect&nbsp;source&nbsp;target&nbsp;action&nbsp;triggers</code> creates a connection from the
       <code class="code">source</code> widget to the <code class="code">target</code> widget, but does not register it (<em>this
       may change in the future...</em>). Once it is registered (either by
-      <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and assuming that the layout containing
-      the source widget has <em>focus</em>, then when an event <code class="code">ev</code> matches one of the
-      <code class="code">triggers</code> list, the <code class="code">action</code> is executed with arguments <code class="code">source&nbsp;target&nbsp;ev</code>.</p>
+      <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a> or <a href="Bogue.Widget.html#VALadd_connection"><code class="code"><span class="constructor">Widget</span>.add_connection</code></a>), and assuming that the layout
+      containing the source widget has <em>focus</em>, then when an event <code class="code">ev</code>
+      matches one of the <code class="code">triggers</code> list, the <code class="code">action</code> is executed with
+      arguments <code class="code">source&nbsp;target&nbsp;ev</code>.</p>
 </div>
 </div>
 <div class="param_info"><code class="code">priority</code> : indicates the desired priority policy. Default is <code class="code"><span class="constructor">Forget</span></code>.</div>
@@ -167,11 +168,11 @@
 <pre><span id="VALadd_connection"><span class="keyword">val</span> add_connection</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEconnection">connection</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Registers the connection with the widget. This should systematically be
-     done after each connection creation, when the connection is created <em>     after</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>.</p>
+     done after each connection creation, when the connection is created <em>     after</em> <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>.</p>
 
-<p>Connections that are created <em>before</em> <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a> should rather be
-     passed as argument to <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>, and <em>not</em> via
-     <code class="code">add_connection</code>. Although this is not striclty necessary, this indicates
+<p>Connections that are created <em>before</em> <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a> should rather be
+     passed as argument to <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>, and <em>not</em> via
+     <code class="code">add_connection</code>. Although this is not strictly necessary, this indicates
      that these connections are more 'pure' or at least more static, in the
      sense that they will not be modified by Bogue. These are usually much
      easier to debug.</p>
@@ -212,7 +213,13 @@
 </div>
 </div>
 
-<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt;<br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="widget_create">Creation of Widgets</h3><h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
+<pre><span id="VALmouse_over"><span class="keyword">val</span> mouse_over</span> : <code class="type">?enter:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt;<br>       ?leave:(<a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Widget.html#TYPEt">t</a> -&gt; unit</code></pre><h3 id="widget_create">Creation of Widgets</h3>
+<p>As a general rule, widgets should be created using the functions below, which
+belong to the Widget module and create an element of type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>. However, for
+some specialized usage, additional features may be available from the widget
+underlying module (eg. <a href="Bogue.Label.html"><code class="code"><span class="constructor">Label</span></code></a>, <a href="Bogue.Box.html"><code class="code"><span class="constructor">Box</span></code></a>, etc.). See the <a href="Bogue.Widget.html#inner">conversion
+functions</a> below.</p>
+<h4 id="3_Simpleboxesrectangles">Simple boxes (rectangles)</h4>
 <pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">?w:int -&gt; ?h:int -&gt; ?style:<a href="Bogue.Style.html#TYPEt">Style.t</a> -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a Box widget, which simply displays a rectangle, optionally with
@@ -354,7 +361,7 @@
      their execution.</p>
 </div>
 </div>
-<h3 id="2_ConversionsfromthegenericWidgettypetothespecializedinnertype">Conversions from the generic Widget type to the specialized inner type</h3>
+<h3 id="inner">Conversions from the generic Widget type to the specialized inner type</h3>
 <p>These functions raise <code class="code"><span class="constructor">Invalid_argument</span></code> whenever their argument is not of
      the correct type.</p>
 

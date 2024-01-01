@@ -9,7 +9,7 @@
    the connected component of any of its elements) is called a stack. There is
    no particular type for a stack. *)
 
-(* TODO we could use a phatom type when we want to ensure the chain is not
+(* TODO we could use a phantom type when we want to ensure the chain is not
    empty. See
    https://blog.janestreet.com/howto-static-access-control-using-phantom-types/*)
 
@@ -326,7 +326,7 @@ let copy = function
 
    This weird function can serve to extract a subchain from an existing chain,
    in order to move it to another stack: this is why we use it in Bogue for
-   sending layouts to a different window. Another possibiliy would be to use
+   sending layouts to a different window. Another possibility would be to use
    [copy] and then remove the unwanted elements. Another possibility would be to
    get a list of elements we want to extract (removing doublons), sort it, and
    then use [of_list]. This does not preserve exact depths, but preserve the

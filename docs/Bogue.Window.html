@@ -24,9 +24,13 @@
 <pre><span id="MODULEWindow"><span class="keyword">module</span> Window</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Window.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
 <h3 id="2_Windows">Windows</h3>
-<p>In order to display a Layout, you need to create a <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a> for it, and
-   pass it as argument of <a href="Bogue.Main.html#VALmake"><code class="code"><span class="constructor">Main</span>.make</code></a>. Windows are create by SDL, and hence
-   will appear with the usual decorations of your Desktop Environment.</p>
+<p>In order to display a Layout, Bogue needs to create a <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a> for it,
+    and pass it as argument of <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>. This is done automatically if you
+    use <a href="Bogue.Main.html#VALof_layouts"><code class="code"><span class="constructor">Main</span>.of_layouts</code></a>, so most of the time you don't need to deal with
+    <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a>'s.</p>
+
+<p>Windows are created by SDL, and hence will appear with the usual decorations
+    of your Desktop Environment.</p>
 </div>
 </div>
 <hr width="100%">
@@ -61,7 +65,7 @@
 <pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">w:int -&gt; h:int -&gt; <a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set window size in physical pixels. Only works after the window is
-     physically created by . However, you may use <code class="code">set_size</code> in
+     physically created by <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>. However, you may use <code class="code">set_size</code> in
      advance with <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a>.</p>
 </div>
 </div>
