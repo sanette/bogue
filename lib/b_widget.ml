@@ -657,7 +657,7 @@ let remove_me c_id widget =
 
 (* check if connection is terminated *)
 (* (only if the thread decided to signal this, for instance by setting the event
-   to Trigger.stopped) *)
+   to Trigger.stop) *)
 let has_terminated active =
   Sdl.Event.(get active.event typ) <> Trigger.stop
 
@@ -666,6 +666,7 @@ let has_terminated active =
 let terminate ?(timeout = 50) active =
   printd debug_thread "Ask for terminating connection #%u" active.connect_id;
   Sdl.Event.(set active.event typ) Trigger.stop;
+  (* TODO send an event, now that we are using Sdl.wait_event_timeout *)
   ignore (Timeout.add timeout (fun () ->
               if not (has_terminated active)
               then printd debug_thread "Cannot terminate thread for connection #%u after %u ms." active.connect_id timeout
