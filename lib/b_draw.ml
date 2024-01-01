@@ -1230,15 +1230,16 @@ let create_window  ?x ?y ~w ~h name =
     raise (Sdl_error ("SDL ERROR: " ^ (Sdl.get_error ())))
 
 let set_vsync () =
-    (* SDL_RendererSetVSync is not bound, but it wouldn't know about adaptive vsync *)
-    match Sdl.gl_set_swap_interval (-1) with
-    | Ok () -> printd debug_graphics "Enabled Adaptive VSync"
-    | Error (`Msg m) ->
-        printd (debug_graphics+debug_warning) "Failed to enable Adaptive VSync, falling back to regular: %s" m;
-        match Sdl.gl_set_swap_interval 1 with
-        | Ok () -> printd debug_graphics "Enabled VSync"
-        | Error (`Msg m) ->
-            printd (debug_graphics+debug_error) "Failed to enable VSync: %s" m
+  (* SDL_RendererSetVSync is not bound, but it wouldn't know about adaptive
+     vsync *)
+  match Sdl.gl_set_swap_interval (-1) with
+  | Ok () -> printd debug_graphics "Enabled Adaptive VSync"
+  | Error (`Msg m) ->
+     printd (debug_graphics+debug_warning) "Failed to enable Adaptive VSync, falling back to regular: %s" m;
+     match Sdl.gl_set_swap_interval 1 with
+     | Ok () -> printd debug_graphics "Enabled VSync"
+     | Error (`Msg m) ->
+        printd (debug_graphics+debug_error) "Failed to enable VSync: %s" m
 
 (* Sdl init. [w,h] is the physical size of the window in pixels. In case of
    High-DPI mode, SDL might actually produce a larger window. We need to correct
@@ -1260,12 +1261,12 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
   video_init ();
   if Theme.opengl_multisample
   then begin
-    go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
-    go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
-    if go (Sdl.gl_get_attribute Sdl.Gl.multisamplebuffers) <> 1
-    then printd (debug_error + debug_graphics)
-        "The opengl driver does not support multisampling"
-  end;
+      go (Sdl.gl_set_attribute Sdl.Gl.multisamplebuffers 1);
+      go (Sdl.gl_set_attribute Sdl.Gl.multisamplesamples 4);
+      if go (Sdl.gl_get_attribute Sdl.Gl.multisamplebuffers) <> 1
+      then printd (debug_error + debug_graphics)
+             "The opengl driver does not support multisampling"
+    end;
   let win = default_lazy window (lazy (create_window ?x ?y ~w ~h name)) in
   do_option !icon (Sdl.set_window_icon win);
   Sdl.set_window_minimum_size win ~w:8 ~h:8;
@@ -1275,17 +1276,17 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
     | None -> go (Sdl.create_renderer
                     ~flags:Sdl.Renderer.(targettexture + presentvsync) win)
     | Some win -> match Sdl.get_renderer win with
-      | Ok w -> printd debug_graphics "Using existing renderer"; w
-      | Error _ ->
-        go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
+                  | Ok w -> printd debug_graphics "Using existing renderer"; w
+                  | Error _ ->
+                     go (Sdl.create_renderer ~flags:Sdl.Renderer.targettexture win) in
   let rw, rh = Sdl.gl_get_drawable_size win in
   if window = None && (rw, rh) <> (w,h) then begin
-    dpi_xscale := float rw /. float w;
-    dpi_yscale := float rh /. float h;
-    printd (debug_graphics+debug_warning)
-      "This display imposes a hard scaling of (%f,%f)." !dpi_xscale !dpi_yscale;
-    set_window_size win ~w ~h
-  end;
+      dpi_xscale := float rw /. float w;
+      dpi_yscale := float rh /. float h;
+      printd (debug_graphics+debug_warning)
+        "This display imposes a hard scaling of (%f,%f)." !dpi_xscale !dpi_yscale;
+      set_window_size win ~w ~h
+    end;
   let ri = go (Sdl.get_renderer_info renderer) in
   let ww, wh = Sdl.get_window_size win in
   printd debug_graphics "Window size (SDL) = (%u,%u)" ww wh;
@@ -1301,16 +1302,15 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
 
   (* set dummy solid background in case of new window *)
   if window = None then begin
-    set_color renderer (opaque red);
-    go (Sdl.render_clear renderer)
-  end;
+      set_color renderer (opaque red);
+      go (Sdl.render_clear renderer)
+    end;
 
   printd debug_graphics "Canvas created";
-  if not (Theme.get_bool "NO_VSYNC") then
-      set_vsync ();
+  if not Theme.no_vsync then set_vsync ();
 
   let fill = default_lazy fill
-      (lazy (fill_of_string renderer Theme.background)) in
+               (lazy (fill_of_string renderer Theme.background)) in
   let textures = load_textures win renderer fill in
   { renderer;
     window = win;

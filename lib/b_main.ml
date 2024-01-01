@@ -23,6 +23,7 @@ module Mouse = B_mouse
 module Update = B_update
 module Print = B_print
 module Window = B_window
+module ISet = Set.Make(Int)
 
 exception Exit
 
@@ -988,16 +989,41 @@ let create ?shortcuts ?(connections = []) ?on_user_event windows =
     mouse_alive = false;
     on_user_event }
 
+let get_window_refresh_rate win =
+  match Sdl.get_window_display_mode (Window.sdl_window win) with
+  | Ok Sdl.{dm_refresh_rate = Some rate; _ } ->
+     printd debug_graphics "Detected refresh rate for layout %s : %i"
+       (Layout.sprint_id (Window.get_layout win)) rate;
+     Some rate
+  | Ok Sdl.{dm_refresh_rate = None; _ } ->
+     printd (debug_graphics + debug_warning)
+       "No refresh rate information in display mode";
+     None
+  | Error (`Msg m) ->
+     printd (debug_graphics + debug_warning)
+       "Cannot get display mode from window: %s" m;
+     None
+
+let get_monitors_refresh_rate board =
+  List.map get_window_refresh_rate board.windows
+  |> List.filter (fun x -> x <> None)
+  |> List.map remove_option
+  |> List.sort Stdlib.compare
+  |> ISet.of_list
+  |> ISet.elements
+
+(* If there are several monitors with different refresh rates, return the
+   greatest common divisor, or the minimum if the gcd < 30. The SDL windows must
+   be created before calling this function. *)
 let get_monitor_refresh_rate board =
-    Option.bind Layout.(window_opt board.windows_house) @@ fun win ->
-    match Sdl.get_window_display_mode win with
-    | Ok Sdl.{dm_refresh_rate = Some rate; _ } -> Some rate
-    | Ok Sdl.{dm_refresh_rate = None; _ } ->
-        printd (debug_graphics + debug_warning) "No refresh rate information in display mode";
-        None
-    | Error (`Msg m) ->
-        printd (debug_graphics + debug_warning) "Cannot get display mode from window: %s" m;
-        None
+  match get_monitors_refresh_rate board with
+  | [] -> printd (debug_graphics + debug_warning)
+            "Could not get refresh rate information for any monitor";
+          None
+  | [r] -> Some r
+  | r :: rest ->
+     let g = List.fold_left gcd r rest in
+     if g >= 30 then Some g else Some (List.fold_left imin r rest)
 
 let of_windows = create
 
@@ -1029,12 +1055,12 @@ let run ?(vsync=true) ?before_display ?after_display board =
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();
   Trigger.main_tread_id := Thread.(id (self ()));
+  make_sdl_windows board;
   let desired_fps =
-      if vsync then get_monitor_refresh_rate board |> Option.value ~default:60
-      else 60 in
+    if vsync then default (get_monitor_refresh_rate board) 60
+    else 60 in
   printd debug_graphics "Desired FPS=%u" desired_fps;
   let start, fps = Time.adaptive_fps ~vsync desired_fps in
-  make_sdl_windows board;
   show board;
   Thread.delay 0.01; (* we need some delay for the initial Mouse position to be detected *)
   Sdl.pump_events ();
@@ -1077,10 +1103,10 @@ let run ?(vsync=true) ?before_display ?after_display board =
   with
   | Exit -> exit_board board
   | e ->
-    let sdl_error = Sdl.get_error () in
-    if sdl_error <> "" then print_endline ("SDL ERROR: " ^ sdl_error);
-    print_endline (Print.layout_down board.windows_house);
-    raise e
+     let sdl_error = Sdl.get_error () in
+     if sdl_error <> "" then print_endline ("SDL ERROR: " ^ sdl_error);
+     print_endline (Print.layout_down board.windows_house);
+     raise e
 
 
 (*************)

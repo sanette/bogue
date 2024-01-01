@@ -2523,9 +2523,10 @@ module Main : sig
 *)
 
   val get_monitor_refresh_rate: board -> int option
-  (** [get_monitor_refresh_rate board] returns the monitor refresh rate,
-    for the monitor containing [board].
-  *)
+  (** [get_monitor_refresh_rate board] returns the monitor refresh rate, for the
+      monitor containing [board]. In case of several monitors with different
+      refresh rates, return the greatest common divisor, or the minimum if the
+      gcd is less than 30. *)
 
   val of_windows :  ?shortcuts:shortcuts ->
     ?connections:(Widget.connection list) ->

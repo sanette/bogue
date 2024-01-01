@@ -154,6 +154,9 @@ let fmax = Float.max
 
 let fmin = Float.min
 
+let rec gcd a b =
+  if b = 0 then a else gcd b (a mod b)
+
 let go : 'a Tsdl.Sdl.result -> 'a = function
   | Error _ -> raise (Sdl_error ("SDL ERROR: " ^ (Sdl.get_error ())))
   | Ok r -> r

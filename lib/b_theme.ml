@@ -87,6 +87,10 @@ let default_vars = [
     "SCALE", "0";
     "OPENGL_MULTISAMPLE", "false";
     (* https://wiki.libsdl.org/SDL_GLattr#multisample *)
+    "NO_VSYNC", "false"
+    (* By default, we try to enable (Adaptive) VSync. Setting this variable to
+       "true" disables this, and then, instead, we try to detect the monitors
+       refresh rates. *)
   ]
 
 let id x = x
@@ -440,6 +444,7 @@ let integer_scale = ref (get_bool "INT_SCALE")
 let scale = ref (get_float ~default:0. "SCALE")
 let opengl_multisample = get_bool "OPENGL_MULTISAMPLE"
 let fa_font_size = 18
+let no_vsync = get_bool "NO_VSYNC"
 
 (** some standard (?) UTF8 symbols *)
 let symbols = [
