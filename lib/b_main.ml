@@ -9,19 +9,19 @@ https://ocaml.github.io/ocamlunix/threads.html
 
 open B_utils
 open Tsdl
+module Avar = B_avar
+module Draw = B_draw
 module E = Sdl.Event
 module Layout = B_layout
-module Widget = B_widget
+module Mouse = B_mouse
+module Print = B_print
 module Shortcut = B_shortcut
-module Avar = B_avar
+module Sync = B_sync
 module Time = B_time
 module Timeout = B_timeout
 module Trigger =  B_trigger
-module Sync = B_sync
-module Draw = B_draw
-module Mouse = B_mouse
 module Update = B_update
-module Print = B_print
+module Widget = B_widget
 module Window = B_window
 
 exception Exit

@@ -3,6 +3,16 @@
 I know I'm not always very good at this. Don't hesitate to contact me
 if I forgot to mention you here.
 
+# 20231209
+thanks to jonahbeckford for help on Windows OS config files
+https://github.com/sanette/bogue/pull/12
+
+thanks to zapashcanon for using the `directory` library for better
+detection of config files.
+https://github.com/sanette/bogue/pull/13
+
+thanks to edwintorok for improving detection of Hi-DPI screens
+https://github.com/sanette/bogue/pull/16
 
 # 20221112
 thanks to arbipher for reporting (and help debugging) a case of Sdl.open_audio_device failure in WSL2 on Windows

@@ -6,22 +6,22 @@
 open Tsdl
 open B_utils
 module Avar = B_avar
-module Utf8 = B_utf8
-module Var = B_var
-module Tvar = B_tvar
-module Timeout = B_timeout
-module Trigger =  B_trigger
+module Box = B_box
+module Button = B_button
+module Check = B_check
 module Draw = B_draw
 module Empty = B_empty
 module Image = B_image
-module Box = B_box
-module Sdl_area = B_sdl_area
 module Label = B_label
-module Button = B_button
+module Sdl_area = B_sdl_area
 module Slider = B_slider
-module Check = B_check
 module Text_display = B_text_display
 module Text_input = B_text_input
+module Timeout = B_timeout
+module Trigger =  B_trigger
+module Tvar = B_tvar
+module Utf8 = B_utf8
+module Var = B_var
 
 type kind =
   | Empty of Empty.t
