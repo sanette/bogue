@@ -1389,7 +1389,7 @@ module Sdl_area : sig
       {%html:<div class="figure"><img src="images/example50.png"></div>%}
 
       The source code for all [boguex] examples is
-     {{:https://github.com/sanette/bogue/blob/master/examples/example.ml}here}.
+     {{:https://github.com/sanette/bogue/blob/master/examples/examples.ml}here}.
 
   *)
 
