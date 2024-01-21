@@ -500,7 +500,8 @@ let slider ?(priority=Main) ?step ?value ?kind ?var ?length ?thickness
         if Trigger.mm_pressed ev || Trigger.event_kind ev = `Finger_motion
         then (Slider.slide ti ev; update w)
       in
-      let c = connect ~priority ~update_target:false w w slide Trigger.pointer_motion in
+      let c = connect ~priority ~update_target:false w w slide
+                Trigger.pointer_motion in
       add_connection w c;
       let get_keys = fun w _ ev -> Slider.receive_key (get_slider w) ev
       in
@@ -545,7 +546,7 @@ let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
   add_connection w c;
   let get_keys = fun w _ ev -> Text_input.receive_key (get_text_input w) ev
   in
-  let c2 = connect_main w w get_keys [Sdl.Event.text_editing; Sdl.Event.text_input; Sdl.Event.key_down; Sdl.Event.key_up] in
+  let c2 = connect_main w w get_keys Text_input.triggers in
   add_connection w c2;
   w
 

@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20240102
+@version 20240121
 
 @author Vu Ngoc San
 
@@ -1183,6 +1183,11 @@ module Slider : sig
     | Vertical
     | Circular
 
+  val triggers : Trigger.t list
+  (**  The list of events that a Slider can react to. Currently this is the
+       concatenation of [Trigger.[buttons_down; buttons_up; pointer_motion]]
+       plus [Sdl.Event.key_down]. *)
+
   val size : t -> int * int
 
   val value : t -> int
@@ -1259,6 +1264,9 @@ module Text_input : sig
   type t
   type filter = string -> bool
 
+  val triggers : Trigger.t list
+  (** The list of events that a Text_input can react to. Currently this is
+      [Sdl.Event.[text_editing; text_input; key_down; key_up]]. *)
 
   (** {2 Creating the widget}
 
@@ -1614,6 +1622,8 @@ functions} below. *)
 
   val text_input : ?text:string -> ?prompt:string ->
     ?size:int -> ?filter:Text_input.filter -> ?max_size:int -> unit -> t
+  (** [size] is the font size. [max_size] is the maximum number of chars
+      allowed. The [prompt] is used to *)
 
   (** {3 Buttons} *)
 

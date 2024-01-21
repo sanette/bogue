@@ -1834,7 +1834,8 @@ let h_align ~align layout x0 w =
                  let x = Draw.align align x0 w w0 in
                  setx r x)
 
-(* Create a tower from a list of rooms *)
+(* Create a tower from a list of rooms (this modifies the x/y pos of the
+   rooms)*)
 (* sep = vertical space between two rooms *)
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
@@ -1857,7 +1858,8 @@ let tower ?name ?(sep = Theme.room_margin/2) ?margins
   let layout = create ~adjust ?name ?background ?shadow ?clip
       (geometry ~w ~h ()) (Rooms rooms) ?canvas in
   do_option align (fun align -> h_align ~align layout hmargin (w-2*hmargin));
-  if clip = None && scale_content then scale_resize_list (w,h) rooms else fix_content layout;
+  if clip = None && scale_content
+  then scale_resize_list (w,h) rooms else fix_content layout;
   (* TODO ce n'est pas la peine de scaler la largeur si elle ne dépasse pas le
      layout. Voir par exemple la demo/demo *)
   layout
@@ -2248,7 +2250,7 @@ let zoom ?duration ~from_factor ~to_factor room =
 
 (** oscillate (for fun) *)
 let oscillate ?(duration = 10000) ?(frequency=5.) amplitude room =
-  let x = Avar.oscillate ~duration ~frequency amplitude (getx room)in
+  let x = Avar.oscillate ~duration ~frequency amplitude (getx room) in
   animate_x room x
 
 (** add a slide_in animation to the room *)
@@ -2318,13 +2320,14 @@ let make_clip
   if w <> None
   then printd debug_error "Horizontal scrolling is not implemented yet";
   let w = default w (width room) in
+  let x0 = getx room in
   let y0 = gety room in
   sety room 0;
   let active_bg = Widget.empty ~w:(width room) ~h:(height room) () in
   (* We add an invisible box to make the whole area selectable by the mouse
      focus. Otherwise, only the parts of the room that contain a widget will
-     react to the mouse wheel event. Of course, if the room was full of widgets,
-     this is superfluous... *)
+     react to the *mouse wheel* event. Of course, if the room is full of
+     widgets, this is superfluous... *)
   let layer = get_layer room in
   let container = tower ~margins:0 ~clip:true
                     [superpose [resident_with_layer ~layer active_bg; room]] in
@@ -2404,8 +2407,6 @@ let make_clip
     else container in
 
   sety result y0;
-  let x0 = getx room in
-  setx room 0;
   setx result x0;
   (* We copy the shadow. TODO: this has no effect at the moment, because of the
      'clip' flag, the layout is sharply clipped to its bounding box when

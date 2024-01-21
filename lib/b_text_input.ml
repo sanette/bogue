@@ -46,6 +46,8 @@ type t =
     filter : filter; (* which letters are accepted *)
   }
 
+let triggers = Sdl.Event.[text_editing; text_input; key_down; key_up]
+
 let no_filter _ = true
 let uint_filter s = List.mem s ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"]
 
@@ -114,20 +116,23 @@ let stop ti =
   clear ti;
   Var.set ti.active false
 
-(* because there is a length test, it should be placed ad the end of
+(* Because there is a length test, it should be placed ad the end of
    all modifications of ti *)
 let set ti keys =
   if keys <> Var.get ti.keys
   then begin
-    let keys = if List.length keys > ti.max_size
-      then (printd debug_memory "Warning: text_input was truncated because it should not exceed %u symbols" ti.max_size;
-            Var.set ti.cursor_pos (min (Var.get ti.cursor_pos) ti.max_size);
-            stop ti;
-            let head, _ = split_list keys ti.max_size in head)
-      else keys in
-    Var.set ti.keys keys;
-    clear ti
-  end
+      let keys =
+        if List.length keys > ti.max_size
+        then (printd debug_memory
+                "Warning: text_input was truncated because it should not exceed \
+                 %u symbols" ti.max_size;
+              stop ti;
+              let head, _ = split_list keys ti.max_size in head)
+        else keys in
+      Var.set ti.keys keys;
+      Var.set ti.cursor_pos (min (Var.get ti.cursor_pos) (List.length keys));
+      clear ti
+    end
 
 let kill_selection ti =
   match Var.get ti.selection with
@@ -263,6 +268,7 @@ let activate ?(check=true) ti ev =
 let make_selection ti =
   match Var.get ti.selection with
     | Empty -> ()
+
     | Start n0 ->
         let n = Var.get ti.cursor_pos in
         if n <> n0 then (printd debug_board "Make selection [%d,%d]" n0 n;
@@ -443,22 +449,26 @@ let () = Draw.at_cleanup render_key_cleanup
    kerning will be applied when a string of text is rendered instead of
    individual glyphs. *)
 let text_dims font text =
-  if text = "" then (print_endline "ERROR: text empty !"; 0,0) (* OK ? or use 1,1 ?? *)
+  if text = "" then (printd debug_warning
+                       "[text_dims] called on empty string"; 0,0)
+                      (* OK ? or use 1,1 ?? *)
   else let w,h = (* if !memo *)
-  (* (\* if !memo, this is (maybe ?) faster to get surface_size than calling *)
-  (*    TTF.size_utf8. BUT this will save another surface (with color 0,0,0,0) i *)
-  (*    the table... *\) *)
-  (*   then let surf = render_key font text (0,0,0,0) in *)
-  (*     (\* : no need to free in case of memo *\) *)
-  (*     Sdl.get_surface_size surf *)
-  (*   else *) Label.physical_size_text font text
-    in
-    printd debug_graphics "Size of '%s' = (%d,%d)." text w h;
-    w,h
+         (* (\* if !memo, this is (maybe ?) faster to get surface_size than calling *)
+         (*    TTF.size_utf8. BUT this will save another surface (with color 0,0,0,0) i *)
+         (*    the table... *\) *)
+         (*   then let surf = render_key font text (0,0,0,0) in *)
+         (*     (\* : no need to free in case of memo *\) *)
+         (*     Sdl.get_surface_size surf *)
+         (*   else *) Label.physical_size_text font text
+       in
+       printd debug_graphics "Size of '%s' = (%d,%d)." text w h;
+       w,h
 
 (* we use all-purpose memo to memoize the kerning values. One could do
    something more optimized, of course. *)
 let text_dims = memo2 text_dims
+
+let bmax (x,y) (xx,yy) = imax x xx, imax y yy
 
 (* initial size of the widget *)
 (* not scaled, in order to conform to all widgets size functions *)
@@ -466,7 +476,8 @@ let size ti =
   let w,h =
     match Var.get ti.render with
     | Some tex -> Draw.tex_size tex
-    | None -> text_dims (font ti) (ti.prompt) in
+    | None -> bmax (text_dims (font ti) (ti.prompt))
+                (text_dims (font ti) (String.concat "" (Var.get ti.keys))) in
   let w,h = Draw.unscale_size (w,h) in
   (w + 2*left_margin (* this should probably be left_margin + cursor_width/2 *),
    h + 2*bottom_margin)
