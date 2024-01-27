@@ -73,6 +73,10 @@
 <p>An action is always executed in a new Thread (and hence will not block the
      GUI), unless the priority <code class="code"><span class="constructor">Main</span></code> is specified.</p>
 
+<p>If a widget possess several connections which react to the same event, the
+      order of execution of these connections is the same as the order they were
+      registered.</p>
+
 <pre><span id="TYPEconnection"><span class="keyword">type</span> <code class="type"></code>connection</span> </pre>
 
 

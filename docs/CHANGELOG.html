@@ -20,19 +20,27 @@
 <p>All notable changes to the Bogue project will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/sanette/bogue/compare/20231209...HEAD">Unreleased</a></h2>
+<h3 id="added">Added</h3>
+<ul>
+<li><code>Box.get_style</code> and <code>Box.set_style</code> are now public.</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>fix too large cursor position when using Text_input.set</li>
+</ul>
 <h3 id="developement">Developement</h3>
 <ul>
 <li>The <code>example.ml</code> file is now called <code>examples.ml</code>, which is much more logical since it contains more than 50 examples.</li>
 <li>Trying to enforce that all used submodules are aliased (to make it clear they are used) in the header of each file, example <code>module   Time = B_time</code>.</li>
 </ul>
 <h2 id="section"><a href="https://github.com/sanette/bogue/compare/20221112...20231209">20231209</a></h2>
-<h3 id="added">Added</h3>
+<h3 id="added-1">Added</h3>
 <ul>
 <li>Use <code>directories</code> to compute home and config paths, and add special care for Windows OS.</li>
 <li>Deal with systems without audio device</li>
 </ul>
 <h3 id="changed">Changed</h3>
-<h3 id="fixed">Fixed</h3>
+<h3 id="fixed-1">Fixed</h3>
 <ul>
 <li>fix flickering menus</li>
 <li>Workaround for Mac OS 13.0.1 cocoa bug when closing windows</li>

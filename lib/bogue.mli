@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20240121
+@version 20240127
 
 @author Vu Ngoc San
 
@@ -1292,6 +1292,10 @@ module Box : sig
 
   val set_background : t -> Style.background -> unit
 
+  val set_style : t -> Style.t -> unit
+
+  val get_style : t -> Style.t
+
 end (* of Box *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1470,7 +1474,11 @@ let l = get_label w in
      specified function, which is called {!action}.
 
      An action is always executed in a new Thread (and hence will not block the
-     GUI), unless the priority [Main] is specified.  *)
+     GUI), unless the priority [Main] is specified.
+
+      If a widget possess several connections which react to the same event, the
+      order of execution of these connections is the same as the order they were
+      registered.  *)
 
   type connection
 

@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20231209...HEAD)
 
+### Added
+
+- `Box.get_style` and `Box.set_style` are now public.
+
+### Fixed
+
+- fix too large cursor position when using Text_input.set
+
 ### Developement
 
 - The `example.ml` file is now called `examples.ml`, which is much
