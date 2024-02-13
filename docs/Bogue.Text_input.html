@@ -26,7 +26,7 @@
 <div class="info-desc">
 <p>One-line text-input widget.</p>
 
-<h6 id="5_graphbtextinputhtmlDependencygraph"><a href="graph-b_text_input.html">Dependency graph</a></h6></div>
+<h6 id="5_graphdotbtextinputhtmlDependencygraph"><a href="graph-dot-b_text_input.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
@@ -46,4 +46,12 @@
 <p>Use <a href="Bogue.Widget.html#VALtext_input"><code class="code"><span class="constructor">Widget</span>.text_input</code></a></p>
 
 <pre><span id="VALuint_filter"><span class="keyword">val</span> uint_filter</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEfilter">filter</a></code></pre>
-<pre><span id="VALtext"><span class="keyword">val</span> text</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; string</code></pre></body></html>
+<pre><span id="VALtext"><span class="keyword">val</span> text</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; string</code></pre>
+<pre><span id="VALactivate"><span class="keyword">val</span> activate</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<h3 id="2_Modifyingthewidget">Modifying the widget</h3>
+<p>Warning: two Text_input widgets cannot be active at the same time. You can
+    use <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a> to delay the activation.</p>
+</div>
+</div>
+</body></html>
