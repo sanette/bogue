@@ -192,7 +192,16 @@ type sdl_event =
 | `User_event
 | `Window_event
 | `Display_event
-| `Sensor_update ]
+| `Sensor_update
+(* Added in Tsdl 1.0.0 *)
+| `Audio_device_added
+| `Audio_device_removed
+| `Drop_begin
+| `Drop_complete
+| `Drop_text
+| `Keymap_changed
+| `Render_device_reset
+| `Render_targets_reset ]
 
 type bogue_event =
   [ `Bogue_startup
