@@ -102,7 +102,7 @@ let home = Xdg.home_dir xdg
 let conf =
   let application = "bogue" in
   let config_dir = Xdg.config_dir xdg in
-  Filename.concat config_dir application
+  config_dir // application
 
 let skip_comment buffer =
   let rec loop () =
