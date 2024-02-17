@@ -255,14 +255,19 @@ let last ti =
 
 (*** input ***)
 
-let activate ?(check=true) ti ev =
-  if (not check) || Trigger.has_full_click ev
+let activate ti =
+  printd debug_event "Activating text_input";
+  if Sdl.is_text_input_active ()
   then begin
-    printd debug_event "Activating text_input";
-    Sdl.start_text_input ();
-    Var.set ti.active true;
-    clear ti;
-  end
+    printd (debug_error + debug_board + debug_event + debug_user)
+      "You cannot have several Text_input active at the same time."
+      (* The bad scenario is the following: you activate ti1, but ti2 was still
+         active, and is soon disabled, leading to Sdl.stop_text_input. This
+         means that no text_input event will be sent to ti1... *)
+  end;
+  Sdl.start_text_input ();
+  Var.set ti.active true;
+  clear ti
 
 (** validate selection from starting point to current cursor_pos *)
 let make_selection ti =
@@ -549,14 +554,14 @@ let click ti ev =
     if Trigger.was_double_click () then select_word ti
     else begin
       if Trigger.has_full_click ev then click_cursor ti ev;
-      ignore (make_selection ti)
+      make_selection ti
     end
   end
-  else activate ti ev
+  else if Trigger.has_full_click ev then activate ti
 
 let tab ti ev =
   if Sdl.Event.(get ev keyboard_keycode) = Sdl.K.tab then begin
-    activate ~check:false ti ev;
+    if not (is_active ti) then activate ti;
     select_all ti
   end
 
@@ -703,7 +708,8 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
   (* finally we copy onto the canvas *)
   let open Draw in
   let area = geom_to_rect g in
-  Sdl.set_text_input_rect (Some area);
+  Sdl.set_text_input_rect (Some area); (* TODO: this should be moved before
+                                          start_text_input *)
   Var.set ti.room_x g.x;
   let text_blit = copy_tex_to_layer ~overlay:(Draw.Xoffset 0) ~voffset:g.voffset
       canvas layer tex area (g.x + (Theme.scale_int left_margin))

@@ -481,16 +481,20 @@ let tab board =
         | Some l -> l
         | None -> Window.get_layout (List.hd board.windows) in
   let top = match top_house board current_room with
-    | None -> printd (debug_board+debug_custom)
-                "Current keyboard focus %s has no Window..." (Layout.sprint_id current_room);
-              Window.get_layout (List.hd board.windows)
-    | Some top -> printd debug_custom "Current window is %s" (Layout.sprint_id top);
-                  top in
+    | None ->
+      printd (debug_board+debug_custom)
+        "Current keyboard focus %s has no Window..."
+        (Layout.sprint_id current_room);
+      Window.get_layout (List.hd board.windows)
+    | Some top ->
+      printd debug_custom "Current window is %s" (Layout.sprint_id top);
+      top in
   printd debug_board "Current room #%u" current_room.Layout.id;
   Layout.keyboard_focus_before_tab := Some current_room;
   match Layout.next_keyboard ~top current_room with
   | None -> printd debug_board " ==> No keyboard focus found !"
-  | Some r as ro -> printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
+  | Some r as ro ->
+    printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
     set_keyboard_focus board ro
 
 (** open/close the debugging window *)
