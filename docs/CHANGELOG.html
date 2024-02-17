@@ -31,6 +31,7 @@
 </ul>
 <h3 id="developement">Developement</h3>
 <ul>
+<li>Switch from <code>directories</code> to <code>xdg</code> to work on Windows.</li>
 <li>Remove symlinks in doc.</li>
 <li>The <code>example.ml</code> file is now called <code>examples.ml</code>, which is much more logical since it contains more than 50 examples.</li>
 <li>Trying to enforce that all used submodules are aliased (to make it clear they are used) in the header of each file, example <code>module   Time = B_time</code>.</li>
@@ -38,7 +39,7 @@
 <h2 id="section"><a href="https://github.com/sanette/bogue/compare/20221112...20231209">20231209</a></h2>
 <h3 id="added-1">Added</h3>
 <ul>
-<li>Use <code>xdg</code> to compute home and config paths, and add special care for Windows OS.</li>
+<li>Use <code>directories</code> to compute home and config paths, and add special care for Windows OS.</li>
 <li>Deal with systems without audio device</li>
 </ul>
 <h3 id="changed">Changed</h3>

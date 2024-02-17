@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Developement
 
+- Switch from `directories` to `xdg` to work on Windows.
 - Remove symlinks in doc.
 - The `example.ml` file is now called `examples.ml`, which is much
   more logical since it contains more than 50 examples.
@@ -30,7 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Use `xdg` to compute home and config paths, and add special
+- Use `directories` to compute home and config paths, and add special
   care for Windows OS.
 - Deal with systems without audio device
 
