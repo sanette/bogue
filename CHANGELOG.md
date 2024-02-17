@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Use `directories` to compute home and config paths, and add special
+- Use `xdg` to compute home and config paths, and add special
   care for Windows OS.
 - Deal with systems without audio device
 
