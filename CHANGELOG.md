@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `Text_input.activate` is now public
 - `Box.get_style` and `Box.set_style` are now public.
 
 ### Fixed
@@ -18,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Developement
 
+- Remove symlinks in doc.
 - The `example.ml` file is now called `examples.ml`, which is much
   more logical since it contains more than 50 examples.
 - Trying to enforce that all used submodules are aliased (to make it
