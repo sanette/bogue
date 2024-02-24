@@ -59,11 +59,14 @@ let unload b =
   unload_texture b;
   Style.unload b.style
 
+let get_style b =
+  b.style
+
 let set_style b style =
+  unload b;
   b.style <- style
 
 let set_background b bkg =
-  unload b;
   set_style b (Style.with_bg bkg b.style)
 
 let resize size b =

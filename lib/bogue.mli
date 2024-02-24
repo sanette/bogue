@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20240101
+@version 20240217
 
 @author Vu Ngoc San
 
@@ -202,7 +202,7 @@ by the Bogue dir, for instance
 [file:/home/bob/.config/bogue/assets/images/bob.png].
 
 
-{5 {{:graph-b_theme.html}Dependency graph}} *)
+{5 {{:graph-dot-b_theme.html}Dependency graph}} *)
 module Theme : sig
 
   (** {2 Accessing Theme variables}
@@ -263,7 +263,7 @@ end (* of Theme *)
 
     This module contains several utilities, in particular for debug logs.
 
-{5 {{:graph-b_utils.html}Dependency graph}}
+{5 {{:graph-dot-b_utils.html}Dependency graph}}
 *)
 module Utils : sig
 
@@ -345,7 +345,7 @@ end (* of Utils *)
 
 (** Time in msec.
 
-{5 {{:graph-b_time.html}Dependency graph}}
+{5 {{:graph-dot-b_time.html}Dependency graph}}
 *)
 module Time : sig
   type t = int
@@ -388,7 +388,7 @@ end (* of Time *)
    more often that one thinks, because a Var may contain a {!Layout},
    and we know that sometimes layouts want to modify themselves...
 
-{5 {{:graph-b_var.html}Dependency graph}} *)
+{5 {{:graph-dot-b_var.html}Dependency graph}} *)
 module Var : sig
   type 'a t
 
@@ -414,7 +414,7 @@ end (* of Var *)
 
 (** Delayed actions.
 
-{5 {{:graph-b_timeout.html}Dependency graph}}
+{5 {{:graph-dot-b_timeout.html}Dependency graph}}
 *)
 module Timeout : sig
   type t
@@ -445,7 +445,7 @@ end (* of Timeout *)
     Widget. Finally, the Widget decides what to do with the events. There is one
     exception: the {!startup} event is directly sent to all Widgets.
 
-    {5 {{:graph-b_trigger.html}Dependency graph}} *)
+    {5 {{:graph-dot-b_trigger.html}Dependency graph}} *)
 module Trigger : sig
   type t = Tsdl.Sdl.event_type
 
@@ -614,7 +614,7 @@ end (* of Trigger *)
     {e Remark:} Under Windows, using WLS2, it was reported that sound works if
     [wslg] is installed.
 
-    {5 {{:graph-b_mixer.html}Dependency graph}} *)
+    {5 {{:graph-dot-b_mixer.html}Dependency graph}} *)
 module Mixer : sig
   type t
   type sound =  (int, Bigarray.int16_signed_elt) Tsdl.Sdl.bigarray
@@ -666,7 +666,7 @@ end (* of Mixer *)
     executed in the middle of rendering the graphics, or between various
     modifications of the board (events, keyboard focus, etc.).
 
-    {5 {{:graph-b_sync.html}Dependency graph}} *)
+    {5 {{:graph-dot-b_sync.html}Dependency graph}} *)
 module Sync : sig
 
   val push : (unit -> unit) -> unit
@@ -689,7 +689,7 @@ end (* of Sync *)
     The public API is mainly useful for Color management. There are also some
     helper functions for drawing into an {!Sdl_area}.
 
-    {5 {{:graph-b_draw.html}Dependency graph}} *)
+    {5 {{:graph-dot-b_draw.html}Dependency graph}} *)
 module Draw: sig
   type canvas
   (** Contains the hardware information for drawing (SDL renderer and
@@ -823,7 +823,7 @@ end (* of Draw *)
 All positions are given in logical pixels, not hardware pixels (see the {!Theme}
    [SCALE] variable).
 
-{5 {{:graph-b_mouse.html}Dependency graph}} *)
+{5 {{:graph-dot-b_mouse.html}Dependency graph}} *)
 module Mouse : sig
 
   val pointer_pos : Tsdl.Sdl.event -> int * int
@@ -869,7 +869,7 @@ end (* of Mouse *)
    value as a float between 0 and 1, and each one of them gets notified when the
    other changes the value.
 
-{5 {{:graph-b_tvar.html}Dependency graph}} *)
+{5 {{:graph-dot-b_tvar.html}Dependency graph}} *)
 module Tvar : sig
   type ('a, 'b) t
   (** a transform variable of type [('a,'b)] is a variable of type ['b] attached
@@ -888,7 +888,7 @@ end (* of Tvar *)
     An Avar.t is a variable that evolves in time. It is updated at every frame
    ({e i.e.} every iteration of the main loop). Bogue uses Avars for animations.
 
-{5 {{:graph-b_avar.html}Dependency graph}} *)
+{5 {{:graph-dot-b_avar.html}Dependency graph}} *)
 module Avar : sig
   type 'a t
 
@@ -975,7 +975,7 @@ val r : t = <abstr>
 - : string = "{4..5, 10..15}"
 ]}
 
-{5 {{:graph-b_selection.html}Dependency graph}}
+{5 {{:graph-dot-b_selection.html}Dependency graph}}
  *)
 module Selection : sig
   type t
@@ -1006,7 +1006,7 @@ end (* of Selection *)
 
 (** Image widget.
 
-{5 {{:graph-b_image.html}Dependency graph}}
+{5 {{:graph-dot-b_image.html}Dependency graph}}
  *)
 module Image : sig
   type t
@@ -1042,7 +1042,7 @@ end (* of Image *)
 
 (** Line and box styles.
 
-{5 {{:graph-b_style.html}Dependency graph}}
+{5 {{:graph-dot-b_style.html}Dependency graph}}
  *)
 module Style : sig
   type t
@@ -1105,7 +1105,7 @@ end (* of Style *)
 
 A [Label] is a widget for displaying a single line of text.
 
-{5 {{:graph-b_label.html}Dependency graph}}
+{5 {{:graph-dot-b_label.html}Dependency graph}}
  *)
 module Label : sig
   type t
@@ -1140,7 +1140,7 @@ end (* of Label *)
 
 (** Button widget with text or icon.
 
-{5 {{:graph-b_button.html}Dependency graph}}
+{5 {{:graph-dot-b_button.html}Dependency graph}}
 *)
 module Button : sig
   type t
@@ -1173,7 +1173,7 @@ end (* of Button *)
 
 (** Slider widget.
 
-{5 {{:graph-b_slider.html}Dependency graph}}
+{5 {{:graph-dot-b_slider.html}Dependency graph}}
  *)
 module Slider : sig
   type t
@@ -1182,6 +1182,11 @@ module Slider : sig
     | HBar (* horizontal bar filled up to the value *)
     | Vertical
     | Circular
+
+  val triggers : Trigger.t list
+  (**  The list of events that a Slider can react to. Currently this is the
+       concatenation of [Trigger.[buttons_down; buttons_up; pointer_motion]]
+       plus [Sdl.Event.key_down]. *)
 
   val size : t -> int * int
 
@@ -1199,7 +1204,7 @@ end (* of Slider *)
 
 (** Checkbox widget.
 
-{5 {{:graph-b_check.html}Dependency graph}}
+{5 {{:graph-dot-b_check.html}Dependency graph}}
  *)
 module Check : sig
   type t
@@ -1214,7 +1219,7 @@ end (* of Check *)
 
 (** Multi-line text display widget.
 
-{5 {{:graph-b_text_display.html}Dependency graph}}
+{5 {{:graph-dot-b_text_display.html}Dependency graph}}
  *)
 module Text_display : sig
   type t
@@ -1253,12 +1258,15 @@ end (* Text_display *)
 
 (** One-line text-input widget.
 
-{5 {{:graph-b_text_input.html}Dependency graph}}
+{5 {{:graph-dot-b_text_input.html}Dependency graph}}
  *)
 module Text_input : sig
   type t
   type filter = string -> bool
 
+  val triggers : Trigger.t list
+  (** The list of events that a Text_input can react to. Currently this is
+      [Sdl.Event.[text_editing; text_input; key_down; key_up]]. *)
 
   (** {2 Creating the widget}
 
@@ -1268,13 +1276,18 @@ module Text_input : sig
   val uint_filter : filter
   val text : t -> string
 
+  (** {2 Modifying the widget} *)
+  val activate : t -> unit
+  (** Warning: two Text_input widgets cannot be active at the same time. You can
+    use {!Sync.push} to delay the activation. *)
+
 end (* of Text_input *)
 
 (* ---------------------------------------------------------------------------- *)
 
 (** Box widget.
 
-{5 {{:graph-b_box.html}Dependency graph}}
+{5 {{:graph-dot-b_box.html}Dependency graph}}
 *)
 module Box : sig
   type t
@@ -1283,6 +1296,10 @@ module Box : sig
     ?style:Style.t -> unit -> t
 
   val set_background : t -> Style.background -> unit
+
+  val set_style : t -> Style.t -> unit
+
+  val get_style : t -> Style.t
 
 end (* of Box *)
 
@@ -1303,7 +1320,7 @@ end (* of Box *)
     in case you reserve the possibility to remove the command with
     {!remove_element}.
 
-{5 {{:graph-b_sdl_area.html}Dependency graph}} *)
+{5 {{:graph-dot-b_sdl_area.html}Dependency graph}} *)
 module Sdl_area : sig
   type t
 
@@ -1389,7 +1406,7 @@ module Sdl_area : sig
       {%html:<div class="figure"><img src="images/example50.png"></div>%}
 
       The source code for all [boguex] examples is
-     {{:https://github.com/sanette/bogue/blob/master/examples/example.ml}here}.
+     {{:https://github.com/sanette/bogue/blob/master/examples/examples.ml}here}.
 
   *)
 
@@ -1439,7 +1456,7 @@ Widgets are simple graphic elements that can react to user interaction. They are
    the inhabitants of your GUI house. When a widget is woken up by some event,
    it can talk to another widget by means of a [connection].
 
-{5 {{:graph-b_widget.html}Dependency graph}} *)
+{5 {{:graph-dot-b_widget.html}Dependency graph}} *)
 module Widget : sig
   type t
   (** The type {!t} is a union of all kinds of widgets: Box, Button, Check box,
@@ -1462,7 +1479,11 @@ let l = get_label w in
      specified function, which is called {!action}.
 
      An action is always executed in a new Thread (and hence will not block the
-     GUI), unless the priority [Main] is specified.  *)
+     GUI), unless the priority [Main] is specified.
+
+      If a widget possess several connections which react to the same event, the
+      order of execution of these connections is the same as the order they were
+      registered.  *)
 
   type connection
 
@@ -1614,6 +1635,8 @@ functions} below. *)
 
   val text_input : ?text:string -> ?prompt:string ->
     ?size:int -> ?filter:Text_input.filter -> ?max_size:int -> unit -> t
+  (** [size] is the font size. [max_size] is the maximum number of chars
+      allowed. The [prompt] is used to *)
 
   (** {3 Buttons} *)
 
@@ -1720,7 +1743,7 @@ end (* of Widget *)
 
 (** Updating widgets
 
-{5 {{:graph-b_update.html}Dependency graph}}
+{5 {{:graph-dot-b_update.html}Dependency graph}}
 *)
 module Update : sig
 
@@ -1755,7 +1778,7 @@ end (* of Update *)
    widget. However, the tree is upside-down (as often): we think of the trunk
    (or {e top-layout}) to be a the top, and the leaves at the bottom.
 
-{5 {{:graph-b_layout.html}Dependency graph}} *)
+{5 {{:graph-dot-b_layout.html}Dependency graph}} *)
 module Layout : sig
   type t
 
@@ -2129,7 +2152,7 @@ These functions {e do not take effect immediately!} They will be executed, in
    the order of their invocation, at the next graphics frame (or at startup if
    they are invoked before the start of the mainloop).
 
-{5 {{:graph-b_space.html}Dependency graph}}
+{5 {{:graph-dot-b_space.html}Dependency graph}}
  *)
 module Space : sig
 
@@ -2168,7 +2191,7 @@ end (* of Space *)
 
 (** Convert Bogue objects to strings for debugging.
 
-{5 {{:graph-b_print.html}Dependency graph}}
+{5 {{:graph-dot-b_print.html}Dependency graph}}
 *)
 module Print : sig
 
@@ -2189,7 +2212,7 @@ end (* of Print *)
 
 (** Create an image from a Layout.
 
-{5 {{:graph-b_snapshot.html}Dependency graph}}
+{5 {{:graph-dot-b_snapshot.html}Dependency graph}}
 *)
 module Snapshot : sig
 
@@ -2217,7 +2240,7 @@ Long_lists may contain any type of Layout. They don't need to be all of the same
    [generate] such that the layout given by [generate i] is the i-eth element of
    the list.
 
-{5 {{:graph-b_long_list.html}Dependency graph}} *)
+{5 {{:graph-dot-b_long_list.html}Dependency graph}} *)
 module Long_list : sig
   type t
 
@@ -2246,7 +2269,7 @@ end (* of Long_list *)
 
 (** Switch between layouts using Tabs.
 
-{5 {{:graph-b_tabs.html}Dependency graph}}
+{5 {{:graph-dot-b_tabs.html}Dependency graph}}
 *)
 module Tabs : sig
 
@@ -2264,7 +2287,7 @@ end (* of Tabs *)
 {e Warning:} For all functions in this module, the destination layout must be a
    house, not a single resident.
 
-{5 {{:graph-b_popup.html}Dependency graph}} *)
+{5 {{:graph-dot-b_popup.html}Dependency graph}} *)
 module Popup : sig
 
   val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
@@ -2332,7 +2355,7 @@ The generic {!create} function produces menus whose entries can be arbitrary
 The specialized {!bar} function will produce a familiar menu bar with drop-down
    submenus.
 
-{5 {{:graph-b_menu.html}Dependency graph}}
+{5 {{:graph-dot-b_menu.html}Dependency graph}}
 *)
 module Menu : sig
 
@@ -2389,7 +2412,7 @@ It's the usual select box which opens a drop-down list when clicked on, similar
  Under the hood, a select list is a special type of menu with a single entry
    having a submenu.
 
-{5 {{:graph-b_select.html}Dependency graph}} *)
+{5 {{:graph-dot-b_select.html}Dependency graph}} *)
 module Select : sig
 
   val create : ?dst:Layout.t ->
@@ -2414,7 +2437,7 @@ end (* of Select *)
    at most one item can be selected, similarly to [<input type="radio"...>] in
    html. Radiobuttons are implemented with {!Check.t}.
 
-{5 {{:graph-b_radiolist.html}Dependency graph}}
+{5 {{:graph-dot-b_radiolist.html}Dependency graph}}
 *)
 module Radiolist : sig
   type t
@@ -2442,7 +2465,7 @@ end (* of Radiolist *)
 
 (** Tables with sortable columns and selectable rows.
 
-{5 {{:graph-b_table.html}Dependency graph}}
+{5 {{:graph-dot-b_table.html}Dependency graph}}
 *)
 module Table : sig
   type column =
@@ -2527,7 +2550,7 @@ Because a GUI continuously waits for user interaction, everything has to run
 
 (** Control the workflow of the GUI mainloop.
 
-{5 {{:graph-b_main.html}Dependency graph}}
+{5 {{:graph-dot-b_main.html}Dependency graph}}
 *)
 module Main : sig
   type board

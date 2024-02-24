@@ -6,22 +6,22 @@
 open Tsdl
 open B_utils
 module Avar = B_avar
-module Utf8 = B_utf8
-module Var = B_var
-module Tvar = B_tvar
-module Timeout = B_timeout
-module Trigger =  B_trigger
+module Box = B_box
+module Button = B_button
+module Check = B_check
 module Draw = B_draw
 module Empty = B_empty
 module Image = B_image
-module Box = B_box
-module Sdl_area = B_sdl_area
 module Label = B_label
-module Button = B_button
+module Sdl_area = B_sdl_area
 module Slider = B_slider
-module Check = B_check
 module Text_display = B_text_display
 module Text_input = B_text_input
+module Timeout = B_timeout
+module Trigger =  B_trigger
+module Tvar = B_tvar
+module Utf8 = B_utf8
+module Var = B_var
 
 type kind =
   | Empty of Empty.t
@@ -500,7 +500,8 @@ let slider ?(priority=Main) ?step ?value ?kind ?var ?length ?thickness
         if Trigger.mm_pressed ev || Trigger.event_kind ev = `Finger_motion
         then (Slider.slide ti ev; update w)
       in
-      let c = connect ~priority ~update_target:false w w slide Trigger.pointer_motion in
+      let c = connect ~priority ~update_target:false w w slide
+                Trigger.pointer_motion in
       add_connection w c;
       let get_keys = fun w _ ev -> Slider.receive_key (get_slider w) ev
       in
@@ -545,7 +546,7 @@ let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
   add_connection w c;
   let get_keys = fun w _ ev -> Text_input.receive_key (get_text_input w) ev
   in
-  let c2 = connect_main w w get_keys [Sdl.Event.text_editing; Sdl.Event.text_input; Sdl.Event.key_down; Sdl.Event.key_up] in
+  let c2 = connect_main w w get_keys Text_input.triggers in
   add_connection w c2;
   w
 

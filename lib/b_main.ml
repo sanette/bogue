@@ -9,19 +9,19 @@ https://ocaml.github.io/ocamlunix/threads.html
 
 open B_utils
 open Tsdl
+module Avar = B_avar
+module Draw = B_draw
 module E = Sdl.Event
 module Layout = B_layout
-module Widget = B_widget
+module Mouse = B_mouse
+module Print = B_print
 module Shortcut = B_shortcut
-module Avar = B_avar
+module Sync = B_sync
 module Time = B_time
 module Timeout = B_timeout
 module Trigger =  B_trigger
-module Sync = B_sync
-module Draw = B_draw
-module Mouse = B_mouse
 module Update = B_update
-module Print = B_print
+module Widget = B_widget
 module Window = B_window
 
 exception Exit
@@ -481,16 +481,20 @@ let tab board =
         | Some l -> l
         | None -> Window.get_layout (List.hd board.windows) in
   let top = match top_house board current_room with
-    | None -> printd (debug_board+debug_custom)
-                "Current keyboard focus %s has no Window..." (Layout.sprint_id current_room);
-              Window.get_layout (List.hd board.windows)
-    | Some top -> printd debug_custom "Current window is %s" (Layout.sprint_id top);
-                  top in
+    | None ->
+      printd (debug_board+debug_custom)
+        "Current keyboard focus %s has no Window..."
+        (Layout.sprint_id current_room);
+      Window.get_layout (List.hd board.windows)
+    | Some top ->
+      printd debug_custom "Current window is %s" (Layout.sprint_id top);
+      top in
   printd debug_board "Current room #%u" current_room.Layout.id;
   Layout.keyboard_focus_before_tab := Some current_room;
   match Layout.next_keyboard ~top current_room with
   | None -> printd debug_board " ==> No keyboard focus found !"
-  | Some r as ro -> printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
+  | Some r as ro ->
+    printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
     set_keyboard_focus board ro
 
 (** open/close the debugging window *)

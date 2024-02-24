@@ -89,6 +89,12 @@ let stopped = new_event_type "stopped"
 let mouse_enter = new_event_type "mouse_enter"
 
 let mouse_leave = new_event_type "mouse_leave"
+(* The mouse_leave and mouse_enter events are sent when the layout under the
+   mouse changes, and if the mouse button is *not* clicked* -- because in this
+   case, the clicked widget should keep the focus until the button is
+   released. However, in the current implementation, if the button is down, the
+   mouse_leave event will be sent when the mouse leaves the Bogue window. See
+   [Main.check_mouse_motion]. *)
 
 let redraw = new_event_type "redraw" (* TODO: select only a particular canvas *)
 

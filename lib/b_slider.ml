@@ -55,6 +55,11 @@ type t = {
        destroyed on the fly. Change this ? *)
   }
 
+(* Usual events for a Slider *)
+let triggers =
+  let open Trigger in
+  List.flatten [buttons_down; buttons_up; pointer_motion; [E.key_down]]
+
 let length s =
   let w,h = s.size in
   match s.kind with
@@ -148,6 +153,13 @@ let clicked_value s =
   Var.get s.clicked_value
 
 let set s value =
+  let value =
+    if value < 0 || value > s.max
+    then begin
+        printd debug_error "Slider value %i is invalid. Clipping." value;
+        imax 0 (imin s.max value)
+      end
+    else value in
   Tvar.set s.var value;
   Var.set s.cache value
 

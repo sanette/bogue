@@ -218,7 +218,8 @@ let list_remove_first f l =
   | _, [] -> raise Not_found
   | l1, _::l2 -> List.rev_append l1 l2
 
-(* splits a list atfer the xth element *)
+(* Splits a list atfer the xth element. (x=0 for first element; the first
+   returned list has length x.) *)
 let split_list_rev list x =
   let rec loop head tail i =
     if i >= x then (head, tail)

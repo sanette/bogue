@@ -26,7 +26,7 @@
 <div class="info-desc">
 <p>One-line text-input widget.</p>
 
-<h6 id="5_graphbtextinputhtmlDependencygraph"><a href="graph-b_text_input.html">Dependency graph</a></h6></div>
+<h6 id="5_graphdotbtextinputhtmlDependencygraph"><a href="graph-dot-b_text_input.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
 
@@ -35,8 +35,23 @@
 
 <pre><span id="TYPEfilter"><span class="keyword">type</span> <code class="type"></code>filter</span> = <code class="type">string -&gt; bool</code> </pre>
 
+
+<pre><span id="VALtriggers"><span class="keyword">val</span> triggers</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list</code></pre><div class="info ">
+<div class="info-desc">
+<p>The list of events that a Text_input can react to. Currently this is
+      <code class="code"><span class="constructor">Sdl</span>.<span class="constructor">Event</span>.[text_editing;&nbsp;text_input;&nbsp;key_down;&nbsp;key_up]</code>.</p>
+</div>
+</div>
 <h3 id="2_Creatingthewidget">Creating the widget</h3>
 <p>Use <a href="Bogue.Widget.html#VALtext_input"><code class="code"><span class="constructor">Widget</span>.text_input</code></a></p>
 
 <pre><span id="VALuint_filter"><span class="keyword">val</span> uint_filter</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEfilter">filter</a></code></pre>
-<pre><span id="VALtext"><span class="keyword">val</span> text</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; string</code></pre></body></html>
+<pre><span id="VALtext"><span class="keyword">val</span> text</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; string</code></pre>
+<pre><span id="VALactivate"><span class="keyword">val</span> activate</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<h3 id="2_Modifyingthewidget">Modifying the widget</h3>
+<p>Warning: two Text_input widgets cannot be active at the same time. You can
+    use <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a> to delay the activation.</p>
+</div>
+</div>
+</body></html>
