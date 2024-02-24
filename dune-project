@@ -1,14 +1,13 @@
 (lang dune 2.7)
 (cram enable)
 (name bogue)
-(version "20240217")
+(version "20240224")
 (generate_opam_files true)
 (license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
 (authors "Vu Ngoc San <san.vu-ngoc@laposte.net>")
 (source (github sanette/bogue))
 (documentation "http://sanette.github.io/bogue/Bogue.html")
-(formatting disabled)
 
 (package
  (name bogue)

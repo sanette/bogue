@@ -868,7 +868,7 @@ let check_mouse_rest =
 
 let no_timeout () = -1
 
-let poll_noevent_fps = Time.make_fps ()
+let start_noevent_fps, poll_noevent_fps = Time.make_fps ()
 
 let wait_event_timeout =
     let major, minor, patch = Sdl.get_version () in

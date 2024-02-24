@@ -30,7 +30,7 @@ let (>>) (t1 : t) (t2 : t) =
 
 let float t = float t
 
-(* Do not use ! it is NOT nice to other threads *)
+(* Do not use! it is NOT nice to other threads *)
 let delay_old d = Sdl.delay (Int32.of_int d);; (* attention ça freeze si c'est négatif *)
 
 (* we use this instead *)
@@ -42,6 +42,7 @@ let now () : t = Int32.to_int (Sdl.get_ticks ())
 
 let make_fps () =
   let start = ref 0 in
+  (fun () -> start := now ()),
   fun fps ->
     if !start = 0 then (delay 5; start := now ())
     else

@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20231209...HEAD)
 
+### Developement
+
+- We now use tsdl 1.0.0
+
+## [20240224](https://github.com/sanette/bogue/compare/20231209...20240224)
+
+### Warning: Last version compatible with tsdl < 0.9.9 (and >= 0.9.7)
+
 ### Added
 
 - `Text_input.activate` is now public
@@ -15,10 +23,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- fix too large cursor position when using Text_input.set
+- Take advantage of recent SDL version to (greatly!) reduce power
+  saving with idle.
+- Fix too large cursor position when using Text_input.set
 
 ### Developement
 
+- `mouse_at_rest` now uses `Timeout`.
 - Switch from `directories` to `xdg` to work on Windows.
 - Remove symlinks in doc.
 - The `example.ml` file is now called `examples.ml`, which is much

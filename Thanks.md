@@ -3,6 +3,10 @@
 I know I'm not always very good at this. Don't hesitate to contact me
 if I forgot to mention you here.
 
+# 20240224
+thanks to edwintorok for power saving when idle
+https://github.com/sanette/bogue/pull/15
+
 # 20231209
 thanks to jonahbeckford for help on Windows OS config files
 https://github.com/sanette/bogue/pull/12

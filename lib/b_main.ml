@@ -885,7 +885,7 @@ let event_loop anim new_anim board =
   let e = !Trigger.my_event in
   continue e 0
 
-let nop_event_fps = Time.make_fps ()
+let start_nop_event_fps, nop_event_fps = Time.make_fps ()
 
 (* [one_step] is what is executed during the main loop *)
 let one_step ?before_display anim (start_fps, fps) ?clear board =
@@ -1028,7 +1028,7 @@ let run ?before_display ?after_display board =
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();
   Trigger.main_tread_id := Thread.(id (self ()));
-  let fps = Time.adaptive_fps 60 in
+  let start, fps = Time.adaptive_fps 60 in
   make_sdl_windows board;
   show board;
   Thread.delay 0.01; (* we need some delay for the initial Mouse position to be detected *)
@@ -1063,8 +1063,11 @@ let run ?before_display ?after_display board =
   List.iter (Widget.wake_up (Trigger.startup_event ())) (* TODOOOOO this event can be modified by a thread??!!! *)
     (List.flatten (List.map Widget.connections (Layout.get_widgets board.windows_house)));
   Trigger.renew_my_event ();
+  start_nop_event_fps ();
+  Trigger.start_noevent_fps ();
+
   let rec loop anim =
-    let anim' = one_step ?before_display ~clear:true anim fps board in
+    let anim' = one_step ?before_display ~clear:true anim (start,fps) board in
     do_option after_display (fun f -> f ()); (* TODO? *)
     loop anim' in
   try
