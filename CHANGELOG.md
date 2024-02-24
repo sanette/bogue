@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Developement
 
-- We now use tsdl 1.0.0
+- Next version will use tsdl 1.0.0
 
 ## [20240224](https://github.com/sanette/bogue/compare/20231209...20240224)
 
