@@ -9,7 +9,7 @@
 (source (github sanette/bogue))
 (documentation "http://sanette.github.io/bogue/Bogue.html")
 (formatting disabled)
- 
+
 (package
  (name bogue)
  (synopsis "GUI library for ocaml, with animations, based on SDL2")
@@ -36,5 +36,4 @@ Threads when non-blocking reactions are needed.")
   (ocaml (>= 4.08.0))
   (xdg (>= 3.4.0))
   (tsdl (and (> 0.9.9)))
-  directories
 ))
