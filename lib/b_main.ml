@@ -1065,7 +1065,6 @@ let run ?(vsync=true) ?before_display ?after_display board =
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();
   Trigger.main_tread_id := Thread.(id (self ()));
-  let start, fps = Time.adaptive_fps 60 in
   make_sdl_windows board;
   let desired_fps =
     if vsync then default (get_monitor_refresh_rate board) 60
