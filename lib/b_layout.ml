@@ -17,26 +17,27 @@
    Layout. Otherwise, the results are not going to be satisfactory: a
    widget is associated to a geometry in a layout. Instead one should
    use two differents widgets with a connection between them to
-   synchronize the data *)
+   synchronize the data. *)
 
 
 open Tsdl
 open B_utils
-module Widget = B_widget
 module Avar = B_avar
+module Box = B_box
 module Chain = B_chain
+module Draw = B_draw
+module Label = B_label
+module Mouse = B_mouse
+module Selection = B_selection
+module Slider = B_slider
+module Style = B_style
+module Sync = B_sync
 module Theme = B_theme
 module Time = B_time
-module Var = B_var
-module Tvar = B_tvar
 module Trigger = B_trigger
-module Sync = B_sync
-module Draw = B_draw
-module Mouse = B_mouse
-module Style = B_style
-module Box = B_box
-module Slider = B_slider
-module Selection = B_selection
+module Tvar = B_tvar
+module Var = B_var
+module Widget = B_widget
 
 type background =
   (* TODO instead we should keep track of how the box was
@@ -106,11 +107,11 @@ type room_content =
   (* In principle, rooms in a house with the same layer should have
      non-intersecting geometries, otherwise it is not clear which one gets the
      mouse focus (this can be violated, eg. with Layout.superpose). Popups are
-     drawn on a different layer *)
+     drawn on a different layer. *)
   | Resident of Widget.t
 
 and room = {
-    id : int; (* unique identifier *)
+    id : int; (* unique identifier. *)
     name : string option;
     (* If needed for debugging, one can give a name to the room. *)
     lock : Mutex.t;
@@ -144,13 +145,13 @@ and room = {
        than indicated size. Before the start of the main loop, it is equal to
        the initial values of the geometry field. *)
     (* A special case of current_geom.(x,y) is to specify window position for
-       the top layouts. See set_window_pos *)
+       the top layouts. See set_window_pos. *)
     mutable clip : bool;
     (* If [clip]=true, the room (and its children) will be clipped inside its
        geometry. This should be set whenever one want to scroll the content of
        the layout inside the layout. This is also used (and set) by hide/show
-       animations. TODO replace this by a more flexible 'overflow' specification
-     *)
+       animations. TODO replace this by a more flexible 'overflow'
+       specification.  *)
     mutable background : background option;
     mutable shadow : Style.shadow option;
     mask : Sdl.surface option;
@@ -1833,7 +1834,8 @@ let h_align ~align layout x0 w =
                  let x = Draw.align align x0 w w0 in
                  setx r x)
 
-(* Create a tower from a list of rooms *)
+(* Create a tower from a list of rooms (this modifies the x/y pos of the
+   rooms)*)
 (* sep = vertical space between two rooms *)
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
@@ -1856,7 +1858,8 @@ let tower ?name ?(sep = Theme.room_margin/2) ?margins
   let layout = create ~adjust ?name ?background ?shadow ?clip
       (geometry ~w ~h ()) (Rooms rooms) ?canvas in
   do_option align (fun align -> h_align ~align layout hmargin (w-2*hmargin));
-  if clip = None && scale_content then scale_resize_list (w,h) rooms else fix_content layout;
+  if clip = None && scale_content
+  then scale_resize_list (w,h) rooms else fix_content layout;
   (* TODO ce n'est pas la peine de scaler la largeur si elle ne dépasse pas le
      layout. Voir par exemple la demo/demo *)
   layout
@@ -2247,7 +2250,7 @@ let zoom ?duration ~from_factor ~to_factor room =
 
 (** oscillate (for fun) *)
 let oscillate ?(duration = 10000) ?(frequency=5.) amplitude room =
-  let x = Avar.oscillate ~duration ~frequency amplitude (getx room)in
+  let x = Avar.oscillate ~duration ~frequency amplitude (getx room) in
   animate_x room x
 
 (** add a slide_in animation to the room *)
@@ -2317,71 +2320,72 @@ let make_clip
   if w <> None
   then printd debug_error "Horizontal scrolling is not implemented yet";
   let w = default w (width room) in
+  let x0 = getx room in
   let y0 = gety room in
   sety room 0;
   let active_bg = Widget.empty ~w:(width room) ~h:(height room) () in
   (* We add an invisible box to make the whole area selectable by the mouse
      focus. Otherwise, only the parts of the room that contain a widget will
-     react to the mouse wheel event. Of course, if the room was full of widgets,
-     this is superfluous... *)
+     react to the *mouse wheel* event. Of course, if the room is full of
+     widgets, this is superfluous... *)
   let layer = get_layer room in
   let container = tower ~margins:0 ~clip:true
-      [superpose [resident_with_layer ~layer active_bg; room]] in
+                    [superpose [resident_with_layer ~layer active_bg; room]] in
   (* The container should be a room with a unique subroom (and the active
      background); the subroom can then be scrolled with respect to the container
-  *)
+   *)
   set_size container (w,h);
 
   let result =
     if scrollbar
     then begin
-      (* We first initialize the bar layout with a dummy widget, so that the
-         var is able to use it. This is only useful if the height of the
-         container is modified after creation, for instance when the user
-         resizes the window. *)
-      let bar = resident_with_layer ~layer
-          ~background:(color_bg Draw.(lighter scrollbar_color))
-          (Widget.empty ~w:10 ~h:10 ()) in
-      (* The scrollbar is a slider. Its Tvar takes the voffset value into the
-         slider value, between 0 and (height room - height container). 0
-         corresponds to the bottom position of the slider, so this means the
-         *largest* scroll (voffset is the most negative). *)
-      let var = Tvar.create container.geometry.voffset
-          ~t_from:(fun vo ->
-              let dh = height room - height bar in
-              if dh <= 0 then 0 (* then the bar should be hidden *)
-              else dh + Avar.get vo)
-          ~t_to:(fun v ->
-              let dh = height room - height bar in
-              let v = imin v dh |> imax 0 in
-              Avar.var (height bar - height room + v)) in
-      let wsli = Widget.slider ~kind:Slider.Vertical ~length:h
-          ~thickness:scrollbar_width
-          ~tick_size:(h * h / (height room))
-          ~var (imax 0 (height room - h)) in
-      change_resident bar wsli;
-      if h >= (height room) then hide ~duration:0 bar;
-      let r = if scrollbar_inside
-        then (setx bar (w - width bar);
-              set_layer bar (Chain.insert_after
-                               (Chain.last (get_layer container))
-                               (Draw.new_layer ()));
-              (* TODO: is this a bit too much ?? We just want to make
-                 sure the scrollbar gets mouse focus. *)
-              superpose ~name [container; bar])
-        else flat ~name ~margins:0 [container; bar] in
-      disable_resize bar;
-      (* We register a resize function that simultaneously sets the container
-         and the bar sizes. It will hide the bar when the container is large
-         enough to display the whole content. *)
-      container.resize <- (fun (w,h) ->
+        (* We first initialize the bar layout with a dummy widget, so that the
+           var is able to use it. This is only useful if the height of the
+           container is modified after creation, for instance when the user
+           resizes the window. *)
+        let bar = resident_with_layer ~layer
+                    ~background:(color_bg Draw.(lighter scrollbar_color))
+                    (Widget.empty ~w:10 ~h:10 ()) in
+        (* The scrollbar is a slider. Its Tvar takes the voffset value into the
+           slider value, between 0 and (height room - height container). 0
+           corresponds to the bottom position of the slider, so this means the
+           *largest* scroll (voffset is the most negative). *)
+        let var = Tvar.create container.geometry.voffset
+                    ~t_from:(fun vo ->
+                      let dh = height room - height bar in
+                      if dh <= 0 then 0 (* then the bar should be hidden *)
+                      else dh + Avar.get vo)
+                    ~t_to:(fun v ->
+                      let dh = height room - height bar in
+                      let v = imin v dh |> imax 0 in
+                      Avar.var (height bar - height room + v)) in
+        let wsli = Widget.slider ~kind:Slider.Vertical ~length:h
+                     ~thickness:scrollbar_width
+                     ~tick_size:(h * h / (height room))
+                     ~var (imax 0 (height room - h)) in
+        change_resident bar wsli;
+        if h >= (height room) then hide ~duration:0 bar;
+        let r = if scrollbar_inside
+                then (setx bar (w - width bar);
+                      set_layer bar (Chain.insert_after
+                                       (Chain.last (get_layer container))
+                                       (Draw.new_layer ()));
+                      (* TODO: is this a bit too much ?? We just want to make
+                         sure the scrollbar gets mouse focus. *)
+                      superpose ~name [container; bar])
+                else flat ~name ~margins:0 [container; bar] in
+        disable_resize bar;
+        (* We register a resize function that simultaneously sets the container
+           and the bar sizes. It will hide the bar when the container is large
+           enough to display the whole content. *)
+        container.resize <- (fun (w,h) ->
           let keep_resize = true in
           set_height ~keep_resize bar h;
           if scrollbar_inside then set_size ~keep_resize container (w,h)
           else begin
-            set_size ~keep_resize container (w - width bar, h);
-            setx ~keep_resize bar (w - width bar)
-          end;
+              set_size ~keep_resize container (w - width bar, h);
+              setx ~keep_resize bar (w - width bar)
+            end;
           let dh = height room - height bar in
           let sli = Widget.get_slider wsli in
           if dh >= 1 then Slider.set_max sli dh
@@ -2392,19 +2396,17 @@ let make_clip
           let h = height bar in
           if height room <> 0
           then Slider.set_tick_size sli
-              (imax (Slider.min_tick_size sli) (h * h / (height room)));
+                 (imax (Slider.min_tick_size sli) (h * h / (height room)));
           let v = Slider.update_value sli; Slider.value sli in
           if v < 0 then Slider.set sli 0;
           if dh <= 0
           then rec_set_show false bar
           else rec_set_show true bar);
-      r
-    end
+        r
+      end
     else container in
 
   sety result y0;
-  let x0 = getx room in
-  setx room 0;
   setx result x0;
   (* We copy the shadow. TODO: this has no effect at the moment, because of the
      'clip' flag, the layout is sharply clipped to its bounding box when
@@ -2643,10 +2645,10 @@ let display ?pos0 room =
           end;
           if !draw_boxes (* we print the room number at the end to make sure
                             it's visible *)
-          then let label = B_label.create ~size:7 ~fg:(Draw.(transp blue))
+          then let label = Label.create ~size:7 ~fg:(Draw.(transp blue))
                    (sprint_id r) in
             let geom = Draw.scale_geom {Draw.x; y; w=g.w+1; h=g.h+1; voffset} in
-            let blits = B_label.display (get_canvas r) (get_layer r) label geom in
+            let blits = Label.display (get_canvas r) (get_layer r) label geom in
             List.iter Draw.blit_to_layer blits;
             List.iter Draw.unload_blit blits
         end

@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20231209"  (* see VERSION file *)
+let this_version = "20240225"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -99,21 +99,14 @@ let (//) = Filename.concat
 
 (* Some global environment variables *)
 
-module User_dirs = Directories.User_dirs ()
-module Project_dirs = Directories.Project_dirs (struct
-  let qualifier = "org"
-  let organization = "sanette"
-  let application = "bogue"
-end
-)
+let xdg = Xdg.create ~env:Sys.getenv_opt ()
 
-let home = match User_dirs.home_dir with
-  | None -> failwith "Can't compute home directory path."
-  | Some home -> home
+let home = Xdg.home_dir xdg
 
-let conf = match Project_dirs.config_dir with
-  | None -> failwith "Can't compute configuration directory path."
-  | Some config_dir -> config_dir
+let conf =
+  let application = "bogue" in
+  let config_dir = Xdg.config_dir xdg in
+  config_dir // application
 
 let skip_comment buffer =
   let rec loop () =

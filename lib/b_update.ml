@@ -9,9 +9,9 @@
 (* ou à attacher à la board ? *)
 
 open B_utils
-module Widget = B_widget
-module Var = B_var
 module Trigger =  B_trigger
+module Var = B_var
+module Widget = B_widget
 
 let str = Printf.sprintf
 

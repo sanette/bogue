@@ -9,19 +9,19 @@ https://ocaml.github.io/ocamlunix/threads.html
 
 open B_utils
 open Tsdl
+module Avar = B_avar
+module Draw = B_draw
 module E = Sdl.Event
 module Layout = B_layout
-module Widget = B_widget
+module Mouse = B_mouse
+module Print = B_print
 module Shortcut = B_shortcut
-module Avar = B_avar
+module Sync = B_sync
 module Time = B_time
 module Timeout = B_timeout
 module Trigger =  B_trigger
-module Sync = B_sync
-module Draw = B_draw
-module Mouse = B_mouse
 module Update = B_update
-module Print = B_print
+module Widget = B_widget
 module Window = B_window
 module ISet = Set.Make(Int)
 
@@ -482,16 +482,20 @@ let tab board =
         | Some l -> l
         | None -> Window.get_layout (List.hd board.windows) in
   let top = match top_house board current_room with
-    | None -> printd (debug_board+debug_custom)
-                "Current keyboard focus %s has no Window..." (Layout.sprint_id current_room);
-              Window.get_layout (List.hd board.windows)
-    | Some top -> printd debug_custom "Current window is %s" (Layout.sprint_id top);
-                  top in
+    | None ->
+      printd (debug_board+debug_custom)
+        "Current keyboard focus %s has no Window..."
+        (Layout.sprint_id current_room);
+      Window.get_layout (List.hd board.windows)
+    | Some top ->
+      printd debug_custom "Current window is %s" (Layout.sprint_id top);
+      top in
   printd debug_board "Current room #%u" current_room.Layout.id;
   Layout.keyboard_focus_before_tab := Some current_room;
   match Layout.next_keyboard ~top current_room with
   | None -> printd debug_board " ==> No keyboard focus found !"
-  | Some r as ro -> printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
+  | Some r as ro ->
+    printd debug_board "Activating next keyboard focus (room #%u)" r.Layout.id;
     set_keyboard_focus board ro
 
 (** open/close the debugging window *)
@@ -882,10 +886,11 @@ let event_loop anim new_anim board =
   let e = !Trigger.my_event in
   continue e 0
 
+let start_nop_event_fps, nop_event_fps = Time.make_fps ()
 
 (* [one_step] is what is executed during the main loop *)
 let one_step ?before_display anim (start_fps, fps) ?clear board =
-  Timeout.run ();
+  let (_ : Time.t) = Timeout.run () in
   let new_anim = has_anim board in
   if new_anim && not anim then start_fps ();
   event_loop anim new_anim board;
@@ -923,7 +928,7 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   end;
   (* else *)
 
-  if anim then fps () else Thread.delay 0.005;
+  if anim then fps ();
   (* even when there is no anim, we need to to be nice to other treads, in
      particular when an event is triggered very rapidly (mouse_motion) and
      captured by a connection, without anim. Should we put also here a FPS?? *)
@@ -933,6 +938,11 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
   printd debug_graphics "==> Rendering took %u ms" (Time.now () - t);
   Avar.new_frame (); (* This is used for updating animated variables. *)
   printd debug_graphics "---------- end of loop -----------";
+  if not anim then
+  if Layout.is_fresh board.windows_house then
+    nop_event_fps 60
+  else
+    Thread.delay 0.005;
   anim
 
 (* Create an SDL window for each top layout. *)
@@ -1055,6 +1065,7 @@ let run ?(vsync=true) ?before_display ?after_display board =
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();
   Trigger.main_tread_id := Thread.(id (self ()));
+  let start, fps = Time.adaptive_fps 60 in
   make_sdl_windows board;
   let desired_fps =
     if vsync then default (get_monitor_refresh_rate board) 60
@@ -1094,6 +1105,9 @@ let run ?(vsync=true) ?before_display ?after_display board =
   List.iter (Widget.wake_up (Trigger.startup_event ())) (* TODOOOOO this event can be modified by a thread??!!! *)
     (List.flatten (List.map Widget.connections (Layout.get_widgets board.windows_house)));
   Trigger.renew_my_event ();
+  start_nop_event_fps ();
+  Trigger.start_noevent_fps ();
+
   let rec loop anim =
     let anim' = one_step ?before_display ~clear:true anim (start,fps) board in
     do_option after_display (fun f -> f ()); (* TODO? *)

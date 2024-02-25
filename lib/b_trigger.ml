@@ -13,6 +13,8 @@
 open Tsdl
 open B_utils
 module E = Sdl.Event
+module Time = B_time
+module Timeout = B_timeout
 module Var = B_var
 open Result
 
@@ -87,6 +89,12 @@ let stopped = new_event_type "stopped"
 let mouse_enter = new_event_type "mouse_enter"
 
 let mouse_leave = new_event_type "mouse_leave"
+(* The mouse_leave and mouse_enter events are sent when the layout under the
+   mouse changes, and if the mouse button is *not* clicked* -- because in this
+   case, the clicked widget should keep the focus until the button is
+   released. However, in the current implementation, if the button is down, the
+   mouse_leave event will be sent when the mouse leaves the Bogue window. See
+   [Main.check_mouse_motion]. *)
 
 let redraw = new_event_type "redraw" (* TODO: select only a particular canvas *)
 
@@ -792,42 +800,41 @@ let mouse_pos () =
 (* check if mouse didn't move for a while *)
 (* TODO use get_touch_finger *)
 let check_mouse_rest =
-  let pos0 = ref (0,0)
-  and t = ref (Some 0.) in
+  let t = ref None in
+  let on_mouse_idle () =
+    push_event @@ create_event mouse_at_rest
+  in
+  let start_timer () =
+      t := Some (mouse_pos (), Timeout.add 1000 on_mouse_idle)
+  in
   fun () ->
     match !t with
-    | None -> (* we start timer *)
-      t := Some (Unix.gettimeofday ());
-      pos0 := mouse_pos ();
-      0.
-    | Some t0 ->
+    | None -> start_timer ()
+    | Some (pos0, timeout)  ->
       let p = mouse_pos () in
-      if p <> !pos0 (* we have moved *)
-      then t := None;
-      Unix.gettimeofday () -. t0
+      if p <> pos0 (* we have moved *)
+      then begin
+        Timeout.cancel timeout;
+        start_timer ()
+      end
+
+let no_timeout () = -1
+
+let start_noevent_fps, poll_noevent_fps = Time.make_fps ()
+
+let wait_event_timeout =
+    let major, minor, patch = Sdl.get_version () in
+    if (major, minor, patch) >= (2,0,16) then Sdl.wait_event_timeout
+    else fun ev _ -> Sdl.poll_event ev
 
 (* Wait for next event. Returns the SAME event structure e (modified) *)
-(* Remark: (Sdl.wait_event (Some e); Some e) is supposed to to the job, but
-   (quoted from DOC) as of SDL 2.0, this function does not put the application's
-   process to sleep waiting for events; it polls for events in a loop
-   internally. This may change in the future to improve power savings. *)
-(* ME: as a result, it seems that Sdl.wait_event prevents other threads from
-   executing nicely *)
-let rec wait_event ?(action = nop) e =
-  action ();
-  if Sdl.poll_event (Some e) then e
-  (* TODO send an event instead, and reset mouse *)
-  else begin
-    let t = check_mouse_rest () in (* TODO use Timeout instead *)
-    if t > 1. && not !is_mouse_at_rest
-    then (is_mouse_at_rest := true;
-          push_event (create_event mouse_at_rest))
-    (* TODO save mouse position in event *)
-    else if t < 1. && !is_mouse_at_rest
-    then is_mouse_at_rest := false; (* the mouse has moved *)
-    Thread.delay 0.01;
-    wait_event ~action e
-  end
+let rec wait_event ?(action = no_timeout) e =
+  check_mouse_rest ();
+  let timeout = action () in
+  poll_noevent_fps 100;
+  let has_event = wait_event_timeout (Some e) timeout in
+  if has_event then e
+  else wait_event ~action e
 
 let mm_pressed ev =
   Int32.logand E.(get ev mouse_motion_state) (Sdl.Button.lmask) <> 0l
