@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20240225
+@version 20240229
 
 @author Vu Ngoc San
 
@@ -1636,7 +1636,8 @@ functions} below. *)
   val text_input : ?text:string -> ?prompt:string ->
     ?size:int -> ?filter:Text_input.filter -> ?max_size:int -> unit -> t
   (** [size] is the font size. [max_size] is the maximum number of chars
-      allowed. The [prompt] is used to *)
+      allowed. The [prompt] is used to display a message when there is no user
+      input. It also influences the size of the widget.  *)
 
   (** {3 Buttons} *)
 
