@@ -377,8 +377,14 @@ let list_sum list =
 let which command =
 (* BETTER: (specially for portability to WIN/MAC) use
    https://opam.ocaml.org/packages/fileutils/ *)
+  let cmdline command =
+    if Sys.win32 then
+      "where " ^ command ^ " 2> NUL"
+    else
+      "which " ^ command ^ " 2>/dev/null"
+    in
   try
-    let s = Unix.open_process_in ("which " ^ command) in
+    let s = Unix.open_process_in (cmdline command) in
     let res = try
         Some (input_line s)
       with
