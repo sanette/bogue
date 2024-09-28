@@ -114,6 +114,19 @@ opam pin add https://github.com/sanette/bogue.git
 opam unpin https://github.com/sanette/bogue.git
 ```
 
+## SDL2 troubleshooting
+
+Bogue needs the SDL2 library. In general you already have it
+installed, or, if everything goes smoothly, it will be installed
+automatically with `opam install tsdl`. _However_, `tsdl` is not able
+to automatically pick up the right version corresponding to your SDL2
+version. You might have to tell `opam` the version you need: for
+instance for Bogue 20240928 on Ubuntu 20.04 you should `opam install
+tsdl.1.0.0`, because the more recent `tsdl.1.1.0` requires
+`SDL >= 2.0.18` which you probably don't have on your system.
+
+See https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md
+
 ## Building from sources
 
 ### Prerequisites

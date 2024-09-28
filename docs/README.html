@@ -92,6 +92,9 @@
 <pre><code>opam pin add https://github.com/sanette/bogue.git</code></pre>
 <p>(Then update/upgrade opam). And this can easily be undone with</p>
 <pre><code>opam unpin https://github.com/sanette/bogue.git</code></pre>
+<h2 id="sdl2-troubleshooting">SDL2 troubleshooting</h2>
+<p>Bogue needs the SDL2 library. In general you already have it installed, or, if everything goes smoothly, it will be installed automatically with <code>opam install tsdl</code>. <em>However</em>, <code>tsdl</code> is not able to automatically pick up the right version corresponding to your SDL2 version. You might have to tell <code>opam</code> the version you need: for instance for Bogue 20240928 on Ubuntu 20.04 you should <code>opam install tsdl.1.0.0</code>, because the more recent <code>tsdl.1.1.0</code> requires <code>SDL &gt;= 2.0.18</code> which you probably don’t have on your system.</p>
+<p>See https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md</p>
 <h2 id="building-from-sources">Building from sources</h2>
 <h3 id="prerequisites">Prerequisites</h3>
 <p>You need a working <code>ocaml</code> installation with <code>opam</code>, see the <a href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make sure you have <code>dune</code>, <code>tsdl</code>, <code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
