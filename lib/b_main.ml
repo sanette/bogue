@@ -1054,7 +1054,7 @@ let make ?shortcuts connections layouts =
   of_layouts ?shortcuts ~connections layouts
 
 (** The main function that loops indefinitely *)
-(* one can insert code to be executed at two different places: "before_display"
+(* One can insert code to be executed at two different places: "before_display"
    means after Sync was executed and before Layout.display (except for manual
    CTRL-L which would occur before it. "after_display" means just after all
    textures have been calculated and rendered. Of course these two will not be
@@ -1072,7 +1072,8 @@ let run ?(vsync=true) ?before_display ?after_display board =
   printd debug_graphics "Desired FPS=%u" desired_fps;
   let start, fps = Time.adaptive_fps ~vsync desired_fps in
   show board;
-  Thread.delay 0.01; (* we need some delay for the initial Mouse position to be detected *)
+  Thread.delay 0.01; (* we need some delay for the initial Mouse position to be
+                        detected *)
   Sdl.pump_events ();
   Sdl.stop_text_input ();
   (* List.iter (Widget.set_canvas canvas) board.widgets; *)

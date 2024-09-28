@@ -334,10 +334,7 @@ let convert mixer spec sound =
     end
 
 let rec gcd a b =
-  if a < b then gcd b a
-  else let r = a mod b in
-    if r = 0 then b
-    else gcd b r;;
+  if b = 0 then a else gcd b (a mod b)
 
 (* linear interpolation e1 points -> e2 points *)
 (* data2 is filled with interpolated values *)
@@ -491,8 +488,8 @@ let play_chunk ?track ?(effects=[]) ?(volume=1.) ?(repeat = Repeat 1)
   let () = match track with
     | None ->
       printd (debug_io + debug_error) "No available track for playing chunk.";
-      printd debug_io "Unlocking audio.";
-      do_option mixer.dev_id Sdl.unlock_audio_device;
+      (* printd debug_io "Unlocking audio."; *)
+      (* do_option mixer.dev_id Sdl.unlock_audio_device; *)
     | Some i -> begin
         let soundlen = Array1.dim sound in
         printd debug_io "Playing sound of length %u on track #%u." soundlen i;
@@ -505,15 +502,15 @@ let play_chunk ?track ?(effects=[]) ?(volume=1.) ?(repeat = Repeat 1)
           effects
         } in
         mixer.tracks.(i) <- Some track;
-        do_option mixer.dev_id (fun d ->
-            printd debug_io "Unlocking audio.";
-            Sdl.unlock_audio_device d;
-            (* printd debug_io "Unpause mixer"; *)
-            (* REMARK: using Sld.pause_audio_device too often may lead to
-               lockups... Don't know why. Hence we remove it from here. The user
-               has to invoke Mixer.unpause manually. Idem with lock ??? *)
-            (* Sdl.pause_audio_device d false *)
-          );
+        (* do_option mixer.dev_id (fun d -> *)
+        (*     (\* printd debug_io "Unlocking audio."; *\) *)
+        (*     (\* Sdl.unlock_audio_device d; *\) *)
+        (*     (\* printd debug_io "Unpause mixer"; *\) *)
+        (*     (\* REMARK: using Sld.pause_audio_device too often may lead to *)
+        (*        lockups... Don't know why. Hence we remove it from here. The user *)
+        (*        has to invoke Mixer.unpause manually. Idem with lock ??? *\) *)
+        (*     (\* Sdl.pause_audio_device d false *\) *)
+        (*   ); *)
       end in
   track
 
@@ -535,7 +532,6 @@ let close mixer =
   printd debug_io "Closing mixer";
   do_option mixer.dev_id (fun id ->
       Time.delay 50;
-      Sdl.lock_audio_device id;
       Sdl.close_audio_device id);
   mixer.dev_id <- None;
   mixer.callback <- None;
