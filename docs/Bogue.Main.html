@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -67,6 +67,15 @@
 <div class="param_info"><code class="code">on_user_event</code> : This optional argument is a function to be executed
      (by the main thread) when a <a href="Bogue.Trigger.html#VALuser_event"><code class="code"><span class="constructor">Trigger</span>.user_event</code></a> is emitted.</div>
 
+<pre><span id="VALget_monitor_refresh_rate"><span class="keyword">val</span> get_monitor_refresh_rate</span> : <code class="type"><a href="Bogue.Main.html#TYPEboard">board</a> -&gt; int option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_monitor_refresh_rate&nbsp;board</code> returns the monitor refresh rate, for the
+      monitor containing <code class="code">board</code>. In case of several monitors with different
+      refresh rates, return the greatest common divisor, or the minimum if the
+      gcd is less than 30.</p>
+</div>
+</div>
+
 <pre><span id="VALof_windows"><span class="keyword">val</span> of_windows</span> : <code class="type">?shortcuts:<a href="Bogue.Main.html#TYPEshortcuts">shortcuts</a> -&gt;<br>       ?connections:<a href="Bogue.Widget.html#TYPEconnection">Widget.connection</a> list -&gt;<br>       ?on_user_event:(Tsdl.Sdl.event -&gt; unit) -&gt;<br>       <a href="Bogue.Window.html#TYPEt">Window.t</a> list -&gt; <a href="Bogue.Main.html#TYPEboard">board</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Synonym for <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>. (Since 20220418)</p>
@@ -94,13 +103,15 @@
 </div>
 </div>
 
-<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">?before_display:(unit -&gt; unit) -&gt;<br>       ?after_display:(unit -&gt; unit) -&gt; <a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">?vsync:bool -&gt;<br>       ?before_display:(unit -&gt; unit) -&gt;<br>       ?after_display:(unit -&gt; unit) -&gt; <a href="Bogue.Main.html#TYPEboard">board</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>This is finally how you run your app! It creates the SDL windows
      associated with the <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a>s registered with the board, and launches
      the main loop. This function only returns when all windows are closed (in
      case at least one window was created), or when the <a href="Bogue.Main.html#EXCEPTIONExit"><code class="code"><span class="constructor">Main</span>.<span class="constructor">Exit</span></code></a> exception is
-     raised.</p>
+     raised.
+    <code class="code">vsync</code> defaults to <code class="code"><span class="keyword">true</span></code> and enables synchronization to monitor refresh rate
+    where possible, otherwise a 60 FPS <a href="Bogue.Time.html#VALadaptive_fps"><code class="code"><span class="constructor">Time</span>.adaptive_fps</code></a> is used.</p>
 </div>
 </div>
 <h4 id="shortcuts">Creating global keyboard shortcuts</h4>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -12,7 +12,10 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Slider</title>
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Creating a Slider widget" rel="Section" href="#2_CreatingaSliderwidget">
+<link title="Getting information" rel="Section" href="#2_Gettinginformation">
+<link title="Modifying" rel="Section" href="#2_Modifying">
+<title>Bogue.Slider</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Bogue.Button.html" title="Bogue.Button">Previous</a>
@@ -63,6 +66,8 @@
 </tr></table>
 
 
+<h3 id="2_CreatingaSliderwidget">Creating a Slider widget</h3>
+<p>Use <a href="Bogue.Widget.html#VALslider"><code class="code"><span class="constructor">Widget</span>.slider</code></a> or <a href="Bogue.Widget.html#VALslider_with_action"><code class="code"><span class="constructor">Widget</span>.slider_with_action</code></a>.</p>
 
 <pre><span id="VALtriggers"><span class="keyword">val</span> triggers</span> : <code class="type"><a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> list</code></pre><div class="info ">
 <div class="info-desc">
@@ -71,7 +76,7 @@
        plus <code class="code"><span class="constructor">Sdl</span>.<span class="constructor">Event</span>.key_down</code>.</p>
 </div>
 </div>
-
+<h3 id="2_Gettinginformation">Getting information</h3>
 <pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -&gt; int * int</code></pre>
 <pre><span id="VALvalue"><span class="keyword">val</span> value</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -&gt; int</code></pre><div class="info ">
 <div class="info-desc">
@@ -79,7 +84,7 @@
 </div>
 </div>
 
-<pre><span id="VALget_max"><span class="keyword">val</span> get_max</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -&gt; int</code></pre>
+<pre><span id="VALget_max"><span class="keyword">val</span> get_max</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -&gt; int</code></pre><h3 id="2_Modifying">Modifying</h3>
 <pre><span id="VALset"><span class="keyword">val</span> set</span> : <code class="type"><a href="Bogue.Slider.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set a new value.</p>

@@ -1,3 +1,5 @@
+(* Experimental *)
+
 (* We create a Box widget whose image will be a snapshot of a given room. *)
 (* The texture is initialized at the startup event, or upon user call. *)
 
@@ -19,7 +21,8 @@
 (* Warning: a new texture is created at every update, because size might
    change. TODO add an option in case we want to be fast and reuse the same
    texture? *)
-open B_utils;;
+open Tsdl
+open B_utils
 module Layout = B_layout
 module Widget = B_widget
 module Var = B_var
@@ -27,6 +30,7 @@ module Trigger =  B_trigger
 module Draw = B_draw
 module Box = B_box
 module Style = B_style
+module Sync = B_sync
 
 let update widget room =
   let renderer = Layout.renderer room in
@@ -55,7 +59,27 @@ let create ?border room =
   let w,h = Layout.get_size room in
   let style = Style.create ?border () in
   let box = Widget.box ~w ~h ~style () in
-  let c = Widget.connect_main box box (fun w _ _ -> update w room)
-            [Trigger.startup] in
-  Widget.add_connection box c;
+  (* let c = Widget.connect_main box box (fun w _ _ -> update w room) *)
+  (*           [Trigger.startup] in *)
+  (* Widget.add_connection box c; *)
+  Sync.push (fun () -> update box room);
   box
+
+(* should be called after graphics init *)
+let surface room =
+  let w,h = Layout.get_size room in
+  let box = Widget.box ~w ~h () in
+  update box room;
+  let box = Widget.get_box box in
+  let renderer = Layout.renderer room in
+  match Var.get box.Box.render with
+  | None -> printd (debug_graphics+debug_error) "Cannot create surface because Box has no texture (yet)."; None
+  | Some tex -> Some (Draw.surface_from_texture renderer tex)
+
+(* should be called after graphics init *)
+let to_cursor ?hot_x ?hot_y room =
+  map_option (surface room) (fun surf ->
+      let w,h = Sdl.get_surface_size surf in
+      let hot_x = default hot_x (w/2) in
+      let hot_y = default hot_y (h/2) in
+      go (Sdl.create_color_cursor surf ~hot_x ~hot_y))

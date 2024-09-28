@@ -2637,6 +2637,16 @@ let get_texture_pixels renderer texture =
   pop_target renderer push;
   pixels, pitch, go(Sdl.pixel_format_enum_to_masks format)
 
+
+let surface_from_texture renderer texture =
+  let format,_,(w,h) = go(Sdl.query_texture texture) in
+  let pixels, pitch, _masks = get_texture_pixels renderer texture in
+  let depth, _, _, _, _ = go(Sdl.pixel_format_enum_to_masks format) in
+  go (Sdl.create_rgb_surface_with_format_from pixels
+        ~w ~h ~depth ~pitch format)
+
+
+
 (* logical AND blending for textures. *)
 (* TODO: faster: let the mask be a surface *)
 (* TODO: use get_texture_pixels *)

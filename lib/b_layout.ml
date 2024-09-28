@@ -992,6 +992,8 @@ let rec_set_show b l =
     | Rooms list -> List.iter (loop b) list in
   loop b l
 
+let is_shown l = l.show
+
 let show_window t =
   set_show (top_house t) true;
   do_option (window_opt t) Sdl.show_window

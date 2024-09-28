@@ -1,16 +1,37 @@
 # Changelog
 
-### WIP! This changelog file is not complete!
+#### Warning: this changelog is not complete for changes before 2023
 
 All notable changes to the Bogue project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased](https://github.com/sanette/bogue/compare/20240225...HEAD)
+## [Unreleased](https://github.com/sanette/bogue/compare/20240928...HEAD)
+
+## [20240928](https://github.com/sanette/bogue/compare/20240225...20240928)
+
+### Added
+
+- `Avar.reset` is now public
+- `Layout.is_shown`
+- `Layout.inside` is now public
+- `Snapshot.to_cursor` (experimental)
+- `Main.get_monitors_refresh_rate`
+- "NO_VSYNC" theme variable
+
+### Changed
+
+- `Main?run` and `Time.adaptive_fps` have an optional argument `vsync`
+- Enable adaptive vsync (through openGL) by default
+- There is now no difference between the types `sdl_event` and `Sdl.Event.enum`
 
 ### Developement
 
-- Next version will use tsdl 1.0.0
+- New `Time.adaptive_fps` using swap interval
+- `Main.get_window_refresh_rate`
+- `Draw.surface_from_texture`
+- We now use tsdl >= 1.0.0
+- We don't un/lock audio automatically anymore
 
 ## [20240225](https://github.com/sanette/bogue/compare/20231209...20240225)
 

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
@@ -39,7 +39,7 @@
 </div>
 </div>
 
-<pre><span id="VALadaptive_fps"><span class="keyword">val</span> adaptive_fps</span> : <code class="type">int -&gt; (unit -&gt; unit) * (unit -&gt; unit)</code></pre><div class="info ">
+<pre><span id="VALadaptive_fps"><span class="keyword">val</span> adaptive_fps</span> : <code class="type">?vsync:bool -&gt; int -&gt; (unit -&gt; unit) * (unit -&gt; unit)</code></pre><div class="info ">
 <div class="info-desc">
 <p>Create helper functions to help controlling the frame rate of the graphics
       loop. This is only useful if you have your own graphics loop, and do not
@@ -53,6 +53,15 @@
       next frame to keep up. However, it tries to be nice to the CPU: even if one
       is really too slow, it will guarantee a 5ms sleep to the CPU and <em>not</em>
       try to keep up.</p>
+
+<p><code class="code">vsync</code> is <code class="code"><span class="keyword">false</span></code> by default, when <code class="code"><span class="keyword">true</span></code> it sets GL swap
+      interval to <code class="code">1</code> to wait for next vsync, and if it can't keep up
+      with that during animation it will set swap interval to <code class="code">-1</code> if
+      supported by platform to use adaptive vsync.  (Which should
+      avoid forcing the animation rate to an integer ratio of monitor
+      refresh rate.)</p>
+
+<p>See also <a href="Bogue.Main.html#VALget_monitor_refresh_rate"><code class="code"><span class="constructor">Main</span>.get_monitor_refresh_rate</code></a></p>
 </div>
 </div>
 </body></html>

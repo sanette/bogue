@@ -12,4 +12,6 @@
 <body>
 <pre class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:&nbsp;?border:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.border&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Widget</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_cursor&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?hot_x:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?hot_y:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.cursor&nbsp;option<br>
 <span class="keyword">end</span></pre></body></html>

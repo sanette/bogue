@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20240229
+@version 20240928
 
 @author Vu Ngoc San
 
@@ -368,13 +368,14 @@ module Time : sig
       is really too slow, it will guarantee a 5ms sleep to the CPU and {e not}
       try to keep up.
 
-      [vsync] is [false] by default, when [true] it sets GL swap interval to [1]
-      to wait for next vsync, and if it can't keep up with that during animation
-      it will set swap interval to [-1] if supported by platform to use
-      adaptive vsync.
-      (which should avoid forcing the animation rate to an integer ratio of monitor refresh rate)
+      [vsync] is [false] by default, when [true] it sets GL swap
+      interval to [1] to wait for next vsync, and if it can't keep up
+      with that during animation it will set swap interval to [-1] if
+      supported by platform to use adaptive vsync.  (Which should
+      avoid forcing the animation rate to an integer ratio of monitor
+      refresh rate.)
 
-      @see {!Main.get_monitor_refresh_rate}
+      See also {!Main.get_monitor_refresh_rate}
     *)
 
 end (* of Time *)
@@ -903,6 +904,9 @@ module Avar : sig
      when the last [v.value] was computed. In case of infinite animation, this
      is just the elapsed Time (in ms). *)
 
+  val reset : 'a t -> unit
+
+
   (** {2 Misc} *)
 
   type direction =
@@ -1149,10 +1153,16 @@ module Slider : sig
     | Vertical
     | Circular
 
+   (** {2 Creating a Slider widget}
+
+Use {!Widget.slider} or {!Widget.slider_with_action}. *)
+
   val triggers : Trigger.t list
   (**  The list of events that a Slider can react to. Currently this is the
        concatenation of [Trigger.[buttons_down; buttons_up; pointer_motion]]
        plus [Sdl.Event.key_down]. *)
+
+  (** {2 Getting information} *)
 
   val size : t -> int * int
 
@@ -1160,6 +1170,8 @@ module Slider : sig
   (** Get current value. *)
 
   val get_max : t -> int
+
+  (** {2 Modifying} *)
 
   val set : t -> int -> unit
   (** Set a new value. *)
@@ -1765,7 +1777,7 @@ module Layout : sig
   (** {2 Backgrounds} *)
 
   (** Warning, the [background] type corresponds actually to the {!Style.t}
-     type, which means is includes color backgrounds, image patterns, corner and
+     type, which means it includes color backgrounds, image patterns, corner and
      shadow styles. *)
   type background
 
@@ -1895,6 +1907,8 @@ module Layout : sig
 
   val gety : t -> int
   val get_oldy : t -> int
+
+  val is_shown : t -> bool
 
   val widget : t -> Widget.t
   (** Return the resident widget, or
@@ -2101,6 +2115,8 @@ module Layout : sig
 
   (** {2 Misc} *)
 
+  val inside : t -> int * int -> bool
+
   val claim_keyboard_focus : t -> unit
 
   val set_cursor : t option -> unit
@@ -2186,7 +2202,10 @@ module Snapshot : sig
   val create : ?border:Style.border -> Layout.t -> Widget.t
   (** Should be called from the main thread only. There are some issues with
      transparency.
-     @return a Box widget. *)
+      @return a Box widget. *)
+
+  val to_cursor : ?hot_x:int ->
+    ?hot_y:int -> Layout.t -> Tsdl.Sdl.cursor option
 
 end (* of Snapshot *)
 

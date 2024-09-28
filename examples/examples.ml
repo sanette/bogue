@@ -1066,6 +1066,9 @@ let example43 () =
           ]
       ] in
   let board = of_layout layout in
+  (* Timeout.add 2000 (fun () -> *)
+  (*     print_endline "Testing Snapshot.to_cursor";
+         Sdl.set_cursor (Snapshot.to_cursor room)); *)
   run board
 
 let desc44 = "tooltips"

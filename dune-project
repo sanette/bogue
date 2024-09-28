@@ -1,7 +1,7 @@
 (lang dune 2.7)
 (cram enable)
 (name bogue)
-(version "20240229")
+(version "20240928")
 (generate_opam_files true)
 (license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
@@ -9,7 +9,7 @@
 (source (github sanette/bogue))
 (documentation "http://sanette.github.io/bogue/Bogue.html")
 (formatting disabled)
-
+ 
 (package
  (name bogue)
  (synopsis "GUI library for ocaml, with animations, based on SDL2")
