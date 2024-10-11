@@ -9,6 +9,7 @@
 
 (rule
  (alias runtest)
+ (deps (source_tree "../share/themes/"))
  (action
   (setenv
    SDL_VIDEODRIVER
