@@ -3,6 +3,11 @@
 I know I'm not always very good at this. Don't hesitate to contact me
 if I forgot to mention you here.
 
+# Unreleased
+
+thanks to jonahbeckford for using "where" on Windows
+https://github.com/sanette/bogue/pull/34
+
 # 20240928
 thanks to edwintorok for vsync and helping transitioning to tsdl >= 1.0.0
 https://github.com/sanette/bogue/pull/15

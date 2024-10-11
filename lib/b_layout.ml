@@ -51,7 +51,7 @@ let color_bg color =
 
 let opaque_bg color = color_bg Draw.(opaque color)
 
-let theme_bg = opaque_bg @@ Draw.find_color Theme.bg_color
+let theme_bg = opaque_bg Draw.bg_color
 
 let style_bg s =
   Style s

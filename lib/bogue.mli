@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20240928
+@version 20241011
 
 @author Vu Ngoc San
 
@@ -193,13 +193,15 @@ BACKGROUND = file:background.png
 v}
 you need to specify where the file should be searched. Here are the rules:
 
-First, the file is searched in current directory, then in the current theme's
-directory (for instance [$HOME/.config/bogue/themes/default]), unless the file
-string starts with [/], in which case it should be an absolute path
-(eg. [file:/home/alice/myimage.png]). Finally, if the file string starts with
-[%], for instance [file:%assets/images/bob.png], then the [%] char is replaced
-by the Bogue dir, for instance
-[file:/home/bob/.config/bogue/assets/images/bob.png].
++ If the file string starts with [/], it should be an absolute path
+  (eg. [file:/home/alice/myimage.png]), no additional search is performed.
++ If the file string starts with [%], for instance
+  [file:%assets/images/bob.png], then the [%] char is replaced by the Bogue dir,
+  for instance [file:/home/bob/.config/bogue/assets/images/bob.png].
++ Otherwise, the file is first searched in the directory where your application
+  binary resides (if any), then in the current directory, then in the current
+  theme's directory (for instance [$HOME/.config/bogue/themes/default]), and
+    finally in the special "common" theme.
 
 
 {5 {{:graph-dot-b_theme.html}Dependency graph}} *)
@@ -240,7 +242,7 @@ module Theme : sig
       of [dune] with [(section share)].
 
       Another solution is to embed your files with the main binary using
-      [ppx_blob](https://github.com/johnwhitington/ppx_blob). *)
+      {{:https://github.com/johnwhitington/ppx_blob}ppx_blob}. *)
 
   val find_share : string -> string -> string option
   (** [find_share app file] returns a guessed location for your application
@@ -253,6 +255,21 @@ module Theme : sig
       {b Warning:} The directory returned by [find_share] is not necessarily
       writable. If you want a directory where the users of your application can
       save their preferences, you should rather use [Sdl.get_pref_path]. *)
+
+  val get_path : ?path:string list -> string -> string
+(** [get_path file] returns an absolute path for accessing the given [file]
+    using the rules described {%html:<a href="#path">above</a>%}, except if the
+    [file] is not found, in which case the string [file] is returned unchanged,
+    with the hope that it corresponds to a file in the current
+    directory. Instead of the Bogue share directories, alternative directories
+    for searching the file can be provided via the [path] option. *)
+
+  val get_font_path_opt : string -> string option
+  (** [get_font_path file] returns an absolute path for the given TTF [file], if
+      found. If [file] starts with "/", only this location is
+      checked. Otherwise, the font file is searched first in the theme
+      directory, then in Bogue's common fonts dir, then in the system's fonts
+      (using [fc-list], if available). *)
 
 end (* of Theme *)
 
@@ -1080,12 +1097,19 @@ A [Label] is a widget for displaying a single line of text.
 module Label : sig
   type t
   type font
-  type style
+  type style = Tsdl_ttf.Ttf.Style.t
+  (** See {{:https://sanette.github.io/tsdl-ttf/Ttf/Style/index.html}Ttf.Style}. *)
 
   val create : ?size:int -> ?font:font -> ?style:style ->
                ?fg:Draw.color -> ?align:Draw.align -> string -> t
   (** Create a new {!Label.t}. Most of the time, you'd rather want to create a
      {!Widget.t} by using {!Widget.label}. *)
+
+  val font_from_file : string -> font
+  (** Define a font by specifying a filename of a TTF file. The font will be
+      loaded only when needed.  A caching mechanism avoids loading the same font
+      several times. If you need to find a font from the theme (or system)
+      directory, see {!Theme.get_font_path_opt}. *)
 
   val icon : ?size:int -> ?fg:Draw.color -> string -> t
   (** Create a {!Label.t} using the name of a
@@ -1549,8 +1573,8 @@ let l = get_label w in
 As a general rule, widgets should be created using the functions below, which
 belong to the Widget module and create an element of type {!t}. However, for
 some specialized usage, additional features may be available from the widget
-underlying module (eg. {!Label}, {!Box}, etc.). See the {{!inner}conversion
-functions} below. *)
+underlying module (eg. {!Label}, {!Box}, etc.).
+See the {{!inner}conversion functions} below. *)
 
   (** {3 Simple boxes (rectangles)} *)
 

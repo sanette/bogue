@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20240928"  (* see VERSION file *)
+let this_version = "20241011"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -315,11 +315,11 @@ let dir =
     if Sys.file_exists config && Sys.is_directory config
     then if dir = ""
       then begin
-        printd debug_warning "Using %s as bogue themes directory" config;
+        printd debug_warning "Using [%s] as bogue themes directory" config;
         config
       end else begin
         printd debug_error
-          "Bogue themes directory %s does not exist. Using %s instead" dir config;
+          "Bogue themes directory [%s] does not exist. Using [%s] instead" dir config;
         config
       end
     else try
@@ -342,7 +342,7 @@ let dir =
       | Not_found
       | End_of_file ->
         printd debug_error
-          "(FATAL) Bogue configuration directory %s does not exist, and \
+          "(FATAL) Bogue configuration directory [%s] does not exist, and \
            system-wide config cannot be found." dir;
         print_endline "Cannot find bogue lib directory";
         print_endline "Trying to download a minimal Bogue config...";
@@ -409,6 +409,10 @@ let get_font_path name =
             with End_of_file -> printd debug_error "Cannot find font %s" name; name
           )
       )
+
+let get_font_path_opt name =
+  let file = get_font_path name in
+  if Sys.file_exists file then Some file else None
 
 let background = get_var "BACKGROUND"
 let bg_color = get_var "BG_COLOR"

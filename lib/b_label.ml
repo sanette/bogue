@@ -9,7 +9,7 @@ type font =
   | File of string
   | Font of Ttf.font
 
-type style = Tsdl_ttf.Ttf.Style.t
+type style = Ttf.Style.t
 
 type t =
   { text : string Var.t;
@@ -31,6 +31,10 @@ let create ?(size = Theme.label_font_size) ?(font = File !Theme.label_font)
     style;
     size;
     fg = Var.create fg}
+
+let font_from_file file = File file
+
+let style s = s
 
 (* see https://lab.artlung.com/font-awesome-sample/*)
 let icon ?size ?fg name =

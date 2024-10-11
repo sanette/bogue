@@ -537,6 +537,12 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALfollow_mouse">follow_mouse</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Label.html#VALfont_from_file">font_from_file</a> [<a href="Bogue.Label.html">Bogue.Label</a>]</td>
+<td><div class="info">
+<p>Define a font by specifying a filename of a TTF file.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Avar.html#VALfromto">fromto</a> [<a href="Bogue.Avar.html">Bogue.Avar</a>]</td>
 <td><div class="info">
 <p><code class="code">fromto&nbsp;x1&nbsp;x2</code> creates a integer Avar.t with initial value <code class="code">x1</code> and, as
@@ -579,6 +585,13 @@
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_content">get_content</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Theme.html#VALget_font_path_opt">get_font_path_opt</a> [<a href="Bogue.Theme.html">Bogue.Theme</a>]</td>
+<td><div class="info">
+<p><code class="code">get_font_path&nbsp;file</code> returns an absolute path for the given TTF <code class="code">file</code>, if
+      found.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Main.html#VALget_frame">get_frame</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
 <p>Number of displayed frames since startup.</p>
@@ -609,6 +622,16 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_oldy">get_oldy</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Theme.html#VALget_path">get_path</a> [<a href="Bogue.Theme.html">Bogue.Theme</a>]</td>
+<td><div class="info">
+<p><code class="code">get_path&nbsp;file</code> returns an absolute path for accessing the given <code class="code">file</code>
+    using the rules described <a href="#path">above</a>, except if the
+    <code class="code">file</code> is not found, in which case the string <code class="code">file</code> is returned unchanged,
+    with the hope that it corresponds to a file in the current
+    directory.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALget_physical_size">get_physical_size</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>multiplies <code class="code">get_size</code> by the Theme scaling factor.</p>

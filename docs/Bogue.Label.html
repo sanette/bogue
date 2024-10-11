@@ -37,13 +37,27 @@
 <pre><span id="TYPEfont"><span class="keyword">type</span> <code class="type"></code>font</span> </pre>
 
 
-<pre><span id="TYPEstyle"><span class="keyword">type</span> <code class="type"></code>style</span> </pre>
+<pre><span id="TYPEstyle"><span class="keyword">type</span> <code class="type"></code>style</span> = <code class="type">Tsdl_ttf.Ttf.Style.t</code> </pre>
+<div class="info ">
+<div class="info-desc">
+<p>See <a href="https://sanette.github.io/tsdl-ttf/Ttf/Style/index.html">Ttf.Style</a>.</p>
+</div>
+</div>
 
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?size:int -&gt;<br>       ?font:<a href="Bogue.Label.html#TYPEfont">font</a> -&gt;<br>       ?style:<a href="Bogue.Label.html#TYPEstyle">style</a> -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt; ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt; string -&gt; <a href="Bogue.Label.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a new <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a>. Most of the time, you'd rather want to create a
      <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> by using <a href="Bogue.Widget.html#VALlabel"><code class="code"><span class="constructor">Widget</span>.label</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALfont_from_file"><span class="keyword">val</span> font_from_file</span> : <code class="type">string -&gt; <a href="Bogue.Label.html#TYPEfont">font</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Define a font by specifying a filename of a TTF file. The font will be
+      loaded only when needed.  A caching mechanism avoids loading the same font
+      several times. If you need to find a font from the theme (or system)
+      directory, see <a href="Bogue.Theme.html#VALget_font_path_opt"><code class="code"><span class="constructor">Theme</span>.get_font_path_opt</code></a>.</p>
 </div>
 </div>
 

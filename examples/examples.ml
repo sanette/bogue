@@ -1224,6 +1224,21 @@ let example51 () =
   let layout = L.resident a in
   run (of_layout layout)
 
+let desc52 = "Loading fonts"
+let example52 () =
+  let file = "NotoSerif-ExtraCondensedExtraBoldItalic.ttf" in
+  let font = Theme.get_font_path_opt file in
+  let text = if font = None then ("The font " ^ file ^ " was not found.")
+    else ("Sample for the font " ^ file ^ ".") in
+  let font = Option.map Label.font_from_file font in
+  let label = W.label ?font text in
+  let layout = L.resident label in
+  run (of_layout layout)
+
+
+
+
+
 let _ =
   let examples = [
     "00", (example00, desc00) ;
@@ -1288,6 +1303,8 @@ let _ =
     "49", (example49, desc49) ;
     "50", (example50, desc50) ;
     "51", (example51, desc51) ;
+    "52", (example52, desc52) ;
+
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)

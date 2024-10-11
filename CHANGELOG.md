@@ -8,30 +8,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20240928...HEAD)
 
+### Added
+
+- `Theme.get_path` is now public.
+- `Theme.get_font_path_opt`
+- `Label.font_from_file` allows the use of arbitrary fonts in addition
+  to the Theme fonts (which is not recommended anyways for good
+  design).
+- font example 52
+
+### Fixed
+
+- `Label` `style` parameter is now usable (ocamldoc invocation was
+  wrong for `tsdl_ttf`)
+
 ## [20240928](https://github.com/sanette/bogue/compare/20240225...20240928)
 
 ### Added
 
-- `Avar.reset` is now public
+- `Avar.reset` is now public.
 - `Layout.is_shown`
-- `Layout.inside` is now public
+- `Layout.inside` is now public.
 - `Snapshot.to_cursor` (experimental)
 - `Main.get_monitors_refresh_rate`
 - "NO_VSYNC" theme variable
 
 ### Changed
 
-- `Main?run` and `Time.adaptive_fps` have an optional argument `vsync`
-- Enable adaptive vsync (through openGL) by default
-- There is now no difference between the types `sdl_event` and `Sdl.Event.enum`
+- `Main.run` and `Time.adaptive_fps` have an optional argument `vsync`.
+- Enable adaptive vsync (through openGL) by default.
+- There is now no difference between the types `sdl_event` and `Sdl.Event.enum`.
 
 ### Developement
 
-- New `Time.adaptive_fps` using swap interval
+- New `Time.adaptive_fps` using swap interval.
 - `Main.get_window_refresh_rate`
 - `Draw.surface_from_texture`
-- We now use tsdl >= 1.0.0
-- We don't un/lock audio automatically anymore
+- We now use tsdl >= 1.0.0.
+- We don't un/lock audio automatically anymore.
 
 ## [20240225](https://github.com/sanette/bogue/compare/20231209...20240225)
 

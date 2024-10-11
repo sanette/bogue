@@ -139,14 +139,17 @@ environment variables, prepending "BOGUE_". For instance:</p>
 <p>When specifying a file to load, for instance</p>
 <pre class="verbatim">BACKGROUND = file:background.png</pre><p>you need to specify where the file should be searched. Here are the rules:</p>
 
-<p>First, the file is searched in current directory, then in the current theme's
-directory (for instance <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes/default</code>), unless the file
-string starts with <code class="code">/</code>, in which case it should be an absolute path
-(eg. <code class="code">file:/home/alice/myimage.png</code>). Finally, if the file string starts with
-<code class="code">%</code>, for instance <code class="code">file:%assets/images/bob.png</code>, then the <code class="code">%</code> char is replaced
-by the Bogue dir, for instance
-<code class="code">file:/home/bob/.config/bogue/assets/images/bob.png</code>.</p>
-
+<OL>
+<li>If the file string starts with <code class="code">/</code>, it should be an absolute path
+  (eg. <code class="code">file:/home/alice/myimage.png</code>), no additional search is performed.</li>
+<li>If the file string starts with <code class="code">%</code>, for instance
+  <code class="code">file:%assets/images/bob.png</code>, then the <code class="code">%</code> char is replaced by the Bogue dir,
+  for instance <code class="code">file:/home/bob/.config/bogue/assets/images/bob.png</code>.</li>
+<li>Otherwise, the file is first searched in the directory where your application
+  binary resides (if any), then in the current directory, then in the current
+  theme's directory (for instance <code class="code">$<span class="constructor">HOME</span>/.config/bogue/themes/default</code>), and
+    finally in the special "common" theme.</li>
+</OL>
 <h6 id="5_graphdotbthemehtmlDependencygraph"><a href="graph-dot-b_theme.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
@@ -186,7 +189,7 @@ by the Bogue dir, for instance
       of <code class="code">dune</code> with <code class="code">(section&nbsp;share)</code>.</p>
 
 <p>Another solution is to embed your files with the main binary using
-      <code class="code">ppx_blob</code>(https://github.com/johnwhitington/ppx_blob).</p>
+      <a href="https://github.com/johnwhitington/ppx_blob">ppx_blob</a>.</p>
 
 <pre><span id="VALfind_share"><span class="keyword">val</span> find_share</span> : <code class="type">string -&gt; string -&gt; string option</code></pre><div class="info ">
 <div class="info-desc">
@@ -200,6 +203,27 @@ by the Bogue dir, for instance
 <p><b>Warning:</b> The directory returned by <code class="code">find_share</code> is not necessarily
       writable. If you want a directory where the users of your application can
       save their preferences, you should rather use <code class="code"><span class="constructor">Sdl</span>.get_pref_path</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALget_path"><span class="keyword">val</span> get_path</span> : <code class="type">?path:string list -&gt; string -&gt; string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_path&nbsp;file</code> returns an absolute path for accessing the given <code class="code">file</code>
+    using the rules described <a href="#path">above</a>, except if the
+    <code class="code">file</code> is not found, in which case the string <code class="code">file</code> is returned unchanged,
+    with the hope that it corresponds to a file in the current
+    directory. Instead of the Bogue share directories, alternative directories
+    for searching the file can be provided via the <code class="code">path</code> option.</p>
+</div>
+</div>
+
+<pre><span id="VALget_font_path_opt"><span class="keyword">val</span> get_font_path_opt</span> : <code class="type">string -&gt; string option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_font_path&nbsp;file</code> returns an absolute path for the given TTF <code class="code">file</code>, if
+      found. If <code class="code">file</code> starts with "/", only this location is
+      checked. Otherwise, the font file is searched first in the theme
+      directory, then in Bogue's common fonts dir, then in the system's fonts
+      (using <code class="code">fc-list</code>, if available).</p>
 </div>
 </div>
 </body></html>
