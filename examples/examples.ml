@@ -1115,10 +1115,10 @@ let example46 () =
 let desc47 = "basic HTML"
 let example47 () =
   let td = W.html ~w:200 ~h:200
-      "<p>Welcome to <b>Bogue</b>!<br>You will find it \
-       <em>great</em>.</p><p>Have fun,<br><br><em>and stay \
-       <strong>calm</strong></em>... Thank you</p><b>This should <b>stay</b> \
-       bold.</b>" in
+      "<p>Welcome to <font color=\"darkturquoise\"><b>Bogue</b></font>!<br>You \
+       will find it <em>great</em>.</p><p>Have <u>fun</u>,<br><br><em>and stay \
+       <strong>calm</strong></em>... Thank you</p><font color=\"#6663\"><b>This \
+       should <b>stay</b> bold.</b></font>" in
   let layout = L.flat_of_w [td] in
   let board = of_layout layout in
   run board

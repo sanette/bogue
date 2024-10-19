@@ -1598,8 +1598,13 @@ See the {{!inner}conversion functions} below. *)
   val verbatim : string -> t
 
   val html : ?w:int -> ?h:int -> string -> t
-  (** Display basic html text by interpreting the following tags:
-      [<em>,</em>, <b>,</b>, <strong>,</strong>, <p>,</p>, <br>] *)
+  (** Display basic html text by interpreting the following tags: [<em>,</em>,
+      <b>,</b>, <strong>,</strong>, <u>, </u>, <p>,</p>, <br>] and also a color
+      selector with [<font color="???">, </font>]. The "???" string should be
+      replaced by a color code, either RGB like "#40E0D0" of "#12C" or RGBA, or
+      a color name like "darkturquoise".
+
+      See `boguex 47`. *)
 
   (** {3 Labels or icons} *)
 

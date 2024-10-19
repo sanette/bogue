@@ -60,7 +60,7 @@ let new_event_type name =
   | None -> failwith "Cannot register event."
   | Some t -> (
       Hashtbl.add event_names t name;
-      printd debug_event "Register new event type:%s (%d)" name t;
+      printd debug_event "Register new event type:%s (Ox%x)" name t;
       t)
 
 let create_event t =
@@ -78,7 +78,8 @@ let create_window_event w_id =
 
 let user_type = new_event_type "user"
 
-let () = assert (user_type = E.user_event)  (* 32768 *)
+let () = assert (user_type = E.user_event)  (* 32768*)
+(* failing here probably means that Bogue has been loaded twice without quitting SDL *)
 
 let user_event = E.user_event
 

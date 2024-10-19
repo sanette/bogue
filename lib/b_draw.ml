@@ -73,7 +73,7 @@ let check_memory () =
 (* SDL wrappers *)
 
 let create_color (r,g,b,a) =
-  Sdl.Color.create ~r~g ~b ~a
+  Sdl.Color.create ~r ~g ~b ~a
 
 let create_rgb_surface ~w ~h ~depth (r,g,b,a) =
   incr surfaces_in_memory;
@@ -472,15 +472,36 @@ let colors = List.flatten [colors; Theme.color_names]
 let color_of_int24 i =
   (i lsr 16) land 255, (i lsr 8) land 255, i land 255
 
+let rgba_of_int32 i =
+  (i lsr 24) land 255, (i lsr 16) land 255, (i lsr 8) land 255, i land 255
+
+let color_of_int12 i =
+  let r,g,b = (i lsr 8) land 15, (i lsr 4) land 15, i land 15 in
+  (r * 255 / 15), (g *255 / 15), (b * 255 / 15)
+
+let rgba_of_int16 i =
+  let a = i land 15 in
+  let r,g,b = color_of_int12 (i lsr 4) in
+  r,g,b, (a * 255 / 15)
+
+(* example c="#FFF"  -> 0xFFF*)
+let int_of_hex c =
+  try
+    Some (int_of_string ("0x" ^ (String.sub c 1 (String.length c - 1))))
+  with
+  | Failure _ -> (* int_of_string *)
+    printd debug_error "Cannot extract hex integer from '0x%s'" c;
+    None
+  | e -> raise e
+
 (* convert a string of the form "grey" or "#FE01BC" to a color code (r,g,b) *)
 let find_color c =
-  if String.length c <> 0 && c.[0] = '#' then try
-      color_of_int24 (int_of_string ("0x" ^ (String.sub c 1 (String.length c - 1))))
-    with
-    | Failure _ -> (* int_of_string *)
+  if String.length c <> 0 && c.[0] = '#' then
+    match int_of_hex c with
+    | Some i -> color_of_int24 i
+    | None ->
       printd debug_error "Cannot extract color code from '%s'" c;
       grey
-    | e -> raise e
   else
     try List.assoc c colors
     with

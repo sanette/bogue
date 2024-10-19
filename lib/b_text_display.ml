@@ -17,6 +17,7 @@ module Label = B_label
 type entity =
   | Word of string
   | Space
+  | Color of Draw.color
   | Style of Ttf.Style.t
   (* remark: Styles are cumulative. Thus in [ Style bold; Word "Bla"; Style
      italic; Word "Foo"], "Foo" is bold and italic. Use Style normal to cancel a
@@ -25,8 +26,10 @@ type entity =
 type words = entity list
 
 let example : words = let open Ttf.Style in
-  [ Word "Hello"; Space; Word "I"; Space; Word "am"; Space;
-    Style bold; Word "bold"; Style normal; Space; Word "and"; Space;
+  [ Color Draw.(opaque blue); Word "Hello";
+    Space; Word "I"; Space; Word "am"; Space;
+    Style bold; Word "bold"; Color Draw.(opaque !text_color);
+    Style normal; Space; Word "and"; Space;
     Style italic; Word "italic." ]
 
 type t =
@@ -60,7 +63,7 @@ let free = unload
    assumption. This should be ok if the user may only concatenate entity lists,
    not split them. *)
 let last_style words =
-List.fold_left (fun style entity -> match entity with
+  List.fold_left (fun style entity -> match entity with
       | Style s when s = Ttf.Style.normal -> s (* not necessary, since normal ==
                                                   0 *)
       | Style s -> Ttf.Style.(s + style)
@@ -143,7 +146,7 @@ let ( ++ ) = append
 let page list : words list = list
 
 let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ())
-      paragraphs =
+    paragraphs =
   Draw.ttf_init ();
   { paragraphs = Var.create (List.rev ([Style Ttf.Style.normal] :: (List.rev paragraphs)));
     (* : we add normal style at the end *)
@@ -172,7 +175,17 @@ let create_from_lines ?(size = Theme.text_font_size) ?w ?h ?(font = default_font
 (* Basic html parser *)
 
 (* List of accepted html tags *)
-let htmltags = regexp " +\\|<b>\\|</b>\\|<em>\\|</em>\\|<strong>\\|</strong>\\|<p>\\|</p>\\|<br>\\|\n+"
+let htmltags =
+  [ "<b>"; "</b>";
+    "<em>"; "</em>";
+    "<u>"; "</u>";
+    "<strong>"; "</strong>";
+    "<p>"; "</p>"; "<br>";
+    "<font[ \t\n]+color=\"[^\"]+\">"; "</font>" ]
+  |> String.concat "\\|"
+  |>  regexp
+
+let delims = regexp "[ \n]+"
 
 let style_from_stack stack =
   List.fold_left (Ttf.Style.(+)) Ttf.Style.normal stack
@@ -195,7 +208,7 @@ let apply_style line stylestack style =
     else add_style line (style_from_stack stk) in
   stk, line
 
-(* whet to do when encountering a closing tag *)
+(* what to do when encountering a closing tag *)
 let close_style line stylestack style =
   let stk = try list_remove_first (fun x -> x = style) stylestack
     with Not_found ->
@@ -204,7 +217,42 @@ let close_style line stylestack style =
   let line = add_style line (style_from_stack stk) in
   stk, line
 
+let color_from_html c =
+  let open Draw in
+  if String.length c <> 0 && c.[0] = '#'
+  then
+    let i, c = match int_of_hex c with
+      | Some i -> i, c
+      | None -> printd debug_error "Cannot recognize color code '0x%s'" c;
+    0xAAAA, "AAAA" in
+    match String.length c - 1 with
+    | 3 -> opaque @@ color_of_int12 i
+    | 4 -> rgba_of_int16 i
+    | 6 -> opaque @@ color_of_int24 i
+    | 8 -> rgba_of_int32 i
+    | _ -> printd debug_error "Cannot recognize HTML color '%s'" c;
+      opaque grey
+  else opaque @@ find_color c
+
+let color_from_tag s =
+  let s = global_replace delims " " s in
+  if string_match (regexp "<font color=\"\\([^\"]+\\)\">") s 0 then
+    begin
+      let c = matched_group 1 s in
+      color_from_html c
+    end
+  else begin
+    printd debug_error "Cannot recognize an HTML color tag in [%s]" s;
+    Draw.(opaque grey)
+  end
+
+(* TODO? write a truly recursive fn instead of manually handling stacks? but
+   then we should eliminate redundant information like (bold (bold (bold
+   aaa))). *)
 let paragraphs_of_html src =
+  let def_color = Color Draw.(opaque !text_color) in
+  let colorstack = Stack.create () in
+  Stack.push def_color colorstack;
   let rec loop stylestack paras line = function
     | [] -> List.rev ((List.rev line)::paras)
     | x::rest -> match x with
@@ -223,18 +271,35 @@ let paragraphs_of_html src =
           | "<b>"
           | "<strong>" -> apply_style line stylestack Ttf.Style.bold
           | "<em>" -> apply_style line stylestack Ttf.Style.italic
+          | "<u>" -> apply_style line stylestack Ttf.Style.underline
           | "</b>"
           | "</strong>" -> close_style line stylestack Ttf.Style.bold
           | "</em>" -> close_style line stylestack Ttf.Style.italic
+          | "</u>" -> close_style line stylestack Ttf.Style.underline
+          | "</font>" ->
+            let _w = default (Stack.pop_opt colorstack) def_color in
+            let c = default (Stack.top_opt colorstack) def_color in
+            stylestack, c::line
+          | s when String.starts_with ~prefix:"<font" s ->
+            let c = color_from_tag s in
+            Stack.push (Color c) colorstack;
+            stylestack, ((Color c)::line)
           | _ ->
             printd debug_error "html tag %s not implemented" d;
             stylestack, ((Word d)::line) in
         loop stk paras line rest in
-  let list = full_split htmltags src in
+  let list = full_split htmltags src
+             |> List.map (function Text t ->
+                 full_split delims t | Delim d -> [Delim d])
+             |> List.flatten in
   loop [] [] [] list
 
 (* *** *)
 
+(* example
+   let s = "Voici la <u>liste</u> <font color=\"red\">et l'<u><b>autre liste</b></u> et <font\ncolor=\"#12C\">le bleu</font> retour rouge</font> fin.";;
+
+*)
 let create_from_html ?(size = Theme.text_font_size) ?w ?h
     ?(font = default_font ()) html =
   let paragraphs = paragraphs_of_html html in
@@ -319,55 +384,58 @@ let get_font td = Label.get_font_var td.font (Theme.scale_int td.size)
 let display canvas layer td g =
   let open Draw in
   match Var.update_get td.render (function
-            | Some t -> Some t
-            | None -> begin
-                let font = get_font td in
-                let fg = opaque !text_color in
-                let lineskip = Ttf.font_line_skip font in
-                let space = fst (Label.physical_size_text font " ") in (* idem *)
-                let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in
+      | Some t -> Some t
+      | None -> begin
+          let font = get_font td in
+          let fg = ref (opaque !text_color) in
+          let lineskip = Ttf.font_line_skip font in
+          let space = fst (Label.physical_size_text font " ") in (* idem *)
+          let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in
 
-                let rec loop list dx dy =
-                  if dy > g.h then ()
-                  else match list with
-                       | [] -> ();
-                       | []::rest -> loop rest 0 (dy + lineskip)
-                       | (entity::rest_line)::rest ->
-                          match entity with
-                          | Word w ->
-                             let surf = render_word ~fg font w in
-                             let rect = Sdl.get_clip_rect surf in
-                             let tw,th = Sdl.Rect.(w rect, h rect) in
-                             if dx <> 0 && dx+tw >= g.w then begin
-                                 free_surface surf;
-                                 (* this word will hence be rendered twice. This could be
-                                    optimized of course. *)
-                                 loop list 0 (dy + lineskip); (* =we go to new line *)
-                               end
-                             else (go (Sdl.blit_surface ~src:surf (Some rect) ~dst:target_surf
-                                         (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
-                                   free_surface surf;
-                                   loop (rest_line::rest) (dx + tw) dy)
-                          | Space ->
-                             let space = if Ttf.Style.(test (Ttf.get_font_style font) italic)
-                                         then (round (float space *. 0.6)) else space in
-                             loop (rest_line::rest) (dx + space) dy
-                          (* TODO Space should be rendered in case of underline or
-                             strikethrough. But not when we break at the end of the line, of
-                             course *)
-                          | Style s ->
-                             let current_style = Ttf.get_font_style font in
-                             let new_style = if s =  Ttf.Style.normal
-                                             then s else Ttf.Style.(s + current_style) in
-                             ttf_set_font_style font new_style;
-                             loop (rest_line::rest) dx dy
-                in
-                loop (paragraphs td) 0 0;
-                let tex = create_texture_from_surface canvas.renderer target_surf in
-                free_surface target_surf;
-                Some tex;
-              end) with
+          let rec loop list dx dy =
+            if dy > g.h then ()
+            else match list with
+              | [] -> ();
+              | []::rest -> loop rest 0 (dy + lineskip)
+              | (entity::rest_line)::rest ->
+                match entity with
+                | Word w ->
+                  let surf = render_word ~fg:!fg font w in
+                  let rect = Sdl.get_clip_rect surf in
+                  let tw,th = Sdl.Rect.(w rect, h rect) in
+                  if dx <> 0 && dx+tw >= g.w then begin
+                    free_surface surf;
+                    (* this word will hence be rendered twice. This could be
+                       optimized of course. *)
+                    loop list 0 (dy + lineskip); (* =we go to new line *)
+                  end
+                  else (go (Sdl.blit_surface ~src:surf (Some rect) ~dst:target_surf
+                              (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
+                        free_surface surf;
+                        loop (rest_line::rest) (dx + tw) dy)
+                | Space ->
+                  let space = if Ttf.Style.(test (Ttf.get_font_style font) italic)
+                    then (round (float space *. 0.6)) else space in
+                  loop (rest_line::rest) (dx + space) dy
+                (* TODO Space should be rendered in case of underline or
+                   strikethrough. But not when we break at the end of the line, of
+                   course *)
+                | Style s ->
+                  let current_style = Ttf.get_font_style font in
+                  let new_style = if s =  Ttf.Style.normal
+                    then s else Ttf.Style.(s + current_style) in
+                  ttf_set_font_style font new_style;
+                  loop (rest_line::rest) dx dy
+                | Color c ->
+                  fg := c;
+                  loop (rest_line::rest) dx dy
+          in
+          loop (paragraphs td) 0 0;
+          let tex = create_texture_from_surface canvas.renderer target_surf in
+          free_surface target_surf;
+          Some tex;
+        end) with
   | Some tex ->
-     let dst = geom_to_rect g in
-     [make_blit ~voffset:g.voffset ~dst canvas layer tex]
+    let dst = geom_to_rect g in
+    [make_blit ~voffset:g.voffset ~dst canvas layer tex]
   | None -> failwith "Text_display.display error" (* should not happen *)
