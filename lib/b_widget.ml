@@ -395,7 +395,7 @@ let get_sdl_area w =
 
 (** creation of simple widgets *)
 let check_box ?state ?style () =
-  let b = create_empty  (Check (Check.create ?state ?style ())) in
+  let b = create_empty (Check (Check.create ?state ?style ())) in
   let action = fun w _ _ -> Check.action (get_check w) in
   let c = connect_main b b action Trigger.buttons_down in
   add_connection b c;
@@ -433,8 +433,8 @@ let box ?w ?h ?style () =
 let sdl_area ~w ~h ?style () =
   create_empty (SdlArea (Sdl_area.create ~width:w ~height:h ?style ()))
 
-let label ?size ?fg ?font ?align text =
-  create_empty (Label (Label.create ?size ?fg ?font ?align text))
+let label ?size ?fg ?font ?style ?align text =
+  create_empty (Label (Label.create ?size ?fg ?font ?style ?align text))
 
 (* alias for fontawesome icon labels *)
 let icon ?size ?fg name =

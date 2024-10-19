@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241011
+@version 20241019
 
 @author Vu Ngoc San
 
@@ -1603,7 +1603,7 @@ See the {{!inner}conversion functions} below. *)
 
   (** {3 Labels or icons} *)
 
-  val label : ?size:int -> ?fg:Draw.color -> ?font:Label.font ->
+  val label : ?size:int -> ?fg:Draw.color -> ?font:Label.font -> ?style:Label.style ->
     ?align:Draw.align -> string -> t
   (** Create a Label widget with a one-line text. *)
 

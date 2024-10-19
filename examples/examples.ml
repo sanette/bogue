@@ -170,10 +170,11 @@ let example5 () =
   let board = of_layout layout in
   run board
 
-let desc6 = "A button and a colored label. Global shortcut (ESC)."
+let desc6 = "A button and a colored underlined label. Global shortcut (ESC)."
 let example6 () =
   let b = W.check_box () in
   let l = W.label ~fg:(Draw.(opaque (find_color "firebrick")))
+      ~style:Tsdl_ttf.Ttf.Style.underline
       "Merry Christmas !" in
   let layout = L.flat_of_w ~align:Draw.Center [b;l] in
   let shortcuts = shortcuts_of_list [exit_on_escape] in
