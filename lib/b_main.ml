@@ -247,7 +247,7 @@ let show board =
       Draw.update_background (Window.get_canvas w)) board.windows
 
 (* Si board.mouse_focus = ro, on l'enlève. on profite pour vérifier que le
-   board.mouse_focus est acceptable. *)
+   board.mouse_focus est acceptable. Not used *)
 let remove_mouse_focus board ro =
   match board.mouse_focus, ro with
   | Some br, Some r -> if Layout.equal br r || not (Layout.accept_focus br)
@@ -256,7 +256,7 @@ let remove_mouse_focus board ro =
     then board.mouse_focus <- None
   | _ -> ()
 
-(* idem pour keyboard_focus *)
+(* Idem pour keyboard_focus. Not used *)
 let remove_keyboard_focus board ro =
   match board.keyboard_focus, ro with
   | Some br, Some r -> if Layout.equal br r || not (Layout.accept_focus br)

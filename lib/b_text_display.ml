@@ -280,7 +280,7 @@ let paragraphs_of_html src =
             let _w = default (Stack.pop_opt colorstack) def_color in
             let c = default (Stack.top_opt colorstack) def_color in
             stylestack, c::line
-          | s when String.starts_with ~prefix:"<font" s ->
+          | s when String.length s >= 5 && String.sub s 0 5 = "<font" ->
             let c = color_from_tag s in
             Stack.push (Color c) colorstack;
             stylestack, ((Color c)::line)
