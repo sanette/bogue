@@ -68,7 +68,7 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
     | Some color ->
        let style = Style.create ~background:(Style.Solid color) () in
        Widget.box ~w ~h ~style () in
-  let screen = 
+  let screen =
     Layout.(resident ~name:"_filter" ?canvas:layout.canvas b) in
   do_option layer (Layout.set_layer screen);
   screen.Layout.keyboard_focus <- keyboard_focus;
@@ -79,7 +79,7 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
    it should be called dynamically and not statically before running
    the board, because if other layers are created afterwards, the
    screen might endup not being on top of everything. *)
-let add_screen ?(color = Draw.(transp red) (* DEBUG *) ) layout =
+let add_screen ?(color = Draw.(transp pale_grey) (* DEBUG *) ) layout =
   let base_layer = top_layer layout in
   let screen_layer = new_layer_above base_layer in
   let screen = filter_screen ~color ~layer:screen_layer

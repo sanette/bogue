@@ -15,7 +15,7 @@ module Trigger = B_trigger
 
 type kind =
   | Trigger (* one action when pressed. TODO, better to avoid name clash with
-               Trigger module*)
+               Trigger module? *)
   | Switch (* two states *)
 
 type action = bool -> unit
@@ -75,7 +75,7 @@ let create ?size ?border_radius ?border_color ?fg
     label_on;
     label_off;
     state = Var.create state;
-    pressed = Var.create state;
+    pressed = Var.create (if kind = Trigger then false else state);
     mouse_over = false;
     keyboard_focus = Var.create false;
     box_on = Box.(create ~style:style_on ());

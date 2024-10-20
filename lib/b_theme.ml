@@ -22,13 +22,15 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20241019"  (* see VERSION file *)
+let this_version = "20241020"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
     (* Debug: *)
     "DEBUG", "false";
     (* Whether debug information should be logged to a file *)
+    "DEBUG_CODE", "1023";
+    (* type of debug messages to enable, see b_utils.ml *)
     "LOG_TO_FILE", "false";
     (* The main themes dir: usually $HOME/.config/bogue/themes *)
     "DIR", "";
@@ -232,6 +234,7 @@ let load_theme_vars dir vars =
 
 let () =
   debug := get_bool "DEBUG";
+  debug_code := get_int "DEBUG_CODE";
   if get_bool "LOG_TO_FILE"
   then begin
     let log_file = Filename.temp_file "bogue" ".log" in

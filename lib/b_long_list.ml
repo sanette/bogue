@@ -465,11 +465,11 @@ let update_room ll container o =
         (* Sync.push (fun () -> Layout.detach room; Layout.kill room); *)
         (* ne sert à rien ? et en plus fait bugguer board.mouse_focus *)
         Layout.remove room;
+        (* the board will be notified to make sure the room is
+           not selected as focus -- like for mouse wheel scrolling. *)
         Layout.remove active_bg;
         List.iter Layout.send_to_cemetery [room; active_bg];
-        (* TODO the house of room should also be killed (removed from the table)
-           and the board should be notified (event?) to make sure the room is
-           not selected as focus -- like for mouse wheel scrolling.  *)
+        (* TODO the house of room should also be killed (removed from the table) *)
       end)
 
 let create ~w ~h ~length ?(first=0) ~generate ?height_fn

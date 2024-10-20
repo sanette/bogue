@@ -198,7 +198,9 @@ and room = {
     mutable removed : bool;
     (* [removed] is an experimental field: hint that the layout should not be
        used anymore by the board, at least temporarily. Maybe show/hidden could
-       be used instead.  *)
+       be used instead. Currently redundant with [disabled].  *)
+    mutable disabled : bool;
+    (* a disabled layout is still displayed but should not accept any focus *)
   }
 
 type t = room
@@ -533,6 +535,7 @@ let create_unsafe
       canvas;
       draggable;
       removed = false;
+      disabled = false
     } in
   (* we update the lookup table: *)
   (* remove is in principle not necessary *)
@@ -587,7 +590,7 @@ let remove ?(children = false) room =
   if children
   then iter remove_one room
   else remove_one room;
-  Trigger.push_remove_layout (room.id)
+  Trigger.push_remove_focus (room.id)
 
 (* This one is more secure: we check if the layout is not detached. *)
 let of_id_opt ?not_found id : room option =
@@ -1144,7 +1147,7 @@ let next_keyboard ~top room =
       let n = next_leaf ~top r in
       if equal room n
       then (printd (debug_board + debug_custom) "No keyboard_focus found"; None)
-      else if n.keyboard_focus <> None && n.show
+      else if n.keyboard_focus <> None && n.show && not n.disabled
       then (printd (debug_board + debug_custom) "Found %s" (sprint_id n); Some n)
       else loop n (r.id :: visited) in
   loop room []
@@ -1296,8 +1299,11 @@ let has_resident layout =
   | Resident _ -> true
   | Rooms _ -> false
 
+let accept_focus r =
+  r.show && not r.disabled && not r.removed && not r.hidden
+
 let has_keyboard_focus r =
-  r.keyboard_focus = Some true
+  r.keyboard_focus = Some true && not r.disabled
 
 (* Set keyboard_focus to the room and the resident widget, if possible. In debug
    mode, this will draw some shadow around the layout when focused... Warning,
@@ -1305,21 +1311,24 @@ let has_keyboard_focus r =
    not prevent the board to register it as keyboard focus... TODO: what to
    do? *)
 let set_keyboard_focus r =
-  match r.keyboard_focus with
-  | Some b ->
-     if not b then begin
-         printd debug_board "Setting keyboard_focus to room %s" (sprint_id r);
-         r.keyboard_focus <- Some true;
-         match r.content with
-         | Rooms _ -> ()
-         | Resident w -> Widget.set_keyboard_focus w
-       end
-  | None -> printd debug_board
-              "Cannot set keyboard_focus to room %s because if was not created \
-               with keyboard_focus capability." (sprint_id r)
+  if r.disabled
+  then printd debug_error "Trying to set keyboard_focus to a disabled room %s" (sprint_id r)
+  else match r.keyboard_focus with
+    | Some b ->
+      if not b then begin
+        printd debug_board "Setting keyboard_focus to room %s" (sprint_id r);
+        r.keyboard_focus <- Some true;
+        match r.content with
+        | Rooms _ -> ()
+        | Resident w -> Widget.set_keyboard_focus w
+      end
+    | None -> printd debug_board
+                "Cannot set keyboard_focus to room %s because if was not created \
+                 with keyboard_focus capability." (sprint_id r)
 
 let rec remove_keyboard_focus r =
   do_option r.keyboard_focus (fun b -> if b then r.keyboard_focus <- Some false);
+  Trigger.push_remove_focus r.id;
   match r.content with
   | Rooms list -> List.iter remove_keyboard_focus list
   | Resident w -> Widget.remove_keyboard_focus w
@@ -1333,6 +1342,18 @@ let claim_keyboard_focus r =
   if has_resident r then Trigger.push_keyboard_focus r.id
   else printd (debug_error + debug_board)
          "Cannot claim keyboard_focus on room %s without resident." (sprint_id r)
+
+let disable t =
+  iter (fun r -> r.disabled <- true) t;
+  remove_keyboard_focus t;
+  Trigger.push_remove_focus t.id
+
+let enable t =
+  iter (fun r -> r.disabled <- false) t
+
+let set_enabled t = function
+  | true -> enable t
+  | false -> disable t
 
 (* Center vertically the rooms of the layout (first generation only) *)
 let v_center layout y0 h =
@@ -2657,6 +2678,10 @@ let display ?pos0 room =
     end in
   display_loop x0 y0 0 None (Draw.make_transform ()) room
 
+(* the display function we export *)
+(* NO: we need pos for snapshot.ml *)
+(* let display r : unit = display r *)
+
 let get_focus room =
   room.mouse_focus
 
@@ -2855,9 +2880,7 @@ let destroy_window r =
       "Cannot destroy window for layout %s because it is not associated with any \
        SDL window." (sprint_id r)
 
-(* the display function we export *)
-(* NO we need pos for snapshot.ml *)
-(* let display r : unit = display r *)
+
 
 let inside_geom geometry (x,y) =
   x <= geometry.x + geometry.w && x >= geometry.x &&
@@ -2900,7 +2923,7 @@ let rec focus_list_old x y t =
    consistent with the fact that it is the first displayed) *)
 (* cf remarks above *)
 let rec focus_list x y t =
-  if t.show && (inside t (x,y)) then match t.content with
+  if t.show && not (t.disabled) && (inside t (x,y)) then match t.content with
     | Resident _ -> [ t ]
     | Rooms h -> List.flatten (List.rev_map (fun r -> focus_list x y r) h)
   else []

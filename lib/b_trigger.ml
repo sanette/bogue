@@ -121,7 +121,9 @@ let keyboard_focus = new_event_type "keyboard_focus"
 
 let mouse_focus = new_event_type "mouse_focus"
 
-let remove_layout = new_event_type "remove_layout"
+let remove_focus = new_event_type "remove_focus"
+
+(* let remove_layout = new_event_type "remove_layout" *)
 
 let destroy_window = new_event_type "destroy_window"
 
@@ -159,7 +161,7 @@ type bogue_event =
   | `Bogue_var_changed
   | `Bogue_keyboard_focus
   | `Bogue_mouse_focus
-  | `Bogue_remove_layout
+  | `Bogue_remove_focus
   | `Bogue_destroy_window
   | `Bogue_update
   | `Bogue_sync_action
@@ -177,27 +179,27 @@ let event_kind ev : [> sdl_event | bogue_event] =
   | `Unknown x ->
     begin
       match x with (* TODO association list or Imap like tsdl.ml *)
-       | i when i = startup -> `Bogue_startup
-       | i when i = stop -> `Bogue_stop
-       | i when i = stopped -> `Bogue_stopped
-       | i when i = mouse_at_rest -> `Bogue_mouse_at_rest
-       | i when i = mouse_enter -> `Bogue_mouse_enter
-       | i when i = mouse_leave -> `Bogue_mouse_leave
-       | i when i = var_changed -> `Bogue_var_changed
-       | i when i = keyboard_focus -> `Bogue_keyboard_focus
-       | i when i = mouse_focus -> `Bogue_mouse_focus
-       | i when i = remove_layout -> `Bogue_remove_layout
-       | i when i = destroy_window -> `Bogue_destroy_window
-       | i when i = update -> `Bogue_update
-       | i when i = redraw -> `Bogue_redraw
-       | i when i = sync_action -> `Bogue_sync_action
-       | i when i = 0x304 -> `Bogue_keymap_changed
-       (* keymap_changed was forgotten, but corrected in recent Tsdl.
-          https://github.com/dbuenzli/tsdl/issues/76#event-6708707941 See also:
-          https://github.com/libsdl-org/SDL/issues/5520 *)
-       | _ -> printd debug_event "UNKNOWN EVENT=0x%x" x;
-              `Unknown x
-     end
+      | i when i = startup -> `Bogue_startup
+      | i when i = stop -> `Bogue_stop
+      | i when i = stopped -> `Bogue_stopped
+      | i when i = mouse_at_rest -> `Bogue_mouse_at_rest
+      | i when i = mouse_enter -> `Bogue_mouse_enter
+      | i when i = mouse_leave -> `Bogue_mouse_leave
+      | i when i = var_changed -> `Bogue_var_changed
+      | i when i = keyboard_focus -> `Bogue_keyboard_focus
+      | i when i = mouse_focus -> `Bogue_mouse_focus
+      | i when i = remove_focus -> `Bogue_remove_focus
+      | i when i = destroy_window -> `Bogue_destroy_window
+      | i when i = update -> `Bogue_update
+      | i when i = redraw -> `Bogue_redraw
+      | i when i = sync_action -> `Bogue_sync_action
+      | i when i = 0x304 -> `Bogue_keymap_changed
+      (* keymap_changed was forgotten, but corrected in recent Tsdl.
+         https://github.com/dbuenzli/tsdl/issues/76#event-6708707941 See also:
+         https://github.com/libsdl-org/SDL/issues/5520 *)
+      | _ -> printd debug_event "UNKNOWN EVENT=0x%x" x;
+        `Unknown x
+    end
   | e -> generalize_sdl_event e
 
 (* Query replace regexp (default `\([a-z_]+\)\1): `\([a-z]+\)`\1 -> "\1" *)
@@ -684,6 +686,10 @@ let push_keyboard_focus = push_from_id keyboard_focus
 (* the id is of the layout, which should contain a Widget. *)
 let push_mouse_focus = push_from_id mouse_focus
 
+(* when removing a layout you should tell the board to remove it from its
+   current focus, if applicable. *)
+let push_remove_focus = push_from_id remove_focus
+
 (* use this when a Tvar (or dynvar, not used) has changed *)
 (* at this time, the significance of the id argument is not specified. (not used
    yet). It could be a widget_id, room_id, or dynavar_id... TODO create a
@@ -695,9 +701,9 @@ let push_update = push_from_id update
 
 (* The layout id is stored but not used. Only one push is necessary
    currently. *)
-let push_remove_layout id =
-  if not (Sdl.has_event remove_layout)
-  then push_from_id remove_layout id
+(* let push_remove_layout id = *)
+(*   if not (Sdl.has_event remove_layout) *)
+(*   then push_from_id remove_layout id *)
 
 let push_destroy_window ~window_id id =
   let e = create_event destroy_window in

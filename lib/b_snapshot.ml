@@ -49,7 +49,7 @@ let update widget room =
   printd debug_graphics "...rendering snapshot done.";
 
   (* essai blur *)
-  (* let target = Draw.blur_texture renderer target 24 in *)
+ (* let target = Draw.blur_texture renderer target 16 in *)
 
   let box = Widget.get_box widget in
   do_option (Var.get box.Box.render) Draw.forget_texture;

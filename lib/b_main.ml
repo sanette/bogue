@@ -73,6 +73,10 @@ let get_layouts board =
    see example 19 (tabs) *)
 let get_mouse_focus board =
   board.mouse_focus
+(* Now the following should not be necessary: (but doesn't hurt) *)
+(* match board.mouse_focus with *)
+(* | Some r when r.Layout.disabled -> board.mouse_focus <- None; None *)
+(* | focus -> focus *)
 
 let set_windows board windows =
   board.windows <- windows;
@@ -242,14 +246,34 @@ let show board =
       Window.to_refresh w;
       Draw.update_background (Window.get_canvas w)) board.windows
 
-(* return the widget with mouse focus *)
+(* Si board.mouse_focus = ro, on l'enlève. on profite pour vérifier que le
+   board.mouse_focus est acceptable. *)
+let remove_mouse_focus board ro =
+  match board.mouse_focus, ro with
+  | Some br, Some r -> if Layout.equal br r || not (Layout.accept_focus br)
+    then board.mouse_focus <- None
+  | Some br, _ -> if not (Layout.accept_focus br)
+    then board.mouse_focus <- None
+  | _ -> ()
+
+(* idem pour keyboard_focus *)
+let remove_keyboard_focus board ro =
+  match board.keyboard_focus, ro with
+  | Some br, Some r -> if Layout.equal br r || not (Layout.accept_focus br)
+    then board.keyboard_focus <- None
+  | Some br, _ -> if not (Layout.accept_focus br)
+    then board.keyboard_focus <- None
+  | _ -> ()
+
+(* return the widget with mouse focus. Not used *)
 let mouse_focus_widget board =
   map_option (get_mouse_focus board) Layout.widget
 
-(* return the widget with keyboard_focus *)
+(* return the widget with keyboard_focus. Not used *)
 let keyboard_focus_widget board =
   map_option board.keyboard_focus Layout.widget
 
+(* Not used *)
 let button_down_widget board =
   map_option board.button_down Layout.widget
 
@@ -536,22 +560,23 @@ let refresh_custom_windows board =
       if not w.Window.bogue then w.Window.is_fresh <- false)
     board.windows
 
-let check_removed board =
+let check_removed board ro =
+  let equal br = match ro with Some r -> Layout.equal r br | None -> false in
   do_option board.mouse_focus (fun r ->
-      if Layout.is_removed r || not r.Layout.show then begin
-        printd debug_board "Re-setting mouse_focus because layout %s was removed"
+      if equal r || not (Layout.accept_focus r) then begin
+        printd debug_board "Removing mouse_focus %s."
           (Layout.sprint_id r);
         check_mouse_motion board
       end);
   do_option board.keyboard_focus (fun r ->
-      if Layout.is_removed r || not r.Layout.show then begin
-        printd debug_board "Unsetting keyboard_focus because layout %s was removed"
+      if equal r || not (Layout.accept_focus r) then begin
+        printd debug_board "Removing keyboard_focus %s."
           (Layout.sprint_id r);
         board.keyboard_focus <- None
       end);
   do_option board.button_down (fun r ->
-      if Layout.is_removed r || not r.Layout.show then begin
-        printd debug_board "Unsetting button_down because layout %s was removed"
+      if equal r || not (Layout.accept_focus r) then begin
+        printd debug_board "Removing button_down %s."
           (Layout.sprint_id r);
         board.button_down <- None
       end)
@@ -563,7 +588,7 @@ let check_removed board =
      the evo_layout that the layout (& widget) is authorized to treat
      thereafter. Returning None means that widgets will never react to such
      event. Currently all events are returned, except for the Update and
-     Remove_layout events. *)
+     Remove_focus events. *)
 let filter_board_events board e =
   let open E in
   printd debug_event "1==> Filtering event type: %s" (Trigger.sprint_ev e);
@@ -601,16 +626,22 @@ let filter_board_events board e =
     printd debug_event "Update";
     Update.execute e;
     None
-  | `Bogue_remove_layout ->
-    printd debug_event "Layout removed";
-    Trigger.(flush remove_layout); (* not necessary in principle *)
-    check_removed board;
+  | `Bogue_remove_focus ->
+    printd debug_event "Remove focus";
+    Trigger.(flush remove_focus); (* not necessary in principle *)
+    let ro = Layout.of_id_opt (get e user_code) in
+    check_removed board ro;
     None
   | `Render_targets_reset
   | `Render_device_reset ->
     printd (debug_graphics + debug_error) "TODO! Reset all textures";
     Sdl.log "reset event";
     None
+  (* | `Bogue_remove_layout -> *)
+  (*   let ro = Layout.of_id_opt (get e user_code) in *)
+  (*   remove_mouse_focus board ro; *)
+  (*   remove_keyboard_focus board ro; *)
+  (*   None *)
   | _ -> Some e
 
 

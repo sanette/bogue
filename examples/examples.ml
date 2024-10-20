@@ -494,7 +494,7 @@ let example24 () =
   let btns = L.flat_of_w [b1;b2] in
   L.oscillate ~frequency:10. 20 btns;
   let layout = L.flat [btns; L.resident l] in
-  let screen = Popup.add_screen btns in
+  let screen = Popup.add_screen ~color:(Draw.(transp green)) btns in
   let action _ w2 _ =
     Label.set (W.get_label w2) "You clicked on the screen layer!";
     W.update w2;
@@ -1236,7 +1236,34 @@ let example52 () =
   let layout = L.resident label in
   run (of_layout layout)
 
+let desc53 = "Disabling a layout."
+let example53 () =
+  let b = W.check_box () in
+  let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
+  let l = L.tower_of_w [b;ti] in
+  let disable_btn = W.button ~state:true
+      ~label_on:(Label.create "click to disable")
+      ~label_off:(Label.create "click to enable") ~action:(L.set_enabled l) "" in
+  let board = of_layout (L.tower [l; L.resident disable_btn]) in
+  run board
 
+let desc53bis = "Disabling a layout with a screen."
+let example53bis () =
+  let b = W.check_box () in
+  let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
+  let l = L.tower_of_w [b;ti] in
+  let screen = Popup.add_screen l in
+  L.hide ~duration:0 screen;
+  (* Nota bene: the screen might seem enough to disable access to the layout
+     [l], however using L.set_enabled is safer because it also removes keyboard
+     focus. *)
+  let disable_btn = W.button ~state:true
+      ~label_on:(Label.create "click to disable")
+      ~label_off:(Label.create "click to enable") ~action:(function
+          | true -> L.set_enabled l true; L.hide screen
+          | false -> L.set_enabled l false; L.show screen) "" in
+  let board = of_layout (L.tower [l; L.resident disable_btn]) in
+  run board
 
 
 
@@ -1305,7 +1332,8 @@ let _ =
     "50", (example50, desc50) ;
     "51", (example51, desc51) ;
     "52", (example52, desc52) ;
-
+    "53", (example53, desc53) ;
+    "53bis", (example53bis, desc53bis) ;
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)

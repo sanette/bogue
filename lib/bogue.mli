@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241019
+@version 20241020
 
 @author Vu Ngoc San
 
@@ -568,7 +568,7 @@ module Trigger : sig
     | `Bogue_var_changed
     | `Bogue_keyboard_focus
     | `Bogue_mouse_focus
-    | `Bogue_remove_layout
+    | `Bogue_remove_focus
     | `Bogue_destroy_window
     | `Bogue_update
     | `Bogue_sync_action
@@ -2014,6 +2014,10 @@ module Layout : sig
       it modifies both the house and "by". Beware of circular
       dependencies... Cannot be used for the [top_house] (the window layout)
       because that layout has no house. *)
+
+  val set_enabled : t -> bool -> unit
+  (** Disable or enable a layout and all its rooms recursively. A disabled
+      layout will not accept any mouse or keyboard focus. *)
 
   val unload_textures : t -> unit
   (** Use this to free the textures stored by the layout (and its children) for
