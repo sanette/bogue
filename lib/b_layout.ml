@@ -1693,11 +1693,11 @@ let resize_tower_room ~resize_width initial_tower_size scale
         if next room = None (* last room *) then (scalex := None; scaley:=None);
         (* set y position *)
         let () = match prev room with
-          | None -> sety room hmargin
+          | None -> sety room vmargin
           (* = first room. In principle, this is not necessary. *)
           | Some p -> sety room (gety p + height p + sep) in
         (* horizontal align *)
-        let x = Draw.align align hmargin (h - 2*hmargin) (width room) in
+        let x = Draw.align align hmargin (w - 2*hmargin) (width room) in
         setx room x
       end)
 
@@ -1716,9 +1716,6 @@ let resize_flat ?(resize_height = true) ~hmargin ~vmargin ~sep ~align house =
 let resize_tower ?(resize_width = true) ~hmargin ~vmargin ~sep ~align house =
   let size = get_size house in
   let scale = ref None, ref None in
-  (* This [scale] variable is shared by all rooms. Currently, this systems does
-     not allow to correctly resize a room dynamically added to the flat after
-     creation, because we cannot retrieve this variable. *)
   iter_rooms (resize_tower_room ~resize_width size scale ~hmargin ~vmargin ~sep ~align)
     house
 
