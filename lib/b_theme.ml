@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20241020"  (* see VERSION file *)
+let this_version = "20241110"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -465,6 +465,8 @@ let set_integer_scale b =
   integer_scale := b;
   if b then set_scale !scale
 
+(* WARNING: scaling functions should be used after graphics init otherwise
+   !scale=0. Use Sync.push  *)
 let scale_int i =
   round (!scale *. float i)
 

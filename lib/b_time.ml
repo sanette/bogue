@@ -76,53 +76,56 @@ let adaptive_fps ?(vsync=false) fps =
 
   (* the start function *)
   (fun () ->
-    start := now ();
-    total_wait := 0;
-    if vsync then begin
-        vsync_used := set_swap_interval 1;
-        printd debug_graphics "VSync used: %b" !vsync_used;
-      end;
-    frame := 1),
+     start := now ();
+     total_wait := 0;
+     if vsync then begin
+       vsync_used := set_swap_interval 1;
+       printd debug_graphics "VSync used: %b" !vsync_used;
+     end;
+     frame := 1),
 
   (* the main function *)
   fun () ->
-  if !start = 0 then (delay 5; start := now (); assert(false))
-  else
-    let elapsed = now () - !start in
-    let theoric = 1000 * !frame / fps in (* theoric time after this number of frames *)
-    let wait = theoric - elapsed in
-    total_wait := !total_wait + wait;
-    let wait =
-      if wait < 5
-      then (printd debug_graphics "Warning: cannot keep up required FPS=%u (wait=%d)" fps wait;
-            (* this can also happen when the animation was stopped; we reset
-               the counter *)
-            frame := 0;
-            total_wait := 0;
-            start := now ();
-            if !vsync_used then
-              (* turn on adaptive vsync if supported *)
-              if set_swap_interval (-1) then
-                printd (debug_graphics + debug_warning) "Adaptive VSync enabled"
-              else begin
-                  printd (debug_graphics + debug_warning) "Disabling VSync";
-                  (* fall back to turning vsync off *)
-                  let (_:bool) = set_swap_interval 0 in
-                  vsync_used := false
-                end;
-            5)
-      else if !vsync_used then
-        (* trust VSync and the released runtime lock in Sdl.render_present
-           to maintain FPS, but use the usual 5ms to allow other OCaml code
-           to run if needed
-         *)
-        5
-      else (printd debug_graphics "Wait=%u, Avg.=%u" wait (!total_wait / !frame);
-            wait) in
-    delay wait;
-    incr frame;
-    if !frame > 1000000 (* set lower? *)
-    then (printd debug_graphics "Reset FPS counter";
-          frame := 1;
+    if !start = 0 then (delay 5; start := now (); assert(false))
+    else
+      let elapsed = now () - !start in
+      let theoric = 1000 * !frame / fps in (* theoric time after this number of frames *)
+      let wait = theoric - elapsed in
+      total_wait := !total_wait + wait;
+      let wait =
+        if wait < 5
+        then begin
+          printd (debug_graphics + debug_warning)
+            "Cannot keep up required FPS=%u (wait=%d)" fps wait;
+          (* this can also happen when the animation was stopped; we reset the
+             counter *)
+          frame := 0;
           total_wait := 0;
-          start := now ())
+          start := now ();
+          if !vsync_used then
+            (* turn on adaptive vsync if supported *)
+            if set_swap_interval (-1) then
+              printd (debug_graphics + debug_warning) "Adaptive VSync enabled"
+            else begin
+              printd (debug_graphics + debug_warning) "Disabling VSync";
+              (* fall back to turning vsync off *)
+              let (_:bool) = set_swap_interval 0 in
+              vsync_used := false
+            end;
+          5
+        end
+        else if !vsync_used then
+          (* trust VSync and the released runtime lock in Sdl.render_present
+             to maintain FPS, but use the usual 5ms to allow other OCaml code
+             to run if needed
+          *)
+          5
+        else (printd debug_graphics "Wait=%u, Avg.=%u" wait (!total_wait / !frame);
+              wait) in
+      delay wait;
+      incr frame;
+      if !frame > 1000000 (* set lower? *)
+      then (printd debug_graphics "Reset FPS counter";
+            frame := 1;
+            total_wait := 0;
+            start := now ())

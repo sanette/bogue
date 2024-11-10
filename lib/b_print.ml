@@ -55,6 +55,8 @@ let background = function
   | L.Style s -> style s
   | L.Box _ -> "Box"
 
+let align = Draw.pr_align
+
 let layer_depth l =
   if Chain.is_empty l then "None"
   else string_of_int (Chain.depth l)

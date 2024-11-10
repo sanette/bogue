@@ -40,6 +40,11 @@ type align =
   | Center
   | Max
 
+let pr_align = function
+  | Min -> "Min"
+  | Max -> "Max"
+  | Center -> "Center"
+
 type transform =
   { angle : float;
     center : Sdl.point option;

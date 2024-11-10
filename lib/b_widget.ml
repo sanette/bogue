@@ -46,6 +46,7 @@ type action_priority =
 type active = {
     thread : Thread.t;
     (* [thread] is the thread launched by the connection with given id *)
+    (* doc on threads: https://ocaml.github.io/ocamlunix/threads.html *)
     event : Sdl.event;
     (* [event] is the event passed to the "action".  It is used also for
        communication *)
@@ -482,32 +483,32 @@ let button ?(kind = Button.Trigger) ?label ?label_on ?label_off
 
 (* use ~lock if the user is not authorized to slide *)
 let slider ?(priority=Main) ?step ?value ?kind ?var ?length ?thickness
-      ?tick_size ?(lock = false) ?w ?h maxi =
+    ?tick_size ?(lock = false) ?w ?h maxi =
   let w = create_empty (Slider (Slider.create ?step ?value ?kind ?var ?length
                                   ?thickness ?tick_size ?w ?h maxi)) in
   if not lock then begin
-      let onbutton_down = fun w _ ev -> Slider.click (get_slider w) ev in
-      let c = connect_main w w onbutton_down Trigger.buttons_down in
-      add_connection w c;
-      (* let onclick = fun w _ ev -> Slider.click_focus (get_slider w) ev in *)
-      (* let c = connect_main w w onclick [Sdl.Event.mouse_button_up] in *)
-      (* add_connection w c; *)
-      let on_release = fun w _ _ -> Slider.release (get_slider w) in
-      let c = connect_main w w on_release Trigger.buttons_up in
-      add_connection w c;
-      let slide = fun w _ ev ->
-        let ti = get_slider w in
-        if Trigger.mm_pressed ev || Trigger.event_kind ev = `Finger_motion
-        then (Slider.slide ti ev; update w)
-      in
-      let c = connect ~priority ~update_target:false w w slide
-                Trigger.pointer_motion in
-      add_connection w c;
-      let get_keys = fun w _ ev -> Slider.receive_key (get_slider w) ev
-      in
-      let c = connect ~priority w w get_keys [Sdl.Event.key_down] in
-      add_connection w c
-    end;
+    let onbutton_down = fun w _ ev -> Slider.click (get_slider w) ev in
+    let c = connect_main w w onbutton_down Trigger.buttons_down in
+    add_connection w c;
+    (* let onclick = fun w _ ev -> Slider.click_focus (get_slider w) ev in *)
+    (* let c = connect_main w w onclick [Sdl.Event.mouse_button_up] in *)
+    (* add_connection w c; *)
+    let on_release = fun w _ _ -> Slider.release (get_slider w) in
+    let c = connect_main w w on_release Trigger.buttons_up in
+    add_connection w c;
+    let slide = fun w _ ev ->
+      let ti = get_slider w in
+      if Trigger.mm_pressed ev || Trigger.event_kind ev = `Finger_motion
+      then (Slider.slide ti ev; update w)
+    in
+    let c = connect ~priority ~update_target:false w w slide
+        Trigger.pointer_motion in
+    add_connection w c;
+    let get_keys = fun w _ ev -> Slider.receive_key (get_slider w) ev
+    in
+    let c = connect ~priority w w get_keys [Sdl.Event.key_down] in
+    add_connection w c
+  end;
   w
 
 (* create a slider with a simple Tvar that executes an action each time the

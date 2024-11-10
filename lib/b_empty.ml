@@ -1,6 +1,7 @@
-(* An empty widget. Does not draw anything, but can be used to get mouse focus.
+(* This file is part of BOGUE, by San Vu Ngoc *)
 
-This file is part of BOGUE *)
+(* An empty widget. Does not draw anything, but can be used to get mouse
+   focus. *)
 
 type t = {
     mutable size: int * int

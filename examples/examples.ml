@@ -99,7 +99,7 @@ let example1h () =
   let board = of_layout layout in
   run board
 
-let desc1v = "Rich text and vertical layout sliding from right."
+let desc1v = "Rich text and vertical layout sliding from the right."
 let example1v () =
   let b = W.check_box () in
   let h = 50 in
@@ -379,7 +379,7 @@ let example19 () =
   let tab1 = L.flat_of_w [img] in
   let tab2 = L.flat_of_w [ti] in
   let tab3 = L.tower_of_w [b;l] in
-  let tabs = Tabs.create ~slide:Avar.Right ~adjust:Layout.Nothing
+  let tabs = Tabs.create ~slide:Avar.Right ~adjust:L.Nothing
       ["Check box", tab3; "Image", tab1; "Text entry", tab2; ] in
   let board = of_layout tabs in
   run board
@@ -680,7 +680,8 @@ let example27 () =
   let debut = L.resident (W.label "START") in
   let long = L.tower ~sep:0 [debut; td (); td (); td (); td (); td (); td (); td (); fin ()] in
   let short = L.tower ~sep:0 [td (); fin()(* ; td (); td (); td (); td () *)] in
-  let container = L.make_clip ~h:300 long in
+  let on_scroll v = print_endline (sprintf "Vertical offset: %i" v) in
+  let container = L.make_clip ~h:300 ~on_scroll long in
   let container2 = L.make_clip ~h:300 short in
   let layout = L.flat [hello; container; container2] in
   (* L.scroll_to ~duration:2000 300 long; *)
@@ -724,7 +725,7 @@ let example30 () =
      latter is preferable in case the radio buttons are modified directly
      without clicking, cf Timeout below. (or via TAB, not implemented yet) *)
 
-  let background = Layout.color_bg Draw.(set_alpha 40 blue) in
+  let background = L.color_bg Draw.(set_alpha 40 blue) in
   let layout = L.flat ~align:Draw.Center [Radiolist.layout radio;
                                           L.resident ~background label] in
   let board = of_layout ~connections:cs layout in
@@ -736,8 +737,9 @@ let example30 () =
 let desc31 = "a Long List"
 let example31 () =
   Random.self_init ();
+  let background = L.color_bg Draw.(set_alpha 40 blue) in
   let sizes = Array.init (Array.length europe) (fun _ -> 100+(Random.int 100)) in
-  let generate i = L.resident ~h:(sizes.(i)) (W.label europe.(i)) in
+  let generate i = L.resident ~background ~h:(sizes.(i)) (W.label europe.(i)) in
   let long = Long_list.create ~w:300 ~h:400 ~generate
       ~length:(Array.length europe) ~max_memory:700000 () in
   (* The optional argument max_memory = 700000 is chosen here to force the algo
@@ -789,11 +791,11 @@ let example34 () =
       else None in
     let state = data.(i) in
     let b = W.check_box ~state () in
-    let click w = data.(i) <- W.get_state w in
+    let click wg = data.(i) <- W.get_state wg in
     W.on_click ~click b; (* we need to add connections dynamically *)
     let bl = L.resident ~w:20 ~h b in
-    let l = L.resident ~w:(w-20) ~h (W.label (string_of_int i)) in
-    L.flat ~sep:0 ~margins:10 ?background [bl;l] in
+    let l = L.resident ~w:(w-50) ~h (W.label (string_of_int i)) in
+    L.flat ~margins:10 ?background [bl;l] in
   let height_fn _ = Some (h+20) in
   let long = Long_list.create ~w ~h:400 ~generate ~height_fn ~linear:false
       ~length ~max_memory:900000 () in
@@ -827,9 +829,15 @@ let example35 () =
                          (String.length europe.(i))
                          (String.length europe.(j)));
       width = Some 70} in
-  let table, _ = Table.create ~h:400 [col1; col2; col3] in
+  let table, sel = Table.create ~h:400 [col1; col2; col3] in
 
-  let board = of_layout table in
+  let clear_sel = W.button "clear selection"
+      ~action:(fun _ -> Tvar.set sel Selection.empty) in
+  let get_sel = W.button "print selection" ~action:(fun _ ->
+      print_endline (Selection.sprint (Tvar.get sel))) in
+
+  let layout = L.tower [table; L.flat_of_w [clear_sel; get_sel]] in
+  let board = of_layout layout in
   run board
 
 let desc35bis = "a table from an array"
@@ -920,36 +928,35 @@ let desc39 = "the hfill/vfill elements. Try and resize the window."
 let example39 () =
   let background = L.theme_bg in
   let line0 = L.flat
-                [L.resident ~background (W.label "Room 1");
-                 L.resident ~background (W.label "Room 2");
-                 L.resident ~background (W.label "Room 3")] in
+      [L.resident ~background (W.label "Room 1");
+       L.resident ~background (W.label "Room 2");
+       L.resident ~background (W.label "Room 3")] in
   let line1 = L.flat
-                [L.resident ~background (W.label "Room 1");
-                 L.resident ~background (W.label "Room 2");
-                 Space.hfill ();
-                 L.resident ~background (W.label "Room 3")] in
+      [L.resident ~background (W.label "Room 1");
+       L.resident ~background (W.label "Room 2");
+       Space.hfill ();
+       L.resident ~background (W.label "Room 3")] in
   (* The width will follow the width of the container (here, the window): *)
   Space.full_width line1;
   let room3 = L.resident ~background (W.label "Bottom") in
   let line2 = L.flat
-                [room3;
-                 L.resident ~background (W.label "Bottom right")] in
+      [room3; L.resident ~background (W.label "Bottom right")] in
   Space.make_hfill room3;
   Space.full_width line2;
 
   let center_area =
-    L.tower ~sep:0 [L.resident ~background (W.label "Vertical fill") ] in
+    L.tower ~vmargin:0 [L.resident ~background (W.label "Vertical fill") ] in
   Space.make_vfill center_area;
 
   let layout = L.tower ~sep:5
-                 [L.resident (W.label "A normal flat:");
-                  line0;
-                  L.resident (W.label "A flat set to full_width and with hfill \
-                                       between rooms 2 and 3:");
-                  line1;
-                  center_area;
-                  L.resident (W.label "The first room is made into an hfill:");
-                  line2] in
+      [L.resident (W.label "A normal flat:");
+       line0;
+       L.resident (W.label "A flat set to full_width and with hfill between \
+                            rooms 2 and 3:");
+       line1;
+       center_area;
+       L.resident ~h:30 (W.label "The first room is made into an hfill:");
+       line2] in
 
   let board = of_layout layout in
   run board
@@ -1017,7 +1024,7 @@ let example41 () =
   let start_btn = make_btn 800 500 "Start" in
   let quit_btn = make_btn 800 600 "Quit" in
   print_endline(Printf.sprintf "quit_btn pos = (%i,%i)"
-                  (Layout.getx quit_btn) (Layout.gety quit_btn));
+                  (L.getx quit_btn) (L.gety quit_btn));
   let entries = let open Menu in
     [ { label = Layout start_btn;
         content = Action (fun () -> print_endline "START!") };

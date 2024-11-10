@@ -3,10 +3,6 @@
 
 (** Vu Ngoc San, December 2013 -- now *)
 
-(* doc on threads:
-https://ocaml.github.io/ocamlunix/threads.html
-*)
-
 open B_utils
 open Tsdl
 module Avar = B_avar
@@ -871,7 +867,7 @@ let event_loop anim new_anim board =
   let rec loop e count =
     printd debug_event "Event loop %i" count;
 
-    (* Note, do not flush var_changed, it is used by radiolist.ml, cf. example30
+    (* OLD: Note, do not flush var_changed, it is used by radiolist.ml, cf. example30
     *)
     let evo_layout = filter_board_events board e in
     do_option evo_layout (treat_layout_events board);

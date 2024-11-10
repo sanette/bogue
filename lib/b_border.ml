@@ -65,7 +65,7 @@ let gaussian_float () =
 (* draw (rectangular) pixels *)
 let draw_pixel renderer ?(size=1.0) p =
   let psize = Theme.scale_from_float size in
-  print_endline (Printf.sprintf "PSIZE=%i" psize);
+  (* print_endline (Printf.sprintf "PSIZE=%i" psize); *)
   if psize = 1 (* TODO subpixel rendering *)
   then go (Sdl.render_draw_point renderer (getx p) (gety p))
   else if psize > 1

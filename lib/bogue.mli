@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241020
+@version 20241110
 
 @author Vu Ngoc San
 
@@ -966,6 +966,7 @@ val r : t = <abstr>
  *)
 module Selection : sig
   type t
+  val empty : t
   val to_list : t -> (int * int) list
   val of_list : (int * int) list -> t
   val mem : t -> int -> bool
@@ -1872,7 +1873,12 @@ module Layout : sig
     ?align:Draw.align ->
     ?background:background -> ?shadow:Style.shadow ->
     ?canvas:Draw.canvas -> ?scale_content:bool -> t list -> t
-  (** Create a horizontal arrangement from a list of rooms. *)
+  (** Create a horizontal arrangement from a list of rooms.
+      + [sep] = horizontal space between two rooms.
+      + [hmargin] = horizontal margin (left and right).
+      + [vmargin] = vertical margin (top and bottom).
+      + if [margins] is set, then sep, hmargin and vmargin are all set to this value.
+  *)
 
   val tower :
     ?name:string -> ?sep:int ->
@@ -1881,7 +1887,7 @@ module Layout : sig
     ?adjust:adjust ->
     ?background:background -> ?shadow:Style.shadow ->
     ?canvas:Draw.canvas -> ?clip:bool -> ?scale_content:bool -> t list -> t
-  (** Create a vertical arrangement from a list of rooms. *)
+  (** Create a vertical arrangement from a list of rooms. See {!flat}. *)
 
   val superpose :
     ?w:int -> ?h:int -> ?name:string ->
@@ -1902,9 +1908,17 @@ module Layout : sig
 
   val make_clip : ?w:int ->
     ?scrollbar:bool ->
-    ?scrollbar_inside:bool -> ?scrollbar_width:int -> h:int -> t -> t
+    ?scrollbar_inside:bool -> ?scrollbar_width:int ->
+    ?on_scroll:(int -> unit) -> h:int -> t -> t
   (** Clip a layout inside a smaller container and make it scrollable, and
-      optionally add a scrollbar widget. *)
+      optionally add a scrollbar widget. The [on_scroll] function is called
+      anytime the scroll is modified, with the vertical offset as
+      parameter.
+
+      Currently, only vertical scrolling is implemented. The [?w] variable is
+      not used.
+
+      @see "example 27". *)
 
   (** {2 Get layout attributes} *)
 
@@ -1967,7 +1981,10 @@ module Layout : sig
 
   val disable_resize : t -> unit
   (** This makes sure that nothing is executed when someone tries to resize the
-      layout. *)
+      layout (that is, when the size of the layout's house changes). Warning;
+      working with resize functions is tricky. [disable_resize] should in
+      general be called {e after} the layout has been installed in a house, see
+      comments for {!on_resize}. *)
 
   val on_resize : t -> (unit -> unit) -> unit
   (** [on_resize room f] will execute [f ()] upon resizing the room's house (or
@@ -2008,12 +2025,13 @@ module Layout : sig
      multi-threading problems. Then the changes will be applied by the main
       thread at next frame (see {!Sync}). *)
 
-  val replace_room : by:t -> t -> unit
-  (** Replace "room" by "by" inside its "house" in lieu and place of the initial
+  val replace_room : by:t -> t -> bool
+  (** Replace [room] by [by] inside its "house" in lieu and place of the initial
       room. No size adjustments are made. Of course this is dangerous, because
-      it modifies both the house and "by". Beware of circular
+      it modifies both the house and [by]. Beware of circular
       dependencies... Cannot be used for the [top_house] (the window layout)
-      because that layout has no house. *)
+      because that layout has no house. Will not accept to proceed if [by]
+      already belongs to a house. Returns [true] if successful. *)
 
   val set_enabled : t -> bool -> unit
   (** Disable or enable a layout and all its rooms recursively. A disabled
@@ -2489,19 +2507,29 @@ end (* of Radiolist *)
 module Table : sig
   type column =
     { title : string;
-      length : int;
+      length : int; (** number of entries in the column. *)
       rows : int -> Layout.t;
+      (** [row i] should return the Layout corresponding to the ieth entry of
+          that column. *)
       compare : (int -> int -> int) option;
-      (* use "compare i1 i2" in order to compare entries i1 and i2 *)
-      width : int option;
+      (** if a compare function is provided, then the column will be dynamically
+          sortable by the user. [compare i1 i2 > 0] means that entry [i1] is
+          larger than entry [i2]. *)
+      width : int option; (** pixel width of the column. *)
     }
   type t
 
   val create : ?w:int -> h:int -> ?row_height:int ->
     ?name:string ->
     column list -> Layout.t * (Selection.t, Selection.t) Tvar.t
-  (** @return a layout and a Tvar. The Tvar can be used to see which rows were
-      selected by the user, and also to modify the selection if needed. *)
+  (** Create a table by specifying its list of {b columns}; in each column, the
+      entries can be arbitrary layouts. If entries are simple text labels, it's
+      easier to use the helper functions {!of_array} or {!of_list}.
+
+      @return a layout and a {!Tvar}. The Tvar can be used to see which rows were
+        selected by the user, and also to modify the selection if needed.
+
+      @see "example 35". *)
 
   val of_array : ?w:int ->
     h:int ->
@@ -2510,6 +2538,10 @@ module Table : sig
     ?name:string ->
     string list ->
     string array array -> Layout.t * (Selection.t, Selection.t) Tvar.t
+  (** Create a table from an array of {b rows}, each row being a string
+      array.
+
+      @see "example 35bis". *)
 
   val of_list :
     ?w:int ->
@@ -2518,6 +2550,10 @@ module Table : sig
     ?row_height:int ->
     ?name:string ->
     string list list -> Layout.t * (Selection.t, Selection.t) Tvar.t
+    (** Create a table from a list of {b rows}, each row being a string list.
+
+       @see "example 35ter". *)
+
 
 end (* of Table *)
 

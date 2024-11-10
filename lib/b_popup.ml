@@ -43,16 +43,15 @@ let global_top_layer layout : Draw.layer =
    house. *)
 let resize_same_as model room =
   let resize _ =
-    let open Layout in
+    let open Layout in let open Resize in
     match model.house, room.house with
     | Some h1, Some h2 when Layout.equal h1 h2 ->
-       let keep_resize = true in
-       let size = get_size model in
-       let x = xpos model in
-       let y = ypos model in
-       setx ~keep_resize room x;
-       sety ~keep_resize room y;
-       set_size ~keep_resize room size
+      let size = get_size model in
+      let x = xpos model in
+      let y = ypos model in
+      setx room x;
+      sety room y;
+      set_size room size
     | _ -> printd debug_error
              "[resize_same_as] must apply to two rooms in the same house. Maybe \
               you should use [Layout.resize_follow_house]."

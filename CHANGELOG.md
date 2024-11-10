@@ -10,34 +10,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Can now navigate `tabs` with TAB!  ;)
 - Can now enable/disable a layout with `Layout.set_enabled`. New examples 53, 53bis.
 - changing text color in `Text_display` is now possible, using
-  `Widget.html`, see exemple 47
+  `Widget.html`, see exemple 47.
 - underlining text in `Text_display` is now possible, using
   `Widget.html` (but spaces between words are not underlined at this
-  point), see example 6
+  point), see example 6.
 - `Theme.get_path` is now public.
 - `Theme.get_font_path_opt`
 - `Label.font_from_file` allows the use of arbitrary fonts in addition
   to the Theme fonts (which is not recommended anyways for good
   design).
-- font example 52
+- font example 52.
 
 ### Fixed
 
+- Better resizing for `tabs`: menu height is fixed.
+- Better resizing for `flat` and `tower`: margins are not scaled.
+- `Long_list` layouts can now be resized dynamically.
 - `Label` `style` parameter is now usable (ocamldoc invocation was
-  wrong for `tsdl_ttf`), and can also be used for `Widget.label`
+  wrong for `tsdl_ttf`), and can also be used for `Widget.label`.
+
+### Developement
+- experimental `Detect` for detecting flat and tower layouts.
 
 ## [20240928](https://github.com/sanette/bogue/compare/20240225...20240928)
 
 ### Added
 
 - `Avar.reset` is now public.
-- `Layout.is_shown`
+- `Layout.is_shown`.
 - `Layout.inside` is now public.
-- `Snapshot.to_cursor` (experimental)
-- `Main.get_monitors_refresh_rate`
-- "NO_VSYNC" theme variable
+- `Snapshot.to_cursor` (experimental).
+- `Main.get_monitors_refresh_rate`.
+- "NO_VSYNC" theme variable.
 
 ### Changed
 

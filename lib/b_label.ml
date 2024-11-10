@@ -1,4 +1,7 @@
-(** a simple text display in one line *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* A simple text display in one line *)
+
 open B_utils
 open Tsdl_ttf
 module Theme = B_theme

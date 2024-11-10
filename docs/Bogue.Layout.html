@@ -187,12 +187,18 @@
 <pre><span id="VALflat"><span class="keyword">val</span> flat</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?margins:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a horizontal arrangement from a list of rooms.</p>
+<OL>
+<li><code class="code">sep</code> = horizontal space between two rooms.</li>
+<li><code class="code">hmargin</code> = horizontal margin (left and right).</li>
+<li><code class="code">vmargin</code> = vertical margin (top and bottom).</li>
+<li>if <code class="code">margins</code> is set, then sep, hmargin and vmargin are all set to this value.</li>
+</OL>
 </div>
 </div>
 
 <pre><span id="VALtower"><span class="keyword">val</span> tower</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?margins:int -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?clip:bool -&gt; ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
-<p>Create a vertical arrangement from a list of rooms.</p>
+<p>Create a vertical arrangement from a list of rooms. See <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a>.</p>
 </div>
 </div>
 
@@ -209,11 +215,19 @@
       <a href="Bogue.Layout.html#VALset_width"><code class="code"><span class="constructor">Layout</span>.set_width</code></a>, <a href="Bogue.Layout.html#VALsetx"><code class="code"><span class="constructor">Layout</span>.setx</code></a> and likes, then the room will stop reacting to
       changes of the house size.</p>
 <h3 id="2_Someusefullayoutcombinations">Some useful layout combinations</h3>
-<pre><span id="VALmake_clip"><span class="keyword">val</span> make_clip</span> : <code class="type">?w:int -&gt;<br>       ?scrollbar:bool -&gt;<br>       ?scrollbar_inside:bool -&gt;<br>       ?scrollbar_width:int -&gt; h:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALmake_clip"><span class="keyword">val</span> make_clip</span> : <code class="type">?w:int -&gt;<br>       ?scrollbar:bool -&gt;<br>       ?scrollbar_inside:bool -&gt;<br>       ?scrollbar_width:int -&gt;<br>       ?on_scroll:(int -&gt; unit) -&gt; h:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Clip a layout inside a smaller container and make it scrollable, and
-      optionally add a scrollbar widget.</p>
+      optionally add a scrollbar widget. The <code class="code">on_scroll</code> function is called
+      anytime the scroll is modified, with the vertical offset as
+      parameter.</p>
+
+<p>Currently, only vertical scrolling is implemented. The <code class="code">?w</code> variable is
+      not used.</p>
 </div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>example 27</i> .</li>
+</ul>
 </div>
 <h3 id="2_Getlayoutattributes">Get layout attributes</h3>
 <pre><span id="VALxpos"><span class="keyword">val</span> xpos</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int</code></pre><div class="info ">
@@ -298,7 +312,10 @@
 <pre><span id="VALdisable_resize"><span class="keyword">val</span> disable_resize</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>This makes sure that nothing is executed when someone tries to resize the
-      layout.</p>
+      layout (that is, when the size of the layout's house changes). Warning;
+      working with resize functions is tricky. <code class="code">disable_resize</code> should in
+      general be called <em>after</em> the layout has been installed in a house, see
+      comments for <a href="Bogue.Layout.html#VALon_resize"><code class="code"><span class="constructor">Layout</span>.on_resize</code></a>.</p>
 </div>
 </div>
 
@@ -351,13 +368,14 @@
 </div>
 </div>
 
-<pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">by:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">by:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; bool</code></pre><div class="info ">
 <div class="info-desc">
-<p>Replace "room" by "by" inside its "house" in lieu and place of the initial
+<p>Replace <code class="code">room</code> by <code class="code">by</code> inside its "house" in lieu and place of the initial
       room. No size adjustments are made. Of course this is dangerous, because
-      it modifies both the house and "by". Beware of circular
+      it modifies both the house and <code class="code">by</code>. Beware of circular
       dependencies... Cannot be used for the <code class="code">top_house</code> (the window layout)
-      because that layout has no house.</p>
+      because that layout has no house. Will not accept to proceed if <code class="code">by</code>
+      already belongs to a house. Returns <code class="code"><span class="keyword">true</span></code> if successful.</p>
 </div>
 </div>
 

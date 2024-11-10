@@ -40,7 +40,7 @@ let split_at test list =
    the same as the left margin. *)
 let make_hfill_sync ?right_margin layout =
   let open Layout in
-  let rooms = siblings layout in
+  let rooms = neighbours layout in
   List.iter resize_fix_x rooms;
   let before,after = split_at (equal layout) rooms in
   let bx,_,bw,_ = bounding_geometry before in
@@ -51,19 +51,18 @@ let make_hfill_sync ?right_margin layout =
   let margin_right = ax - getx layout - width layout in
   (* The margin at the right end of the flat: *)
   let right_margin = default right_margin
-                       (if before = [] then margin_left else bx) in
+      (if before = [] then margin_left else bx) in
   let old_resize = layout.resize in
-  let resize (w,h) =
-    let keep_resize = true in
+  let resize (w,h) = let open Resize in
     let available_width = w - aw - bw - bx
                           - margin_left - margin_right - right_margin
                           |> imax initial_width in
     (* TODO compute bounding_geometry here? *)
     let offset = available_width - width layout in
     old_resize (w,h);
-    set_width ~keep_resize layout available_width;
+    set_width layout available_width;
     List.iter (fun r ->
-        setx ~keep_resize r (getx r + offset)) after in
+        setx r (getx r + offset)) after in
   layout.resize <- resize
 
 let make_hfill ?right_margin layout =
@@ -78,7 +77,7 @@ let hfill ?right_margin () =
 
 let make_vfill_sync ?bottom_margin layout =
   let open Layout in
-  let rooms = siblings layout in
+  let rooms = neighbours layout in
   List.iter resize_fix_y rooms;
   let before,after = split_at (equal layout) rooms in
   let _,by,_,bh = bounding_geometry before in
@@ -89,17 +88,16 @@ let make_vfill_sync ?bottom_margin layout =
   let margin_bottom = ay - gety layout - height layout in
   (* The margin at the bottom end of the tower: *)
   let bottom_margin = default bottom_margin
-                        (if before = [] then margin_top else by) in
-  let resize (_w,h) =
-    let keep_resize = true in
+      (if before = [] then margin_top else by) in
+  let resize (_w,h) = let open Resize in
     let available_height = h - ah - bh - by
                            - margin_top - margin_bottom - bottom_margin
                            |> imax initial_height in
     (* TODO compute bounding_geometry here? *)
     let offset = available_height - height layout in
-    set_height ~keep_resize layout available_height;
+    set_height layout available_height;
     List.iter (fun r ->
-        sety ~keep_resize r (gety r + offset)) after in
+        sety r (gety r + offset)) after in
   layout.resize <- resize
 
 let make_vfill ?bottom_margin layout =
@@ -118,11 +116,10 @@ let full_width_sync ?right_margin ?left_margin layout =
   let right_margin = default right_margin left_margin in
   resize_fix_x layout;
   let f = layout.resize in
-  let resize (w,h) =
-    let keep_resize = true in
+  let resize (w,h) = let open Resize in
     f (w,h);
-    setx ~keep_resize layout left_margin;
-    set_width ~keep_resize layout (w - left_margin - right_margin) in
+    setx layout left_margin;
+    set_width layout (w - left_margin - right_margin) in
   layout.resize <- resize
 
 (* Warning, [full_width] and [full_height] pile up a new resize function on top
@@ -139,11 +136,10 @@ let full_height_sync ?top_margin ?bottom_margin layout =
   let bottom_margin = default bottom_margin top_margin in
   resize_fix_y layout;
   let f = layout.resize in
-  let resize (w,h) =
-    let keep_resize = true in
+  let resize (w,h) = let open Resize in
     f (w,h);
-    sety ~keep_resize layout top_margin;
-    set_height ~keep_resize layout (h - top_margin - bottom_margin) in
+    sety layout top_margin;
+    set_height layout (h - top_margin - bottom_margin) in
   layout.resize <- resize
 
 let full_height ?top_margin ?bottom_margin layout =
@@ -160,14 +156,13 @@ let keep_bottom_sync ~reset_scaling ?margin layout =
                house."
               (sprint_id layout)
   | Some house ->
-     let bottom = default_lazy margin
-                    (lazy (height house - gety layout - height layout)) in
-     let f = layout.resize in
-     let resize (w,h) =
-       let keep_resize = true in
-       if not reset_scaling then f (w,h);
-       sety ~keep_resize layout (h - height layout - bottom) in
-     layout.resize <- resize
+    let bottom = default_lazy margin
+        (lazy (height house - gety layout - height layout)) in
+    let f = layout.resize in
+    let resize (w,h) = let open Resize in
+        if not reset_scaling then f (w,h);
+      sety layout (h - height layout - bottom) in
+      layout.resize <- resize
 
 let keep_bottom ?(reset_scaling = false) ?margin layout =
   push layout (fun () ->
@@ -182,14 +177,13 @@ let keep_right_sync ~reset_scaling ?margin layout =
               "Cannot apply [keep_right_sync] to room %s because it has no house."
               (sprint_id layout)
   | Some house ->
-     let right = default_lazy margin
-                   (lazy (width house - getx layout - width layout)) in
-     let f = layout.resize in
-     let resize (w,h) =
-       let keep_resize = true in
-       if not reset_scaling then f (w,h);
-       setx ~keep_resize layout (w - width layout - right) in
-     layout.resize <- resize
+    let right = default_lazy margin
+        (lazy (width house - getx layout - width layout)) in
+    let f = layout.resize in
+    let resize (w,h) = let open Resize in
+      if not reset_scaling then f (w,h);
+      setx layout (w - width layout - right) in
+    layout.resize <- resize
 
 let keep_right ?(reset_scaling = false) ?margin layout =
   push layout (fun () ->

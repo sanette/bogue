@@ -269,7 +269,54 @@ let list_max compare list =
                if compare x max > 0 then x else max)
             a rest)
 
+let list_min compare list =
+  match list with
+  | [] -> None
+  | a::rest ->
+    Some (List.fold_left
+            (fun min x ->
+               if compare x min < 0 then x else min)
+            a rest)
+
+let rec list_last = function
+  | [] -> printd debug_error "[list_last]: empty list"; raise Not_found
+  | [x] -> x
+  | _::rest -> list_last rest
+
+let rec list_last_opt = function
+  | [] -> None
+  | [x] -> Some x
+  | _::rest -> list_last_opt rest
+
+(* Return the element following the first occurence of x, or None if x is the
+   last element. It can be equal to x if x is repeated. *)
+let rec list_next equal x = function
+  | [] -> printd debug_error "[list_next]: empty list"; raise Not_found
+  | [a] when equal a x -> None
+  | [_] -> printd debug_error "[list_next] does not contain x"; raise Not_found
+  | a::b::rest -> if equal a x then Some b else list_next equal x (b::rest)
+
+(* Return the element preceeding the first occurence of x, or None if x is the
+   first element. It cannot be equal to x. *)
+let rec list_prev equal x = function
+  | [] -> printd debug_error "[list_prev]: empty list"; raise Not_found
+  | a::_ when equal a x -> None
+  | [_] -> printd debug_error "[list_prev] does not contain x"; raise Not_found
+  | a::b::rest -> if equal b x then Some a else list_prev equal x (b::rest)
+
+let test_list_prev () =
+  assert (list_prev ( = ) 2 [2;1;2;3] = None);
+  let () = try ignore (list_prev ( = ) 1 [2]) with
+    | Not_found -> ()
+    | _ -> assert (false) in
+  assert (list_prev ( = ) 1 [2;1] = Some 2);
+  assert (list_prev ( = ) 3 [1;2;3] = Some 2)
+
+let list_hd_opt = function [] -> None | a::_ -> Some a
+
 let run f = f ()
+
+let apply x f = f x
 
 (* monadic operations. Starting with ocaml 4.08 we can use the Option module. *)
 
@@ -322,6 +369,10 @@ let one_of_two o1 o2 = match o1, o2 with
 let remove_option = function
   | Some x -> x
   | None -> raise None_option
+
+let string_of_option f = function
+  | Some x -> f x
+  | None -> "None"
 
 let (let@) f x = f x
 (**  This can be used to write, for instance,

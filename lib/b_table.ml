@@ -1,4 +1,6 @@
-(** Table layout. *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* Table layout. *)
 
 (* il faut pouvoir changer la largeur des colonnes. Donc garder accès aux
    layouts... ou au moins les recréer *)
@@ -328,8 +330,9 @@ let make_selection_tvar t =
 let create ?w ~h ?row_height ?(name="table") (columns : column list) =
   let t = make_table columns ?row_height in
   let titles_row, long = make_layout ?w ~h t in
-  let layout = Layout.tower ~sep:0 ~hmargin:0 ~vmargin:0 ~name
+  let layout = Layout.tower ~margins:0 ~name
       [titles_row; long] in
+  Layout.disable_resize titles_row; (* TODO do better, cf example 35 *)
   Var.set t.layout (Some layout);
   for j = 0 to List.length columns - 1 do
     connect_title t j

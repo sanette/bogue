@@ -458,5 +458,5 @@ let extendto ~duration v x2 =
     let update _ u =
       interpol3 ~slope1 ~slope2:(0.) (float x1) (float x2) u
       |> round  in
-    print_endline ("SLOPE=" ^ (string_of_float slope1)); (* DEBUG *)
+    (* print_endline ("SLOPE=" ^ (string_of_float slope1));  *)(* DEBUG *)
     create ~duration ~update x1

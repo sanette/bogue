@@ -249,6 +249,9 @@
 </td></tr>
 <tr><td><a href="Bogue.Table.html#VALcreate">create</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
 <td><div class="info">
+<p>Create a table by specifying its list of <b>columns</b>; in each column, the
+      entries can be arbitrary layouts.</p>
+
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Select.html#VALcreate">create</a> [<a href="Bogue.Select.html">Bogue.Select</a>]</td>
@@ -399,7 +402,7 @@
 <tr><td><a href="Bogue.Layout.html#VALdisable_resize">disable_resize</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>This makes sure that nothing is executed when someone tries to resize the
-      layout.</p>
+      layout (that is, when the size of the layout's house changes).</p>
 
 </div>
 </td></tr>
@@ -454,6 +457,8 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Style.html#VALempty">empty</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Selection.html#VALempty">empty</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALenable">enable</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
@@ -986,7 +991,12 @@
 </td></tr>
 <tr><td align="left"><div>O</div></td></tr>
 <tr><td><a href="Bogue.Table.html#VALof_array">of_array</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Create a table from an array of <b>rows</b>, each row being a string
+      array.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Style.html#VALof_bg">of_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Style.html#VALof_border">of_border</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
@@ -1004,7 +1014,11 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Table.html#VALof_list">of_list</a> [<a href="Bogue.Table.html">Bogue.Table</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Create a table from a list of <b>rows</b>, each row being a string list.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Selection.html#VALof_list">of_list</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Style.html#VALof_shadow">of_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
@@ -1241,7 +1255,7 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALreplace_room">replace_room</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
-<p>Replace "room" by "by" inside its "house" in lieu and place of the initial
+<p>Replace <code class="code">room</code> by <code class="code">by</code> inside its "house" in lieu and place of the initial
       room.</p>
 
 </div>

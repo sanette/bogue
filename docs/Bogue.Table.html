@@ -42,28 +42,51 @@
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTcolumn.length">length</span>&nbsp;: <code class="type">int</code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>number of entries in the column.</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTcolumn.rows">rows</span>&nbsp;: <code class="type">int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p><code class="code">row&nbsp;i</code> should return the Layout corresponding to the ieth entry of
+          that column.</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTcolumn.compare">compare</span>&nbsp;: <code class="type">(int -&gt; int -&gt; int) option</code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>if a compare function is provided, then the column will be dynamically
+          sortable by the user. <code class="code">compare&nbsp;i1&nbsp;i2&nbsp;&gt;&nbsp;0</code> means that entry <code class="code">i1</code> is
+          larger than entry <code class="code">i2</code>.</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTcolumn.width">width</span>&nbsp;: <code class="type">int option</code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>pixel width of the column.</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr></table>
 <code>}</code>
 
@@ -73,11 +96,34 @@
 
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       <a href="Bogue.Table.html#TYPEcolumn">column</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a table by specifying its list of <b>columns</b>; in each column, the
+      entries can be arbitrary layouts. If entries are simple text labels, it's
+      easier to use the helper functions <a href="Bogue.Table.html#VALof_array"><code class="code"><span class="constructor">Table</span>.of_array</code></a> or <a href="Bogue.Table.html#VALof_list"><code class="code"><span class="constructor">Table</span>.of_list</code></a>.</p>
+</div>
 <ul class="info-attributes">
-<li><b>Returns</b> a layout and a Tvar. The Tvar can be used to see which rows were
-      selected by the user, and also to modify the selection if needed.</li>
+<li><b>Returns</b> a layout and a <a href="Bogue.Tvar.html"><code class="code"><span class="constructor">Tvar</span></code></a>. The Tvar can be used to see which rows were
+        selected by the user, and also to modify the selection if needed.</li>
+<li><b>See also</b> <i>example 35</i> .</li>
 </ul>
 </div>
 
-<pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list -&gt;<br>       string array array -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre>
-<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre></body></html>
+<pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list -&gt;<br>       string array array -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a table from an array of <b>rows</b>, each row being a string
+      array.</p>
+</div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>example 35bis</i> .</li>
+</ul>
+</div>
+
+<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a table from a list of <b>rows</b>, each row being a string list.</p>
+</div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>example 35ter</i> .</li>
+</ul>
+</div>
+</body></html>

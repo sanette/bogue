@@ -1,4 +1,6 @@
-(** a generic menu layout with submenus *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* A generic menu layout with submenus *)
 (* can be used with entries (layouts) at arbitrary locations *)
 
 (* TODO implement the resize function *)
@@ -128,16 +130,16 @@ module Engine = struct
 
   let set_menu_position menu =
     do_option menu.pos (fun (dx, dy) ->
-        let keep_resize = true in
+        let open Layout in let open Resize in
         let x, y = match menu.parent_entry with
           | None -> 0, 0
           | Some entry ->
             let m = entry.parent_menu.room in
-            let x0, y0 = Layout.(getx m, gety m) in
-            let dx0, dy0 = Layout.(getx entry.layout, gety entry.layout) in
+            let x0, y0 = (getx m, gety m) in
+            let dx0, dy0 = (getx entry.layout, gety entry.layout) in
             x0+dx0, y0+dy0 in
-        Layout.setx ~keep_resize menu.room (x+dx);
-        Layout.sety ~keep_resize menu.room (y+dy))
+        setx menu.room (x+dx);
+        sety menu.room (y+dy))
 
   let menu_children_set_hide menu =
     List.iter (fun e -> Layout.rec_set_show false e.layout) menu.entries

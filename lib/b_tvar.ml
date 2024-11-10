@@ -17,7 +17,7 @@ let get v =
   Var.get v.var
   |> v.t_from
 
-(* Set the b value *)
+(* Set the b value. Consider sendind the var_changed event. *)
 let set v value =
   Var.set v.var (v.t_to value)
 
