@@ -315,7 +315,8 @@ let compose_transform t1 t2 =
 type blit = {
   texture : texture;
   rndr : Sdl.renderer;
-  dst : Sdl.rect option; (* destination rect *)
+  dst : Sdl.rect option; (* destination rect. None means NO RENDERING (unlike
+                            sdl render where it means whole renderer size) *)
   src : Sdl.rect option; (* source rect *)
   clip : Sdl.rect option;
   transform : transform;
@@ -414,6 +415,9 @@ type geometry = {
   h : int;
   voffset : int;
 }
+
+let pr_geometry g =
+  sprintf "(x=%d, y=%d, w=%d, h=%d, vo=%d)"  g.x g.y g.w g.h g.voffset
 
 (* get "physical size" in pixel from the geometry *)
 let scale_geom g =
@@ -695,8 +699,9 @@ let blit_to_layer blit =
   (* let layer = match layer with *)
   (*   | None -> canvas.layer (\* the default current layer *\) *)
   (*   | Some l -> l in *)
-  let queue = Chain.value blit.to_layer in
-  Queue.add blit queue
+  if blit.dst <> None then
+    let queue = Chain.value blit.to_layer in
+    Queue.add blit queue
 
 (* Render a blit onscreen *)
 (* WARNING: this does NOT free the texture, because often we want to keep it for
@@ -706,30 +711,33 @@ let blit_to_layer blit =
 let render_blit blit =
   (* if no transform = go (Sdl.render_copy ?src:blit.src ?dst:blit.dst blit.rndr
      blit.texture) *)
-  let t = blit.transform in
-  let alpha = round (255. *. t.alpha) in
-  let orig_alpha = go (Sdl.get_texture_alpha_mod blit.texture) in
-  go (Sdl.set_texture_alpha_mod blit.texture alpha);
-  go (Sdl.render_set_clip_rect blit.rndr blit.clip);
-  go (Sdl.render_copy_ex ?src:blit.src ?dst:blit.dst blit.rndr
-        blit.texture t.angle t.center t.flip);
-  go (Sdl.render_set_clip_rect blit.rndr None);
-  (* : this seems necessary in some cases, see example 35bis. For (extreme)
-     optimization we might try to factor this out. *)
+  match blit.dst with
+  | None -> printd debug_error "[render_blit]: Here, dst should not be None"; ()
+  | Some dst ->
+    let t = blit.transform in
+    let alpha = round (255. *. t.alpha) in
+    let orig_alpha = go (Sdl.get_texture_alpha_mod blit.texture) in
+    go (Sdl.set_texture_alpha_mod blit.texture alpha);
+    go (Sdl.render_set_clip_rect blit.rndr blit.clip);
+    go (Sdl.render_copy_ex ?src:blit.src ~dst blit.rndr
+          blit.texture t.angle t.center t.flip);
+    go (Sdl.render_set_clip_rect blit.rndr None);
+    (* : this seems necessary in some cases, see example 35bis. For (extreme)
+       optimization we might try to factor this out. *)
 
-  (* BUG/WORKAROUND. Something is fishy with (un)setting clip_rect. Not sure
-     why, but if I don't draw a dummy thing like a point or a rect, then the
-     texture gets corrupted. It becomes unproperly offset, and has some random
-     glitches. Hence the following lines where we draw a transparent point at
-     0,0. For more debug information, one can also draw the clip rectangle as
-     follows: *)
-  (* set_color blit.rndr (random_color ()); *)
-  (* go (Sdl.render_draw_rect blit.rndr blit.clip); *)
-  set_color blit.rndr none;
-  go (Sdl.render_draw_point blit.rndr (-1) (-1));
-  (* END WORKAROUND *)
+    (* BUG/WORKAROUND. Something is fishy with (un)setting clip_rect. Not sure
+       why, but if I don't draw a dummy thing like a point or a rect, then the
+       texture gets corrupted. It becomes unproperly offset, and has some random
+       glitches. Hence the following lines where we draw a transparent point at
+       0,0. For more debug information, one can also draw the clip rectangle as
+       follows: *)
+    (* set_color blit.rndr (random_color ()); *)
+    (* go (Sdl.render_draw_rect blit.rndr blit.clip); *)
+    set_color blit.rndr none;
+    go (Sdl.render_draw_point blit.rndr (-1) (-1));
+    (* END WORKAROUND *)
 
-  go (Sdl.set_texture_alpha_mod blit.texture orig_alpha)
+    go (Sdl.set_texture_alpha_mod blit.texture orig_alpha)
 (* : we do this in case the texture is used at several places onscreen *)
 
 (* render all blits in one layer. first in, first out *)
@@ -1462,23 +1470,24 @@ let copy_tex ?(overlay = TopRight) renderer tex area x y =
         ) in
       go (Sdl.render_copy ~src ~dst renderer tex))
 
-(* new version for layers *)
+(* New version for layers *)
 let copy_tex_to_layer ?(overlay = TopRight) ?voffset ?transform
-      canvas layer tex area x y =
+    canvas layer tex area x y =
   let w, h = tex_size tex in
   let rect = Sdl.Rect.create ~x ~y ~w ~h in
   let dst = Sdl.intersect_rect rect area in
   let src = match dst with
     | None -> None
-    | Some dst -> Some (let open Sdl in match overlay with
-      | Shrink -> Rect.create ~x:0 ~y:0 ~w ~h
-      | Clip -> Rect.create ~x:(Rect.x dst - x) ~y:(Rect.y dst - y)
-                  ~w:(Rect.w dst) ~h:(Rect.h dst)
-      | TopRight -> Rect.create ~x:(w - Rect.w dst)
-                      ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
-      | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
-                        ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
-      ) in
+    | Some dst -> let open Sdl in
+      Some (match overlay with
+          | Shrink -> Rect.create ~x:0 ~y:0 ~w ~h
+          | Clip -> Rect.create ~x:(Rect.x dst - x) ~y:(Rect.y dst - y)
+                      ~w:(Rect.w dst) ~h:(Rect.h dst)
+          | TopRight -> Rect.create ~x:(w - Rect.w dst)
+                          ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
+          | Xoffset x0 -> Rect.create ~x:(min x0 (w - Rect.w dst))
+                            ~y:0 ~w:(Rect.w dst) ~h:(Rect.h dst)
+        ) in
   make_blit ?src ?dst ?voffset ?transform canvas layer tex
 
 (** copy the texture on the canvas, centered in the given area *)

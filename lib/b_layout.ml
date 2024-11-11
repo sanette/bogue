@@ -1104,8 +1104,6 @@ let find_room_old house id =
    mode, if room is the last one, we return None. If [only_visible] is true, we
    skip all rooms that have [.show=false]. This should never raise Not_found. *)
 let next ?(circular = false) ?(only_visible = true) room =
-  printd debug_custom "next %s %s:..." (sprint_id room)
-    (if circular then "(circular)" else "");
   match room.house with
   | None -> None (* we must be in top_house *)
   (* | Some h when only_visible && not h.show ->  (\* h is hidden *\) *)
@@ -1628,7 +1626,8 @@ let compute_linear_scale n scale initial_len ~len ~margin ~sep =
     let havail_new = imax 1 (len - 2*margin - (n-1)*sep) in
     let s = float havail_new /. float havail_old in
     scale := Some s;
-    printd debug_custom "[compute_linear_scale] new=%i, old=%i, scale=%f" havail_new havail_old s;
+    (* printd debug_custom "[compute_linear_scale] new=%i, old=%i, scale=%f"
+       havail_new havail_old s; *)
     s
   else 1.
 

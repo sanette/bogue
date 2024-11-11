@@ -33,6 +33,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   wrong for `tsdl_ttf`), and can also be used for `Widget.label`.
 
 ### Developement
+
+- clarify that `dst` field of `blit` is `None` means NO RENDERING.
 - experimental `Detect` for detecting flat and tower layouts.
 
 ## [20240928](https://github.com/sanette/bogue/compare/20240225...20240928)

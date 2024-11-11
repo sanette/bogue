@@ -102,6 +102,7 @@ let example1h () =
 let desc1v = "Rich text and vertical layout sliding from the right."
 let example1v () =
   let b = W.check_box () in
+  let tt = W.label "Label" in
   let h = 50 in
   let title = W.rich_text ~size:20 ~h:30
       Text_display.(page [para "Text samples"]) in
@@ -115,7 +116,8 @@ let example1v () =
   let td_italic = W.rich_text ~h
       Text_display.(page [underline (para "Force italic:"); italic example]) in
   let box = W.box () in
-  let layout = L.tower_of_w [b;title;td;td_normal;td_bold;td_italic;box] in
+  let layout = L.tower_of_w ~align:Draw.Max
+      [b;title;td;td_normal;td_bold;tt;td_italic;box] in
   L.slide_in ~dst:layout layout;
   let board = of_layout layout in
   run board
