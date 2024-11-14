@@ -625,7 +625,7 @@ let filter_board_events board e =
   | `Bogue_remove_focus ->
     printd debug_event "Remove focus";
     Trigger.(flush remove_focus); (* not necessary in principle *)
-    let ro = Layout.of_id_opt (get e user_code) in
+    let ro = Layout.of_id_unsafe (get e user_code) in
     check_removed board ro;
     None
   | `Render_targets_reset

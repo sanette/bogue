@@ -69,11 +69,26 @@
                   | |                |
                   v |________________|
 
-constraint: voffset <= 0 and -voffset + display.height  <= layout.height
-warning: slider is from bottom to top: 0 = bottom position
++ constraint: voffset <= 0 and -voffset + display.height  <= layout.height
++ warning: slider is from bottom to top: 0 = bottom position
++ ll.offset takes values between 0 (included) and ll.height - containrer height (included)
 
    A = ll.offset + voffset
  *)
+
+(*
+Because total height is not known a priori, one has to be very careful when
+directly jumping to last entry (clicking on the bottom of the slider)
+
+now the expected behaviour is:
+
++ if we went too far; then we adjust the voffset and the last entry should show
+up at the very bottom of the container
+
++ if we didn't reach the bottom by clicking on the bottom of the slider, we stay
+at the reached position, but we adjust the slider to show that there is some
+more room left to visit below.
+*)
 
 open Tsdl
 open B_utils
@@ -114,8 +129,8 @@ type t = {
   (* = Total height pixels that would be necessary to render all
        entries. None if we are not sure *)
   mutable computed_height :  int;
-  (* = total height in pixels of computed entries, ie entries present in the
-       current room *)
+  (* = total height in pixels of computed entries, ie entries that have been
+     present at some point in the current room *)
   offset : (int Avar.t) Var.t;
   (* = the starting vertical position we want to see onscreen. 0 means first
      entry on top.  *)
@@ -425,6 +440,8 @@ let addup_entries ll ~start ~height direction =
       loop (if direction = Up then i-1 else i+1) (h+dh)
   in
   let h,i = loop start 0 in
+  if h < height then printd debug_warning
+      "Long_list: [addup_entries] bottom reached before desired height.";
   if !slow then Sdl.set_cursor !cursor;
   printd debug_memory "Long_list ADDUP dir=%s start=%d height=%d ==> h=%u, i=%d"
     (to_str direction) start height h i;
@@ -445,7 +462,7 @@ let check_width ll w room =
 
 (* Given the required new value offset [o] for of [ll.offset] we do all the
    necessary side-effects: changing the container voffset and possibly compute a
-   new room. Note that even if [o] does not change, the height of the containter
+   new room. Note that even if [o] does not change, the height of the container
    way have been modified.  *)
 let update_room ll container o =
   let scrolling, room =
@@ -491,6 +508,7 @@ let update_room ll container o =
           (ll.last = ll.length - 1) (* last entry of the list *)
          )
       then begin (* the room is still usable *)
+        printd debug_custom "Long_list: room still usable, o=%i" o;
         shift_voffset container (voffset2 - voffset);  (* = offset - o *)
         (* ==> the new value of the container voffset is voffset2 *)
         (* Var.release Layout.(container.geometry.voffset); *)
@@ -554,7 +572,7 @@ let update_room ll container o =
 
             (* dh is the exact number of pixels that we finally add above: *)
             let dh = hup - Layout.height room - hdown in
-            let room', _ = compute_room ~height:ll.min_rendering_height
+            let room', _ = compute_room ~height:hup
                 ll (i_first+1) direction in
             (* Avar.set (Var.get ll.offset) o; *)
             let new_voffset = voffset2 - dh in
@@ -641,9 +659,18 @@ let make_clip ~w ~h ~scrollbar_width ll room =
                  Slider.slow 4 lf x0 (1. -. float s /. lf) in
            let tt_height = total_height ll in
            let h = L.height container in
-           let o = round (float (tt_height - h) *. ss /. lf) in
+           let o = imax 0 (round (float (tt_height - h) *. ss /. lf)) in
            update_room ll container o;
-           Avar.var o) in
+           (* now [total_height ll] may have a better precision *)
+           (* we re-update in case we went too far. *)
+           let o2 = imin (total_height ll - h) o in
+           if o <> o2 then begin (* o > o2 *)
+             printd debug_custom
+               "Long_list: slider went too far; o=%i o2=%i h=%i" o o2 h;
+             shift_voffset container (o - o2);
+             ll.container_voffset <- ll.container_voffset + o - o2
+           end;
+           Avar.var o2) in
   (* Note that in the definition of this Tvar the container is a global
      variable. Thus it should not be destroyed. However it should be ok to
      modify its contents. *)
@@ -756,7 +783,7 @@ let create ~w ~h ~length ?(first=0) ~generate ?height_fn
       ll.min_rendering_height <- compute_min_rendering_height ll (w,h));
   let room, i_final = compute_room ~height:min_rendering_height ll first Down in
   let ll_height = total_height ll in
-  printd debug_memory
+  printd (debug_memory + debug_board)
     "Long list of height %d was initialized with %d entries (%d..%d) ouf of %d \
      and height=%d, rendered_height=%d, approx. total height is %d"
     h (i_final+1-first) first i_final ll.length (Layout.height room)

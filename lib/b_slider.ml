@@ -417,6 +417,14 @@ let display canvas layer s g =
                   ~width:thickness (g.x + g.w/2) (g.y + g.h/2) in
      [sbox; tick]
 
+let display canvas layer s g =
+  let open Draw in
+  if g.w = 0 || g.h = 0 then begin
+    printd (debug_warning + debug_graphics)
+      "Not displaying slider because geometry (%i,%i) has zero area." g.w g.h;
+    []
+  end
+  else display canvas layer s g
 
 (* this function can be used for the ~t_to function to slow down the slider when
    the range of values is big (bigger than the number of pixels of the slider).

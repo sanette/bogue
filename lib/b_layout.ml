@@ -575,11 +575,12 @@ let create = create_unsafe ~set_house:true
 (* the dummy room is only used to search the Weak table *)
 let dummy_room = create ~name:"dummy" (geometry ()) (Rooms [])
 
-let of_id_unsafe id : room =
-  try WHash.find rooms_wtable {dummy_room with id} with
-  | Not_found ->
+let of_id_unsafe id =
+  match WHash.find_opt rooms_wtable {dummy_room with id} with
+  | None ->
     printd debug_warning "Cannot find room with id=%d" id;
-    raise Not_found
+    None
+  | o -> o
 
 (* A detached room is a layout that does not belong to the current layout tree,
    and is not associated to any SDL window (so no canvas field).  *)
@@ -604,7 +605,7 @@ let remove ?(children = false) room =
 
 (* This one is more secure: we check if the layout is not detached. *)
 let of_id_opt ?not_found id : room option =
-  match (WHash.find_opt rooms_wtable {dummy_room with id}) with
+  match WHash.find_opt rooms_wtable {dummy_room with id} with
   | None ->
     printd debug_error "Cannot find room with id=%d" id;
     do_option not_found run;
@@ -626,24 +627,23 @@ let of_wid wid =
 (* only for debugging: *)
 (* check if rooms sent to cemetery have effectively been removed by GC *)
 let check_cemetery () =
-  let check id = try
-      let r = of_id_unsafe id in
-      printd debug_memory
+  let check id = match of_id_unsafe id with
+    | Some r ->
+        printd debug_memory
         "Dead room %s seems to be living. Beware of zombies." (sprint_id r);
       false
-    with
-    | Not_found ->
-       printd debug_memory
-         "Dead room #%u was correctly burried by the GC. RIP." id;
-       true
+    | None ->
+      printd debug_memory
+        "Dead room #%u was correctly burried by the GC. RIP." id;
+      true
   in
   let rec loop list newlist empty = (* easier to use a Queue *)
     match list with
     | [] -> empty, newlist
     | id::rest ->
-       if check id
-       then loop rest newlist empty
-       else loop rest (id :: newlist) false in
+      if check id
+      then loop rest newlist empty
+      else loop rest (id :: newlist) false in
   let empty, newlist = loop !cemetery [] true in
   cemetery := newlist;
   empty
