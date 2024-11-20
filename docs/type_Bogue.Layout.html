@@ -68,7 +68,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?background:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.background&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?shadow:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?canvas:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.canvas&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?scale_content:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?scale_content:bool&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?keep_resize:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;tower&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?name:string&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?sep:int&nbsp;<span class="keywordsign">-&gt;</span><br>
@@ -81,7 +82,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?shadow:<span class="constructor">Bogue</span>.<span class="constructor">Style</span>.shadow&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?canvas:<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.canvas&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?clip:bool&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?scale_content:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?scale_content:bool&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?keep_resize:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;superpose&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?w:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?h:int&nbsp;<span class="keywordsign">-&gt;</span><br>
@@ -134,7 +136,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_rooms&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?sync:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;replace_room&nbsp;:&nbsp;by:<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_enabled&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unload_textures&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;iter_unload_textures&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;lock&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unlock&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;animate_x&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Avar</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>

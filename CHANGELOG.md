@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Can now navigate `tabs` with TAB!  ;)
+- `Table` layouts can now be resized dynamically.
+- Can now navigate `tabs` with TAB!  ;) (preliminary)
 - Can now enable/disable a layout with `Layout.set_enabled`. New examples 53, 53bis.
 - changing text color in `Text_display` is now possible, using
   `Widget.html`, see exemple 47.
@@ -24,8 +25,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   design).
 - font example 52.
 
+### Changed
+
+- `Layout.unload_textures` is renamed `Layout.iter_unload_textures`
+
 ### Fixed
 
+- `Table` layouts can now be resized dynamically.
 - Better resizing for `tabs`: menu height is fixed.
 - Better resizing for `flat` and `tower`: margins are not scaled.
 - `Long_list` layouts can now be resized dynamically.

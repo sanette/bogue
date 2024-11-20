@@ -796,7 +796,8 @@ let fill_rect surf recto color =
 
 (** create a surface of the same pixel format as surf, filled with color *)
 let create_surface ?like:surf ?renderer ?color w h =
-  if w=0 || h=0 then failwith "Error: surface has zero size. You could maybe use a Layout.empty?";
+  if w=0 || h=0
+  then failwith "Error: surface has zero size. You could maybe use a Layout.empty?";
   let depth, color_mask = match surf with
     | Some surf ->
       let d,r,g,b,a = go (Sdl.pixel_format_enum_to_masks
@@ -1415,6 +1416,7 @@ let make_ray renderer ~bg ~radius ~width ?thickness x y =
     | None -> round (2. *. (float radius) *. sin (beta))
     (* environ h = 1 + round (2. *. (sin alpha) *. (float radius)) *)
     | Some t -> t in
+  let w, h = (max 1 w), (max 1 h) in
   let surf = create_surface ~renderer ~color:none w h in
   (* let surf = create_rgb_surface ~w ~h ~depth cmask in *)
   printd debug_graphics "Ring: radius:%d, length of ray:%d, heigth:%d, steps=%d" radius w h steps;

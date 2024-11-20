@@ -38,7 +38,7 @@ let get_submenu menu =
       | Action _ -> None end
   | _ -> None
 
-(* We construct a simple Menu2 with a custom Layout for the main entry, and
+(* We construct a simple Menu with a custom Layout for the main entry, and
    automatically generated labels for the menu entries. Using a custom layout
    makes it easier to modify its text, but in principle we could also use the
    automatically generated layout and recover its resident widget. *)

@@ -261,7 +261,7 @@ let display wid canvas layer area g =
         if not (Flow.end_reached q) then begin
           printd (debug_board + debug_warning)
             "The rest of the SDL Area will be rendered later.";
-          Trigger.push_redraw wid
+          Trigger.push_redraw wid (* ou plutôt update ? *)
         end);
     Draw.pop_target canvas.renderer save_target;
     area.update <- false;

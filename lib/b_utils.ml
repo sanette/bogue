@@ -93,26 +93,33 @@ let invalid_arg s = Printf.ksprintf invalid_arg s
 let print_debug_old s =
   Printf.ksprintf
     (fun s ->
-      if !debug
-      then print_endline
-             (xterm_blue ^ "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "] : " ^ xterm_nc ^ s)) s
+       if !debug
+       then print_endline
+           (xterm_blue ^ "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "] : " ^ xterm_nc ^ s)) s
+
 let debug_select_old code s =
   if !debug && (code land !debug_code <> 0)
   then print_endline (xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": " ^ s)
 
 let iksprintf _f = Printf.ikfprintf (fun () -> ()) ()
 
+(*  [printd] is used extensively to trace the execution of Bogue; the syntax is
+    [printd some_debug_code "My sprintf style string, like %s=%d." (name_of x)
+    (compute x)] It will output log messages only if [!debug] is true. However,
+    all arguments are evaluated (like [name_of x] and [compute x] in the example
+    above), no matter the value of !debug. If their evaluation is costly, one
+    should rather write [if !debug then printd .... ] *)
 let printd code =
   let debug = !debug && (code land !debug_code <> 0) in
   let printf = Printf.(if debug then ksprintf else iksprintf) in
   printf (fun s ->
       output_string !log_channel
         (xterm_blue ^
-           "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "]" ^
-             xterm_light_grey ^ "[" ^
-               (string_of_int (Thread.id (Thread.self ()))) ^ "]" ^ xterm_nc ^ " :\t " ^
-                 xterm_nc ^ xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": "
-                 ^ s ^ "\n");
+         "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "]" ^
+         xterm_light_grey ^ "[" ^
+         (string_of_int (Thread.id (Thread.self ()))) ^ "]" ^ xterm_nc ^ " :\t " ^
+         xterm_nc ^ xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": "
+         ^ s ^ "\n");
       if !log_channel = stdout then flush !log_channel)
 
 (* check if string s starts with string sub *)
@@ -170,16 +177,18 @@ let list_iter list f = List.iter f list
    function f does not return None *)
 let rec list_check f l =
   match l with
-    | [] -> None
-    | x::rest -> begin
+  | [] -> None
+  | x::rest -> begin
       match f x with
-        | None -> list_check f rest
-        | s -> s
+      | None -> list_check f rest
+      | s -> s
     end
 
 (* Idem where the function f returns true *)
-let list_check_ok f l =
-  list_check (fun x -> if f x then Some x else None) l
+(* let list_check_ok f l = *)
+(*   list_check (fun x -> if f x then Some x else None) l *)
+(* This is now List.find_opt *)
+let list_check_ok = List.find_opt
 
 (* Return the first element of the list satisfying p, and its index *)
 let list_findi p l =
@@ -318,7 +327,9 @@ let run f = f ()
 
 let apply x f = f x
 
-(* monadic operations. Starting with ocaml 4.08 we can use the Option module. *)
+(* Monadic operations. Starting with ocaml 4.08 we can use the Option module.
+   Warning, all arguments being evaluated even if not used, for costly argments
+   it is better to use the original pattern matching | Some | None *)
 
 exception None_option
 (* used when the option should not be None. *)

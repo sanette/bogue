@@ -276,10 +276,11 @@ let button_down_widget board =
 (* which layout (ie window) has mouse focus? *)
 let layout_focus board =
   match Sdl.get_mouse_focus () with
-  | None -> None (* the mouse is outside of the SDL windows *)
+  | None -> printd debug_board "No window with SDL mouse_focus"; None
+  (* the mouse is outside of the SDL windows *)
   | Some w -> (* we return the first corresponding window (there should be only
                  one anyway) *)
-     list_check_ok (fun l -> same_window (Layout.window l) w) (get_layouts board)
+    list_check_ok (fun l -> same_window (Layout.window l) w) (get_layouts board)
 
 (* What is the window containing this house *)
 let top_house board room =
@@ -308,7 +309,9 @@ let window_of_event board ev =
 let check_mouse_focus board =
   if board.mouse_alive
   then let (x,y) = Mouse.pos () in
-    printd debug_board "Mouse pos:(%u,%u)" x y;
+    printd debug_board "[check_mouse_focus] Mouse pos:(%u,%u)" x y;
+    (* if !debug then do_option (layout_focus board) *)
+    (*     (fun r -> printd debug_custom "%s" (Print.layout_down r)); *)
     check_option (layout_focus board) (Layout.top_focus x y)
   else None
 
@@ -503,7 +506,7 @@ let tab board =
         | None -> Window.get_layout (List.hd board.windows) in
   let top = match top_house board current_room with
     | None ->
-      printd (debug_board+debug_custom)
+      printd (debug_board + debug_custom)
         "Current keyboard focus %s has no Window..."
         (Layout.sprint_id current_room);
       Window.get_layout (List.hd board.windows)
@@ -580,8 +583,8 @@ let check_removed board ro =
 
   (* EVENT LOOP *)
 
-  (* First: we treat the events that should be filtered or modified. This returns
-     the evo_layout that the layout (& widget) is authorized to treat
+  (* First: we treat the events that should be filtered or modified. This
+     returns the [evo_layout] that the layout (& widget) is authorized to treat
      thereafter. Returning None means that widgets will never react to such
      event. Currently all events are returned, except for the Update and
      Remove_focus events. *)
@@ -623,9 +626,10 @@ let filter_board_events board e =
     Update.execute e;
     None
   | `Bogue_remove_focus ->
-    printd debug_event "Remove focus";
+    let id = get e user_code in
+    printd debug_event "Remove focus from room #%i." id;
     Trigger.(flush remove_focus); (* not necessary in principle *)
-    let ro = Layout.of_id_unsafe (get e user_code) in
+    let ro = Layout.of_id_unsafe id in
     check_removed board ro;
     None
   | `Render_targets_reset

@@ -80,9 +80,10 @@ type geometry = {
     w : int Avar.t;
     h : int Avar.t;
     voffset : (int Avar.t) Var.t;
-    (* The [voffset] is the vertical offset = the y value of where the content
-       of the layout will be drawn. It is typically used for scrolling, and then
-       y <= 0. It is similar to the 'y' variable', except that:
+    (* The [voffset] is the vertical offset = the y value of the new origin from
+       where the content of the layout will be drawn. It is typically used for
+       scrolling, and then y <= 0. It is similar to the 'y' variable', except
+       that:
 
        1. the clipping rect (if defined) is *not* translated in case of voffset
        2. the background is not translated either *)
@@ -147,10 +148,11 @@ and room = {
      geometry of the house. If not, they will not be detected by the mouse,
      for instance. *)
   mutable current_geom : current_geom;
-  (* [current_geom] is the current *absolute* geometry. Is updated at each
-     display. But because of clip, the actual rendered size can be smaller
-     than indicated size. Before the start of the main loop, it is equal to
-     the initial values of the geometry field. *)
+  (* [current_geom] is the current *absolute* geometry (the y value does not
+     include the voffset, the latter is part of current_geom). Is updated at
+     each display. But because of clip, the actual rendered size can be smaller
+     than indicated size. Before the start of the main loop, it is equal to the
+     initial values of the geometry field. *)
   (* A special case of current_geom.(x,y) is to specify window position for
      the top layouts. See set_window_pos. *)
   mutable clip : bool;
@@ -334,7 +336,7 @@ let unload_background room =
    doing "iter lock room" should minimize the risk (but not 100%: the tree can
    still be modified while we are locking..) *)
 
-(* Iter through all the rooms (layouts & widgets) contained in the [room],
+(* Iter through all the layouts (rooms & residents) contained in the [room],
    including the initial [room] itself. *)
 (* top to bottom *)
 let rec iter f room =
@@ -416,7 +418,7 @@ let rec first_show_widget layout =
           loop rooms
   else raise Not_found
 
-(* use this to reset all widget textures (room + all children) for reducing
+(* Use this to reset all widget textures (room + all children) for reducing
    memory. The layout can still be used without any impact, the textures will be
    recreated on the fly. If you want to really remove all created textures, you
    have to use delete_backgrounds too; but then the backgrounds will *not* be
@@ -425,25 +427,32 @@ let unload_widget_textures room =
   unload_background room;
   iter_widgets Widget.unload_texture room
 
-(* same, but for all rooms + widgets *)
-let unload_textures room =
+
+let unload_texture room =
+  match room.content with
+  | Resident w -> Widget.unload_texture w
+  | _ -> ()
+
+(* Same as [unload_widget_textures], but for all rooms + widgets. *)
+let iter_unload_textures room =
   let f r =
-    unload_background r;
-    match r.content with
-    | Resident w -> Widget.unload_texture w
-    | _ -> () in
+    unload_texture r;
+    unload_background r in
   iter f room
 
 let delete_backgrounds room =
   iter delete_background room
 
 let delete_textures room =
-  unload_textures room;
+  iter_unload_textures room;
   delete_backgrounds room
 
+(* As finalize is called on *each* dangling room, we should not remove texture
+   recursively from the contained Rooms. *)
 let finalize room =
   printd debug_memory "Finalize room %s" (sprint_id room);
-  delete_textures room
+  delete_background room;
+  unload_texture room
 
 (* Return the list of all texts contained in the widgets *)
 let get_texts room =
@@ -829,26 +838,27 @@ let get_voffset l =
   (* l.current_geom.voffset;; *)
   Avar.get (Var.get l.geometry.voffset)
 
-(** get current absolute x position (relative to the top-left corner of the
+(* Get current absolute x position (relative to the top-left corner of the
    window). Not necessarily up-to-date. *)
 let xpos l =
   l.current_geom.x
 
-(** get current absolute y position *)
+(* Get current absolute y position *)
 let ypos l =
   l.current_geom.y
 
-(* left absolute coordinate of the layout's house *)
+(* Left absolute coordinate of the layout's house *)
 let x_origin l = match l.house with
-    | None -> 0
-    | Some h -> xpos h
+  | None -> 0
+  | Some h -> xpos h
 
-(* top absolute coordinate of the layout's house *)
- let y_origin l = match l.house with
-    | None -> 0
-    | Some h -> ypos h
+(* Top absolute coordinate of the layout's house *)
+let y_origin l = match l.house with
+  | None -> 0
+  | Some h -> ypos h
 
-(* position of room relative to house *)
+(* Position of room relative to house; in principle same as [getx, gety] but
+   here we don't force recomputing. *)
 let pos_from house room =
   xpos room - xpos house, ypos room - ypos house
 
@@ -867,6 +877,30 @@ let gety l =
 
 let get_oldy l =
   Avar.old l.geometry.y
+
+(* Update [current_geom] of the [layout] and all contained rooms,
+   recursively. This assumes that the layout's house already has a correct
+   [current_geom]. This is rarely necessary, as all visible rooms'
+   [current_geom] is updated automatically at each frame. Use this if waiting
+   for next frame is not acceptable (see Long_list). However, after functions
+   that mutate room content like [replace room ~by], it could be a good idea to
+   call [update_current_geom by] systematically.  *)
+let update_current_geom l =
+  match l.house with
+  | None ->
+    printd (debug_error + debug_board)
+      "Cannot [update_current_geom] because layout %s has no house." (sprint_id l)
+  | Some house ->
+    printd debug_custom "[update_current_geom] for room %s" (sprint_id l);
+    let rec loop x0 y0 v0 r =
+      printd debug_custom " => updating current_geom for %s (y0=%i)" (sprint_id r) y0;
+      let x, y, voffset = x0 + getx r, y0 + gety r + v0, get_voffset r in
+      r.current_geom <- { r.current_geom with x; y; voffset};
+      match r.content with
+      | Resident _ -> ()
+      | Rooms list -> List.iter (loop x y voffset) list in
+    let x0, y0, v0 = xpos house, ypos house, get_voffset house in
+    loop x0 y0 v0 l
 
 (* Change x of layout, without adjusting parent house. Warning, by
    default this disables the resize function. *)
@@ -902,7 +936,7 @@ let shift_voffset l dv =
   then begin
       let vo = Avar.get av + dv in
       Avar.set av vo;
-      l.current_geom <-  { l.current_geom with voffset = vo };
+      l.current_geom <- { l.current_geom with voffset = vo };
       av
     end
   else Avar.apply (fun y -> y + dv) av)
@@ -1521,10 +1555,10 @@ let auto_scale house =
   | Resident _ -> printd debug_warning "TODO: auto_scale resident"
 
 let resize_follow_house room =
-  room.resize <- (fun size -> let open Resize in set_size room size)
+  room.resize <- (fun size -> Resize.set_size room size)
 
 let resize_follow_width room =
-  room.resize <- (fun (w, _) -> let open Resize in set_width room w)
+  room.resize <- (fun (w, _) -> Resize.set_width room w)
 
 (* Locate x,y of rooms in a flat arrangement and return global size. This resets
    the [resize] field. *)
@@ -1959,7 +1993,7 @@ let set_rooms layout rooms =
     list_iter old_rooms (fun r ->
         if not (mem equal r rooms) then begin
           detach r;
-          unload_textures r
+          iter_unload_textures r
         end);
     (* detach_rooms layout; *) (* we don't detach because some orphans may
                                   want to survive longer than you
@@ -2048,7 +2082,7 @@ let global_set_layer room layer =
 (* if margins is set, then sep, hmargin and vmargin are all set to this value *)
 (* WARNING: resulting layout has position (0,0). *)
 let flat ?name ?sep ?(adjust=Fit) ?hmargin ?vmargin ?margins ?align
-    ?background ?shadow ?canvas ?(scale_content=true) rooms =
+    ?background ?shadow ?canvas ?(scale_content=true) ?(keep_resize=false) rooms =
   (* List.iter (set_canvas canvas) rooms; *)
   let sep, hmargin, vmargin = match margins with
     | Some m ->
@@ -2067,7 +2101,7 @@ let flat ?name ?sep ?(adjust=Fit) ?hmargin ?vmargin ?margins ?align
      each room: *)
   if scale_content then (* scale_resize_list (w,h) rooms *)
     resize_flat ~hmargin ~vmargin ~sep ~align:(default align Draw.Min) layout
-  else List.iter disable_resize rooms;
+  else if not keep_resize then List.iter disable_resize rooms;
   if !debug then begin
     match Detect.detect_flat_margins layout with
     | None -> failwith "flat not detected as flat! Fix me."
@@ -2117,7 +2151,7 @@ let h_align ~align layout x0 w =
 (* vmargin = vertical margin (top and bottom). *)
 let tower ?name ?sep ?margins ?hmargin ?vmargin ?align
     ?(adjust = Fit) ?background ?shadow ?canvas
-    ?clip ?(scale_content=true) rooms =
+    ?clip ?(scale_content = true) ?(keep_resize = false) rooms =
   (* List.iter (set_canvas canvas) rooms; TODO *)
   let sep, hmargin, vmargin = match margins with
     | Some m ->
@@ -2143,7 +2177,7 @@ let tower ?name ?sep ?margins ?hmargin ?vmargin ?align
   if clip = None && scale_content
   then resize_tower ~hmargin ~vmargin ~sep ~align:(default align Draw.Min) layout
   (* scale_resize_list (w,h) rooms *)
-  else fix_content layout;
+  else if not keep_resize then List.iter disable_resize rooms;
   (* TODO ce n'est pas la peine de scaler la largeur si elle ne dépasse pas le
      layout. Voir par exemple la demo/demo *)
   layout
@@ -2255,6 +2289,7 @@ let animate_y room y =
   Avar.stop g.y;
   room.geometry <- { g with y }
 
+(* Warning: Animations do NOT trigger the resize function *)
 let animate_w room w =
   let g = room.geometry in
   Avar.stop g.w;
@@ -2700,8 +2735,8 @@ let make_clip
           let v = Slider.update_value sli; Slider.value sli in
           if v < 0 then Slider.set sli 0;
           if dh <= 0
-          then (if is_shown bar then rec_set_show false bar)
-          else (if not (is_shown bar) then rec_set_show true bar));
+          then (if is_shown bar then hide ~duration:0 bar)
+          else (if not (is_shown bar) then show ~duration:0 bar));
       r
     end
     else container in
@@ -2721,7 +2756,8 @@ let relayout createfn ?(duration=200) layout =
   let old_pos = List.map (fun r -> getx r, gety r) rooms in
   (* [createfn] will change the rooms positions, but warning, this may also set
      a new house, we have to set it back. *)
-  let () = ignore (createfn rooms) in
+  let tmp = createfn rooms in
+  tmp.content <- Rooms [];
   List.iter (fun r -> r.house <- Some layout) rooms;
   if duration <> 0 then
     List.iter2 (fun (oldx,oldy) room ->
@@ -2737,12 +2773,12 @@ let relayout createfn ?(duration=200) layout =
    they were created by Layout.flat. Will be animated if duration <> 0 *)
 let reflat  (*?(sep = Theme.room_margin / 2)*) ?align
     ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin) ?margins =
-  relayout (fun rooms -> flat ~hmargin ~vmargin ?margins ?align rooms)
+  relayout (fun rooms -> flat ~name:"reflat_tmp" ~hmargin ~vmargin ?margins ?align rooms)
 
 (* same as reflat but with Layout.tower *)
 let retower (*?(sep = Theme.room_margin / 2)*) ?align
     ?(hmargin = Theme.room_margin) ?(vmargin = Theme.room_margin) ?margins =
-  relayout (fun rooms -> tower ~hmargin ~vmargin ?margins ?align rooms)
+  relayout (fun rooms -> tower ~name:"retower_tmp" ~hmargin ~vmargin ?margins ?align rooms)
 
 (* Typically in a tower, enlarge all rooms to have the width of the house.  This
    is not recursive: only rooms of depth 1. This disables the rooms [resize]
@@ -2756,8 +2792,10 @@ let expand_width house =
       set_width room (w-x)) house
 
 (* Replace "room" by "by" in lieu and place of the initial room. No size
-   adjustments are made. Of course this is dangerous, because it modifies both
-   the house and "by". See also [add_room]. Returns [true] if successful. *)
+   adjustments are made (WARNING the [current_geom] of the new room will be
+   computed only after the first actual display required by the Redraw
+   event). Of course this is dangerous, because it modifies both the house and
+   "by". See also [add_room]. Returns [true] if successful. *)
 (* TODO copy old (x,y) position *)
 let replace_room ~by room =
   match room.house with
@@ -2767,13 +2805,15 @@ let replace_room ~by room =
       (sprint_id room);
     false
   | Some h when ok_to_add_room ~dst:h by ->
-    printd debug_warning "Replacing room %s by room %s inside %s."
+    printd (debug_warning + debug_board) "Replacing room %s by room %s inside %s."
       (sprint_id room) (sprint_id by) (sprint_id h);
     let rooms = get_rooms h in
     detach room;
     attach ~dst:h by;
-    (* print_endline "REPLACE"; *)
     h.content <- Rooms (list_replace (equal room) rooms by);
+    let x = getx by + xpos h in
+    let y = gety by + ypos h in
+    by.current_geom <- { by.current_geom with x; y};
     true
   | _ -> printd (debug_board + debug_error) "Cannot replace room %s by %s"
            (sprint_id room) (sprint_id by);
@@ -2793,17 +2833,16 @@ let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
 
   if room.house <> None then detach room;
   let room2 = if not scroll then room
-    else let y2 = y1-y0 + height room in
+    else begin
+      let y2 = y1-y0 + height room in
       printd debug_board "Relocate room : y2=%i y1=%i y0=%i room=%i \
                           dst=%i" y2 y1 y0 (height room) (height dst);
-      if y2 <= height dst then room
-      else begin (* [here++] TODO If scroll=true it's probably better to use
-                    make clip anyway, just in case the size of the house
-                    shrinks. *)
-        (* sety room 0; *)
-        make_clip ~h:(height dst - y1 + y0) ~scrollbar_inside:true
-          ~scrollbar_width:4 room
-      end in
+      (* if y2 <= height dst then room *)
+      (* else *)  (* If scroll=true it's good to use make clip anyway, just in
+                     case the size of the house shrinks. *)
+      make_clip ~h:(height dst - y1 + y0) ~scrollbar_inside:true
+        ~scrollbar_width:4 room
+    end in
 
   (* We add it to the dst *)
   add_room ~dst room2;
@@ -3080,7 +3119,8 @@ let resize_from_window ?(flip=true) layout =
   then begin
     (* TODO in rare occasions, it might happen that this test is different
        from get_physical_size top <> Draw.get_window_size win*)
-    printd debug_graphics "Resize (%d,%d) --> (%d,%d)" w' h' w h;
+    printd debug_graphics "Resize window layout %s: (%d,%d) --> (%d,%d)"
+      (sprint_id layout) w' h' w h;
     set_size ~keep_resize:true ~check_window:false top (w,h);
     Draw.update_background (get_canvas top);
     (* layout.resize (w,h); *) (* redundant ? A REOIR*)
@@ -3206,9 +3246,10 @@ let rec focus_list_old x y t =
    consistent with the fact that it is the first displayed) *)
 (* cf remarks above *)
 let rec focus_list x y t =
+  (* printd debug_custom "Searching for focus widget in room %s" (sprint_id t); *)
   if t.show && not (t.disabled) && (inside t (x,y)) then match t.content with
-    | Resident _ -> [ t ]
-    | Rooms h -> List.flatten (List.rev_map (fun r -> focus_list x y r) h)
+    | Resident _ -> (* printd debug_custom "Widget found"; *) [ t ]
+    | Rooms list -> List.flatten (List.rev_map (focus_list x y) list)
   else []
 
 (* get the focus element in the top layer *)

@@ -13,6 +13,7 @@
 <pre class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;create&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?name:string&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;w:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;h:int&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;length:int&nbsp;<span class="keywordsign">-&gt;</span><br>
@@ -21,5 +22,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;?height_fn:(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;option)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?cleanup:(<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;?max_memory:int&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;?linear:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?scrollbar_width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?linear:bool&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?scrollbar_width:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?scale_width:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Layout</span>.t<br>
 <span class="keyword">end</span></pre></body></html>

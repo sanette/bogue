@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241114
+@version 20241120
 
 @author Vu Ngoc San
 
@@ -1872,7 +1872,7 @@ module Layout : sig
     ?adjust:adjust -> ?hmargin:int -> ?vmargin:int -> ?margins:int ->
     ?align:Draw.align ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> ?scale_content:bool -> t list -> t
+    ?canvas:Draw.canvas -> ?scale_content:bool -> ?keep_resize:bool -> t list -> t
   (** Create a horizontal arrangement from a list of rooms.
       + [sep] = horizontal space between two rooms.
       + [hmargin] = horizontal margin (left and right).
@@ -1883,10 +1883,10 @@ module Layout : sig
   val tower :
     ?name:string -> ?sep:int ->
     ?margins:int -> ?hmargin:int -> ?vmargin:int ->
-    ?align:Draw.align ->
-    ?adjust:adjust ->
+    ?align:Draw.align -> ?adjust:adjust ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> ?clip:bool -> ?scale_content:bool -> t list -> t
+    ?canvas:Draw.canvas -> ?clip:bool -> ?scale_content:bool ->
+    ?keep_resize:bool -> t list -> t
   (** Create a vertical arrangement from a list of rooms. See {!flat}. *)
 
   val superpose :
@@ -2037,7 +2037,7 @@ module Layout : sig
   (** Disable or enable a layout and all its rooms recursively. A disabled
       layout will not accept any mouse or keyboard focus. *)
 
-  val unload_textures : t -> unit
+  val iter_unload_textures : t -> unit
   (** Use this to free the textures stored by the layout (and its children) for
      reducing memory. The layout can still be used without any impact, the
      textures will be recreated on the fly.  *)
@@ -2281,13 +2281,13 @@ Long_lists may contain any type of Layout. They don't need to be all of the same
 module Long_list : sig
   type t
 
-  val create : w:int -> h:int -> length:int ->
-    ?first:int ->
+  val create : ?name:string ->
+    w:int -> h:int -> length:int -> ?first:int ->
     generate:(int -> Layout.t) ->
     ?height_fn:(int -> int option) ->
     ?cleanup:(Layout.t -> unit) ->
     ?max_memory:int ->
-    ?linear:bool -> ?scrollbar_width:int -> unit -> Layout.t
+    ?linear:bool -> ?scrollbar_width:int -> ?scale_width:bool -> unit -> Layout.t
   (** Create a long list through the function [generate] which maps any index
      {e i} to the {e ieth} element (layout) of the list. If specified (which is
      not a good idea), the [max_memory] should be at least twice the area (in
@@ -2515,7 +2515,8 @@ module Table : sig
       (** if a compare function is provided, then the column will be dynamically
           sortable by the user. [compare i1 i2 > 0] means that entry [i1] is
           larger than entry [i2]. *)
-      width : int option; (** pixel width of the column. *)
+      min_width : int option; (** pixel width of the column. If not specified,
+                                  the max width of entries will be used. *)
     }
   type t
 

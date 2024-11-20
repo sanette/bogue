@@ -42,6 +42,9 @@ type t = {
     mutable tick_size : int; (* in pixels. Size of the handle *)
     room_x : int Var.t; (* we store here the room position (unscaled) *)
     room_y : int Var.t;
+    mutable first_time : bool; (* we have to discard [room_*] if the slider has
+                                  not been displayed yet. TODO reset this when
+                                  moving the room? (a reset/init function?) *)
     kind : kind;
     keyboard_focus : bool Var.t;
     (* we need to replicate here the keyboard_focus field of the layout, because
@@ -110,6 +113,7 @@ let create ?step ?(kind = Horizontal) ?(value = 0) ?(length = 200)
     kind;
     room_x = Var.create 0;
     room_y = Var.create 0;
+    first_time = true;
     keyboard_focus = Var.create false;
     key_speed = Var.create 1.;
     key_time = Var.create (Time.now ());
@@ -136,6 +140,15 @@ let unload s =
 
 (* TODO *)
 let free = unload
+
+(* One might need this function when the room containing the slider has been
+   moved and we don't want to wait 2 frames for the slider to automatically
+   adapt to its new position... *)
+let reset s =
+  s.first_time <- true;
+  s.pointer_motion <- false;
+  Var.set s.clicked_value None;
+  Var.set s.offset 0
 
 let has_keyboard_focus s = Var.get s.keyboard_focus
 
@@ -378,8 +391,10 @@ let display canvas layer s g =
   (* [make_blit ~voffset:g.voffset ~dst canvas layer box] *)
   | Vertical ->
      let y0 = scale (y_pos s) in
-     let dy = scale oldy - y0 in
+     let dy = if s.first_time then (s.first_time <- false; 0)
+       else scale oldy - y0 in
      let y = imin y0 (y0 + dy) in
+     (* printd debug_custom "Slider y0=%i y=%i dy=%i" y0 y dy; *)
      let h = imax tick_size (abs dy) in (* see example 34 .*)
      let box = if abs dy <= 3 || not s.pointer_motion
                (* the 3 is completely heuristic. See example 35. Ideally we want
@@ -394,7 +409,7 @@ let display canvas layer s g =
      forget_texture box; (* or save ? *)
      make_box_blit ~dst ~shadow ~focus g.voffset canvas layer box
   | Circular ->
-     let radius = (imin g.w g.h)/2 - 2 in
+     let radius = imax 1 ((imin g.w g.h)/2 - 2) in
      let tex = match Var.get s.render with
        | Some t -> t
        | None ->

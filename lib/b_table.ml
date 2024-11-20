@@ -5,7 +5,8 @@
 (* il faut pouvoir changer la largeur des colonnes. Donc garder accès aux
    layouts... ou au moins les recréer *)
 (* TODO add line number/label *)
-(* TODO it raises exception if length = 0, but we should make it work (?) *)
+(* TODO it raises exception if length = 0, but should we make it work
+   anyways? *)
 
 open Printf
 open B_utils
@@ -26,7 +27,7 @@ type column =
     rows : int -> Layout.t;
     compare : (int -> int -> int) option;
     (* use "compare i1 i2" in order to compare entries i1 and i2 *)
-    width : int option;
+    min_width : int option;
   }
 
 type sort =
@@ -58,7 +59,8 @@ let row_hl = Layout.color_bg Draw.(set_alpha 30 blue)
 let row_selected = Layout.opaque_bg Draw.(pale (pale (pale blue)))
 let icon_color = Draw.(set_alpha 40 grey)
 
-(* max_width returns the max width of the first n_max entries of the column c *)
+(* [max_width c] returns the max width of the entries of the column c,
+   optionally limited to the first n_max entries. *)
 let max_width ?(n_max = 50) (c : column) =
   let n_max = imin n_max c.length in
   let rec loop i m =
@@ -68,17 +70,17 @@ let max_width ?(n_max = 50) (c : column) =
   loop 0 0
 
 let make_title (c : column) =
-  (* we compute the label widget *)
+  (* We compute the label widget. *)
   let label = Widget.label c.title in
-  (* if no width is specified, we compute the max width of the first entries of
+  (* If no width is specified, we compute the max width of the first entries of
      the column *)
   let lw,_ = Widget.default_size label in
-  let w = match c.width with
+  let w = match c.min_width with
     | Some w -> w
     | None -> (imax lw (max_width c)) in
   let layout =
     if c.compare = None
-    then (* first encapsulate in order to then left-align *)
+    then (* First encapsulate in order to then left-align. *)
       Layout.flat_of_w ~sep:0 [label]
     else begin (* add icon for sorting *)
       let sort_indicator = Widget.icon ~fg:icon_color "sort" in
@@ -87,9 +89,8 @@ let make_title (c : column) =
       let w' = w - sw - lw in
       if w' >= 0
       then (* we can add sort_indicator *)
-        Layout.flat_of_w ~sep:0 ~align:(Draw.Max) [label;
-                                                   Widget.empty ~w:w' ~h:lh ();
-                                                   sort_indicator]
+        Layout.flat_of_w ~sep:0 ~align:(Draw.Max)
+          [label; Widget.empty ~w:w' ~h:lh (); sort_indicator]
       else Layout.flat_of_w ~sep:0 [label]
     end in
   Layout.set_width layout w; (* not necessary in the case of sort_indicator *)
@@ -98,17 +99,17 @@ let make_title (c : column) =
   let title = Layout.(superpose [layout; resident click_area]) in (*AAA*)
   title
 
-(* extracts the click_area widget from the title layout *)
-(* Warning: this depends on the way title is created in make_title, see (*AAA*)
-   *)
+(* [get_area] extracts the click_area widget from the title layout *)
+(* Warning: this depends on the way title is created in make_title, see
+   (*AAA*) *)
 let get_area title =
   let open Layout in
   match title.content with
   | Rooms [_; area] -> widget area (* see AAA *)
   | _ -> failwith "table.ml: The title layout should contain [layout; area]"
 
-(* extracts the sort_indicator widget from the title layout *)
-(* Warning: this depends on the way title is created in make_title *)
+(* [get_indicator] extracts the sort_indicator widget from the title layout *)
+(* Warning: this depends on the way title is created in make_title, see AAA. *)
 let get_indicator title =
   let open Layout in
   match title.content with
@@ -153,17 +154,18 @@ let make_table ?row_height (columns : column list) =
     layout = Var.create None (* will be computed afterwards *)
   }
 
-(* entry number i in the original array and in position ii in the display *)
+(* [get_background] returns the background to use for this entry. [i] is the
+   entry number in the original array and in position [ii] in the display. *)
 let get_background t i ii =
   if Selection.mem (Var.get t.selection) i
   then Some row_selected
   else
-    if ii mod 2 = 1
-    then Some (Layout.color_bg Draw.(set_alpha 20 grey))
-    else None
+  if ii mod 2 = 1
+  then Some (Layout.color_bg Draw.(set_alpha 20 grey))
+  else None
 
 let make_long_list ~w ~h t  =
-  (* generate row #i: *)
+  (* Generate row #ii: *)
   let generate = fun ii ->
     let i = t.order.(ii) in
     let background = get_background t i ii in
@@ -174,18 +176,23 @@ let make_long_list ~w ~h t  =
       Array.mapi (fun j c ->
           let width = Layout.width t.titles.(j) in
           let name = sprintf "entry[%u,%u]" i j in
-          let r = Layout.flat ~sep:0 ~hmargin:0 ~vmargin:0 ~name [c.rows i] in
-          Layout.set_width r (width  + title_margin); r) t.data
+          let r = Layout.flat ~margins:0 ~name [c.rows i] in
+          Layout.set_width r (width  + title_margin);
+          r.Layout.resize <- (fun _ ->
+              print_endline "AAAA";
+              let open Layout.Resize in
+              set_width r (Layout.width t.titles.(j) + title_margin));
+          r) t.data
       |> Array.to_list
       |> List.cons (Layout.resident left_margin)
-      |> (Layout.flat ~sep:0 ~hmargin:0 ~vmargin:0 ?background) in
+      |> Layout.flat ~keep_resize:true ~margins:0 ?background in
     let enter _ = (Layout.set_background ca (Some row_hl)
-                  (* Layout.fade_in ca ~duration:150 *)) in
+    (* Layout.fade_in ca ~duration:150 *)) in
     let leave _ = Layout.set_background ca None
     (* Layout.fade_out ca ~duration:150 *) in
     (* TODO: PROBLEM if one adds Layout.fade_in/out animations here, it becomes
-    very slow when one tries to scroll at the same time ==> cf
-    "check_mouse_motion board" dans bogue.ml *)
+       very slow when one tries to scroll at the same time ==> cf
+       "check_mouse_motion board" dans bogue.ml *)
     Widget.mouse_over ~enter ~leave click_area;
     (* TODO click is not good with touchscreen *)
     let click _ =
@@ -212,7 +219,7 @@ let make_long_list ~w ~h t  =
     Layout.(superpose [row; ca])
   in
   let height_fn _ = Some t.row_height in
-  Long_list.create ~w ~h ~generate ~height_fn ~length:t.length ()
+  Long_list.create ~w ~h ~generate ~height_fn ~scale_width:true ~length:t.length ()
 
 let make_layout ?w ~h t =
   let align = Draw.Max in (* bottom align *)
@@ -220,11 +227,11 @@ let make_layout ?w ~h t =
   let w = match w with
     | Some w -> w
     | None -> title_margin +
-                (List.fold_left (fun y r -> y + title_margin + Layout.width r)
-                   0 titles_list) in
-  let titles_row = Layout.flat ~sep:title_margin ~hmargin:title_margin
-                     ~vmargin:title_margin ~background:title_background
-                     ~align titles_list in
+              (List.fold_left (fun y r -> y + title_margin + Layout.width r)
+                 0 titles_list) in
+  let titles_row = Layout.flat ~name:"titles_row" ~sep:title_margin ~hmargin:title_margin
+      ~vmargin:title_margin ~background:title_background
+      ~align titles_list in
   let long = make_long_list t ~w ~h:(h - Layout.height titles_row) in
   titles_row, long
 
@@ -241,16 +248,15 @@ let reverse_array a =
 let set_indicator t j =
   if t.data.(j).compare = None then ()
   else begin
-      let sort = t.data.(j).sort in
-      do_option (get_indicator t.titles.(j)) (fun indicator ->
-          let label = Widget.get_label indicator in
-          Label.set label (match sort with
-                           | None -> Theme.fa_symbol "sort"
-                           (* terminology in font_a is reversed *)
-                           | Some Ascending -> Theme.fa_symbol "sort-desc"
-                           | Some Descending -> Theme.fa_symbol "sort-asc"))
-    end
-
+    let sort = t.data.(j).sort in
+    do_option (get_indicator t.titles.(j)) (fun indicator ->
+        let label = Widget.get_label indicator in
+        Label.set label (match sort with
+            | None -> Theme.fa_symbol "sort"
+            (* terminology in font_a is reversed *)
+            | Some Ascending -> Theme.fa_symbol "sort-desc"
+            | Some Descending -> Theme.fa_symbol "sort-asc"))
+  end
 
 (* refreshes the table by creating a new long_list *)
 let refresh t =
@@ -259,22 +265,28 @@ let refresh t =
       (* TODO don't crash here and provide a default ? But this should never
          happen *)
       | Some r ->
-         let w,h,g,titles_row =
-           let open Layout in
-           match r.content with
-           | Rooms [titles_row; long_old] ->
-              width titles_row, height long_old,
-              long_old.geometry, titles_row
-           | _ -> failwith "table.ml: layout content is corrupted"
-                           (* TODO don't crash ? *)
-         in
-         let long = make_long_list ~w ~h t in
+        let w,h,titles_row =
+          let open Layout in
+          match r.content with
+          | Rooms [titles_row; long_old] ->
+            width titles_row, height long_old, titles_row
+          | _ -> failwith "table.ml: layout content is corrupted"
+          (* TODO don't crash ? *)
+        in
+        let long = make_long_list ~w ~h t in
 
-         (* this is the dangerous part: *)
-         Layout.(long.geometry <- g);
-         Layout.(long.current_geom <- to_current_geom g);
-         (* = not really necessary, because I have removed do_adjust in set_rooms *)
-         Layout.set_rooms r [titles_row; long])
+        (* this is the dangerous part: *)
+        (* Layout.(long.geometry <- g); *)
+        (* Layout.(long.current_geom <- to_current_geom g); *)
+        (* = not really necessary, because I have removed do_adjust in set_rooms *)
+        Layout.set_rooms ~sync:false r [titles_row; long];
+        Layout.retower ~duration:0 ~margins:0 r;
+        (* Layout.update_current_geom r; *)
+        (* Layout.resize_tower ~hmargin:0 ~vmargin:0 ~sep:0 ~align:Draw.Min r; *)
+        (* long.resize (Layout.get_size r); *)
+        Layout.resize_follow_width titles_row
+    )
+
 
 (* changes sorting order. We don't try to modify the long_list in-place, we
    create a new one *)
@@ -330,14 +342,15 @@ let make_selection_tvar t =
 let create ?w ~h ?row_height ?(name="table") (columns : column list) =
   let t = make_table columns ?row_height in
   let titles_row, long = make_layout ?w ~h t in
-  let layout = Layout.tower ~margins:0 ~name
+  let table = Layout.tower ~margins:0 ~name
       [titles_row; long] in
-  Layout.disable_resize titles_row; (* TODO do better, cf example 35 *)
-  Var.set t.layout (Some layout);
+  Layout.resize_follow_width titles_row;
+  (* Layout.disable_resize titles_row; (\* TODO do better, cf example 35 *\) *)
+  Var.set t.layout (Some table);
   for j = 0 to List.length columns - 1 do
     connect_title t j
   done;
-  layout, make_selection_tvar t
+  table, make_selection_tvar t
 
 (* Create table from text array a.(i).(j) : row i, column j *)
 let of_array ?w ~h ?widths ?row_height ?name headers a =
@@ -362,7 +375,7 @@ let of_array ?w ~h ?widths ?row_height ?name headers a =
                    length = ni;
                    rows = (fun i -> Layout.resident (Widget.label a.(i).(j)));
                    compare = Some (fun i1 i2 -> compare a.(i1).(j) a.(i2).(j));
-                   width = widths.(j) })
+                   min_width = widths.(j) })
              |> Array.to_list in
            create ?w ~h ?row_height ?name columns
 

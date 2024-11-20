@@ -68,7 +68,8 @@ module Engine = struct
     }
 
   let separator = Action (fun () ->
-      pre "This action should not be launched.")
+      printd (debug_error + debug_custom)
+        "This dummy Menu action should not be launched.")
 
   (* 1. Functions for gearing menus interaction *)
   (* ------------------------------------------ *)
@@ -866,18 +867,18 @@ let create = make_engine
    in the house of the main menu layout. *)
 let make_bar ?dst entries =
   let content = Flat entries in
-  pre "make_engine";
   let t = make_engine ?dst content in
   let room = layout_of_menu t in
-  pre "resize...";
+  printd debug_custom "[Menu.make_bar] resize menu layout %s..." (Layout.sprint_id room);
   let dst = Option.(map some dst) in (* "add a Some to a Some" *)
-  Sync.option dst (fun () ->
-      pre "getting house"; Layout.get_house room)
+  Sync.option dst (fun () -> Layout.get_house room)
     (function
       | None -> printd (debug_board + debug_error)
                   "Menu %s has no house. It will not be usable"
                   (Layout.sprint_id room)
       | Some dst ->
+        printd debug_custom "Selecting house %s for Menu bar layout %s"
+          (Layout.sprint_id dst) (Layout.sprint_id room);
         (* Expand first entry (menu bar) to the whole dst width: *)
         Layout.(set_width room (width dst));
         Layout.setx room 0;

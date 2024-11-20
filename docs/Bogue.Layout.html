@@ -184,7 +184,7 @@
 </div>
 </div>
 <h4 id="3_Createlayoutsfromotherlayouts">Create layouts from other layouts</h4>
-<pre><span id="VALflat"><span class="keyword">val</span> flat</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?margins:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALflat"><span class="keyword">val</span> flat</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?margins:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?scale_content:bool -&gt;<br>       ?keep_resize:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a horizontal arrangement from a list of rooms.</p>
 <OL>
@@ -196,7 +196,7 @@
 </div>
 </div>
 
-<pre><span id="VALtower"><span class="keyword">val</span> tower</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?margins:int -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?clip:bool -&gt; ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
+<pre><span id="VALtower"><span class="keyword">val</span> tower</span> : <code class="type">?name:string -&gt;<br>       ?sep:int -&gt;<br>       ?margins:int -&gt;<br>       ?hmargin:int -&gt;<br>       ?vmargin:int -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt;<br>       ?adjust:<a href="Bogue.Layout.html#TYPEadjust">adjust</a> -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?shadow:<a href="Bogue.Style.html#TYPEshadow">Style.shadow</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?clip:bool -&gt;<br>       ?scale_content:bool -&gt;<br>       ?keep_resize:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a vertical arrangement from a list of rooms. See <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a>.</p>
 </div>
@@ -386,7 +386,7 @@
 </div>
 </div>
 
-<pre><span id="VALunload_textures"><span class="keyword">val</span> unload_textures</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALiter_unload_textures"><span class="keyword">val</span> iter_unload_textures</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Use this to free the textures stored by the layout (and its children) for
      reducing memory. The layout can still be used without any impact, the

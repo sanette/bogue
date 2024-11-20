@@ -815,13 +815,13 @@ let example35 () =
       length;
       rows = (fun i -> L.resident (W.label europe.(i)));
       compare = Some (fun i j -> compare europe.(i) europe.(j));
-      width = Some 100} in
+      min_width = Some 100} in
   let col2 = Table.{
       title = "Initial";
       length;
       rows = (fun i -> L.resident (W.label (String.sub europe.(i) 0 1)));
       compare = None;
-      width = Some 50} in
+      min_width = Some 50} in
   let col3 = Table.{
       title = "Length";
       length;
@@ -830,7 +830,7 @@ let example35 () =
       compare = Some (fun i j -> compare
                          (String.length europe.(i))
                          (String.length europe.(j)));
-      width = Some 70} in
+      min_width = Some 70} in
   let table, sel = Table.create ~h:400 [col1; col2; col3] in
 
   let clear_sel = W.button "clear selection"

@@ -45,7 +45,7 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">w:int -&gt;<br>       h:int -&gt;<br>       length:int -&gt;<br>       ?first:int -&gt;<br>       generate:(int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -&gt;<br>       ?height_fn:(int -&gt; int option) -&gt;<br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit) -&gt;<br>       ?max_memory:int -&gt;<br>       ?linear:bool -&gt; ?scrollbar_width:int -&gt; unit -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?name:string -&gt;<br>       w:int -&gt;<br>       h:int -&gt;<br>       length:int -&gt;<br>       ?first:int -&gt;<br>       generate:(int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -&gt;<br>       ?height_fn:(int -&gt; int option) -&gt;<br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit) -&gt;<br>       ?max_memory:int -&gt;<br>       ?linear:bool -&gt;<br>       ?scrollbar_width:int -&gt; ?scale_width:bool -&gt; unit -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a long list through the function <code class="code">generate</code> which maps any index
      <em>i</em> to the <em>ieth</em> element (layout) of the list. If specified (which is

@@ -605,7 +605,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
   let cursor = match Var.get ti.cursor with
     | Some s -> s
     | None ->
-      let csize = imin 3 (2*(Theme.scale_int ti.size)/3) in
+      let csize = imax 3 (2*(Theme.scale_int ti.size)/3) in
       let cfont = Label.get_font_var ti.cursor_font csize in
       let s = draw_keys cfont [ti.cursor_char] ~fg:Draw.(opaque cursor_color) in
       (* TODO use render_key, it should be faster *)
