@@ -241,7 +241,14 @@ module Naive = struct
         | Some i0, false -> loop ((i0, i-1) :: list) None (i+1) in
     loop [] (if a.(0) = true then Some 0 else None) 0
   let to_sel a = of_list (to_list a)
-  let first a = Option.get (Array.find_index (fun b -> b) a)
+  let find_index p a = (* Ocaml 5.1 *)
+    let n = Array.length a in
+    let rec loop i =
+      if i = n then None
+      else if p (Array.unsafe_get a i) then Some i
+      else loop (succ i) in
+    loop 0
+  let first a = Option.get (find_index (fun b -> b) a)
   let last a =
     let rec loop i =
       if i < 0 then None else if a.(i) then Some i else loop (i-1) in
