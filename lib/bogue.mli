@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241120
+@version 20241207
 
 @author Vu Ngoc San
 
@@ -967,14 +967,30 @@ val r : t = <abstr>
 module Selection : sig
   type t
   val empty : t
+  val is_empty : t -> bool
+
+  val size : t -> int
+  (** Number of selected integers *)
+
   val to_list : t -> (int * int) list
   val of_list : (int * int) list -> t
+  val range : (int * int) -> t
+  val first :  t -> int
+  val last : t -> int
   val mem : t -> int -> bool
   val toggle : t -> int -> t
   val remove : t -> int -> t
   val add : t -> int -> t
   val union : t -> t -> t
+    (** Not tail-recursive *)
+
   val intersect : t -> t -> t
+  (** Not tail-recursive *)
+
+  val invert : first:int -> last:int -> t -> t
+(** [invert ~first ~last sel] returns a selection containing all integers not
+    selected in [sel], withing the range [[first, last]]. *)
+
   val sprint : t -> string
   val iter : (int -> unit) -> t -> unit
 
@@ -1853,7 +1869,8 @@ module Layout : sig
     ?name:string -> ?sep:int -> ?h:int ->
     ?align:Draw.align ->
     ?background:background ->
-    ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
+    ?widget_bg:background -> ?canvas:Draw.canvas ->
+    ?scale_content:bool ->
     Widget.t list -> t
   (** Horizontal arrangement of widgets. See {!flat}. *)
 
@@ -1861,7 +1878,8 @@ module Layout : sig
     ?name:string -> ?sep:int -> ?w:int ->
     ?align:Draw.align ->
     ?background:background ->
-    ?widget_bg:background -> ?canvas:Draw.canvas -> ?scale_content:bool ->
+    ?widget_bg:background -> ?canvas:Draw.canvas ->
+    ?scale_content:bool ->
     Widget.t list -> t
     (** Vertical arrangement of widgets. See {!tower}. *)
 
@@ -1872,7 +1890,8 @@ module Layout : sig
     ?adjust:adjust -> ?hmargin:int -> ?vmargin:int -> ?margins:int ->
     ?align:Draw.align ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> ?scale_content:bool -> ?keep_resize:bool -> t list -> t
+    ?canvas:Draw.canvas ->
+    ?scale_content:bool -> ?keep_resize:bool -> t list -> t
   (** Create a horizontal arrangement from a list of rooms.
       + [sep] = horizontal space between two rooms.
       + [hmargin] = horizontal margin (left and right).

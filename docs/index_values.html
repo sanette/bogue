@@ -515,6 +515,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Mouse.html#VALfinger_pos">finger_pos</a> [<a href="Bogue.Mouse.html">Bogue.Mouse</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Selection.html#VALfirst">first</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALfit_content">fit_content</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Adapt the size of the layout (and their houses) to the disposition of the
@@ -806,6 +808,19 @@
 <tr><td><a href="Bogue.Layout.html#VALinside">inside</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Selection.html#VALintersect">intersect</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
+<td><div class="info">
+<p>Not tail-recursive</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Selection.html#VALinvert">invert</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
+<td><div class="info">
+<p><code class="code">invert&nbsp;~first&nbsp;~last&nbsp;sel</code> returns a selection containing all integers not
+    selected in <code class="code">sel</code>, withing the range <code class="code">[first,&nbsp;last]</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Selection.html#VALis_empty">is_empty</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Button.html#VALis_pressed">is_pressed</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
@@ -847,6 +862,8 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Draw.html#VALlabel_color">label_color</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Selection.html#VALlast">last</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALlayout">layout</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
 <td><div class="info">
@@ -1216,6 +1233,8 @@
 <tr><td align="left"><div>R</div></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALrandom_color">random_color</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Selection.html#VALrange">range</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALraw">raw</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALrectangle">rectangle</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
@@ -1519,6 +1538,12 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Selection.html#VALsize">size</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
+<td><div class="info">
+<p>Number of selected integers</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALslide_in">slide_in</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALslide_to">slide_to</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -1666,7 +1691,11 @@
 <tr><td><a href="Bogue.Text_display.html#VALunderline">underline</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Selection.html#VALunion">union</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<p>Not tail-recursive</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALunload_background">unload_background</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Free the texture associated with the background (if any).</p>

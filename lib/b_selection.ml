@@ -1,4 +1,6 @@
-(* Dealing with sets of range of integers -- San Vu Ngoc *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* Dealing with sets of range of integers *)
 
 (* This is used by table.ml. Another interesting application is to detect rows
    and colums in layout.ml *)
@@ -25,8 +27,11 @@ let empty = []
 
 let card = List.length
 
-let range (a,b) = Range (a,b)
+let is_empty sel = sel = []
+
+let single_range (a,b) = Range (a,b)
 let of_range (Range (a,b)) = (a,b)
+let range (a,b) = [single_range (a,b)]
 
 let to_list sel =
   List.map of_range sel
@@ -62,7 +67,7 @@ let normalize sel =
   | first::rest -> loop first rest []
 
 let of_list list =
-  List.map range list
+  List.map single_range list
   |> normalize
 
 let proj1 (Range (r1, _)) = r1
@@ -71,19 +76,33 @@ let proj2 (Range (_, r2)) = r2
 (* min element. *)
 let first_unsorted = function
   | [] -> invalid_arg "[Selection.first_unsorted] selection should not be empty."
-  | (Range (r1, _)) :: rest ->
+  | Range (r1, _) :: rest ->
     List.map proj1 rest
     |> List.fold_left min r1
 
 let first = function
   | [] -> invalid_arg "[Selection.first] selection should not be empty."
-  | (Range (r1, _))::_ -> r1
+  | Range (r1, _) ::_ -> r1
 
-let last = function
-  | [] -> invalid_arg "[Selection.last] selection should not be empty."
-  | (Range (_, r2)) :: rest ->
+let last_unsorted = function
+  | [] -> invalid_arg "[Selection.last_unsorted] selection should not be empty."
+  | Range (_, r2) :: rest ->
     List.map proj2 rest
     |> List.fold_left max r2
+
+let rec list_last = function
+  | [] -> invalid_arg "[list_last]: empty list"
+  | [x] -> x
+  | _::rest -> list_last rest
+
+let last sel = proj2 (list_last sel)
+
+(* Number of selected integers. For normalized selections only *)
+let size sel =
+  let rec loop s = function
+    | [] -> s
+    | Range (i1,i2) :: rest -> loop (i2 + 1 - i1 + s) rest in
+  loop 0 sel
 
 (* Check if item i is selected *)
 (* sl doesn't need to be sorted or simplified, but it would be faster if it
@@ -92,7 +111,7 @@ let mem sel i =
   let rec loop sl =
     match sl with
     | [] -> false
-    | Range (i1,i2)::rest -> if i1<=i && i<=i2 then true else loop rest
+    | Range (i1,i2) :: rest -> if i1<=i && i<=i2 then true else loop rest
   in
   loop sel
 
@@ -102,15 +121,15 @@ let remove sel i =
   let rec loop sl new_sl =
     match sl with
     | [] -> List.rev new_sl
-    | Range (i1,i2)::rest when i=i1 && i=i2 ->
+    | Range (i1,i2) :: rest when i=i1 && i=i2 ->
        List.rev_append new_sl rest
-    | Range (i1,i2)::rest when i=i1 ->
-       List.rev_append new_sl (Range (i1+1,i2)::rest)
-    | Range (i1,i2)::rest when i=i2 ->
-       List.rev_append new_sl (Range (i1,i2-1)::rest)
-    | Range (i1,i2)::rest when i1<i && i<i2 ->
-       List.rev_append new_sl (Range (i1,i-1)::(Range (i+1,i2)::rest))
-    | Range (i1,i2)::rest -> loop rest (Range (i1,i2)::new_sl)
+    | Range (i1,i2) :: rest when i=i1 ->
+       List.rev_append new_sl (Range (i1+1,i2) :: rest)
+    | Range (i1,i2) :: rest when i=i2 ->
+       List.rev_append new_sl (Range (i1,i2-1) :: rest)
+    | Range (i1,i2) :: rest when i1<i && i<i2 ->
+       List.rev_append new_sl (Range (i1,i-1) :: (Range (i+1,i2) :: rest))
+    | Range (i1,i2) :: rest -> loop rest (Range (i1,i2) :: new_sl)
   in
   loop sel []
 
@@ -119,24 +138,35 @@ let remove sel i =
 let add sel i =
   let rec loop sl new_sl =
     match sl with
-    | [] -> List.rev (Range (i,i)::new_sl)
-    | Range (i1,_)::_ when i+1<i1 ->
-       List.rev_append new_sl ((Range (i,i))::sl)
-    | Range (i1,i2)::rest when i+1=i1 ->
-       List.rev_append new_sl (Range (i,i2)::rest)
-    | Range (i1,i2)::(Range (j1,j2))::rest when i=i2+1 && j1=i2+2 ->
-       List.rev_append new_sl (Range (i1,j2)::rest)
-    | Range (i1,i2)::rest when i=i2+1 ->
-       List.rev_append new_sl (Range (i1,i)::rest)
-    | Range (i1,i2)::_ when i1<=i && i<=i2 ->
-       List.rev_append new_sl sl
-    | r::rest ->
-       loop rest (r::new_sl)
+    | [] -> List.rev (Range (i,i) :: new_sl)
+    | Range (i1,_) :: _ when i+1<i1 ->
+       List.rev_append new_sl ((Range (i,i)) :: sl)
+    | Range (i1,i2) :: rest when i+1=i1 ->
+       List.rev_append new_sl (Range (i,i2) :: rest)
+    | Range (i1,i2) :: (Range (j1,j2)) :: rest when i=i2+1 && j1=i2+2 ->
+       List.rev_append new_sl (Range (i1,j2) :: rest)
+    | Range (i1,i2) :: rest when i=i2+1 ->
+       List.rev_append new_sl (Range (i1,i) :: rest)
+    | Range (i1,i2) :: _ when i1<=i && i<=i2 ->
+       sel (* List.rev_append new_sl sl *)
+    | r :: rest ->
+       loop rest (r :: new_sl)
   in
   loop sel []
 
 let toggle sel i =
   if mem sel i then remove sel i else add sel i
+
+let invert ~first ~last sel =
+  let rec loop inv mn = function
+    | _ when mn > last -> List.rev inv
+    | [] -> List.rev (Range (mn, last) :: inv)
+    | Range (a,_) :: _ when a > last -> loop inv mn []
+    | Range (_,b) :: rest when b < mn -> loop inv mn rest
+    | Range (_,b) :: rest when b = mn -> loop inv (b+1) rest
+    | Range (a,b) :: rest when a > mn -> loop (Range (mn, a-1) :: inv) (b+1) rest
+    | Range (_,b) :: rest -> loop inv (b+1) rest in
+  loop [] first sel
 
 (* Simple union, not optimized because it also works with non normalized
    entries *)
@@ -148,7 +178,7 @@ let rec union sel1 sel2 =
   match sel1, sel2 with
   | [], _ -> sel2
   | _, [] -> sel1
-  | (Range (r1,r2))::rest1, (Range (s1,s2))::rest2 ->
+  | (Range (r1,r2)) :: rest1, (Range (s1,s2)) :: rest2 ->
     if r1 > s1 then union sel2 sel1 (* we make sure r1 <= s1 *)
     else if r2 < s1-1 then Range (r1,r2) :: union rest1 sel2
     else if s2 <= r2 then union sel1 rest2
@@ -159,7 +189,7 @@ let rec intersect sel1 sel2 =
   match sel1, sel2 with
   | [], _
   | _, [] -> []
-  | (Range (r1,r2))::rest1, (Range (s1,s2))::rest2 ->
+  | (Range (r1,r2)) :: rest1, (Range (s1,s2)) :: rest2 ->
     if r1 > s1 then intersect sel2 sel1 (* we make sure r1 <= s1 *)
     else if r2 < s1 then intersect rest1 sel2
     else if r2 <= s2 then Range (s1,r2) :: intersect rest1 sel2
@@ -169,14 +199,14 @@ let rec intersect sel1 sel2 =
 let contains sel1 sel2 =
   intersect sel1 sel2 = sel1
 
-let (<<=) = contains
+let ( <<= )  = contains
 
 let iter (f : int -> unit) sel =
   let rec loop sl =
     match sl with
     | [] -> ()
-    | Range (i1,i2)::rest when i2<i1 -> loop rest
-    | Range (i1,i2)::rest -> f i1; loop (Range (i1+1,i2)::rest)
+    | Range (i1,i2) :: rest when i2<i1 -> loop rest
+    | Range (i1,i2) :: rest -> f i1; loop (Range (i1+1,i2) :: rest)
   in
   loop sel
 
@@ -192,67 +222,160 @@ let sprint sel =
 (****************)
 (* Some tests. Need #require "unix";; in the toplevel *)
 
+module Naive = struct
+  (** A naive but robust and easy to check implementation, serves for
+      testing. Works only for non-negative integer. *)
+  type t = bool array
+  let empty = [||]
+  let is_empty a = not (Array.mem true a)
+  let size a = Array.fold_left (fun s b -> if b then s + 1 else s) 0 a
+  let to_list a =
+    let rec loop list start i =
+      if i >= Array.length a then match start with
+        | None -> List.rev list
+        | Some i0 -> List.rev ((i0, i-1)::list)
+      else match start, a.(i) with
+        | None, false -> loop list None (i+1)
+        | None, true -> loop list (Some i) (i+1)
+        | Some _, true -> loop list start (i+1)
+        | Some i0, false -> loop ((i0, i-1) :: list) None (i+1) in
+    loop [] (if a.(0) = true then Some 0 else None) 0
+  let to_sel a = of_list (to_list a)
+  let first a = Option.get (Array.find_index (fun b -> b) a)
+  let last a =
+    let rec loop i =
+      if i < 0 then None else if a.(i) then Some i else loop (i-1) in
+    Option.get (loop (Array.length a - 1))
+  let of_list list =
+    let last = List.map snd list |> List.fold_left max 0 in
+    let a = Array.make (last+1) false in
+    let rec loop = function
+      | [] -> ()
+      | (x, y) :: rest -> for i = x to y do a.(i) <- true done; loop rest in
+    loop list; a
+  let invert ~first ~last a =
+    Array.init (Array.length a) (fun i -> i >= first && i <= last && not a.(i))
+  let union a b =
+    let na = Array.length a and nb = Array.length b in
+    let a,b,na,nb = if na < nb then a,b,na,nb else b,a,nb,na in
+    Array.init nb (fun i -> if i < na then a.(i) || b.(i) else b.(i))
+  let intersect a b =
+    let a,b = if Array.length a < Array.length b then a,b else b,a in
+    Array.init (Array.length a) (fun i -> a.(i) && b.(i))
+  let add a i =
+    let n = Array.length a in
+    let l = max (i+1) n in
+    Array.init l (fun j -> j=i || (j < n && a.(i)))
+  let remove a i =
+    Array.init (Array.length a) (fun j -> a.(i) && not (j=i))
+  let toggle a i =
+    let n = Array.length a in
+    let l = max (i+1) n in
+    Array.init l (fun j -> if j < n then if i <> j then a.(j) else not a.(j) else i = j)
+  let random n =
+    Array.init n (fun _ -> Random.bool ())
 
-(* Create a random normalized selection within the interval [0, maxi] with
-   average start [maxi]/4, average [gap]+1 between ranges, and average [len]gth
-   of ranges. Use bad >0 to create non-normalized ones. *)
-let random ?(bad = 0) len gap maxi =
-  let gap = max 1 gap in
-  let len = max 0 len in
-  let rec loop x list =
-    let r1 = x + 1 + Random.int (2*gap-1) - bad in
-    let r2 = r1 + Random.int (2*len+1) in
-    if r2 > maxi then list
-    else loop (r2+1) (Range (r1, r2) :: list) in
-  List.rev (loop (Random.int (maxi/2+1)) [])
+end
 
-(* return (ieth element, list without that element) *)
-let list_remove l i =
-  let rec loop j acc = function
-    | [] -> invalid_arg "[Selection.list_remove] selection should not be empty."
-    | x::rest -> if i = j then x, List.rev_append acc rest
-      else loop (j+1) (x::acc) rest in
-  loop 0 [] l
+module Test = struct
+  (* Create a random normalized selection within the interval [0, maxi] with
+     average start [maxi]/4, average [gap]+1 between ranges, and average [len]gth
+     of ranges. Use bad >0 to create non-normalized ones. *)
+  let random ?(bad = 0) len gap maxi =
+    let gap = max 1 gap in
+    let len = max 0 len in
+    let rec loop x list =
+      let r1 = x + 1 + Random.int (2*gap-1) - bad in
+      let r2 = r1 + Random.int (2*len+1) in
+      if r2 > maxi then list
+      else loop (r2+1) (Range (r1, r2) :: list) in
+    List.rev (loop (Random.int (maxi/2+1)) [])
 
-let shuffle list =
-  let rec loop acc len = function
-    | [] -> acc
-    | l -> let i = Random.int len in
-      let x, rest = list_remove l i in
-      loop (x::acc) (len-1) rest in
-  loop [] (List.length list) list
+  (* return (ieth element, list without that element) *)
+  let list_remove l i =
+    let rec loop j acc = function
+      | [] -> invalid_arg "[Selection.list_remove] selection should not be empty."
+      | x :: rest -> if i = j then x, List.rev_append acc rest
+        else loop (j+1) (x :: acc) rest in
+    loop 0 [] l
 
-let time name f =
-  let t0 = Unix.gettimeofday () in
-  let y = f () in
-  Printf.printf "Time %s = %f\n" name (Unix.gettimeofday () -. t0);
-  y
+  let shuffle list =
+    let rec loop acc len = function
+      | [] -> acc
+      | l -> let i = Random.int len in
+        let x, rest = list_remove l i in
+        loop (x :: acc) (len-1) rest in
+    loop [] (List.length list) list
 
-let test () =
-  let len, gap, maxi = 1000, 100, 10000000 in
-  let r = time "random" (fun () -> random len gap maxi) in
-  assert (r = normalize r);
-  let rs = shuffle r in
-  (* attention shuffle ne va jamais créer des overlaps... *)
-  let rn = time "normalize shuffle" (fun () -> normalize rs) in
-  assert (r = rn);
-  let bad = random ~bad:(gap/2) len gap maxi |> shuffle in
-  let bn = time "normalize bad" (fun () -> normalize bad) in
-  assert (bn = normalize bn);
-  print_endline "Test first";
-  assert (first bn = first_unsorted bad);
-  let s = random len gap maxi in
-  let u1 = time "union" (fun () -> union r s) in
-  let u2 = time "union_brute" (fun () -> union_brute r s) in
-  assert (u1 = u2);
-  let i = time "intersect" (fun () -> intersect r s) in
-  assert (intersect i r = intersect i s);
-  print_endline "Test toggle";
-  let x = Random.int maxi in
-  assert (r = toggle (toggle r x) x);
-  print_endline "Test iter";
-  let e = ref empty in
-  let t = random 1000 100 100000 in (* pas trop grand sinon c'est lent...*)
-  iter (fun i -> e := add !e i) t;
-  assert (!e = t);
-  print_endline "Selection Test passed OK."
+  let time name f =
+    let t0 = Unix.gettimeofday () in
+    let y = f () in
+    Printf.printf "Time %s = %f\n" name (Unix.gettimeofday () -. t0);
+    y
+
+  let to_naive t = Naive.of_list (to_list t)
+
+  let print sel =
+    print_endline (Printf.sprintf
+                     "Using selection with range [%i,%i], size=%i, and %i \
+                      components." (first sel) (last sel) (size sel) (card sel))
+
+  let test () =
+    let open Printf in
+    for maxi_factor = 1 to 4 do
+      print_endline (sprintf "Selection Test %i" maxi_factor);
+      let maxi = 1000 * int_of_float (10. ** (float maxi_factor)) in
+      let len, gap = 1000, 100 in
+      let r = time "random" (fun () -> random len gap maxi) in
+      assert (r = normalize r);
+      assert (r = Naive.to_sel (to_naive r));
+      let rs = shuffle r in
+      sprintf "Size r = %i, size rs = %i" (size r) (size rs) |> print_endline;
+      (* attention shuffle ne va jamais créer des overlaps... *)
+      let rn = time "normalize shuffle" (fun () -> normalize rs) in
+      assert (r = rn);
+      let bad = random ~bad:(gap/2) len gap maxi |> shuffle in
+      print bad;
+      let bn = time "normalize bad" (fun () -> normalize bad) in
+      assert (bn = normalize bn);
+      print_endline "Test first";
+      assert (first bn = first_unsorted bad);
+      let s = random len gap maxi in
+      let u1 = time "union" (fun () -> union r s) in
+      let u2 = time "union_brute" (fun () -> union_brute r s) in
+      assert (u1 = u2);
+      let rn = to_naive r and sn = to_naive s in
+      let un = time "union Naive" (fun () -> Naive.union rn sn) in
+      assert (u1 = Naive.to_sel un);
+      let i = time "intersect" (fun () -> intersect r s) in
+      assert (intersect i r = intersect i s);
+      let inn = time "intersect Naive" (fun () -> Naive.intersect rn sn) in
+      assert (i = Naive.to_sel inn);
+      print_endline "Test toggle";
+      let x = Random.int maxi in
+      assert (r = toggle (toggle r x) x);
+      let rn = to_naive r in
+      assert (time "Toggle" (fun () -> toggle r x) =
+              Naive.to_sel (time "Toggle Naive" (fun () -> Naive.toggle rn x)));
+      let first = Random.int maxi and last = Random.int maxi in
+      print_endline (sprintf "Invert range [%i, %i]:" first last);
+      let iv = time "Invert" (fun () -> invert ~first ~last r) in
+      let ivn = time "Invert Naive" (fun () -> Naive.invert ~first ~last rn) in
+      assert (iv = Naive.to_sel ivn);
+      let rdn = Naive.random maxi in
+      let rd = Naive.to_sel rdn in
+      print rd;
+      let ird = time "Invert bad random" (fun () -> invert ~first ~last rd) in
+      let irdn = time "Invert bad random Naive"
+          (fun () -> Naive.invert ~first ~last rdn) in
+      assert (Naive.to_sel irdn = ird);
+      let e = ref empty in
+      let t = time "random" (fun () -> random 1000 100 100000) in
+      (* pas trop grand sinon c'est lent...*)
+      time "iter" (fun () -> iter (fun i -> e := add !e i) t);
+      assert (!e = t);
+      print_endline (sprintf "Selection Test %i passed OK.\n" maxi_factor);
+    done
+
+
+end

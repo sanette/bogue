@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `Selection` new functions `is_empty`, `size`, `range`, `first`, `last`, `invert`.
 - `Table` layouts can now be resized dynamically.
 - Can now navigate `tabs` with TAB!  ;) (preliminary)
 - Can now enable/disable a layout with `Layout.set_enabled`. New examples 53, 53bis.
