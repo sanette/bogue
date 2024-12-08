@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241207
+@version 20241208
 
 @author Vu Ngoc San
 
@@ -1845,6 +1845,17 @@ module Layout : sig
   (** Free the texture associated with the background (if any). This can be used
      to force recreating it. *)
 
+  (** {2 Resize strategies} *)
+  module Resize : sig
+    type strategy =
+      | Keep (** Keep and apply the individual rooms resize functions. *)
+      | Disable (** Don't resize (and cancel the rooms resize functions). *)
+      | Linear (** Scale only in one direction, horizontal or vertical depending
+                   on function (flat or tower). *)
+      | Default (** Default resizing strategy: scale dimensions and positions
+                    with respect to the layout size.*)
+  end
+
   (** {2 Creation of layouts}
 
       Remark: all layouts have an optional [name] property, which is used only
@@ -1870,7 +1881,8 @@ module Layout : sig
     ?align:Draw.align ->
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas ->
-    ?scale_content:bool ->
+    ?resize:Resize.strategy ->
+    ?clip:bool ->
     Widget.t list -> t
   (** Horizontal arrangement of widgets. See {!flat}. *)
 
@@ -1879,7 +1891,8 @@ module Layout : sig
     ?align:Draw.align ->
     ?background:background ->
     ?widget_bg:background -> ?canvas:Draw.canvas ->
-    ?scale_content:bool ->
+    ?resize:Resize.strategy ->
+    ?clip:bool ->
     Widget.t list -> t
     (** Vertical arrangement of widgets. See {!tower}. *)
 
@@ -1891,7 +1904,8 @@ module Layout : sig
     ?align:Draw.align ->
     ?background:background -> ?shadow:Style.shadow ->
     ?canvas:Draw.canvas ->
-    ?scale_content:bool -> ?keep_resize:bool -> t list -> t
+    ?resize:Resize.strategy ->
+    ?clip:bool -> t list -> t
   (** Create a horizontal arrangement from a list of rooms.
       + [sep] = horizontal space between two rooms.
       + [hmargin] = horizontal margin (left and right).
@@ -1904,8 +1918,9 @@ module Layout : sig
     ?margins:int -> ?hmargin:int -> ?vmargin:int ->
     ?align:Draw.align -> ?adjust:adjust ->
     ?background:background -> ?shadow:Style.shadow ->
-    ?canvas:Draw.canvas -> ?clip:bool -> ?scale_content:bool ->
-    ?keep_resize:bool -> t list -> t
+    ?canvas:Draw.canvas ->
+    ?resize:Resize.strategy ->
+    ?clip:bool -> t list -> t
   (** Create a vertical arrangement from a list of rooms. See {!flat}. *)
 
   val superpose :

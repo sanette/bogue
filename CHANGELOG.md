@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `Flat` and `Tower` have new resizing strategies.
 - `Selection` new functions `is_empty`, `size`, `range`, `first`, `last`, `invert`.
 - `Table` layouts can now be resized dynamically.
 - Can now navigate `tabs` with TAB!  ;) (preliminary)
@@ -28,6 +29,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Options for `Layout.flat*` and `Layout.tower*` have changed. If you
+  were using any of `scale_content` or `keep_resize` you should use
+  the new `resize` option instead.
 - `Layout.unload_textures` is renamed `Layout.iter_unload_textures`
 
 ### Fixed
@@ -41,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Developement
 
+- New `Resize` module inside `Layout`.
 - clarify that `dst` field of `blit` is `None` means NO RENDERING.
 - experimental `Detect` for detecting flat and tower layouts.
 

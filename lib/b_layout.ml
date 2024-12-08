@@ -979,6 +979,12 @@ module Resize = struct
   let keep_resize = true
   let check_window = false
 
+  type strategy =
+    | Keep
+    | Disable
+    | Linear
+    | Default
+
   let set_height ?update_bg l h =
     set_size ~keep_resize ~check_window ?update_bg ~h l
 
@@ -1723,7 +1729,7 @@ let resize_tower_room ~resize_width initial_tower_size scale
                         ~margin ~sep in
           set_width room (imax 1 (round (s *. float init_w)))
         end;
-        if next room = None (* last room *) then (scalex := None; scaley:=None);
+        if next room = None (* last room *) then (scalex := None; scaley := None);
         (* set y position *)
         let () = match prev room with
           | None -> sety room vmargin
@@ -1742,7 +1748,10 @@ let resize_flat ?(resize_height = true) ~hmargin ~vmargin ~sep ~align house =
   let scale = ref None, ref None in
   (* This [scale] variable is shared by all rooms. Currently, this systems does
      not allow to correctly resize a room dynamically added to the flat after
-     creation, because we cannot retrieve this variable. *)
+     creation, because we cannot retrieve this variable. WARNING [W1] The scale
+     variable is reset by the last room of the flat. Hence, if someone changes
+     later the resize function of the last room, the whole flat will stop
+     resizing. (See for instance Space's [reset_scaling].) *)
   iter_rooms (resize_flat_room ~resize_height size scale ~hmargin ~vmargin ~sep ~align)
     house
 
@@ -2081,8 +2090,25 @@ let global_set_layer room layer =
 (* vmargin = vertical margin (top and bottom). *)
 (* if margins is set, then sep, hmargin and vmargin are all set to this value *)
 (* WARNING: resulting layout has position (0,0). *)
+(* There are 4 resizing strategies, when the flat layout is resized:
+
+   1. Do nothing: the rooms maintain their sizes and positions: use
+   [resize:Resize.Disable], and previous room resize function is removed. If [clip]
+   is true and the layout size is smaller than the initial size, some of the
+   content will be hidden ("clipped").
+
+   2. Execute the previously installed room resize functions, if any: use
+   [resize:Resize.Keep]
+
+   3. Globally scale rooms proportionnally to the layout size. (Default
+   behaviour.)
+
+   4. Scale rooms horizontally proportionnally to the layout width, and keep
+   rooms height (while adjusting their vertical position according to the
+   [align] parameter): use [resize:Resize.Linear].
+*)
 let flat ?name ?sep ?(adjust=Fit) ?hmargin ?vmargin ?margins ?align
-    ?background ?shadow ?canvas ?(scale_content=true) ?(keep_resize=false) rooms =
+    ?background ?shadow ?canvas ?resize ?clip rooms =
   (* List.iter (set_canvas canvas) rooms; *)
   let sep, hmargin, vmargin = match margins with
     | Some m ->
@@ -2094,14 +2120,19 @@ let flat ?name ?sep ?(adjust=Fit) ?hmargin ?vmargin ?margins ?align
               default hmargin (Theme.room_margin),
               default vmargin (Theme.room_margin) in
   let w,h = flat_settle_rooms ~sep ~hmargin ~vmargin rooms in
-  let layout = create ?name ?background ?shadow
+  let layout = create ?name ?background ?shadow ?clip
       (geometry ~w ~h ()) ~adjust (Rooms rooms) ?canvas in
   do_option align (fun align -> v_align ~align layout vmargin (h-2*vmargin));
   (* Now that the geometry is finalized, we may compute the resize function for
      each room: *)
-  if scale_content then (* scale_resize_list (w,h) rooms *)
-    resize_flat ~hmargin ~vmargin ~sep ~align:(default align Draw.Min) layout
-  else if not keep_resize then List.iter disable_resize rooms;
+  let resize = default resize
+      (if clip = Some true then Resize.Disable else Resize.Default) in
+  let () = match resize with
+    | Resize.Disable -> List.iter disable_resize rooms
+    | Resize.Keep -> ()
+    | _ -> let resize_height = not (resize = Resize.Linear) in
+      resize_flat ~resize_height ~hmargin ~vmargin ~sep ~align:(default align Draw.Min)
+        layout in
   if !debug then begin
     match Detect.detect_flat_margins layout with
     | None -> failwith "flat not detected as flat! Fix me."
@@ -2118,13 +2149,13 @@ let hbox = flat
 (* Construct a flat directly from a list of widgets that we convert to
    Residents. By default it uses smaller margins than [flat]. *)
 let flat_of_w ?name ?(sep = Theme.room_margin) ?h ?align ?background ?widget_bg
-    ?canvas ?scale_content widgets =
+    ?canvas ?resize ?clip widgets =
   let rooms =
     List.map (fun wg ->
         let name = map_option name (fun s -> "Resident of [" ^ s ^ "]") in
         resident ?name ?h ~x:0 ~y:sep ?background:widget_bg ?canvas wg) widgets
   in
-  flat ?name ~margins:sep ?align ?background ?canvas ?scale_content rooms
+  flat ?name ~margins:sep ?align ?background ?canvas ?resize ?clip rooms
 
 let h_center layout x0 w =
   match layout.content with
@@ -2150,8 +2181,8 @@ let h_align ~align layout x0 w =
 (* hmargin = horizontal margin (left and right). *)
 (* vmargin = vertical margin (top and bottom). *)
 let tower ?name ?sep ?margins ?hmargin ?vmargin ?align
-    ?(adjust = Fit) ?background ?shadow ?canvas
-    ?clip ?(scale_content = true) ?(keep_resize = false) rooms =
+    ?(adjust = Fit) ?background ?shadow ?canvas ?resize
+    ?clip rooms =
   (* List.iter (set_canvas canvas) rooms; TODO *)
   let sep, hmargin, vmargin = match margins with
     | Some m ->
@@ -2174,24 +2205,26 @@ let tower ?name ?sep ?margins ?hmargin ?vmargin ?align
   let layout = create ~adjust ?name ?background ?shadow ?clip
       (geometry ~w ~h ()) (Rooms rooms) ?canvas in
   do_option align (fun align -> h_align ~align layout hmargin (w-2*hmargin));
-  if clip = None && scale_content
-  then resize_tower ~hmargin ~vmargin ~sep ~align:(default align Draw.Min) layout
-  (* scale_resize_list (w,h) rooms *)
-  else if not keep_resize then List.iter disable_resize rooms;
-  (* TODO ce n'est pas la peine de scaler la largeur si elle ne dépasse pas le
-     layout. Voir par exemple la demo/demo *)
+  let resize = default resize
+      (if clip = Some true then Resize.Disable else Resize.Default) in
+  let () = match resize with
+    | Resize.Disable -> List.iter disable_resize rooms
+    | Resize.Keep -> ()
+    | _ -> let resize_width = not (resize = Resize.Linear) in
+      resize_tower ~resize_width ~hmargin ~vmargin ~sep ~align:(default align Draw.Min)
+        layout in
   layout
 
 (* Construct a tower directly from a list of widgets that we convert to
    Residents. *)
 let tower_of_w ?name ?(sep = Theme.room_margin) ?w ?align ?background ?widget_bg
-      ?canvas ?scale_content widgets =
+      ?canvas ?resize ?clip widgets =
   let rooms =
     List.map (fun wg ->
         let name = map_option name (fun s -> "Resident of [" ^ s ^ "]") in
         resident ?name ?w ~x:sep ~y:0 ?background:widget_bg ?canvas wg) widgets
   in
-  tower ?name ~margins:sep ?align ?background ?canvas ?scale_content rooms
+  tower ?name ~margins:sep ?align ?background ?canvas ?resize ?clip rooms
 
 (* compute the x,y,w,h that contains all rooms in the list *)
 let bounding_geometry = function

@@ -1,3 +1,5 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 (* New implementation of Space, based on the Layout resize mechanism. *)
 (* Since we cannot know in advance where the space layout will reside, we invoke
    a Sync action to install the resize actions. Warning: Sync actions are
@@ -22,7 +24,7 @@ let push_avar room action =
   let avar = Avar.create ~duration:0 ~update 0 in
   Layout.animate_w room avar
 
-let push _ = Sync.push
+let push _ = Sync.push (* Hum, I don't remember why I used "_" ... *)
 
 (* split a list into two lists: the one before and the one after the first
    element for which test is true. This element is not included in the
@@ -151,19 +153,21 @@ let full_height ?top_margin ?bottom_margin layout =
 let keep_bottom_sync ~reset_scaling ?margin layout =
   let open Layout in
   match layout.house with
-  | None -> printd (debug_board + debug_error)
-              "Cannot apply [keep_bottom_sync] to room %s because it has no \
-               house."
-              (sprint_id layout)
+  | None ->
+    printd (debug_board + debug_error)
+      "Cannot apply [keep_bottom_sync] to room %s because it has no house."
+      (sprint_id layout)
   | Some house ->
     let bottom = default_lazy margin
         (lazy (height house - gety layout - height layout)) in
     let f = layout.resize in
     let resize (w,h) = let open Resize in
-        if not reset_scaling then f (w,h);
+      (if not reset_scaling then f (w,h));
       sety layout (h - height layout - bottom) in
-      layout.resize <- resize
+    layout.resize <- resize
 
+(* WARNING applying [reset_scaling] to the last layout of a flat/tower will
+   cancel the resizing of the whole flat/tower, see [W1]. *)
 let keep_bottom ?(reset_scaling = false) ?margin layout =
   push layout (fun () ->
       keep_bottom_sync ~reset_scaling ?margin layout;
@@ -185,6 +189,7 @@ let keep_right_sync ~reset_scaling ?margin layout =
       setx layout (w - width layout - right) in
     layout.resize <- resize
 
+(* see [keep_bottom] *)
 let keep_right ?(reset_scaling = false) ?margin layout =
   push layout (fun () ->
       keep_right_sync ~reset_scaling ?margin layout;

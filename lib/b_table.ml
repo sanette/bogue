@@ -172,20 +172,20 @@ let make_long_list ~w ~h t  =
     let left_margin = Widget.empty ~w:title_margin ~h:t.row_height () in
     let click_area = Widget.empty ~w ~h:t.row_height () in
     let ca = Layout.resident ~name:(sprintf "click_area %u(%u)" i ii) click_area in
-    let row =
+    let row = let open Layout in
       Array.mapi (fun j c ->
-          let width = Layout.width t.titles.(j) in
+          let wj = width t.titles.(j) in
           let name = sprintf "entry[%u,%u]" i j in
-          let r = Layout.flat ~margins:0 ~name [c.rows i] in
-          Layout.set_width r (width  + title_margin);
-          r.Layout.resize <- (fun _ ->
-              print_endline "AAAA";
-              let open Layout.Resize in
-              set_width r (Layout.width t.titles.(j) + title_margin));
+          let r = flat ~margins:0 ~name [c.rows i] in
+          set_width r (wj  + title_margin);
+          r.resize <- (fun _ ->
+              print_endline "AAAA"; (* should not happen *)
+              let open Resize in
+              set_width r (width t.titles.(j) + title_margin));
           r) t.data
       |> Array.to_list
-      |> List.cons (Layout.resident left_margin)
-      |> Layout.flat ~keep_resize:true ~margins:0 ?background in
+      |> List.cons (resident left_margin)
+      |> flat ~resize:Resize.Linear ~margins:0 ?background in
     let enter _ = (Layout.set_background ca (Some row_hl)
     (* Layout.fade_in ca ~duration:150 *)) in
     let leave _ = Layout.set_background ca None

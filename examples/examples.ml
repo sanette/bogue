@@ -116,7 +116,7 @@ let example1v () =
   let td_italic = W.rich_text ~h
       Text_display.(page [underline (para "Force italic:"); italic example]) in
   let box = W.box () in
-  let layout = L.tower_of_w ~align:Draw.Max
+  let layout = L.tower_of_w ~align:Draw.Center
       [b;title;td;td_normal;td_bold;tt;td_italic;box] in
   L.slide_in ~dst:layout layout;
   let board = of_layout layout in
@@ -969,16 +969,20 @@ let example39bis () =
   let bg_red = L.color_bg (Draw.(transp red)) in
   let bottom = L.resident ~background:bg_red (W.label "Bottom") in
   let right = L.resident ~background:bg_red (W.label "Right") in
-  let topline = L.flat ~scale_content:false ~margins:0
-                  [L.resident ~background (W.label "Top"); right] in
-  let l = L.tower ~scale_content:false
-            [ topline;
-              L.resident ~h:300 ~w:300 ~background
-                (W.label "Try and resize the window.");
-              bottom] in
-  Space.keep_bottom bottom;
+  let resize = Layout.Resize.Disable in
+  let topline = L.flat ~margins:0 ~resize
+      [ L.resident ~background (W.label "Top"); right] in
+  let l = L.tower ~resize
+      [ topline;
+        L.resident ~h:300 ~w:300 ~background
+          (W.label "Try and resize the window.");
+        bottom ] in
+  Space.keep_bottom ~reset_scaling:true bottom;
+  (* Try and swap the following two lines to see the difference. If [full_width]
+     is executed first, the "Top" and "Right" labels are initially stretched to
+     fill the whole line. *)
+  Space.keep_right ~reset_scaling:true ~margin:0 right;
   Space.full_width topline;
-  Space.keep_right ~margin:0 right;
   of_layout l |> run
 
 

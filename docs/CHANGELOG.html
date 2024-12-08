@@ -27,6 +27,8 @@ href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
 href="https://github.com/sanette/bogue/compare/20240928...HEAD">Unreleased</a></h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><code>Flat</code> and <code>Tower</code> have new resizing
+strategies.</li>
 <li><code>Selection</code> new functions <code>is_empty</code>,
 <code>size</code>, <code>range</code>, <code>first</code>,
 <code>last</code>, <code>invert</code>.</li>
@@ -48,6 +50,10 @@ good design).</li>
 </ul>
 <h3 id="changed">Changed</h3>
 <ul>
+<li>Options for <code>Layout.flat*</code> and <code>Layout.tower*</code>
+have changed. If you were using any of <code>scale_content</code> or
+<code>keep_resize</code> you should use the new <code>resize</code>
+option instead.</li>
 <li><code>Layout.unload_textures</code> is renamed
 <code>Layout.iter_unload_textures</code></li>
 </ul>
@@ -64,6 +70,7 @@ be used for <code>Widget.label</code>.</li>
 </ul>
 <h3 id="developement">Developement</h3>
 <ul>
+<li>New <code>Resize</code> module inside <code>Layout</code>.</li>
 <li>clarify that <code>dst</code> field of <code>blit</code> is
 <code>None</code> means NO RENDERING.</li>
 <li>experimental <code>Detect</code> for detecting flat and tower
