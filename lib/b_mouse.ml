@@ -108,3 +108,8 @@ let window_pos =
         let x1,y1 = Draw.get_window_position w in
         (x':= x1-x0 + x; y' := y1-y0 + y;
          (!x',!y'))
+
+let wheel_y ev =
+  round (50. *. !Theme.mouse_wheel_scale *. float E.(get ev mouse_wheel_y))
+
+let set_wheel_speed s = Theme.mouse_wheel_scale := s

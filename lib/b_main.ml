@@ -711,10 +711,10 @@ let treat_layout_events board e =
                let list = Trigger.filter_events (fun e ->
                    Trigger.event_kind e <> `Mouse_wheel) in
                let total = List.fold_left
-                   (fun s ev -> s + get ev mouse_wheel_y)
-                   E.(get e mouse_wheel_y) list in
+                   (fun s ev -> s + Mouse.wheel_y ev)
+                   (Mouse.wheel_y e) list in
                printd debug_event "Total mouse wheels=%d" total;
-               let dy = - total * 50 in
+               let dy = - total in
                Layout.scroll ~duration:500 dy room;
                check_mouse_motion board;
                Trigger.push_var_changed room.Layout.id))

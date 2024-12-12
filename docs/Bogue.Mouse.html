@@ -53,4 +53,15 @@
 </div>
 
 <pre><span id="VALbutton_pos"><span class="keyword">val</span> button_pos</span> : <code class="type">Tsdl.Sdl.event -&gt; int * int</code></pre>
-<pre><span id="VALfinger_pos"><span class="keyword">val</span> finger_pos</span> : <code class="type">Tsdl.Sdl.event -&gt; float * float</code></pre></body></html>
+<pre><span id="VALfinger_pos"><span class="keyword">val</span> finger_pos</span> : <code class="type">Tsdl.Sdl.event -&gt; float * float</code></pre>
+<pre><span id="VALwheel_y"><span class="keyword">val</span> wheel_y</span> : <code class="type">Tsdl.Sdl.event -&gt; int</code></pre>
+<pre><span id="VALset_wheel_speed"><span class="keyword">val</span> set_wheel_speed</span> : <code class="type">float -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Set the speed of vertical scrolling via the mouse wheel and touchpad. By
+        default, wheel speed is 1. for usual vertical scrolling (standard on
+        Linux) and -1. for "natural" scrolling (standard on Mac
+        OS). <code class="code">set_wheel_speed&nbsp;0.</code> (or any speed less than 0.01) will disable
+        mouse wheel scrolling.</p>
+</div>
+</div>
+</body></html>

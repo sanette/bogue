@@ -10,10 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- New theme variable NATURAL_SCROLLING.
+- New functions `Mouse.wheel_y`, `Mouse.set_wheel_speed`.
 - `Flat` and `Tower` have new resizing strategies.
 - `Selection` new functions `is_empty`, `size`, `range`, `first`, `last`, `invert`.
 - `Table` layouts can now be resized dynamically.
-- Can now navigate `tabs` with TAB!  ;) (preliminary)
+- Can now navigate `tabs` with TAB! ;) (preliminary)
 - Can now enable/disable a layout with `Layout.set_enabled`. New examples 53, 53bis.
 - changing text color in `Text_display` is now possible, using
   `Widget.html`, see exemple 47.
@@ -29,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Scrolling direction is "natural" by default on Mac OS.
 - Options for `Layout.flat*` and `Layout.tower*` have changed. If you
   were using any of `scale_content` or `keep_resize` you should use
   the new `resize` option instead.

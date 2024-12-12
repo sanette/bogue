@@ -971,6 +971,13 @@ let video_init () =
   if Sdl.was_init (Some Sdl.Init.video) = Sdl.Init.video
   then printd debug_graphics "SDL Video already initialized"
   else begin
+    let () = try Unix.getenv "SDL_VIDEODRIVER" |> ignore with Not_found ->
+      if Sys.os_type = "Unix" && (* detect linux Wayland & detect only one
+                                    monitor (otherwise the wayland driver
+                                    doesn't respect per monitor scaling)... *) false
+      then Unix.putenv "SDL_VIDEODRIVER" "wayland,x11" in
+    (* SDL >= 2.0.22 one can call SDL_SetHint, see https://wiki.libsdl.org/SDL2/SDL_HINT_VIDEODRIVER *)
+
     let () = match Sdl.init_sub_system Sdl.Init.video with
       | Ok () ->
         printd debug_graphics "SDL Video initialized";

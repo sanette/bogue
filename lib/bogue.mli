@@ -14,7 +14,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241208
+@version 20241212
 
 @author Vu Ngoc San
 
@@ -825,6 +825,14 @@ module Mouse : sig
 
   val finger_pos : Tsdl.Sdl.event -> float * float
 
+  val wheel_y : Tsdl.Sdl.event -> int
+
+  val set_wheel_speed : float -> unit
+    (** Set the speed of vertical scrolling via the mouse wheel and touchpad. By
+        default, wheel speed is 1. for usual vertical scrolling (standard on
+        Linux) and -1. for "natural" scrolling (standard on Mac
+        OS). [set_wheel_speed 0.] (or any speed less than 0.01) will disable
+        mouse wheel scrolling. *)
 
 end (* of Mouse *)
 

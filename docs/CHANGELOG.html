@@ -27,6 +27,9 @@ href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
 href="https://github.com/sanette/bogue/compare/20240928...HEAD">Unreleased</a></h2>
 <h3 id="added">Added</h3>
 <ul>
+<li>New theme variable NATURAL_SCROLLING.</li>
+<li>New functions <code>Mouse.wheel_y</code>,
+<code>Mouse.set_wheel_speed</code>.</li>
 <li><code>Flat</code> and <code>Tower</code> have new resizing
 strategies.</li>
 <li><code>Selection</code> new functions <code>is_empty</code>,
@@ -50,6 +53,7 @@ good design).</li>
 </ul>
 <h3 id="changed">Changed</h3>
 <ul>
+<li>Scrolling direction is “natural” by default on Mac OS.</li>
 <li>Options for <code>Layout.flat*</code> and <code>Layout.tower*</code>
 have changed. If you were using any of <code>scale_content</code> or
 <code>keep_resize</code> you should use the new <code>resize</code>

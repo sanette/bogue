@@ -439,29 +439,67 @@ let list_sum list =
 
 (* let find_file list_list = *)
 
+let one_line_command_ouput command =
+  try let s = Unix.open_process_in (command) in
+    let res = try Some (input_line s) with _ -> None in
+    begin match Unix.close_process_in s with
+      | Unix.WEXITED 0 -> res
+      | Unix.WEXITED 1 -> None (* in principle this is redundant since `res`
+                                  is already None at this point *)
+      | _ -> printd (debug_error + debug_io)
+               "The `%s` command exited with error." command;
+        None
+    end
+  with
+  | _ -> printd (debug_error + debug_io) "Cannot use the `%s` command." command;
+    None
+
+(* Ocaml >= 4.13 *)
+(* let string_starts_with ~prefix s = *)
+(*   let len_s = length s *)
+(*   and len_pre = length prefix in *)
+(*   let rec aux i = *)
+(*     if i = len_pre then true *)
+(*     else if unsafe_get s i <> unsafe_get prefix i then false *)
+(*     else aux (i + 1) *)
+(*   in len_s >= len_pre && aux 0 *)
+
+(* Result of [uname -s] for Unixes. Can be:
+    "FreeBSD"
+    "Linux"
+    "Darwin"
+    "NetBSD"
+    "OpenBSD"
+    "SunOS"
+    "AIX"
+    "HP-UX"
+    "CYGWIN_NT-*" ?
+    "MSYS_NT-**" ?
+    "Windows_NT" (si uname est utilisé via un environnement Unix sur un système Windows).
+    "Minix"
+    "DragonFly"
+   etc.
+*)
+let os_type =
+  let res = ref None in fun () ->
+    match !res with
+    | Some s -> s
+    | None -> let s = match Sys.os_type with
+        | "Unix" -> begin
+            match one_line_command_ouput "uname -s" with
+            | None -> "Unix_unknown"
+            | Some s -> s
+          end
+        | s -> s in
+      res := Some s; s
+
 let which command =
-(* BETTER: (specially for portability to WIN/MAC) use
-   https://opam.ocaml.org/packages/fileutils/ *)
+  (* BETTER: (specially for portability to WIN/MAC) use
+     https://opam.ocaml.org/packages/fileutils/ *)
   let cmdline command =
     if Sys.win32 then
       "where " ^ command ^ " 2> NUL"
     else
       "which " ^ command ^ " 2>/dev/null"
-    in
-  try
-    let s = Unix.open_process_in (cmdline command) in
-    let res = try
-        Some (input_line s)
-      with
-      | _ -> None in begin
-        match Unix.close_process_in s with
-        | Unix.WEXITED 0 -> res
-        | Unix.WEXITED 1 -> None (* in principle this is redundant since `res`
-                                    is already None at this point *)
-        | _ -> printd (debug_error + debug_io)
-                 "The `which` command exited with error.";
-               None
-      end
-  with
-  | _ -> printd (debug_error + debug_io) "Cannot use the `which` command.";
-         None
+  in
+  one_line_command_ouput (cmdline command)
