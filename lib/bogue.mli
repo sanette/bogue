@@ -149,6 +149,10 @@ v}
 - [MENU_HL_COLOR]: the color for highlighting selected menu entries.
 - [MENU_BG_COLOR]
 - [MONO_FONT]: monospace font. See [LABEL_FONT].
+- [NATURAL_SCROLLING]: "true", "false", or "auto" (default): Control the
+  direction of vertical scrolling with the mouse wheel or the touchpad. If set
+  to "auto", scrolling will be "natural" on Mac OS, and reversed everywhere
+  else.
 - [OPENGL_MULTISAMPLE]: set to "true" to enable this opengl attribute.
 - [ROOM_MARGIN]
 - [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.],
