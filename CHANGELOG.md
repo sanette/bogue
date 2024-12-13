@@ -6,7 +6,9 @@ All notable changes to the Bogue project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased](https://github.com/sanette/bogue/compare/20240928...HEAD)
+## [Unreleased](https://github.com/sanette/bogue/compare/20241212...HEAD)
+
+## [20241212](https://github.com/sanette/bogue/compare/20240928...20241212)
 
 ### Added
 
