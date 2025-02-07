@@ -875,7 +875,7 @@ let test_monitor () =
     let name = Filename.temp_file prefix suffix in
     try
       Sys.remove name;
-      Sys.mkdir name 0o700;
+      Unix.mkdir name 0o700;
       name
     with Sys_error _ as e ->
       if counter >= 20 then raise e else try_name (counter + 1)
