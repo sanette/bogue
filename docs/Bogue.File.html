@@ -35,6 +35,7 @@
 <li>One can optionally limit the number of selected files.</li>
 <li>The file system is <b>monitored</b> so that changes in the currently opened
     directory are automatically taken into account.</li>
+<li>One can easily open huge directories with thousands of files.</li>
 <li>The file system can be easily <b>navigated</b> by either clicking on the children
     directories, or entering manually the requested path, or clicking on parents
     directories in a special breadcrumb layout.</li>
@@ -49,6 +50,11 @@
 <h6 id="5_graphdotbfilehtmlDependencygraph"><a href="graph-dot-b_file.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
+
+<pre><span id="MODULEMonitor"><span class="keyword">module</span> <a href="Bogue.File.Monitor.html">Monitor</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.Monitor.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Monitoring changes in a directory.</p>
+
+</div>
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 <div class="info ">
@@ -120,9 +126,4 @@
 </div>
 
 <pre><span id="VALselect_dir"><span class="keyword">val</span> select_dir</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt; ?h:int -&gt; string -&gt; (string -&gt; unit) -&gt; unit</code></pre>
-<pre><span id="VALselect_dirs"><span class="keyword">val</span> select_dirs</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt; ?h:int -&gt; ?n_dirs:int -&gt; string -&gt; (string list -&gt; unit) -&gt; unit</code></pre>
-<pre><span id="MODULEMonitor"><span class="keyword">module</span> <a href="Bogue.File.Monitor.html">Monitor</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.Monitor.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>Monitoring changes in a directory.</p>
-
-</div>
-</body></html>
+<pre><span id="VALselect_dirs"><span class="keyword">val</span> select_dirs</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt; ?h:int -&gt; ?n_dirs:int -&gt; string -&gt; (string list -&gt; unit) -&gt; unit</code></pre></body></html>
