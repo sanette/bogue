@@ -2903,14 +2903,14 @@ end (* of Table *)
 
     This module offers a quite complete file dialog layout.
 
-    - The dialog opens either in a {e new window}, or as a {!Popup} on top of any
+    - The dialog opens either in a {b new window}, or as a {!Popup} on top of any
     existing layout. It can also be inserted anywhere just like any other
     layout.
-    - Select {b files} or {b directories}
-    - Optionally limit the number of selected files
-    - File system is automatically {b monitored} so that changes in the open
-    directory are automatically taken into account.contents
-    - File system can be easily {b navigated} by either clicking on the children
+    - One can choose to select only {b files} or {b directories}.
+    - One can optionally limit the number of selected files.
+    - The file system is {b monitored} so that changes in the currently opened
+    directory are automatically taken into account.
+    - The file system can be easily {b navigated} by either clicking on the children
     directories, or entering manually the requested path, or clicking on parents
     directories in a special breadcrumb layout.
     - The whole layout is resizable by the user.
@@ -2997,10 +2997,11 @@ module File : sig
       return very fast, even if the path is remote or the directory is huge. To
       achieve this, monitoring is done in a separate thread and one has to
       accept a delay before actual changes to the file-system are reported. We
-      provide two implementations, one is based on the external [fswatch]
-      program, and the other is based only on built-in Ocaml functions (which
-      are maybe more memory and cpu intensive). *)
-  module type Monitor = sig
+      provide two implementations, one is based on the external
+      {{:https://emcrisostomo.github.io/fswatch/}fswatch} program, and the other
+      is based only on built-in Ocaml functions (which are maybe more memory and
+      cpu intensive). *)
+  module Monitor : sig
     type t
     val path : t -> string
     val start : ?delay:float -> ?action:(t -> unit) -> string -> t

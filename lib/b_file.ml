@@ -174,6 +174,12 @@ let entry_mtime e =
   | None -> 0.
   | Some s -> s.st_mtime
 
+(* for Ocaml < 4.14 *)
+let input_line ic =
+  match Stdlib.input_line ic with
+  | s -> Some s
+  | exception End_of_file -> None
+
 let dummy_stat = Unix.{
     st_dev = 0;      (* Device number *)
     st_ino = 0;      (* Inode number *)
@@ -306,10 +312,10 @@ module Fswatch : Monitor = struct
     let in_channel, out_channel = Unix.open_process fswatch_command in
     let rec loop () =
       match input_line in_channel with
-      | exception End_of_file ->
+      | None ->
         close_in in_channel;
         close_out out_channel
-      | line ->
+      | Some line ->
         print_endline line;
         loop ()
     in
@@ -395,7 +401,7 @@ module Fswatch : Monitor = struct
   let rec record ?action p =
     if not p.stop then match
         (* printd (debug_thread + debug_io) "Waiting from fswatch input..."; *)
-        In_channel.input_line p.inch with
+        input_line p.inch with
     | None ->
       printd debug_io "fswatch: Nothing new";
       if not p.stop then Thread.delay p.delay;
@@ -480,9 +486,9 @@ module Fswatch : Monitor = struct
      function, modulo [delay]. *)
   let modified p =
     if p.stop then printd (debug_error + debug_io) "File Monitor is already stopped.";
-    let updated = p.updated |> SSet.to_list in
-    let removed = p.removed |> SSet.to_list in
-    let created = p.created |> SSet.to_list in
+    let updated = p.updated |> SSet.elements in
+    let removed = p.removed |> SSet.elements in
+    let created = p.created |> SSet.elements in
     update p;
     removed, created, updated
 
