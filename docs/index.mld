@@ -1,0 +1,21 @@
+{0 Bogue -- General purpose GUI (Graphical user interface) library for
+Ocaml.}
+
+   Bogue is a lightweight and fast GUI for developing desktop applications,
+   games, or for easy debugging of non-GUI programs.
+
+   Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
+   hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
+
+
+
+{2 Quick start}
+
+ For a quick start, see Bogue's {{:Principles.html}general principles}, and the
+   minimal {{!Bogue.example}example}.
+
+{2 Documentation}
+
+   The entry point of this library is the {!module-Bogue} module.
+
+   The source/issues/PR are on {{:https://github.com/sanette/bogue}github}

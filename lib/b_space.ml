@@ -189,7 +189,7 @@ let keep_right_sync ~reset_scaling ?margin layout =
       setx layout (w - width layout - right) in
     layout.resize <- resize
 
-(* see [keep_bottom] *)
+(* Preserve the space on the right of the layout in its house. see [keep_bottom] *)
 let keep_right ?(reset_scaling = false) ?margin layout =
   push layout (fun () ->
       keep_right_sync ~reset_scaling ?margin layout;

@@ -48,9 +48,7 @@ let name_list = [
   E.window_event, "window_event"
 ]
 
-let () =
-  List.iter (fun (e,n) -> Hashtbl.add event_names e n) name_list
-
+let () = List.iter (fun (e,n) -> Hashtbl.add event_names e n) name_list
 
 (* this will be set by the main loop in Bogue *)
 let main_tread_id = ref (-1)
@@ -79,7 +77,8 @@ let create_window_event w_id =
 let user_type = new_event_type "user"
 
 let () = assert (user_type = E.user_event)  (* 32768*)
-(* failing here probably means that Bogue has been loaded twice without quitting SDL *)
+(* Failing here probably means that Bogue has been loaded twice without quitting
+   SDL *)
 
 let user_event = E.user_event
 
@@ -127,6 +126,8 @@ let remove_focus = new_event_type "remove_focus"
 
 let destroy_window = new_event_type "destroy_window"
 
+let add_window = new_event_type "add_window"
+
 let not_used = new_event_type "not_used"
 
 (* Some aliases. Beware that in case of finger events, the OS or SDL will most
@@ -167,6 +168,7 @@ type bogue_event =
   | `Bogue_sync_action
   | `Bogue_redraw
   | `Bogue_keymap_changed (* SDL event, which was missing in Tsdl. *)
+  | `Bogue_add_window
   ]
 
 let generalize_sdl_event ev = (ev : sdl_event :> [> sdl_event | bogue_event])
@@ -193,6 +195,7 @@ let event_kind ev : [> sdl_event | bogue_event] =
       | i when i = update -> `Bogue_update
       | i when i = redraw -> `Bogue_redraw
       | i when i = sync_action -> `Bogue_sync_action
+      | i when i = add_window -> `Bogue_add_window
       | i when i = 0x304 -> `Bogue_keymap_changed
       (* keymap_changed was forgotten, but corrected in recent Tsdl.
          https://github.com/dbuenzli/tsdl/issues/76#event-6708707941 See also:
@@ -698,6 +701,9 @@ let push_var_changed = push_from_id var_changed
 
 (* the widget_id is stored in the update event *)
 let push_update = push_from_id update
+
+(* id of layout to add as a new window *)
+let push_add_window = push_from_id add_window
 
 (* The layout id is stored but not used. Only one push is necessary
    currently. *)

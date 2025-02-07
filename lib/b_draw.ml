@@ -518,7 +518,7 @@ let find_color c =
       printd debug_error "Color '%s' unknown" c;
       grey
 
-(* alpha=0 means totally transparent, alpha=1 means totally opaque *)
+(* alpha=0 means totally transparent, alpha=255 means totally opaque *)
 let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * int *) color =
   (r,g,b,alpha)
 

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Table.html">
+<link rel="next" href="Bogue.Bogue.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.File</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Table.html" title="Bogue.Table">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Bogue.html" title="Bogue.Bogue">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.File.html">Bogue.File</a></h1>
+
+<pre><span id="MODULEFile"><span class="keyword">module</span> File</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>File dialog and file monitor</p>
+
+<p>This module offers a quite complete file dialog layout.</p>
+
+<ul>
+<li>The dialog opens either in a <em>new window</em>, or as a <a href="Bogue.Popup.html"><code class="code"><span class="constructor">Popup</span></code></a> on top of any
+    existing layout. It can also be inserted anywhere just like any other
+    layout.</li>
+<li>Select <b>files</b> or <b>directories</b></li>
+<li>Optionally limit the number of selected files</li>
+<li>File system is automatically <b>monitored</b> so that changes in the open
+    directory are automatically taken into account.contents</li>
+<li>File system can be easily <b>navigated</b> by either clicking on the children
+    directories, or entering manually the requested path, or clicking on parents
+    directories in a special breadcrumb layout.</li>
+<li>The whole layout is resizable by the user.</li>
+</ul>
+<p><b>Warning: </b> Some <a href="Bogue.File.html#TYPEoptions"><code class="code"><span class="constructor">File</span>.options</code></a> are not implemented yet; these -- and more
+    features -- will certainly be added in the future.</p>
+
+<h6 id="5_graphdotbfilehtmlDependencygraph"><a href="graph-dot-b_file.html">Dependency graph</a></h6></div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<div class="info ">
+<div class="info-desc">
+<p>The type for file dialogs.</p>
+</div>
+</div>
+
+
+<pre><span id="TYPEoptions"><span class="keyword">type</span> <code class="type"></code>options</span> </pre>
+
+
+<pre><span id="VALset_options"><span class="keyword">val</span> set_options</span> : <code class="type">?width:int -&gt;<br>       ?height:int -&gt;<br>       ?dirs_first:bool -&gt;<br>       ?show_hidden:bool -&gt;<br>       ?hide_backup:bool -&gt;<br>       ?max_selected:int -&gt;<br>       ?hide_dirs:bool -&gt;<br>       ?only_dirs:bool -&gt;<br>       ?breadcrumb:bool -&gt;<br>       ?system_icons:bool -&gt;<br>       ?open_dirs_on_click:bool -&gt;<br>       ?mimetype:Str.regexp -&gt;<br>       ?on_select:(int * int -&gt; unit) -&gt; unit -&gt; <a href="Bogue.File.html#TYPEoptions">options</a></code></pre><div class="info ">
+</div>
+<div class="param_info"><code class="code">dirs_first</code> : partially implemented</div>
+<div class="param_info"><code class="code">system_icons</code> : not implemented</div>
+
+<pre><span id="TYPEentry"><span class="keyword">type</span> <code class="type"></code>entry</span> </pre>
+<div class="info ">
+<div class="info-desc">
+<p>The <code class="code">entry</code> type can be used to create filters for selecting
+                 what is actually displayed by the file dialog.</p>
+</div>
+</div>
+
+
+<pre><span id="VALfilename"><span class="keyword">val</span> filename</span> : <code class="type"><a href="Bogue.File.html#TYPEentry">entry</a> -&gt; string</code></pre>
+<pre><span id="VALlstat_opt"><span class="keyword">val</span> lstat_opt</span> : <code class="type"><a href="Bogue.File.html#TYPEentry">entry</a> -&gt; Unix.stats option</code></pre>
+<pre><span id="VALstat_opt"><span class="keyword">val</span> stat_opt</span> : <code class="type"><a href="Bogue.File.html#TYPEentry">entry</a> -&gt; Unix.stats option</code></pre><div class="info ">
+<div class="info-desc">
+<p>The <code class="code">stat_opt</code> and <code class="code">lstat_opt</code> return the corresponding pre-computed
+      <code class="code"><span class="constructor">Unix</span>.stats</code> results, without actually calling any system function.</p>
+</div>
+</div>
+
+<pre><span id="VALdialog"><span class="keyword">val</span> dialog</span> : <code class="type">?full_filter:(<a href="Bogue.File.html#TYPEentry">entry</a> -&gt; bool) -&gt;<br>       ?options:<a href="Bogue.File.html#TYPEoptions">options</a> -&gt; string -&gt; <a href="Bogue.File.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Use this function if you need unusual combinations of options. For most
+      common uses, see <a href="Bogue.File.html#VALselect_file"><code class="code"><span class="constructor">File</span>.select_file</code></a> (and others) below.</p>
+</div>
+</div>
+
+<pre><span id="VALget_layout"><span class="keyword">val</span> get_layout</span> : <code class="type"><a href="Bogue.File.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre>
+<pre><span id="VALget_selected"><span class="keyword">val</span> get_selected</span> : <code class="type"><a href="Bogue.File.html#TYPEt">t</a> -&gt; string list</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the (alphabetically sorted) list of selected files or
+      directories.</p>
+</div>
+</div>
+
+<pre><span id="VALbasedir"><span class="keyword">val</span> basedir</span> : <code class="type"><a href="Bogue.File.html#TYPEt">t</a> -&gt; string</code></pre>
+<pre><span id="VALselect_file"><span class="keyword">val</span> select_file</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt; ?mimetype:Str.regexp -&gt; string -&gt; (string -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Open a file selector on top of the <code class="code">dst</code> layout, or in a new window if
+      <code class="code">dst</code> is not provided.</p>
+</div>
+</div>
+<div class="param_info"><code class="code">board</code> : See <a href="Bogue.Popup.html#VALtwo_buttons"><code class="code"><span class="constructor">Popup</span>.two_buttons</code></a>. Note that, if <code class="code">board</code> is omitted,
+        the window will be created at the next frame, but the file selector
+        layout is immediately created.</div>
+<div class="param_info"><code class="code">mimetype</code> : only show files whose mimetype string (like "image/png")
+        matches the regular expression.</div>
+
+<pre><span id="VALselect_files"><span class="keyword">val</span> select_files</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?mimetype:Str.regexp -&gt;<br>       ?n_files:int -&gt; string -&gt; (string list -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Several files can be selected. If <code class="code">n_files</code> is provided, it will be the
+      maximum number of files that can be selected.</p>
+</div>
+</div>
+
+<pre><span id="VALselect_dir"><span class="keyword">val</span> select_dir</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt; ?h:int -&gt; string -&gt; (string -&gt; unit) -&gt; unit</code></pre>
+<pre><span id="VALselect_dirs"><span class="keyword">val</span> select_dirs</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?w:int -&gt; ?h:int -&gt; ?n_dirs:int -&gt; string -&gt; (string list -&gt; unit) -&gt; unit</code></pre>
+<pre><span id="MODULETYPEMonitor"><span class="keyword">module type</span> <a href="Bogue.File.Monitor.html">Monitor</a></span> = <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.Monitor.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Monitoring changes in a directory.</p>
+
+</div>
+</body></html>

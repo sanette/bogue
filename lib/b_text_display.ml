@@ -316,7 +316,7 @@ let create_verbatim ?(size = Theme.text_font_size)
   let w = map_option w Theme.unscale_int in
   let h = Some ((List.length lines) * (Ttf.font_line_skip font)) in
   let h = map_option h Theme.unscale_int in
-  (* print_endline (Printf.sprintf "SIZE = (%d,%d)" (default w 0) (default h 0)); *)
+  (* print "SIZE = (%d,%d)" (default w 0) (default h 0); *)
   let paragraphs = List.map (fun p -> [Word p]) lines in
   create ~size ?w ?h ~font:(Label.Font font) paragraphs
 
@@ -325,7 +325,7 @@ let update_verbatim_old t text =
   let font = Var.get t.font in
   let dummy = create_verbatim ~size ~font text in
   let paragraphs = Var.get dummy.paragraphs in
-  print_endline (Printf.sprintf "New SIZE %d,%d" (default dummy.w 0) (default dummy.h 0));
+  print "New SIZE %d,%d" (default dummy.w 0) (default dummy.h 0);
   update ?w:dummy.w ?h:dummy.h t paragraphs
 
 let replace ~by:t old =
@@ -336,8 +336,7 @@ let update_verbatim t text =
   let size = t.size in
   let font = Var.get t.font in
   let dummy = create_verbatim ~size ~font text in
-  (* print_endline (Printf.sprintf "New SIZE %d,%d" (default dummy.w 0) (default
-     dummy.h 0)); *)
+  (* print "New SIZE %d,%d" (default dummy.w 0) (default dummy.h 0); *)
   replace ~by:dummy t
 
 let unsplit_old words =

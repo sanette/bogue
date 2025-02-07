@@ -103,6 +103,10 @@ let rec get_file img =
   | File f -> f
   | Image im -> get_file im
 
+let set_file img file =
+  Var.set img.source (File file);
+  Var.set img.render None
+
 (************* display ***********)
 
 (* Retrieve (and compute if necessary) the rotated texture. *)

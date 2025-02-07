@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20241212...HEAD)
 
+### Added
+
+- New module: `File` for file selection dialogs and file
+  monitoring. This is quite a complex layout, we decided make it
+  public now but new features will be added later.
+
+### Changed
+
+- `Layout.set_size` now takes optional arguments for sizes (allows to
+  reduce the number of calls to `resize_content`)
+- `Theme.set_integer_scale` is renamed to `Theme.set_int_scale` to
+  conform with the env var INT_SCALE.
+
 ## [20241212](https://github.com/sanette/bogue/compare/20240928...20241212)
 
 ### Added

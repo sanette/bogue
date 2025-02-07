@@ -82,12 +82,12 @@ directly jumping to last entry (clicking on the bottom of the slider)
 
 now the expected behaviour is:
 
-+ if we went too far; then we adjust the voffset and the last entry should show
-up at the very bottom of the container
++ If we went too far; then we adjust the voffset and the last entry should show
+  up at the very bottom of the container.
 
-+ if we didn't reach the bottom by clicking on the bottom of the slider, we stay
-at the reached position, but we adjust the slider to show that there is some
-more room left to visit below.
++ If we didn't reach the bottom by clicking on the bottom of the slider, we stay
+  at the reached position, but we adjust the slider to show that there is some
+  more room left to visit below.
 *)
 
 open Tsdl
@@ -103,6 +103,7 @@ module Trigger =  B_trigger
 module Draw = B_draw
 module Slider = B_slider
 module Sync = B_sync
+module Update = B_update
 
 type entry =
   | Void
@@ -115,34 +116,34 @@ type direction =
 
 let factor = 5
 (* Texture memory for functioning is roughly [factor] times the memory of the
-   visible texture. It must be > 3/2. Ensures smoother scrolling *)
+   visible texture. It must be > 3/2. Ensures smoother scrolling. *)
 let min_tick_size = 10 (* scrollbar handle min size *)
 let scroll_margin = 70
 (* we try to keep at least this amount of pixels above and below the clipped
-   layout in order to allow normal mouse wheel scroll *)
+   layout in order to allow normal mouse wheel scroll. *)
 
 (* unless specified, "pixel" means "logical pixel". The real ("physical") size
    onscreen is obtained by Theme.scale *)
-type t = {
-  length : int; (* total number of elements (= rows, entries) *)
+type internal = {
+  length : int; (* total number of elements (= rows, entries). *)
   mutable total_height : int option;
-  (* = Total height pixels that would be necessary to render all
-       entries. None if we are not sure *)
+  (* = Total height pixels that would be necessary to render all entries. None
+     if we are not sure. *)
   mutable computed_height :  int;
   (* = total height in pixels of computed entries, ie entries that have been
-     present at some point in the current room *)
+     present at some point in the current room. *)
   offset : (int Avar.t) Var.t;
   (* = the starting vertical position we want to see onscreen. 0 means first
      entry on top.  *)
   mutable computed : int;
   (* = number of already generated entries (even if they have been freed
-       afterward) *)
+     afterward). *)
   mutable min_rendering_height : int;
   (* = approx. height of the computed layout; it's just used as a hint. In
        principle it will be factor * height of the target (clipped)
        layout. The real height will differ because we always render an integer
        number of entries. *)
-  generate : (int -> Layout.t); (* the function to generate the ieth entry *)
+  generate : (int -> Layout.t); (* the function to generate the ieth entry. *)
   cleanup : (Layout.t -> unit);
   (* cleanup the memory associated with the entry layout *)
   max_memory : int option;
@@ -152,10 +153,11 @@ type t = {
      the area of the largest entry. *)
   mutable used_memory : int;
   array : entry array;
-  (* we store everything in an array. This choice is questionable, because for
-     a large list, only a small part will be kept in memory. The solution we
-     take here is to set "None" to entries we want to forget, hoping that this
-     won't take much memory space. Maybe we could use a Weak.array *)
+  (* We store all the computed layouts in an array, and free them when they are
+     not used anymore to monitor memory footprint. This choice is questionable,
+     because for a large list, only a small part will be kept in memory. The
+     solution we take here is to set "None" to entries we want to forget, hoping
+     that this won't take much memory space. Maybe we could use a Weak.array *)
   linear : bool; (* linear scale for slider (by default) *)
   mutable first : int;
   mutable last : int;
@@ -172,9 +174,9 @@ type t = {
      vofsetting a container layout (see below). The absolute position of the
      room in ll is ll.offset *)
   mutable container_voffset : int;
-  (* currently, the container voffset may be changed directly by mouse wheel
+  (* Currently, the container voffset may be changed directly by mouse wheel
      (see bogue.ml and Layout.scroll). Hence we need to save the value here in
-     order to sync with these external changes *)
+     order to sync with these external changes. *)
   heights : (int option) array;
   (* = the array of heights of all entries. It may or may not be initialized
        at startup. Value None means the we don't know, the real height will
@@ -182,6 +184,16 @@ type t = {
   mutable width_warning : bool;
   (* Record if a width warning has been sent, see [check_width]. It will be
      reset to false if the width becomes ok again. *)
+  scale_width : bool
+  (* If [scale_width] is true, the width of the entries follow the width of the
+     main layout. *)
+}
+
+type t = {
+  layout : Layout.t;
+  slider : Widget.t;
+  regenerate : unit -> unit;
+  ll : internal
 }
 
 let to_str = function
@@ -264,7 +276,7 @@ let reduce_memory ll direction =
     printd debug_memory "...from bottom";
     loop ll.last_mem (fun i -> i-1)
 
-(* return value or approximation of the total height: *)
+(* Return value or approximation of the total height: *)
 let total_height ll =
   match ll.total_height with
   | Some h -> h
@@ -315,6 +327,7 @@ let total_height ll =
    4. When [max_memory] is hinted by the user, we need to compute the
    corresponding factor, which we call then [x].  *)
 let compute_min_rendering_height ll (w,h) =
+  assert (w*h  <> 0);
   let mh = match ll.max_memory with
     | Some mm when Theme.scale_was_init () ->
       let container_area =  Theme.((scale_int w) * (scale_int h)) + 1 in
@@ -390,25 +403,30 @@ let get ll i direction =
    Warning, the [room] height should never be modified after creation! *)
 let compute_room ~height ~width ll i_start direction =
   printd debug_custom "[Long_list.compute_room] start = %i" i_start;
-  assert (i_start >= 0);
-  ll.first <- i_start;
-  (* print_endline (sprintf "COMPUTE start=%d" i_start); *)
-  let rec loop i ~h list =
-    if h >= height || i >= ll.length then List.rev list, (i-1)
-    else begin
-      ll.last <- i;
-      (* = this is to protect from cleaning up already generated entries *)
-      let line = get ll i direction in
-      do_option width (Layout.set_width line);
-      let dh = Layout.height line in
-      loop (i+1) ~h:(h+dh) (line::list)
-    end
-  in
-  let list, i_final = loop i_start ~h:0 [] in
-  let room = Layout.tower ~name:(Printf.sprintf "long_list room %i" i_start)
-      ~margins:0 list in
-  if !debug then assert (ll.last = i_final);
-  room, i_final
+  if ll.length > 0 then begin
+    assert (i_start >= 0);
+    ll.first <- i_start;
+    (* print "COMPUTE start=%d" i_start; *)
+    let rec loop i ~h list =
+      if h >= height || i >= ll.length then List.rev list, (i-1)
+      else begin
+        ll.last <- i;
+        (* = this is to protect from cleaning up already generated entries *)
+        let line = get ll i direction in
+        do_option width (Layout.set_width line);
+        let dh = Layout.height line in
+        loop (i+1) ~h:(h+dh) (line::list)
+      end
+    in
+    let list, i_final = loop i_start ~h:0 [] in
+    let room = Layout.tower ~name:(Printf.sprintf "long_list room %i" i_start)
+        ~margins:0 list in
+    if !debug then assert (ll.last = i_final);
+    room, i_final
+  end else begin
+    printd (debug_warning + debug_user) "Long_list is empty.";
+    Layout.empty ~w:0 ~h:0 (), -1
+  end
 
 let add_heights_NO ~first ~last ll direction =
   let heights = ll.heights in
@@ -471,7 +489,7 @@ let check_width ll w room =
    necessary side-effects: changing the container voffset and possibly compute a
    new room. Note that even if [o] does not change, the height of the container
    way have been modified.  *)
-let update_room ~width ll container o =
+let update_room ?(force=false) ll container o =
   let scrolling, room =
     let open Layout in
     match container.content with
@@ -507,7 +525,8 @@ let update_room ~width ll container o =
          list), in order to allow mouse wheel scroll to go past the computed
          room. This is the role of [scroll_margin]. *)
       let voffset2 = voffset + offset - o in
-      if ((voffset2 + scroll_margin < 0) (* top margin is still enough*)
+      if not force
+      && ((voffset2 + scroll_margin < 0) (* top margin is still enough *)
           || (ll.first = 0) (* this is the first entry of the list *)
          )
       && ((h - voffset2 < Layout.height room - scroll_margin )
@@ -523,6 +542,7 @@ let update_room ~width ll container o =
         check_width ll (Layout.width container) room
       end
       else begin
+        let width = if ll.scale_width then Some (Layout.width scrolling) else None in
         let room2 = (* need to compute a new room *)
           (* print_string "NEW ROOM"; *)
           printd debug_memory
@@ -531,6 +551,7 @@ let update_room ~width ll container o =
              room.height=%d, MEM=[%d,%d] " ll.first ll.last o offset voffset voffset2
             ll_height ll.min_rendering_height (Layout.height room)
             ll.first_mem ll.last_mem;
+
           if voffset2+scroll_margin >= 0 && ll.first > 0
           then begin  (* we need to compute upwards *)
             (* print_endline "==>UP"; *)
@@ -621,6 +642,28 @@ let update_room ~width ll container o =
            is naturally rendered *after* the room... too bad *)
       end)
 
+(* not widely tested... be careful *)
+(* Remarque: pour le fun on pourrait ne libérer que certains et les autres on les
+   anime pour retourner à leur place, haha *)
+let free_all container ll =
+  if ll.length > 0 then begin
+    ll.used_memory <- 0;
+    let a = ll.array in
+    for i = 0 to ll.length - 1 do a.(i) <- Void done;
+    ll.first_mem <- 0;
+    ll.last_mem <- 0;
+    update_room ~force:true ll container (Avar.get (Var.get ll.offset))
+  end
+
+(* [dummy_clip] is used for an empty list. The (dummy) slider needs to be part
+   of the (dummy) layout for the refresh function to operate. *)
+let dummy_clip (w,h) =
+  let slider = Widget.slider 0 in
+  let dum = Layout.resident ~w ~h slider in
+  Layout.set_show dum false;
+  Layout.hide ~duration:0 dum;
+  dum, dum, slider
+
 (* A variant of Layout.make_clip with virtual height and optional nonlinear
    slider. [steps] is the minimal number of steps that the slider should
    have. [bottom_reached] is true if the provided room contains the bottom of
@@ -629,7 +672,7 @@ let update_room ~width ll container o =
 
    If [scale_width] is true, all entries will be stretched to the desired width
    [w]. *)
-let make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room =
+let make_clip ?name ~w ~h ~scrollbar_width ll room =
   check_width ll w room;
   let module L = Layout in
   (* cf comments in Layout.clip *)
@@ -637,13 +680,13 @@ let make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room =
   let active_bg = Widget.empty ~w ~h:(L.height room) ()
                   |> L.resident ~name:"active_bg" (* ~background *)  in
   let scrolling = L.superpose ~name:"scrolling" ~w [active_bg; room] in
-  if scale_width then L.resize_follow_width room else L.disable_resize room;
+  if ll.scale_width then L.resize_follow_width room else L.disable_resize room;
   (* set this via a parameter? Scaling the width could be interesting, but it's
      difficult because a priori we don't know what is the max width of
      entries. *)
   let container =
     L.(tower ~name:"long_list container" ~clip:true ~margins:0 [scrolling]) in
-  L.set_size ~keep_resize:true container (w,h);
+  L.set_size ~keep_resize:true container ~w ~h;
   (*  Because of [clip:true] when creating [container], the [resize] field of
       [scrolling] is not automatically created. *)
   L.resize_follow_width scrolling;
@@ -656,14 +699,13 @@ let make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room =
   let var = Tvar.create ll.offset (* the var for the scrollbar (slider) *)
       ~t_from: (* from offset we set slider new position *)
         (fun v -> let o = Avar.get v in
-          (* print_endline (Printf.sprintf "FROM o=%i" o); *)
+          (* print "FROM o=%i" o; *)
           (* here we just have to verify if the user did a mouse wheel
              scroll... *)
           (* TODO it would be better not to call update_room each time we want
              the value of this var. On the other hand now I have modified
              slider.ml to reduce the number of calls. *)
-          let width = if scale_width then Some (L.width scrolling) else None in
-          update_room ~width ll container o;
+          update_room ll container o;
           let tt_height = total_height ll in
           let o_new = Avar.get v in
           let h = L.height container in (* may change in case of resize *)
@@ -681,8 +723,7 @@ let make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room =
            let tt_height = total_height ll in
            let h = L.height container in
            let o = imax 0 (round (float (tt_height - h) *. ss /. lf)) in
-           let width = if scale_width then Some (L.width scrolling) else None in
-           update_room ~width ll container o;
+           update_room ll container o;
            (* now [total_height ll] may have a better precision *)
            (* we re-update in case we went too far. *)
            let o2 = imin (total_height ll - h) o in
@@ -714,16 +755,16 @@ let make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room =
   let name = default name "long_list" in
   let layout = L.(superpose ~name [container; bar]) in
   L.disable_resize bar;
-  container.resize <- (fun (w,hh) -> (* size of the long_list layout *)
+  container.resize <- (fun (w, hh) -> (* size of the long_list layout *)
       let open L in let open Resize in
       let th = total_height ll in
       let h = imin hh th in
       set_height bar hh;
-      set_size container (w, h);
+      set_size container ~w ~h;
       setx bar (w - width bar);
-      ll.min_rendering_height <- compute_min_rendering_height ll (w,h);
+      ll.min_rendering_height <- compute_min_rendering_height ll (w, h);
       let s = Tvar.get var in (* this can trigger update_room (too much?) *)
-      (* print_endline (Printf.sprintf "slider=%i, height=%i" s (total_height ll)); *)
+      (* print "slider=%i, height=%i" s (total_height ll); *)
       let sli = Widget.get_slider slider in
       if s < 0 then Slider.set sli 0;
       (* one could simply use Tvar.set var 0 *)
@@ -733,20 +774,21 @@ let make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room =
         (* we don't use not Tvar for setting voffset because the bar will be
            removed and hence won't look up Tvar. *)
         if is_shown bar then rec_set_show false bar;
-        set_width container w
+        (* set_width container w *)
       end else begin
         Slider.set_tick_size sli (imax min_tick_size (h * h / th));
         if not (is_shown bar) then rec_set_show true bar;
+        set_width container (imax 0 (w - width bar));
       end);
   container.resize (w, h); (* this takes care of show/hide bar at startup *)
   (* if !debug then printd debug_custom "At creation: %s" *)
   (*     (string_of_option B_print.layout_down (Layout.get_house room)); *)
-  layout
+  container, layout, slider
 
 let pixel_area w h =
   Theme.((scale_int w) * (scale_int (h+2*scroll_margin)))
 
-(* Increase max_memory if necessary; no descrease. *)
+(* Increase max_memory if necessary; no decrease. *)
 let adjust_max_memory ~w ~h = function
   | None -> None
   | Some mm -> let wh = pixel_area w h in
@@ -757,9 +799,22 @@ let adjust_max_memory ~w ~h = function
           Some (wh * factor))
     else Some mm
 
+(* Public interface *)
+
 let create ?name ~w ~h ~length ?(first=0) ~generate ?height_fn
     ?(cleanup=Layout.delete_textures) ?max_memory ?(linear=true)
-    ?(scrollbar_width=10) ?(scale_width=false) () : Layout.t =
+    ?(scrollbar_width=10) ?(scale_width=false) () : t =
+  let length = if length >= 0 then length else begin
+      printd (debug_error + debug_user)
+        "[Long_list.create]: the [length] argument should be non negative, got \
+         [%i] instead." length; 0 end in
+  let h = if h > 0 then h else begin
+      printd (debug_error + debug_user)
+        "Long_list height should be positive, got [%i] instead." h; 10 end in
+  let w = if w > 0 then w else begin
+      printd (debug_error + debug_user)
+        "Long_list width should be positive, got [%i] instead." w; 20 end in
+
   (* Now some memory computations... TODO they are not completely correct,
      because they assume that all generated layouts will have same
      width... which is desirable but not enforced a this point. As a rule of
@@ -779,8 +834,17 @@ let create ?name ~w ~h ~length ?(first=0) ~generate ?height_fn
                | Some y -> (comp+1), (h+y) in
              loop (i+1) comp' h' in
       loop 0 0 0 in
+
   (*let box = Widget.box ~w ~h ~background:(Box.Solid Draw.none) () in *)
   (*let dummy_room = Layout.resident box in*)
+  let first = if first < length && first >= 0 then first
+    else begin
+      if length <> 0 then printd (debug_error + debug_user)
+          "[Long_list.create]: the [first] argument should be between 0 and \
+           [length-1], got [%i] instead." first;
+      if first < 0 then 0 else length - 1
+      (* so length = 0 && first = -1 is "valid" *)
+    end in
   let ll =
     { total_height = if computed = length then Some computed_height else None;
       computed_height;
@@ -793,6 +857,7 @@ let create ?name ~w ~h ~length ?(first=0) ~generate ?height_fn
       max_memory;
       used_memory = 0;
       array = Array.make length Void;
+      (* or Array.make length None, if it takes too long *)
       linear;
       first;
       last = first;
@@ -800,15 +865,14 @@ let create ?name ~w ~h ~length ?(first=0) ~generate ?height_fn
       last_mem = 0;
       container_voffset = 0;
       heights;
-      width_warning = false
-      (* or Array.make length None, if it takes too long *)
-    } in
+      width_warning = false;
+      scale_width } in
   Sync.push (fun () ->
       (* We sync this because of Theme.scale. Most of the time this is not
          necessary because creation of room has already initialized Video, and
          [min_rendering_height] is already set by the call to [container.resize]
          above.  *)
-      ll.min_rendering_height <- compute_min_rendering_height ll (w,h));
+      ll.min_rendering_height <- compute_min_rendering_height ll (w, h));
   let width = if scale_width then Some w else None in
   let room, i_final = compute_room ~height:min_rendering_height ~width
       ll first Down in
@@ -818,4 +882,46 @@ let create ?name ~w ~h ~length ?(first=0) ~generate ?height_fn
      and height=%d, rendered_height=%d, approx. total height is %d"
     h (i_final+1-first) first i_final ll.length (Layout.height room)
     ll.min_rendering_height ll_height;
-  make_clip ?name ~w ~h ~scrollbar_width ~scale_width ll room
+  let container, layout, slider =
+    if length > 0
+    then make_clip ?name ~w ~h ~scrollbar_width ll room
+    else dummy_clip (w, h) in
+  let regenerate () = free_all container ll in
+  { regenerate; layout; slider; ll }
+
+let get_layout t = t.layout
+
+let redraw t =
+  Update.push t.slider
+
+let regenerate t = t.regenerate ()
+
+let create_layout ?name ~w ~h ~length ?(first=0) ~generate ?height_fn
+    ?(cleanup=Layout.delete_textures) ?max_memory ?(linear=true)
+    ?(scrollbar_width=10) ?(scale_width=false) () =
+  get_layout (create ?name ~w ~h ~length ~first ~generate ?height_fn ~cleanup
+                ?max_memory ~linear ~scrollbar_width ~scale_width ())
+
+(** Return the maximal value of the scrollbar attached to the Long_list (if any). *)
+let get_scroll_steps t =
+  Slider.get_max (Widget.get_slider t.slider)
+
+let get_scroll_value t =
+  let s = Widget.get_slider t.slider in
+  Slider.update_value s;
+  let v = Slider.value s in
+  printd debug_custom "Scroll value=%i, ll.offset=%i" v (Avar.get (Var.get t.ll.offset));
+  v
+
+let set_scroll_value t v =
+  let oldo = (Avar.get (Var.get t.ll.offset)) in
+  Slider.set (Widget.get_slider t.slider) v;
+  printd debug_custom "Set_scroll %i, old offset=%i, new_offset=%i" v oldo
+    (Avar.get (Var.get t.ll.offset));
+  redraw t
+
+let get_scroll t = (* percentage *)
+  1. -. float (get_scroll_value t) /. (float (get_scroll_steps t))
+
+let set_scroll t x =
+  set_scroll_value t (round ((1. -. x) *. (float (get_scroll_steps t))))

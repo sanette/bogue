@@ -173,7 +173,7 @@ let create ?dst ?name ?(action = fun _ -> ()) ?fg
   end else
   if true then begin (* TODO parameter adjust = true*)
     let w,h = Layout.get_size (Menu.layout_of_menu submenu) in
-    Layout.set_size tmp_dst (w,(Layout.height menu_layout + h));
+    Layout.set_size tmp_dst ~w ~h:(Layout.height menu_layout + h);
     (* TODO ou plutôt faire un relocate, comme au-dessus, mais dans le dst *)
     (* on peut aussi fournir en sortir la fonction qui fait le relocate dans un
        layout de son choix, qu'on n'est pas obligé de construire exprès --cf

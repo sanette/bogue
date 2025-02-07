@@ -2,20 +2,21 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
-<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Bogue.Table.html">
+<link rel="previous" href="Bogue.Print.html">
 <link rel="next" href="Bogue.Main.html">
 <link rel="Up" href="Bogue.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Window</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Bogue.Table.html" title="Bogue.Table">Previous</a>
+<div class="navbar"><a class="pre" href="Bogue.Print.html" title="Bogue.Print">Previous</a>
 &nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
 &nbsp;<a class="post" href="Bogue.Main.html" title="Bogue.Main">Next</a>
 </div>
@@ -41,14 +42,14 @@
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?on_close:(<a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit) -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Window.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a window from the given layout. The layout must not belong to any
-     room. If the layout is hidden, the window will be created but not shown.</p>
+      room. If the layout is hidden, the window will be created but not shown.</p>
 </div>
 </div>
 <div class="param_info"><code class="code">on_close</code> : Set the function to be executed when the user wants to
-     close the window. By default, the window will be destroyed. Hence, setting
-     a function can prevent the window from being closed. However, if this is
-     the sole open window, clicking on the close button will also emit the
-     'Quit' event, and will terminate Bogue anyways.</div>
+        close the window. By default, the window will be destroyed. Hence,
+        setting a function can prevent the window from being closed. However, if
+        this is the sole open window, clicking on the close button will also
+        emit the 'Quit' event, and will terminate Bogue anyways.</div>
 
 <pre><span id="VALon_close"><span class="keyword">val</span> on_close</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -&gt; (<a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit) option -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">

@@ -22,7 +22,8 @@ open B_utils
 type 'a t = {
   mutable data : 'a;
   mutable thread_id : int option;
-  (* = the id of the thread currently locking this var *)
+  (* = the id of the thread currently locking this var. It must be [None] if the
+     mutex is unlocked.  *)
   mutex : Mutex.t;
 }
 
@@ -41,8 +42,8 @@ let protect v =
 let release v =
   match v.thread_id with
   | Some i when i = Thread.(id (self ())) ->
+    v.thread_id <- None;
     Mutex.unlock v.mutex;
-    v.thread_id <- None
   | Some i ->
     printd (debug_thread + debug_error)
       "Thread %u cannot release variable locked by thread %u"
@@ -52,24 +53,32 @@ let release v =
       "Trying to release a variable that was not locked"
 
 (* Execute an action on the given variable if it is not locked by *another*
-   thread. Can be used in recursions. *)
+   thread. Can be used in recursions. Warning, this is not 100% safe, see
+   comments. *)
 let protect_do v action =
-  let was_free = Mutex.try_lock v.mutex in
-  if was_free then begin (* this should be the vast majority of cases *)
-    (* The variable is now locked *)
+  if Mutex.try_lock v.mutex
+  then begin
+    (* Mutex was not locked before; this should be the vast majority of cases. *)
+    (* The Mutex is now locked. *)
     if !debug then assert (v.thread_id = None); (* just for debugging *)
     v.thread_id <- Some Thread.(id (self ()));
     let result = try action () with exn -> release v; raise exn in
     release v;
-    (* The variable is now unlocked *)
+    (* The Mutex is now unlocked. *)
     result
   end
-  else if v.thread_id = Some (Thread.(id (self ())))
+  else (* The Mutex was already locked. *)
+  if v.thread_id = Some (Thread.(id (self ())))
   then begin
     printd (debug_thread + debug_warning)
       "!! We can access the variable because it was locked by same thread.";
+    (*  In the (very short, but still nonzero) meantime, the Mutex might have
+        been unlocked: this is not a problem; the log below will print #-1 for
+        the thread number. However, it might even have been unlocked and
+        re-locked again by another thread in the meantime (not by the self
+        thread, of course). Hence the action can cause data race. *)
     action ()
-  end else begin (* the variable was already locked by another thread *)
+  end else begin (* The Mutex was already locked by another thread. *)
     printd debug_thread "Waiting for locked variable (thread #%i) to unlock..."
       (default v.thread_id (-1));
     protect v;

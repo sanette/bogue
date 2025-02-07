@@ -2,28 +2,39 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
-<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Radiolist.html">
-<link rel="next" href="Bogue.Window.html">
+<link rel="next" href="Bogue.File.html">
 <link rel="Up" href="Bogue.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Table</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Bogue.Radiolist.html" title="Bogue.Radiolist">Previous</a>
 &nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
-&nbsp;<a class="post" href="Bogue.Window.html" title="Bogue.Window">Next</a>
+&nbsp;<a class="post" href="Bogue.File.html" title="Bogue.File">Next</a>
 </div>
 <h1>Module <a href="type_Bogue.Table.html">Bogue.Table</a></h1>
 
 <pre><span id="MODULETable"><span class="keyword">module</span> Table</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Table.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
 <p>Tables with sortable columns and selectable rows.</p>
+
+<ul>
+<li>Click on a row to select or unselect it.</li>
+<li>After clicking on a row, hit CTRL-A to select all rows at once.</li>
+<li>After clicking a row, click on another row with SHIFT pressed to select
+      a range of rows.</li>
+</ul>
+<p>Tables internally use a <a href="Bogue.Long_list.html"><code class="code"><span class="constructor">Long_list</span></code></a> and hence will handle nicely a very
+    large number of rows. A scrollbar will appear as soon as the whole table
+    does not fit in the layout.</p>
 
 <h6 id="5_graphdotbtablehtmlDependencygraph"><a href="graph-dot-b_table.html">Dependency graph</a></h6></div>
 </div>
@@ -84,10 +95,18 @@
 <td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
 <div class="info-desc">
 <p>pixel width of the column. If not specified,
-                                  the max width of entries will be used.</p>
+                                  the max width of the first 50 entries will be
+                                  used.</p>
 </div>
 </div>
 </td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcolumn.align">align</span>&nbsp;: <code class="type"><a href="Bogue.Draw.html#TYPEalign">Draw.align</a> option</code>;</code></td>
+
 </tr></table>
 <code>}</code>
 
@@ -96,20 +115,26 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       <a href="Bogue.Table.html#TYPEcolumn">column</a> list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">h:int -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       ?on_click:(<a href="Bogue.Table.html#TYPEt">t</a> -&gt; int -&gt; unit) -&gt;<br>       ?max_selected:int -&gt;<br>       ?selection:<a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt;<br>       ?on_select:(<a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt; unit) -&gt;<br>       <a href="Bogue.Table.html#TYPEcolumn">column</a> list -&gt; <a href="Bogue.Table.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a table by specifying its list of <b>columns</b>; in each column, the
       entries can be arbitrary layouts. If entries are simple text labels, it's
-      easier to use the helper functions <a href="Bogue.Table.html#VALof_array"><code class="code"><span class="constructor">Table</span>.of_array</code></a> or <a href="Bogue.Table.html#VALof_list"><code class="code"><span class="constructor">Table</span>.of_list</code></a>.</p>
+      easier to use the helper functions <a href="Bogue.Table.html#VALof_array"><code class="code"><span class="constructor">Table</span>.of_array</code></a> or <a href="Bogue.Table.html#VALof_list"><code class="code"><span class="constructor">Table</span>.of_list</code></a>. If
+      <code class="code">row_height</code> is not specified, the height of the first row is used
+      instead. The width of the table is determined by the <code class="code">min_width</code> column
+      parameters.</p>
+
+<p>Some rows can be initially selected by providing the <code class="code">selection</code> argument.</p>
+
+<p>The function <code class="code">on_select</code> is executed each time the selection is
+      modified. Its argument is the new selection. This function is executed <em>      before</em> the new selection is recorded in the table variable (of type <code class="code">t</code>).</p>
 </div>
 <ul class="info-attributes">
-<li><b>Returns</b> a layout and a <a href="Bogue.Tvar.html"><code class="code"><span class="constructor">Tvar</span></code></a>. The Tvar can be used to see which rows were
-        selected by the user, and also to modify the selection if needed.</li>
 <li><b>See also</b> <i>example 35</i> .</li>
 </ul>
 </div>
 
-<pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list -&gt;<br>       string array array -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       ?on_click:(<a href="Bogue.Table.html#TYPEt">t</a> -&gt; int -&gt; unit) -&gt;<br>       ?max_selected:int -&gt;<br>       ?selection:<a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt;<br>       ?on_select:(<a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt; unit) -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt; string list -&gt; string array array -&gt; <a href="Bogue.Table.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a table from an array of <b>rows</b>, each row being a string
       array.</p>
@@ -119,12 +144,39 @@
 </ul>
 </div>
 
-<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">?w:int -&gt;<br>       h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       string list list -&gt;<br>       <a href="Bogue.Layout.html#TYPEt">Layout.t</a> * (<a href="Bogue.Selection.html#TYPEt">Selection.t</a>, <a href="Bogue.Selection.html#TYPEt">Selection.t</a>) <a href="Bogue.Tvar.html#TYPEt">Tvar.t</a></code></pre><div class="info ">
+<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">h:int -&gt;<br>       ?widths:int option list -&gt;<br>       ?row_height:int -&gt;<br>       ?name:string -&gt;<br>       ?max_selected:int -&gt;<br>       ?selection:<a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt;<br>       ?on_select:(<a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt; unit) -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt; string list list -&gt; <a href="Bogue.Table.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a table from a list of <b>rows</b>, each row being a string list.</p>
 </div>
 <ul class="info-attributes">
 <li><b>See also</b> <i>example 35ter</i> .</li>
 </ul>
+</div>
+
+<pre><span id="VALget_layout"><span class="keyword">val</span> get_layout</span> : <code class="type"><a href="Bogue.Table.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Use this layout to display your table.</p>
+</div>
+</div>
+
+<pre><span id="VALget_selection"><span class="keyword">val</span> get_selection</span> : <code class="type"><a href="Bogue.Table.html#TYPEt">t</a> -&gt; <a href="Bogue.Selection.html#TYPEt">Selection.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Which rows were selected by the user.</p>
+</div>
+</div>
+
+<pre><span id="VALset_selection"><span class="keyword">val</span> set_selection</span> : <code class="type"><a href="Bogue.Table.html#TYPEt">t</a> -&gt; <a href="Bogue.Selection.html#TYPEt">Selection.t</a> -&gt; unit</code></pre>
+<pre><span id="VALsort_column"><span class="keyword">val</span> sort_column</span> : <code class="type"><a href="Bogue.Table.html#TYPEt">t</a> -&gt; ?reverse:bool -&gt; int -&gt; unit</code></pre>
+<pre><span id="VALmin_width"><span class="keyword">val</span> min_width</span> : <code class="type"><a href="Bogue.Table.html#TYPEt">t</a> -&gt; int</code></pre><div class="info ">
+<div class="info-desc">
+<p>Hint for minimum width of the table layout; it's up to the user to
+      enforce this.</p>
+</div>
+</div>
+
+<pre><span id="VALmin_height"><span class="keyword">val</span> min_height</span> : <code class="type"><a href="Bogue.Table.html#TYPEt">t</a> -&gt; int</code></pre><div class="info ">
+<div class="info-desc">
+<p>Same remark.</p>
+</div>
 </div>
 </body></html>

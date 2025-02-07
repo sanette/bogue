@@ -122,6 +122,14 @@ let printd code =
          ^ s ^ "\n");
       if !log_channel = stdout then flush !log_channel)
 
+let time_it name f x =
+  let t = Sys.time () in f x;
+  let dt = Sys.time () -. t in
+  printd debug_custom "Timing [%s]: %f ms" name dt;
+  dt
+
+let itime_it name f x = ignore (time_it name f x)
+
 (* check if string s starts with string sub *)
 let startswith s sub =
   String.length sub = 0 || begin
@@ -305,21 +313,55 @@ let rec list_next equal x = function
   | [_] -> printd debug_error "[list_next] does not contain x"; raise Not_found
   | a::b::rest -> if equal a x then Some b else list_next equal x (b::rest)
 
+let list_next_check equalx ~check list =
+  let rec loop ok = function
+    | []  -> if ok then None
+      else (printd debug_error "[list_next_check]: empty list"; raise Not_found)
+    | a::rest -> if ok && check a then Some a
+      else loop (ok || equalx a) rest in
+  loop false list
+
+let test_list_next_check () =
+  assert (list_next_check (Int.equal 4) ~check:(fun x -> x mod 3 = 0) [1;2;3;4;5;6;7;8;9]
+          = Some 6);
+  assert (list_next_check (Int.equal 6) ~check:(fun x -> x mod 3 = 0) [1;2;3;4;5;6;7;8;9]
+          = Some 9);
+  assert (list_next_check (Int.equal 9) ~check:(fun x -> x mod 3 = 0) [1;2;3;4;5;6;7;8;9]
+          = None)
+
 (* Return the element preceeding the first occurence of x, or None if x is the
    first element. It cannot be equal to x. *)
-let rec list_prev equal x = function
+let rec list_prev equalx = function
   | [] -> printd debug_error "[list_prev]: empty list"; raise Not_found
-  | a::_ when equal a x -> None
+  | a::_ when equalx a -> None
   | [_] -> printd debug_error "[list_prev] does not contain x"; raise Not_found
-  | a::b::rest -> if equal b x then Some a else list_prev equal x (b::rest)
+  | a::b::rest -> if equalx b then Some a else list_prev equalx (b::rest)
+
+(* Return the last element that satisfy [check] BEFORE the first element that
+   satisfy [equalx], or None. At lease one element must satisfy [equalx]
+   otherwise it will raise Not_found. *)
+let list_prev_check equalx ~check list =
+  let rec loop last = function
+    | [] -> printd debug_error "[list_prev_check]: empty list"; raise Not_found
+    | x::_ when equalx x -> last
+    | a::rest -> if check a then loop (Some a) rest else loop last rest in
+  loop None list
 
 let test_list_prev () =
-  assert (list_prev ( = ) 2 [2;1;2;3] = None);
-  let () = try ignore (list_prev ( = ) 1 [2]) with
+  assert (list_prev ( Int.equal 2 ) [2;1;2;3] = None);
+  let () = try ignore (list_prev ( Int.equal 1 ) [2]) with
     | Not_found -> ()
     | _ -> assert (false) in
-  assert (list_prev ( = ) 1 [2;1] = Some 2);
-  assert (list_prev ( = ) 3 [1;2;3] = Some 2)
+  assert (list_prev ( Int.equal 1 ) [2;1] = Some 2);
+  assert (list_prev ( Int.equal 3 ) [1;2;3] = Some 2)
+
+let test_list_prev_check () =
+  assert (list_prev_check (Int.equal 6) ~check:(fun x -> x mod 2 = 0) [1;2;3;4;5;6;7]
+          = Some 4);
+  assert (list_prev_check (Int.equal 5) ~check:(fun x -> x mod 2 = 0) [1;2;3;4;5;6;7]
+          = Some 4);
+  assert (list_prev_check (Int.equal 2) ~check:(fun x -> x mod 2 = 0) [1;2;3;4;5;6;7]
+          = None)
 
 let list_hd_opt = function [] -> None | a::_ -> Some a
 
@@ -344,6 +386,10 @@ let map_option o f = Option.map f o
  *   | None -> () *)
 let do_option o f = Option.iter f o
 
+let apply_option fo x = match fo with
+  | Some f -> f x
+  | None -> ()
+
 (* let check_option o f = match o with
  *   | Some x -> f x
  *   | None -> None *)
@@ -366,6 +412,10 @@ let default_fn o f = match o with
 let default_option o od = match o with
   | None -> od
   | o -> o
+
+let opt_map fo x = match fo with
+  | Some f -> f x
+  | None -> x
 
 let map2_option o1 o2 f = match o1, o2 with
   | Some x1, Some x2 -> Some (f x1 x2)

@@ -22,7 +22,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20241212"  (* see VERSION file *)
+let this_version = "20250207"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -36,13 +36,15 @@ let default_vars = [
   "DIR", "";
   (* The chosen theme: *)
   "THEME", "default"; (* It must be a subdirectory of DIR: *)
+  (* if it starts with "/" it is an absolute path. Otherwise, it is a file path
+     inside THEME. *)
   (* The window background image (eg: "file:background.png") or color: *)
-  "BACKGROUND", "color:white"; (* if is starts with "/" it is an absolute path. Otherwise, it is a file path inside THEME. *)
+  "BACKGROUND", "color:white";
   (* This background color should be clearly visible over the BACKGROUND *)
   "BG_COLOR", "lightsteelblue";
   (* Color for active or inactive button *)
   "BUTTON_COLOR_ON", "darkturquoise";
-  "BUTTON_COLOR_OFF", "steelblue";
+  "BUTTON_COLOR_OFF", "#8bc0d1"; (* 8bc0c7 ou #74a0c4 ou #92cae5 ou steelblue *)
   (* The "checked" image: either image (eg. "check_on.png") or fa icon,
      eg. "fa:check-square-o" *)
   "CHECK_ON", "fa:check-square-o";
@@ -361,8 +363,7 @@ let () = user_vars := load_theme_vars dir !user_vars
 
 let current = dir // (get_var "THEME")
 
-let () =  print_endline
-    (Printf.sprintf "Loading Bogue %s with config dir %s" this_version current)
+let () =  print "Loading Bogue %s with config dir %s" this_version current
 
 let common = dir // "common"
 let fonts_dir = common // "fonts"
@@ -443,7 +444,7 @@ let mono_font = get_font_path (get_var "MONO_FONT")
 let room_margin = get_int ~default:10 "ROOM_MARGIN"
 let fa_dir = common // (get_var "FA_DIR")
 let fa_font = fa_dir // "fonts/fontawesome-webfont.ttf"
-let integer_scale = ref (get_bool "INT_SCALE")
+let int_scale = ref (get_bool "INT_SCALE")
 let scale = ref (get_float ~default:0. "SCALE")
 let opengl_multisample = get_bool "OPENGL_MULTISAMPLE"
 let fa_font_size = 18
@@ -465,12 +466,14 @@ let set_text_font f = text_font := get_font_path f
 let set_label_font f = label_font := get_font_path f
 
 let set_scale s =
-  let s = if !integer_scale then Float.floor s else s in
+  let s = if !int_scale then Float.floor s else s in
   scale := s
 
-let set_integer_scale b =
-  integer_scale := b;
+let set_int_scale b =
+  int_scale := b;
   if b then set_scale !scale
+
+let set_integer_scale = set_int_scale (* deprecated *)
 
 (* WARNING: scaling functions should be used after graphics init otherwise
    !scale=0. Use Sync.push  *)

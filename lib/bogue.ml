@@ -12,6 +12,8 @@ module Button = B_button
 module Chain = B_chain
 module Check = B_check
 module Draw = B_draw
+module Empty = B_empty
+module File = B_file
 module Image = B_image
 module Label = B_label
 module Layout = B_layout
@@ -46,3 +48,33 @@ module Utils = B_utils
 module Var = B_var
 module Widget = B_widget
 module Window = B_window
+
+let run_test test name =
+  print_endline
+    (Utils.xterm_blue ^ "* " ^ Utils.xterm_light_grey ^ name ^ Utils.xterm_nc);
+  let t0 = Unix.gettimeofday () in
+  test ();
+  print_endline (Printf.sprintf "    [%s] successful in %f ms"
+                   name (Unix.gettimeofday () -. t0))
+
+
+let run_tests () =
+
+  begin let open Utils in
+    run_test test_list_next_check "test_list_next_check";
+    run_test test_list_prev "test_list_prev";
+    run_test test_list_prev_check "test_list_prev_check";
+  end;
+
+  begin let open File in
+    run_test Diff.test_diff "test_diff";
+    run_test test_monitor "test_monitor";
+    run_test Mime.test "Mime.test";
+    run_test test_size_to_string "test_size_to_string";
+    run_test test_find_index_sorted "test_find_index_sorted";
+    run_test test_sorted_subarray_to_selection "test_sorted_subarray_to_selection"
+  end;
+
+  begin let open Layout in
+    run_test Detect.test_almost_constant "test_almost_constant"
+  end

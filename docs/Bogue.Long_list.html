@@ -2,7 +2,7 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
-<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Snapshot.html">
@@ -12,6 +12,7 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Long_list</title>
 </head>
 <body>
@@ -45,7 +46,7 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?name:string -&gt;<br>       w:int -&gt;<br>       h:int -&gt;<br>       length:int -&gt;<br>       ?first:int -&gt;<br>       generate:(int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -&gt;<br>       ?height_fn:(int -&gt; int option) -&gt;<br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit) -&gt;<br>       ?max_memory:int -&gt;<br>       ?linear:bool -&gt;<br>       ?scrollbar_width:int -&gt; ?scale_width:bool -&gt; unit -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?name:string -&gt;<br>       w:int -&gt;<br>       h:int -&gt;<br>       length:int -&gt;<br>       ?first:int -&gt;<br>       generate:(int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -&gt;<br>       ?height_fn:(int -&gt; int option) -&gt;<br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit) -&gt;<br>       ?max_memory:int -&gt;<br>       ?linear:bool -&gt;<br>       ?scrollbar_width:int -&gt; ?scale_width:bool -&gt; unit -&gt; <a href="Bogue.Long_list.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a long list through the function <code class="code">generate</code> which maps any index
      <em>i</em> to the <em>ieth</em> element (layout) of the list. If specified (which is
@@ -59,4 +60,21 @@
 
 <pre class="codepre"><code class="code"> <span class="keyword">let</span> height_fn _ = <span class="constructor">Some</span> 30 </code></pre></div>
 </div>
-</body></html>
+
+<pre><span id="VALcreate_layout"><span class="keyword">val</span> create_layout</span> : <code class="type">?name:string -&gt;<br>       w:int -&gt;<br>       h:int -&gt;<br>       length:int -&gt;<br>       ?first:int -&gt;<br>       generate:(int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -&gt;<br>       ?height_fn:(int -&gt; int option) -&gt;<br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit) -&gt;<br>       ?max_memory:int -&gt;<br>       ?linear:bool -&gt;<br>       ?scrollbar_width:int -&gt; ?scale_width:bool -&gt; unit -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Similar to <code class="code">create</code> but only returns the layout. Equivalent to calling
+      <a href="Bogue.Long_list.html#VALget_layout"><code class="code"><span class="constructor">Long_list</span>.get_layout</code></a> to the result of <code class="code">create</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALget_layout"><span class="keyword">val</span> get_layout</span> : <code class="type"><a href="Bogue.Long_list.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre>
+<pre><span id="VALget_scroll"><span class="keyword">val</span> get_scroll</span> : <code class="type"><a href="Bogue.Long_list.html#TYPEt">t</a> -&gt; float</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the scroll percentage of the Long list, between 0 and 1. A value of
+      0 means no scroll: the first row is visible. The value 1 means that the
+      scrollbar is fully downwards, the last row is visible.</p>
+</div>
+</div>
+
+<pre><span id="VALset_scroll"><span class="keyword">val</span> set_scroll</span> : <code class="type"><a href="Bogue.Long_list.html#TYPEt">t</a> -&gt; float -&gt; unit</code></pre></body></html>

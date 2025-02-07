@@ -126,7 +126,7 @@ let string_of_kind = function
 (* in particular, when this function is called, the widget w in principle has
    already been removed from widgets_wtable *)
 let free w =
-  printd debug_memory "Freeing widget #%u" w.wid;
+  printd debug_memory "Freeing widget #w%u" w.wid;
   match w.kind with
   | Empty e -> Empty.free e
   | Box b -> Box.free b
@@ -184,7 +184,7 @@ let of_id wid : t =
 (* unload all textures but the widget remains usable. (Rendering will recreate
    all textures) *)
 let unload_texture w =
-  printd debug_memory "Unloading texture for widget #%u" w.wid;
+  printd debug_memory "Unloading texture for widget #w%u" w.wid;
   match w.kind with
   | Empty b -> Empty.unload b
   | Box b -> Box.unload b
@@ -275,7 +275,7 @@ let display canvas layer w geom =
 (* anyway, it is not clear if the user_window_id field for created event types
    is really supported by (T)SDL *)
 let update w =
-  printd debug_board "Please refresh widget #%i" w.wid;
+  printd debug_board "Please refresh widget #w%i" w.wid;
   Var.set w.fresh false;
   (* if !draw_boxes then Trigger.(push_event refresh_event) *)
   (* else *)
@@ -349,6 +349,11 @@ let remove_trigger w tr =
   else printd (debug_warning + debug_user)
       "[remove_trigger] There is no trigger of that kind in the list of connections."
 
+let get_empty w =
+  match w.kind with
+  | Empty e -> e
+  | _ -> invalid_arg "Expecting an empty widget, not a %s" (string_of_kind w.kind)
+
 let get_box w =
   match w.kind with
   | Box b -> b
@@ -410,8 +415,8 @@ let check_box ?state ?style () =
 let set_check_state b s =
   Check.set (get_check b) s
 
-let empty ~w ~h () =
-  create_empty (Empty (Empty.create (w,h)))
+let empty ?unload ~w ~h () =
+  create_empty (Empty (Empty.create ?unload (w,h)))
 
 let text_display ?w ?h text =
   create_empty (TextDisplay (Text_display.create_from_string ?w ?h text))
@@ -527,18 +532,15 @@ let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
   let onbutton_down = fun w _ ev ->
     let ti = get_text_input w in (* = ti ! *)
     Text_input.button_down ti ev in
-  let c = connect_main w w onbutton_down Trigger.buttons_down in
-  add_connection w c;
+  connect_main w w onbutton_down Trigger.buttons_down |> add_connection w;
   let onclick = fun w _ ev ->
     let ti = get_text_input w in (* = ti ! *)
     Text_input.click ti ev in
-  let c = connect_main w w onclick Trigger.buttons_up in
-  add_connection w c;
+  connect_main w w onclick Trigger.buttons_up |> add_connection w;
   let ontab = fun w _ ev ->
     let ti = get_text_input w in (* = ti ! *)
     Text_input.tab ti ev in
-  let c = connect_main w w ontab [Sdl.Event.key_down] in
-  add_connection w c;
+  connect_main w w ontab [Sdl.Event.key_down] |> add_connection w;
   let selection = fun w _ ev ->
     let ti = get_text_input w in (* = ti ! *)
     if Trigger.mm_pressed ev then (Text_input.mouse_select ti ev; update w)
@@ -547,8 +549,7 @@ let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
   add_connection w c;
   let get_keys = fun w _ ev -> Text_input.receive_key (get_text_input w) ev
   in
-  let c2 = connect_main w w get_keys Text_input.triggers in
-  add_connection w c2;
+  connect_main w w get_keys Text_input.triggers |> add_connection w;
   w
 
 

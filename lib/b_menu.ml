@@ -167,7 +167,7 @@ module Engine = struct
 
   let add_menu_to_layer menu layer =
     let f menu =
-      Layout.global_set_layer menu.room layer in
+      Layout.rec_set_layer menu.room layer in
     iter f menu
 
   (* Return the top menu *)

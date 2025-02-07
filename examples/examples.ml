@@ -251,7 +251,7 @@ let example11 () = (* attention ne marche pas avec DEBUG=false !! OK problème r
       print_endline "I won't close if my sister is still alive! Press ESC to \
                      quit.") l2 in
   let shortcuts = shortcuts_of_list [exit_on_escape] in
-  let board = create ~shortcuts ~connections:[c] [Window.create l1;w2] in
+  let board = create ~shortcuts ~connections:[c] [Window.create l1; w2] in
   L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,400);
   run board
 
@@ -648,7 +648,7 @@ let example26 () =
        triggered, therefore we manually update the target. *)
   in
   let cf = W.connect box l action_leave [T.mouse_leave] in
-  let layout = L.flat ~margins:20 [room; L.resident l] in
+  let layout = L.flat ~resize:L.Resize.Disable ~margins:20 [room; L.resident l] in
   let board = of_layout ~connections:[ce;cf] layout in
   run board
 
@@ -670,7 +670,7 @@ let example26bis () =
        triggered, therefore we manually update the target. *)
   in
   W.mouse_over ~enter ~leave box;
-  let layout = L.flat ~margins:20 [room; L.resident l] in
+  let layout = L.flat ~resize:L.Resize.Disable ~margins:20 [room; L.resident l] in
   let board = of_layout layout in
   run board
 
@@ -747,7 +747,7 @@ let example31 () =
   (* The optional argument max_memory = 700000 is chosen here to force the algo
      to do some garbage collection, but in most cases max_memory can be much
      larger. *)
-  let board = of_layout long in
+  let board = of_layout (Long_list.get_layout long) in
   run board
 
 let desc32 = "a very Long List"
@@ -761,7 +761,8 @@ let example32 () =
      very slow (and blocking) *)
   let height_fn _ = Some 50 in
   let long = Long_list.create ~w ~h:400 ~generate ~height_fn
-      ~length:100000 ~max_memory:700000 () in
+      ~length:100000 ~max_memory:700000 ()
+             |> Long_list.get_layout in
 
   let board = of_layout long in
   run board
@@ -775,7 +776,8 @@ let example33 () =
     L.resident ?h:(height_fn i) ~w ?background (W.label (string_of_int i)) in
 
   let long = Long_list.create ~w ~h:400 ~generate ~height_fn
-      ~length:100000 ~max_memory:1000000 () in
+      ~length:100000 ~max_memory:1000000 ()
+             |> Long_list.get_layout in
 
   let board = of_layout long in
   run board
@@ -800,7 +802,7 @@ let example34 () =
     L.flat ~margins:10 ?background [bl;l] in
   let height_fn _ = Some (h+20) in
   let long = Long_list.create ~w ~h:400 ~generate ~height_fn ~linear:false
-      ~length ~max_memory:900000 () in
+      ~length ~max_memory:900000 () |> Long_list.get_layout in
   (* this max_memory is not enough for 1000000 entries; the program will change
      it automatically *)
 
@@ -815,13 +817,13 @@ let example35 () =
       length;
       rows = (fun i -> L.resident (W.label europe.(i)));
       compare = Some (fun i j -> compare europe.(i) europe.(j));
-      min_width = Some 100} in
+      min_width = Some 100; align = None} in
   let col2 = Table.{
       title = "Initial";
       length;
       rows = (fun i -> L.resident (W.label (String.sub europe.(i) 0 1)));
       compare = None;
-      min_width = Some 50} in
+      min_width = Some 50; align = Some Draw.Center} in
   let col3 = Table.{
       title = "Length";
       length;
@@ -830,15 +832,16 @@ let example35 () =
       compare = Some (fun i j -> compare
                          (String.length europe.(i))
                          (String.length europe.(j)));
-      min_width = Some 70} in
-  let table, sel = Table.create ~h:400 [col1; col2; col3] in
+      min_width = Some 70; align = Some Draw.Max} in
+  let table = Table.create ~h:400 [col1; col2; col3] in
 
   let clear_sel = W.button "clear selection"
-      ~action:(fun _ -> Tvar.set sel Selection.empty) in
+      ~action:(fun _ -> Table.set_selection table Selection.empty) in
   let get_sel = W.button "print selection" ~action:(fun _ ->
-      print_endline (Selection.sprint (Tvar.get sel))) in
+      print_endline (Selection.sprint (Table.get_selection table))) in
 
-  let layout = L.tower [table; L.flat_of_w [clear_sel; get_sel]] in
+  let layout = L.tower [Table.get_layout table;
+                        L.flat_of_w [clear_sel; get_sel]] in
   let board = of_layout layout in
   run board
 
@@ -853,9 +856,10 @@ let example35bis () =
   |] in
   let headers = ["English"; "French"] in
   let widths = [Some 100; Some 100] in
-  let table, _ = Table.of_array ~h:400 ~widths headers a in
+  let table = Table.of_array ~h:300 ~max_selected:0 ~widths ~align:Draw.Min headers a in
 
-  let layout = L.tower [L.resident (W.label "This is a nice table"); table] in
+  let layout = L.tower [ L.resident (W.label "Entries are not selectable");
+                         Table.get_layout table ] in
 
   let board = of_layout layout in
   run board
@@ -863,17 +867,18 @@ let example35bis () =
 let desc35ter = "a table from a list"
 let example35ter () =
   let list = [
-      ["English"; "French"];
-      [ "hello"; "salut" ];
-      [ "bye bye"; "salut"];
-      [ "see you"; "à plus"];
-      [ "darn"; "zut"];
-      [ "holy cow"; "oh punaise"]
-    ] in
+    ["English"; "French"];
+    [ "hello"; "salut" ];
+    [ "bye bye"; "salut"];
+    [ "see you"; "à plus"];
+    [ "darn"; "zut"];
+    [ "holy cow"; "oh punaise"]
+  ] in
   let widths = [Some 100; Some 150] in
-  let table, _ = Table.of_list ~h:400 ~widths list in
+  let table = Table.of_list ~h:300 ~max_selected:2 ~widths ~align:Draw.Max list in
 
-  let layout = L.tower [L.resident (W.label "This is a nice table"); table] in
+  let layout = L.tower [ L.resident (W.label "You can select up to 2 entries");
+                          Table.get_layout table ] in
 
   let board = of_layout layout in
   run board
@@ -950,7 +955,7 @@ let example39 () =
     L.tower ~vmargin:0 [L.resident ~background (W.label "Vertical fill") ] in
   Space.make_vfill center_area;
 
-  let layout = L.tower ~sep:5
+  let layout = L.tower ~resize:L.Resize.Default ~sep:5
       [L.resident (W.label "A normal flat:");
        line0;
        L.resident (W.label "A flat set to full_width and with hfill between \
@@ -1140,7 +1145,7 @@ let desc48 = "change window size"
 let example48 () =
   let td = W.text_display lorem in
   let layout = L.resident td in
-  let _ = Timeout.add 5000 (fun () -> L.set_size layout (200, 200)) in
+  let _ = Timeout.add 5000 (fun () -> L.set_size layout ~w:200 ~h:200) in
   run (of_layout layout)
 
 let desc49 = "SDL area which adapts to resizing"

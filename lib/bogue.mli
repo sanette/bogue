@@ -3,7 +3,17 @@
 
 
 (*---
-Copyright: see LICENCE
+  Copyright: see LICENCE
+
+  Note to devs: this interface file exposes only a small proportion of usable
+  Bogue functions. The idea is to publicly expose only those that are robust
+  enough and well tested.
+
+  However, for development, this is not a restriction, because the other
+  individual modules do not have any interface. If we find ourselves
+  consistently using some function, then it's a good idea to think about
+  including it here.
+
   ---*)
 
 (** General purpose GUI (Graphical user interface) library for Ocaml.
@@ -14,7 +24,7 @@ Copyright: see LICENCE
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20241212
+@version 20250207
 
 @author Vu Ngoc San
 
@@ -93,12 +103,12 @@ module L = Bogue.Layout]}
     your own Bogue share dir.  This personal Bogue dir should be
     [$(XDG_CONFIG_HOME)/bogue].  (If [$XDG_CONFIG_HOME] is not defined in your
     system, you may use [$HOME/.config/bogue]).  So, this is what you can do for
-    creating your personal Bogue dir for the first time: {v cp -r $(opam var
-    share)/bogue $HOME/.config/bogue v}
+    creating your personal Bogue dir for the first time:
+    {v cp -r $(opam var share)/bogue $HOME/.config/bogue v}
 
-
-    - Each theme has its own directory inside the Bogue share dir, in which
-    there is a [bogue.conf] file where the Theme variables are defined.
+    - Each theme has its own directory inside the [themes] directory (inside the
+    Bogue [share] dir), in which there is a [bogue.conf] file where the Theme
+    variables are defined.
 
     - A global user config file [$HOME/.config/bogue/bogue.conf] overrides the
     theme files.
@@ -152,8 +162,11 @@ v}
 - [NATURAL_SCROLLING]: "true", "false", or "auto" (default): Control the
   direction of vertical scrolling with the mouse wheel or the touchpad. If set
   to "auto", scrolling will be "natural" on Mac OS, and reversed everywhere
-  else.
-- [OPENGL_MULTISAMPLE]: set to "true" to enable this opengl attribute.
+    else.
+- [NO_VSYNC]: By default, Bogue tries to enable (Adaptive) VSync. Setting this
+    variable to "true" disables this, and then, instead, we try to detect the
+    monitors refresh rates.
+- [OPENGL_MULTISAMPLE]: set this to "true" to enable this opengl attribute.
 - [ROOM_MARGIN]
 - [SCALE]: global scale (any non-negative float). For instance if [SCALE = 2.],
   all dimensions given to Bogue functions will be multiplied by 2 before
@@ -161,7 +174,7 @@ v}
   the hardware size in pixels.
   If set to [0.] or not specified, it is autodetected to match your screen DPI
   (using [xdpyinfo], if present).
-- [INT_SCALE]: set to "true" to force integer scale when using auto-detection.
+- [INT_SCALE]: set this to "true" to force integer scale when using auto-detection.
   Some games may require this to avoid small graphics artifacts.
 - [SEL_BG_COLOR]: background color for selected items in lists.
 - [SEL_FG_COLOR]: text color for selected items in lists.
@@ -176,7 +189,7 @@ v}
   If not specified, the default theme is initially loaded.
 
 All variables with "COLOR" in their name can be specified either with RGB
-hexadecimal like [#00CED1], or with a standard html name like [darkturquoise],
+hexadecimal like "#00CED1", or with a standard html name like" darkturquoise",
 see {{:https://www.rapidtables.com/web/color/html-color-codes.html}this color
 table}.
 
@@ -236,8 +249,12 @@ module Theme : sig
   val set_label_font : string -> unit
   val set_scale : float -> unit
 
-  val set_integer_scale : bool -> unit
+  val set_int_scale : bool -> unit
     (** Set [INT_SCALE].  *)
+
+  (**/**)
+  val set_integer_scale : bool -> unit
+  (**/**)
 
   (** {2 Accessing files installed along with your application}
 
@@ -578,6 +595,7 @@ module Trigger : sig
     | `Bogue_sync_action
     | `Bogue_redraw
     | `Bogue_keymap_changed
+    | `Bogue_add_window
     ]
 
   val event_kind : Tsdl.Sdl.event -> [sdl_event | bogue_event]
@@ -1005,7 +1023,7 @@ module Selection : sig
 
   val sprint : t -> string
   val iter : (int -> unit) -> t -> unit
-
+  val fold : (int -> 'a -> 'a) -> t -> 'a -> 'a
 end (* of Selection *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -1051,6 +1069,8 @@ module Image : sig
       accuracy).
 
   *)
+
+  val set_file : t -> string -> unit
 
 end (* of Image *)
 
@@ -1481,6 +1501,22 @@ end (* of Sdl_area *)
 
 (* ---------------------------------------------------------------------------- *)
 
+(** Empty widget.
+
+    {5 {{:graph-dot-b_empty.html}Dependency graph}}
+ *)
+module Empty : sig
+  type t
+
+  val on_unload : t -> (unit -> unit) -> unit
+
+end (* of Check *)
+
+(* ---------------------------------------------------------------------------- *)
+
+
+(* ---------------------------------------------------------------------------- *)
+
 (** Creating widgets and giving life to them
 
 Widgets are simple graphic elements that can react to user interaction. They are
@@ -1650,9 +1686,11 @@ See the {{!inner}conversion functions} below. *)
 
   (** {3 Empty} *)
 
-  val empty : w:int -> h:int -> unit -> t
+  val empty : ?unload:(unit -> unit) -> w:int -> h:int -> unit -> t
   (** Create a widget that does not display anything but still gets focus and
-     reacts to events. *)
+      reacts to events. Optionally, execute an action when the widget is not
+      "used" anymore (that is to say when the containing layout is removed from
+      the board.) *)
 
   (** {3 Image} *)
 
@@ -1759,14 +1797,15 @@ See the {{!inner}conversion functions} below. *)
      the correct type.  *)
 
   val get_box : t -> Box.t
-  val get_check : t -> Check.t
-  val get_label : t -> Label.t
   val get_button : t -> Button.t
+  val get_check : t -> Check.t
+  val get_empty : t -> Empty.t
+  val get_image : t -> Image.t
+  val get_label : t -> Label.t
+  val get_sdl_area : t -> Sdl_area.t
   val get_slider : t -> Slider.t
   val get_text_display : t -> Text_display.t
   val get_text_input : t -> Text_input.t
-  val get_image : t -> Image.t
-  val get_sdl_area : t -> Sdl_area.t
 
   (** {2 Generic actions} *)
 
@@ -1857,10 +1896,9 @@ module Layout : sig
   (** Free the texture associated with the background (if any). This can be used
      to force recreating it. *)
 
-  (** {2 Resize strategies} *)
+  (** {2 Resize strategies for {!flat} and {!tower}} *)
   module Resize : sig
     type strategy =
-      | Keep (** Keep and apply the individual rooms resize functions. *)
       | Disable (** Don't resize (and cancel the rooms resize functions). *)
       | Linear (** Scale only in one direction, horizontal or vertical depending
                    on function (flat or tower). *)
@@ -1919,7 +1957,8 @@ module Layout : sig
     ?resize:Resize.strategy ->
     ?clip:bool -> t list -> t
   (** Create a horizontal arrangement from a list of rooms.
-      + [sep] = horizontal space between two rooms.
+      + [sep] = horizontal space between two rooms (except on the right hand side
+      of a room of zero width).
       + [hmargin] = horizontal margin (left and right).
       + [vmargin] = vertical margin (top and bottom).
       + if [margins] is set, then sep, hmargin and vmargin are all set to this value.
@@ -1941,7 +1980,8 @@ module Layout : sig
     ?scale_content:bool ->
     t list -> t
   (** Create a new layout by superposing a list of layouts without changing
-     their (x,y) position. *)
+      their (x,y) position. Warning: if a room in a [superpose] layout is later
+      moved out of the bounding box, it will never get mouse focus. *)
 
   (** Remark: when creating a house (a layout) with [flat*], [tower*], or
       [superpose], the size of the inner rooms will be automatically updated
@@ -2025,6 +2065,13 @@ module Layout : sig
   (** Set the layout to automatically scale its inner rooms when the layout size
      is modified. *)
 
+  val resize_keep_margins : ?margin:int ->
+    ?min_width:int -> ?min_height:int -> ?max_width:int -> ?max_height:int ->
+    t -> unit
+  (** When asked to resize, the layout will keep the initial 4 margins with
+     respect to its house. *)
+
+
   val disable_resize : t -> unit
   (** This makes sure that nothing is executed when someone tries to resize the
       layout (that is, when the size of the layout's house changes). Warning;
@@ -2035,11 +2082,11 @@ module Layout : sig
   val on_resize : t -> (unit -> unit) -> unit
   (** [on_resize room f] will execute [f ()] upon resizing the room's house (or
       the room's window, in case the room is the top house, see {!top_house}),
-      in addition to the already registered resized functions. Warning: placing
+      in addition to the already registered resize functions. Warning: placing
       the room in another layout will likely reset the resize function (unless
-      you set the [scale_content] flag to [false], see eg. {!flat} and the
-      remark below that). Hence [on_resize] should be called after the room is
-      hosted in its house. *)
+      you set the [resize] flag to [Keep], see eg. {!flat} and the remark below
+      that). Hence [on_resize] should be called after the room is hosted in its
+      house. *)
 
   val set_width : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
     -> t -> int -> unit
@@ -2048,10 +2095,10 @@ module Layout : sig
       these functions will stop the automatic resizing mechanism of the
       room. Use {!auto_scale} to reactivate it. *)
 
-  val set_height :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
+  val set_height : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
                   -> t -> int -> unit
-  val set_size :  ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool
-                  -> t -> int * int -> unit
+  val set_size : ?keep_resize:bool -> ?check_window:bool -> ?update_bg:bool ->
+    ?w:int -> ?h:int -> t -> unit
   val setx : ?keep_resize:bool -> t -> int -> unit
   val sety : ?keep_resize:bool -> t -> int -> unit
   val set_show : t -> bool -> unit
@@ -2067,17 +2114,22 @@ module Layout : sig
 
   val set_rooms : t -> ?sync:bool -> t list -> unit
   (** Modify the layout content by replacing the former content by a new list of
-     rooms. Use [sync=true] (the default) as much as possible in order to avoid
-     multi-threading problems. Then the changes will be applied by the main
+      rooms. Use [sync=true] (the default) as much as possible in order to avoid
+      multi-threading problems. Then the changes will be applied by the main
       thread at next frame (see {!Sync}). *)
 
   val replace_room : by:t -> t -> bool
   (** Replace [room] by [by] inside its "house" in lieu and place of the initial
-      room. No size adjustments are made. Of course this is dangerous, because
-      it modifies both the house and [by]. Beware of circular
-      dependencies... Cannot be used for the [top_house] (the window layout)
-      because that layout has no house. Will not accept to proceed if [by]
-      already belongs to a house. Returns [true] if successful. *)
+      room. No size adjustments are made.
+
+      Using [replace_room] can be dangerous, because it modifies both the
+      [room]'s house and [by]. Beware of circular dependencies...
+
+      This function cannot be used for the [top_house] (the window layout)
+      because that layout has no house. Also, the function not accept to proceed
+      if [by] already belongs to a house.
+
+      @return [true] if successful. *)
 
   val set_enabled : t -> bool -> unit
   (** Disable or enable a layout and all its rooms recursively. A disabled
@@ -2290,322 +2342,6 @@ end (* of Print *)
 
 (* ---------------------------------------------------------------------------- *)
 
-(** Create an image from a Layout.
-
-{5 {{:graph-dot-b_snapshot.html}Dependency graph}}
-*)
-module Snapshot : sig
-
-  val create : ?border:Style.border -> Layout.t -> Widget.t
-  (** Should be called from the main thread only. There are some issues with
-     transparency.
-      @return a Box widget. *)
-
-  val to_cursor : ?hot_x:int ->
-    ?hot_y:int -> Layout.t -> Tsdl.Sdl.cursor option
-
-end (* of Snapshot *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Handle large lists by not displaying all elements at once.
-
-Very quickly, displaying a list of layouts (for instance, listing files in a
-   directory) can run the computer out of memory if it tries to keep in memory
-   the textures of {b all} entries of the list. In these cases you need to use a
-   [Long_list].
-
-See for instance the example 34: `boguex 34` that displays a list of 1 million
-   entries.
-
-Long_lists may contain any type of Layout. They don't need to be all of the same
-   dimension. Instead of providing the list of layouts, one must give a function
-   [generate] such that the layout given by [generate i] is the i-eth element of
-   the list.
-
-{5 {{:graph-dot-b_long_list.html}Dependency graph}} *)
-module Long_list : sig
-  type t
-
-  val create : ?name:string ->
-    w:int -> h:int -> length:int -> ?first:int ->
-    generate:(int -> Layout.t) ->
-    ?height_fn:(int -> int option) ->
-    ?cleanup:(Layout.t -> unit) ->
-    ?max_memory:int ->
-    ?linear:bool -> ?scrollbar_width:int -> ?scale_width:bool -> unit -> Layout.t
-  (** Create a long list through the function [generate] which maps any index
-     {e i} to the {e ieth} element (layout) of the list. If specified (which is
-     not a good idea), the [max_memory] should be at least twice the area (in
-     physical pixels) of the visible part of the list. If the number of elements
-     is large (typically 100000 or more, this depends on your CPU), its is
-     highly advisable to provide a [height_fn], which to an index {e i} gives
-     the height (in logical pixels) of the {e ieth} entry. If some heights are
-     not known in advance, it's ok to return [None]. For instance, if all
-     entries have the same height, say 30 pixels, one can define
-
-      {[ let height_fn _ = Some 30 ]} *)
-
-end (* of Long_list *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Switch between layouts using Tabs.
-
-{5 {{:graph-dot-b_tabs.html}Dependency graph}}
-*)
-module Tabs : sig
-
-  val create :
-    ?slide:Avar.direction ->
-    ?adjust:Layout.adjust -> ?expand:bool ->
-    ?canvas:Draw.canvas ->
-    ?name:string -> (string * Layout.t) list -> Layout.t
-end (* of Tabs *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Put layouts on top of others.
-
-{e Warning:} For all functions in this module, the destination layout must be a
-   house, not a single resident.
-
-{5 {{:graph-dot-b_popup.html}Dependency graph}} *)
-module Popup : sig
-
-  val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
-  (** Add a screen on top of the layout. This can be useful to make the whole
-      layout clickable as a whole.
-      @return the screen. *)
-
-  (** Generic modal type popup *)
-  val attach : ?bg:Draw.color ->
-    ?show:bool -> Layout.t -> Layout.t -> Layout.t
-  (** [attach house layout] adds two layers on top of the house: one for the
-     screen to hide the house, one for the layout on top of the screen.
-     @return the screen. *)
-
-  val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
-    ?button:string -> string -> Layout.t -> unit
-  (** Add to the layout a modal popup with a text and a close button. By
-      default, [button="Close"]. Use the optional parameters [w,h] to impose the
-      size of the button. *)
-
-  val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
-    ?yes:string -> ?no:string ->
-    yes_action:(unit -> unit) ->
-    no_action:(unit -> unit) -> string -> Layout.t -> unit
-  (** Add to the layout a modal popup with two yes/no buttons. By default,
-      [yes="Yes"] and [no="No"]. Use the optional parameters [w,h] to impose the
-      common size of the two buttons. *)
-
-  val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
-    button:string -> dst:Layout.t -> Layout.t -> unit
-  (** Here the optional parameters [w] and [h] set the width and height of the
-      button.*)
-
-  val two_buttons : ?w:int -> ?h:int -> label1:string -> label2:string ->
-    action1:(unit -> unit) -> action2:(unit -> unit) ->
-    content:Layout.t -> Layout.t -> unit
-
-  type position =
-  | LeftOf
-  | RightOf
-  | Above
-  | Below
-  | Mouse
-
-  val tooltip : ?background:Layout.background ->
-    ?position:position ->
-    string -> target:Layout.t -> Widget.t -> Layout.t -> unit
-  (** [tooltip text ~target widget layout] adds a tooltip which will appear on
-     [layout], next to [target] (which should be a sublayout of [layout]), when
-     the [widget] gets mouse focus and mouse is idle for some time on it. A
-     tooltip it not a modal popup, it does not prevent from interacting with the
-     rest of the layout. *)
-
-end (* of Popup *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Various types of menus.
-
-The generic {!create} function produces menus whose entries can be arbitrary
-   layouts located at arbitrary places. But for usual entries, it is enough to
-   provide a string for the entry label, and the layout will be constructed
-   automatically.
-
-The specialized {!bar} function will produce a familiar menu bar with drop-down
-   submenus.
-
-{5 {{:graph-dot-b_menu.html}Dependency graph}}
-*)
-module Menu : sig
-
-  type t
-  (* The type of generic menus. *)
-
-  type action = unit -> unit
-
-  type label =
-    | Text of string
-    | Layout of Layout.t
-
-  type entry = {
-      label : label;
-      content : content }
-
-  and content =
-    | Action of action
-    | Flat of entry list
-    (** A Flat content will produce a horizontal menu *)
-    | Tower of entry list
-    (** A Tower content will produce a vertical menu *)
-    | Custom of entry list
-    (** In a Custom content, only Layout labels should be used, and their
-       position should be defined before creating the menu. *)
-    | Separator
-    (** Currently only used for inserting separator lines in Tower menus. *)
-
-  val create : ?dst:Layout.t -> content -> t
-(** Generic menu creation, inserted in the [dst] layout. *)
-
-  val add_bar : dst:Layout.t -> entry list -> unit
-  (** Creation of a menu bar in the [dst] layout, with drop-down submenus.
-      [bar dst entries] inserts a layout which contains the menu bar into the top of
-      the [dst] layout (so, some room should be provided). The [dst] layout
-      should be big enough to contain the submenus. Any item flowing out of [dst]
-      will not get focus. *)
-
-  val bar : entry list -> Layout.t
-  (** Return a menu layout that will be installed with {!add_bar} into the top
-     house at startup. *)
-
-  val separator : entry
-
-end
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Drop-down select list.
-
-It's the usual select box which opens a drop-down list when clicked on, similar
-   to the [<select>] html tag.
-
- Under the hood, a select list is a special type of menu with a single entry
-   having a submenu.
-
-{5 {{:graph-dot-b_select.html}Dependency graph}} *)
-module Select : sig
-
-  val create : ?dst:Layout.t ->
-    ?name:string ->
-    ?action:(int -> unit) ->
-    ?fg:Draw.color ->
-      string array -> int -> Layout.t
-  (** [create string_array i] creates a select box with preselected entry
-     [i]. For instance [create [| "A"; "B"; "C" |] 1] will create a select box
-     with default choice ["B"]. The [action] (if specified) is executed when an
-     item is selected, and takes as argument the index of the selected item.
-
-        @return a layout showing the selected item. *)
-
-end (* of Select *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Check list with a single choice.
-
-    Each item of the list is displayed with a 'radio button' in front of it, and
-   at most one item can be selected, similarly to [<input type="radio"...>] in
-   html. Radiobuttons are implemented with {!Check.t}.
-
-{5 {{:graph-dot-b_radiolist.html}Dependency graph}}
-*)
-module Radiolist : sig
-  type t
-
-  val vertical : ?name:string -> ?click_on_label:bool -> ?selected:int -> string array -> t
-  (** A radiolist with the usual vertical layout of items. The option [click_on_label] is true be default: one can click on the label to select it. *)
-
-  val of_widgets : ?selected:int -> Widget.t list -> t
-
-  val layout : t -> Layout.t
-  (** The layout to display the radiolist. *)
-
-  val get_index : t -> int option
-  val set_index : t -> int option -> unit
-  (** Set the selected entry to the specified index and directly activate the
-     button's connections with the {!Trigger.var_changed} event. *)
-
-  val active_widgets : t -> Widget.t list
-  (** @return the list of widgets that are active for selecting entries ({e
-     i.e.} either radiobuttons or radiobuttons and labels, depending on
-     [click_on_label]. *)
-end (* of Radiolist *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Tables with sortable columns and selectable rows.
-
-{5 {{:graph-dot-b_table.html}Dependency graph}}
-*)
-module Table : sig
-  type column =
-    { title : string;
-      length : int; (** number of entries in the column. *)
-      rows : int -> Layout.t;
-      (** [row i] should return the Layout corresponding to the ieth entry of
-          that column. *)
-      compare : (int -> int -> int) option;
-      (** if a compare function is provided, then the column will be dynamically
-          sortable by the user. [compare i1 i2 > 0] means that entry [i1] is
-          larger than entry [i2]. *)
-      min_width : int option; (** pixel width of the column. If not specified,
-                                  the max width of entries will be used. *)
-    }
-  type t
-
-  val create : ?w:int -> h:int -> ?row_height:int ->
-    ?name:string ->
-    column list -> Layout.t * (Selection.t, Selection.t) Tvar.t
-  (** Create a table by specifying its list of {b columns}; in each column, the
-      entries can be arbitrary layouts. If entries are simple text labels, it's
-      easier to use the helper functions {!of_array} or {!of_list}.
-
-      @return a layout and a {!Tvar}. The Tvar can be used to see which rows were
-        selected by the user, and also to modify the selection if needed.
-
-      @see "example 35". *)
-
-  val of_array : ?w:int ->
-    h:int ->
-    ?widths:int option list ->
-    ?row_height:int ->
-    ?name:string ->
-    string list ->
-    string array array -> Layout.t * (Selection.t, Selection.t) Tvar.t
-  (** Create a table from an array of {b rows}, each row being a string
-      array.
-
-      @see "example 35bis". *)
-
-  val of_list :
-    ?w:int ->
-    h:int ->
-    ?widths:int option list ->
-    ?row_height:int ->
-    ?name:string ->
-    string list list -> Layout.t * (Selection.t, Selection.t) Tvar.t
-    (** Create a table from a list of {b rows}, each row being a string list.
-
-       @see "example 35ter". *)
-
-
-end (* of Table *)
-
-(* ---------------------------------------------------------------------------- *)
-
 (** {2 Windows}
 
     In order to display a Layout, Bogue needs to create a {!Window.t} for it,
@@ -2619,12 +2355,13 @@ module Window : sig
   type t
   val create : ?on_close:(t -> unit) -> Layout.t -> t
   (** Create a window from the given layout. The layout must not belong to any
-     room. If the layout is hidden, the window will be created but not shown.
-     @param on_close Set the function to be executed when the user wants to
-     close the window. By default, the window will be destroyed. Hence, setting
-     a function can prevent the window from being closed. However, if this is
-     the sole open window, clicking on the close button will also emit the
-     'Quit' event, and will terminate Bogue anyways. *)
+      room. If the layout is hidden, the window will be created but not shown.
+
+      @param on_close Set the function to be executed when the user wants to
+        close the window. By default, the window will be destroyed. Hence,
+        setting a function can prevent the window from being closed. However, if
+        this is the sole open window, clicking on the close button will also
+        emit the 'Quit' event, and will terminate Bogue anyways. *)
 
   val on_close : t -> (t -> unit) option -> unit
   (** Modify the on_close parameter of {!create}. *)
@@ -2779,8 +2516,559 @@ end (* of Main *)
 
 (* ---------------------------------------------------------------------------- *)
 
+(** Create an image from a Layout.
+
+{5 {{:graph-dot-b_snapshot.html}Dependency graph}}
+*)
+module Snapshot : sig
+
+  val create : ?border:Style.border -> Layout.t -> Widget.t
+  (** Should be called from the main thread only. There are some issues with
+     transparency.
+      @return a Box widget. *)
+
+  val to_cursor : ?hot_x:int ->
+    ?hot_y:int -> Layout.t -> Tsdl.Sdl.cursor option
+
+end (* of Snapshot *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Handle large lists by not displaying all elements at once.
+
+Very quickly, displaying a list of layouts (for instance, listing files in a
+   directory) can run the computer out of memory if it tries to keep in memory
+   the textures of {b all} entries of the list. In these cases you need to use a
+   [Long_list].
+
+See for instance the example 34: `boguex 34` that displays a list of 1 million
+   entries.
+
+Long_lists may contain any type of Layout. They don't need to be all of the same
+   dimension. Instead of providing the list of layouts, one must give a function
+   [generate] such that the layout given by [generate i] is the i-eth element of
+   the list.
+
+{5 {{:graph-dot-b_long_list.html}Dependency graph}} *)
+module Long_list : sig
+  type t
+
+  val create : ?name:string ->
+    w:int -> h:int -> length:int -> ?first:int ->
+    generate:(int -> Layout.t) ->
+    ?height_fn:(int -> int option) ->
+    ?cleanup:(Layout.t -> unit) ->
+    ?max_memory:int ->
+    ?linear:bool -> ?scrollbar_width:int -> ?scale_width:bool -> unit -> t
+  (** Create a long list through the function [generate] which maps any index
+     {e i} to the {e ieth} element (layout) of the list. If specified (which is
+     not a good idea), the [max_memory] should be at least twice the area (in
+     physical pixels) of the visible part of the list. If the number of elements
+     is large (typically 100000 or more, this depends on your CPU), its is
+     highly advisable to provide a [height_fn], which to an index {e i} gives
+     the height (in logical pixels) of the {e ieth} entry. If some heights are
+     not known in advance, it's ok to return [None]. For instance, if all
+     entries have the same height, say 30 pixels, one can define
+
+      {[ let height_fn _ = Some 30 ]} *)
+
+  val create_layout : ?name:string ->
+    w:int -> h:int -> length:int -> ?first:int ->
+    generate:(int -> Layout.t) ->
+    ?height_fn:(int -> int option) ->
+    ?cleanup:(Layout.t -> unit) ->
+    ?max_memory:int ->
+    ?linear:bool -> ?scrollbar_width:int -> ?scale_width:bool -> unit -> Layout.t
+  (** Similar to [create] but only returns the layout. Equivalent to calling
+      {!get_layout} to the result of [create]. *)
+
+  val get_layout : t -> Layout.t
+  val get_scroll : t -> float
+  (** Return the scroll percentage of the Long list, between 0 and 1. A value of
+      0 means no scroll: the first row is visible. The value 1 means that the
+      scrollbar is fully downwards, the last row is visible. *)
+
+  val set_scroll : t -> float -> unit
+
+end (* of Long_list *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Switch between layouts using Tabs.
+
+{5 {{:graph-dot-b_tabs.html}Dependency graph}}
+*)
+module Tabs : sig
+
+  val create :
+    ?slide:Avar.direction ->
+    ?adjust:Layout.adjust -> ?expand:bool ->
+    ?canvas:Draw.canvas ->
+    ?name:string -> (string * Layout.t) list -> Layout.t
+end (* of Tabs *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Put layouts on top of others.
+
+{e Warning:} For all functions in this module, the destination layout must be a
+   house, not a single resident.
+
+{5 {{:graph-dot-b_popup.html}Dependency graph}} *)
+module Popup : sig
+
+  val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
+  (** Add a screen on top of the layout. This can be useful to make the whole
+      layout clickable as a whole.
+      @return the screen. *)
+
+  (** Generic modal type popup *)
+  val attach : ?bg:Draw.color ->
+    ?show:bool -> Layout.t -> Layout.t -> Layout.t
+  (** [attach house layout] adds two layers on top of the house: one for the
+     screen to hide the house, one for the layout on top of the screen.
+     @return the screen. *)
+
+  val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
+    ?button:string -> string -> Layout.t -> unit
+  (** Add to the layout a modal popup with a text and a close button. By
+      default, [button="Close"]. Use the optional parameters [w,h] to impose the
+      size of the button. *)
+
+  val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
+    ?yes:string -> ?no:string ->
+    yes_action:(unit -> unit) ->
+    no_action:(unit -> unit) -> string -> Layout.t -> unit
+  (** Add to the layout a modal popup with two yes/no buttons. By default,
+      [yes="Yes"] and [no="No"]. Use the optional parameters [w,h] to impose the
+      common size of the two buttons. *)
+
+  val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
+    button:string -> dst:Layout.t -> Layout.t -> unit
+  (** Here the optional parameters [w] and [h] set the width and height of the
+      popup (including the buttons) by scaling the given layout.*)
+
+  val two_buttons : ?dst:Layout.t -> ?board:Main.board ->
+    ?button_w:int -> ?button_h:int ->
+    ?w:int -> ?h:int -> ?screen_color:Draw.color ->
+    label1:string -> label2:string ->
+    action1:(unit -> unit) -> action2:(unit -> unit) -> ?connect2:(Widget.t -> unit) ->
+    Layout.t -> unit
+  (** If [dst] is present, a popup containing the given layout (and two buttons)
+      will be contructed inside [dst], otherwise a new window will be
+      created. In the latter case, the creation of the new window depends on the
+      [board] argument. If the [board] argument is provided, the new window will
+      be immediately attached to the board; otherwise, the new window will be
+      created (by the main thread) when the board is running, at the start of
+      the next frame. The [board] argument has no effect if [dst] is provided.
+
+      The optional parameter [connect2] can be used
+      to establish a connection to or from the second button. For instance, one
+      can use this to disable the button if some condition is not met. This is
+      used in {!File.select_file}. *)
+
+  type position =
+  | LeftOf
+  | RightOf
+  | Above
+  | Below
+  | Mouse
+
+  val tooltip : ?background:Layout.background ->
+    ?position:position ->
+    string -> target:Layout.t -> Widget.t -> Layout.t -> unit
+  (** [tooltip text ~target widget layout] adds a tooltip which will appear on
+     [layout], next to [target] (which should be a sublayout of [layout]), when
+     the [widget] gets mouse focus and mouse is idle for some time on it. A
+     tooltip it not a modal popup, it does not prevent from interacting with the
+     rest of the layout. *)
+
+end (* of Popup *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Various types of menus.
+
+The generic {!create} function produces menus whose entries can be arbitrary
+   layouts located at arbitrary places. But for usual entries, it is enough to
+   provide a string for the entry label, and the layout will be constructed
+   automatically.
+
+The specialized {!bar} function will produce a familiar menu bar with drop-down
+   submenus.
+
+{5 {{:graph-dot-b_menu.html}Dependency graph}}
+*)
+module Menu : sig
+
+  type t
+  (* The type of generic menus. *)
+
+  type action = unit -> unit
+
+  type label =
+    | Text of string
+    | Layout of Layout.t
+
+  type entry = {
+      label : label;
+      content : content }
+
+  and content =
+    | Action of action
+    | Flat of entry list
+    (** A Flat content will produce a horizontal menu *)
+    | Tower of entry list
+    (** A Tower content will produce a vertical menu *)
+    | Custom of entry list
+    (** In a Custom content, only Layout labels should be used, and their
+       position should be defined before creating the menu. *)
+    | Separator
+    (** Currently only used for inserting separator lines in Tower menus. *)
+
+  val create : ?dst:Layout.t -> content -> t
+(** Generic menu creation, inserted in the [dst] layout. *)
+
+  val add_bar : dst:Layout.t -> entry list -> unit
+  (** Creation of a menu bar in the [dst] layout, with drop-down submenus.
+      [bar dst entries] inserts a layout which contains the menu bar into the top of
+      the [dst] layout (so, some room should be provided). The [dst] layout
+      should be big enough to contain the submenus. Any item flowing out of [dst]
+      will not get focus. *)
+
+  val bar : entry list -> Layout.t
+  (** Return a menu layout that will be installed with {!add_bar} into the top
+     house at startup. *)
+
+  val separator : entry
+
+end
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Drop-down select list.
+
+It's the usual select box which opens a drop-down list when clicked on, similar
+   to the [<select>] html tag.
+
+ Under the hood, a select list is a special type of menu with a single entry
+   having a submenu.
+
+{5 {{:graph-dot-b_select.html}Dependency graph}} *)
+module Select : sig
+
+  val create : ?dst:Layout.t ->
+    ?name:string ->
+    ?action:(int -> unit) ->
+    ?fg:Draw.color ->
+      string array -> int -> Layout.t
+  (** [create string_array i] creates a select box with preselected entry
+     [i]. For instance [create [| "A"; "B"; "C" |] 1] will create a select box
+     with default choice ["B"]. The [action] (if specified) is executed when an
+     item is selected, and takes as argument the index of the selected item.
+
+        @return a layout showing the selected item. *)
+
+end (* of Select *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Check list with a single choice.
+
+    Each item of the list is displayed with a 'radio button' in front of it, and
+   at most one item can be selected, similarly to [<input type="radio"...>] in
+   html. Radiobuttons are implemented with {!Check.t}.
+
+{5 {{:graph-dot-b_radiolist.html}Dependency graph}}
+*)
+module Radiolist : sig
+  type t
+
+  val vertical : ?name:string -> ?click_on_label:bool -> ?selected:int -> string array -> t
+  (** A radiolist with the usual vertical layout of items. The option [click_on_label] is true be default: one can click on the label to select it. *)
+
+  val of_widgets : ?selected:int -> Widget.t list -> t
+
+  val layout : t -> Layout.t
+  (** The layout to display the radiolist. *)
+
+  val get_index : t -> int option
+  val set_index : t -> int option -> unit
+  (** Set the selected entry to the specified index and directly activate the
+     button's connections with the {!Trigger.var_changed} event. *)
+
+  val active_widgets : t -> Widget.t list
+  (** @return the list of widgets that are active for selecting entries ({e
+     i.e.} either radiobuttons or radiobuttons and labels, depending on
+     [click_on_label]. *)
+end (* of Radiolist *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Tables with sortable columns and selectable rows.
+
+    - Click on a row to select or unselect it.
+    - After clicking on a row, hit CTRL-A to select all rows at once.
+    - After clicking a row, click on another row with SHIFT pressed to select
+      a range of rows.
+
+    Tables internally use a {!Long_list} and hence will handle nicely a very
+    large number of rows. A scrollbar will appear as soon as the whole table
+    does not fit in the layout.
+
+{5 {{:graph-dot-b_table.html}Dependency graph}}
+*)
+module Table : sig
+  type column =
+    { title : string;
+      length : int; (** number of entries in the column. *)
+      rows : int -> Layout.t;
+      (** [row i] should return the Layout corresponding to the ieth entry of
+          that column. *)
+      compare : (int -> int -> int) option;
+      (** if a compare function is provided, then the column will be dynamically
+          sortable by the user. [compare i1 i2 > 0] means that entry [i1] is
+          larger than entry [i2]. *)
+      min_width : int option; (** pixel width of the column. If not specified,
+                                  the max width of the first 50 entries will be
+                                  used. *)
+      align : Draw.align option
+    }
+  type t
+
+  val create : h:int -> ?row_height:int -> ?name:string ->
+    ?on_click:(t -> int -> unit) ->
+    ?max_selected:int -> ?selection:Selection.t ->
+    ?on_select:(Selection.t -> unit) -> column list -> t
+  (** Create a table by specifying its list of {b columns}; in each column, the
+      entries can be arbitrary layouts. If entries are simple text labels, it's
+      easier to use the helper functions {!of_array} or {!of_list}. If
+      [row_height] is not specified, the height of the first row is used
+      instead. The width of the table is determined by the [min_width] column
+      parameters.
+
+      Some rows can be initially selected by providing the [selection] argument.
+
+      The function [on_select] is executed each time the selection is
+      modified. Its argument is the new selection. This function is executed {e
+      before} the new selection is recorded in the table variable (of type [t]).
+
+      @see "example 35". *)
+
+  val of_array :
+    h:int ->
+    ?widths:int option list ->
+    ?row_height:int ->
+    ?name:string -> ?on_click:(t -> int -> unit) ->
+    ?max_selected:int -> ?selection:Selection.t ->
+    ?on_select:(Selection.t -> unit) -> ?align:Draw.align ->
+    string list ->
+    string array array -> t
+  (** Create a table from an array of {b rows}, each row being a string
+      array.
+
+      @see "example 35bis". *)
+
+  val of_list :
+    h:int ->
+    ?widths:int option list ->
+    ?row_height:int ->
+    ?name:string -> ?max_selected:int ->
+    ?selection:Selection.t -> ?on_select:(Selection.t -> unit) ->
+    ?align:Draw.align ->
+    string list list -> t
+    (** Create a table from a list of {b rows}, each row being a string list.
+
+       @see "example 35ter". *)
+
+  val get_layout : t -> Layout.t
+  (** Use this layout to display your table. *)
+
+  val get_selection : t -> Selection.t
+  (**  Which rows were selected by the user. *)
+
+  val set_selection : t -> Selection.t -> unit
+  val sort_column : t -> ?reverse:bool -> int -> unit
+  val min_width : t -> int
+  (** Hint for minimum width of the table layout; it's up to the user to
+      enforce this. *)
+
+  val min_height : t -> int
+    (** Same remark. *)
+end (* of Table *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** File dialog and file monitor
+
+    This module offers a quite complete file dialog layout.
+
+    - The dialog opens either in a {e new window}, or as a {!Popup} on top of any
+    existing layout. It can also be inserted anywhere just like any other
+    layout.
+    - Select {b files} or {b directories}
+    - Optionally limit the number of selected files
+    - File system is automatically {b monitored} so that changes in the open
+    directory are automatically taken into account.contents
+    - File system can be easily {b navigated} by either clicking on the children
+    directories, or entering manually the requested path, or clicking on parents
+    directories in a special breadcrumb layout.
+    - The whole layout is resizable by the user.
+
+    {b Warning: } Some {!options} are not implemented yet; these -- and more
+    features -- will certainly be added in the future.
+
+    {5 {{:graph-dot-b_file.html}Dependency graph}}
+*)
+module File : sig
+
+  type t (** The type for file dialogs. *)
+
+  type options
+
+  val set_options :
+    ?width:int -> ?height:int ->
+    ?dirs_first:bool ->
+    ?show_hidden:bool ->
+    ?hide_backup:bool ->
+    ?max_selected:int ->
+    ?hide_dirs:bool ->
+    ?only_dirs:bool ->
+    ?breadcrumb:bool ->
+    ?system_icons:bool ->
+    ?open_dirs_on_click:bool ->
+    ?mimetype:Str.regexp ->
+    ?on_select:(int * int -> unit) -> unit -> options
+  (** @param dirs_first partially implemented
+      @param system_icons not implemented
+  *)
+
+  type entry (** The [entry] type can be used to create filters for selecting
+                 what is actually displayed by the file dialog. *)
+
+  val filename : entry -> string
+  val lstat_opt : entry -> Unix.stats option
+  val stat_opt : entry -> Unix.stats option
+  (** The [stat_opt] and [lstat_opt] return the corresponding pre-computed
+      [Unix.stats] results, without actually calling any system function.  *)
+
+  val dialog : ?full_filter:(entry -> bool) -> ?options:options -> string -> t
+  (** Use this function if you need unusual combinations of options. For most
+      common uses, see {!select_file} (and others) below. *)
+
+  val get_layout : t -> Layout.t
+  val get_selected : t -> string list
+  (** Return the (alphabetically sorted) list of selected files or
+      directories. *)
+
+  val basedir : t -> string
+
+  val select_file : ?dst:Layout.t -> ?board:Main.board ->
+    ?w:int -> ?h:int -> ?mimetype:Str.regexp ->
+    string -> (string -> unit) -> unit
+  (** Open a file selector on top of the [dst] layout, or in a new window if
+      [dst] is not provided.
+
+      @param mimetype only show files whose mimetype string (like "image/png")
+        matches the regular expression.
+
+      @param board See {!Popup.two_buttons}. Note that, if [board] is omitted,
+        the window will be created at the next frame, but the file selector
+        layout is immediately created.  *)
+
+  val select_files : ?dst:Layout.t -> ?board:Main.board ->
+    ?w:int -> ?h:int -> ?mimetype:Str.regexp ->
+    ?n_files:int -> string -> (string list -> unit) -> unit
+  (** Several files can be selected. If [n_files] is provided, it will be the
+      maximum number of files that can be selected. *)
+
+  val select_dir : ?dst:Layout.t -> ?board:Main.board ->
+    ?w:int -> ?h:int -> string -> (string -> unit) -> unit
+
+  val select_dirs : ?dst:Layout.t -> ?board:Main.board ->
+    ?w:int -> ?h:int -> ?n_dirs:int -> string -> (string list -> unit) -> unit
+
+  (**/**)
+  val select_file_new_window : ?board:Main.board -> ?w:int -> ?h:int -> string ->
+    (string list -> unit) -> unit
+  (**/**)
+
+  (** Monitoring changes in a directory. All functions are non-blocking and
+      return very fast, even if the path is remote or the directory is huge. To
+      achieve this, monitoring is done in a separate thread and one has to
+      accept a delay before actual changes to the file-system are reported. We
+      provide two implementations, one is based on the external [fswatch]
+      program, and the other is based only on built-in Ocaml functions (which
+      are maybe more memory and cpu intensive). *)
+  module type Monitor = sig
+    type t
+    val path : t -> string
+    val start : ?delay:float -> ?action:(t -> unit) -> string -> t
+    (** [start path] starts monitoring the directory or file [path] and
+        immediately returns. It is not an error if [path] does not exist or is
+        deleted, see below. The [delay] parameter is the time interval (in
+        seconds) between polls. The [action] function is executed for each
+        modification (it might be a false positive; it should be fast and non
+        blocking (typically just sending an event). Check [modified] below to get
+        the actual changes.) Thus, what we call "current" will always mean "not
+        older than delay".  The default delay is 1 second. It may be internally
+        increased if the polls take too much time. *)
+
+    val delay : t -> float
+    (** Return the delay (in seconds) between two polls. *)
+
+    val stop : t -> unit
+    val ls : t -> string list
+    (** [ls m] returns the "old" list of files watched by the monitor [m] when the
+        last [*modified] function was called. If [m] monitors a directory, [ls m]
+        is the content of the directory (without "." and ".."), otherwise [ls m]
+        is [["."]] if the file exists, or [[]] if not. This function takes
+        advantage of the monitoring data to return faster (in general) than
+        rescanning the directory with [Sys.readdir]. *)
+
+    val size : t -> int option
+    (** If [t] monitors a directory, then [size t] is the number of elements of
+        this directory, before recent modifications. Otherwise, [size t] returns
+        None. Calling [size t] is equivalent to but faster than
+        [List.length (ls t)]. *)
+
+    val modified : t -> string list * string list * string list
+    (** Return three lists of files (or directories) names that have been modified
+        since last call of this function or of [was_modified]:
+
+        {e list of deleted elements, list of added elements, list of modified elements}
+
+        File names do not include the directory path. These lists can be equal to
+        the singleton ["."] in some special cases:
+
+        + if the [path] now exists but did not exist in the previous call to
+        [*modified], then the [added] list is [["."]] and the others are empty (even
+        if some contents of [path] were modified in the meantime: remember that we
+        only compare to the previous call to [*modified].)
+        + if the [path] existed in the previous call to [*modified] but not
+        anymore, then the [deleted] list is [["."]] and the others are empty.
+        + if the [path] existed in the previous call to [*modified], then has
+        disappeared and then reappeared again, the [modified] function will return
+        [[], ["."], []] instead of the explicit difference, telling you that it is
+        safer to read the contents again (using [ls] for instance). *)
+
+    val was_modified : t -> bool
+    (** Simply returns true if files were modified since the last call of this
+        function or of [modified]. The list of modified files cannot be
+        retrieved. This is (semantically) equivalent to checking if the lists
+        returned by [modified] are empty, but possibly faster. *)
+  end
+
+end
+
+(* ---------------------------------------------------------------------------- *)
+
 (** Alias for {!Main} *)
 module Bogue = Main
+
+(**/**)
+val run_tests : unit -> unit
+(**/**)
 
 (* ---------------------------------------------------------------------------- *)
 

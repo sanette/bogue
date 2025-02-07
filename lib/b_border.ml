@@ -80,7 +80,7 @@ let draw_random renderer ?(border_width = 10.) shape colorfn npoints =
             |> mult (s *. border_width) |> add p |> logical_to_physical in
     let r,g,b,a = colorfn t s in
     go (Sdl.set_render_draw_color renderer r g b a);
-    print_endline (Printf.sprintf "POINT = %i,%i, COLOR = %i,%i,%i,%i" (getx n) (gety n) r g b a);
+    print "POINT = %i,%i, COLOR = %i,%i,%i,%i" (getx n) (gety n) r g b a;
     draw_pixel renderer n
   done
 

@@ -211,7 +211,8 @@ let display canvas layer b g =
       tex
 
   in
-  (* essai shadow *)
+  (* Essai shadow. TODO save the textures and use them as long as sizes don't
+     change *)
   let dst = geom_to_rect g in
   let shadow_blits = match Style.get_shadow b.style with
     | None -> []

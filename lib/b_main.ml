@@ -101,8 +101,10 @@ let close_window window =
   (* end; *)
   Layout.delete_textures layout;
   (* now we destroy the canvas (renderer and window): *)
-  Draw.destroy_canvas ~bogue:window.Window.bogue (Layout.get_canvas layout);
-  Layout.remove_canvas layout
+  let canvas = Layout.get_canvas layout in
+  Layout.remove_canvas layout;
+  Draw.destroy_canvas ~bogue:window.Window.bogue canvas
+
 
 (* only for debugging *)
 let check_cemetery () =
@@ -538,13 +540,13 @@ let add_debug_shortcuts shortcuts =
   shortcuts
   |> Shortcut.add_ctrl (Sdl.K.d, fun _ ->
       debug := not !debug;
-      print_endline (Printf.sprintf "Debug set to %b" !debug))
+      print "Debug set to %b" !debug)
   |> Shortcut.add_ctrl_shift (Sdl.K.d, toggle_debug_window)
   |> Shortcut.add_ctrl_shift (Sdl.K.i, fun board ->
-      print_endline "Mouse Focus Layout parents:";
+      print "Mouse Focus Layout parents:";
       print_endline Print.(option layout_up board.mouse_focus))
   |> Shortcut.add_ctrl (Sdl.K.i, fun board ->
-      print_endline "Hover Layout children (don't trust this):";
+      print "Hover Layout children (don't trust this):";
       print_endline Print.(option layout_down (check_mouse_hover board)))
   |> Shortcut.add_ctrl_shift (Sdl.K.s, fun board -> (* snapshot *)
       Print.dump board.windows_house)
@@ -632,6 +634,16 @@ let filter_board_events board e =
     let ro = Layout.of_id_unsafe id in
     check_removed board ro;
     None
+  | `Bogue_add_window ->
+    begin let id = get e user_code in
+    printd debug_event "Add window with room %i." id;
+    match Layout.of_id_unsafe id with
+    | Some r -> let w = add_window board r in
+      printd debug_board "New window created from room %s." (Layout.sprint_id w.layout);
+      None
+    | None -> printd debug_error "Cannot find room %i (for creating a new window)." id;
+      None
+    end
   | `Render_targets_reset
   | `Render_device_reset ->
     printd (debug_graphics + debug_error) "TODO! Reset all textures";
@@ -923,7 +935,10 @@ let start_nop_event_fps, nop_event_fps = Time.make_fps ()
 let one_step ?before_display anim (start_fps, fps) ?clear board =
   let (_ : Time.t) = Timeout.run () in
   let new_anim = has_anim board in
+  (* When starting a new animation: *)
   if new_anim && not anim then start_fps ();
+  (* When the animation ends: *)
+  if not new_anim && anim then check_mouse_motion board;
   event_loop anim new_anim board;
   do_option before_display run;
 
@@ -934,24 +949,26 @@ let one_step ?before_display anim (start_fps, fps) ?clear board =
     (* = we desactivate focus during animation?? *)
     printd debug_graphics " * Animation running...";
 
-    (* Warning: Finally we chose this behaviour: mouse_enter/leave events are
-       sent only when the mouse really moves. If a widget hits the idle mouse
-       cursor because of an animation, these events are NOT sent. For instance
-       this can happen when scrolling a Select list. It is NOT ideal (what is?),
-       for instance when inserting new elements on the fly, like popups, one has
-       to tell the mouse to update its focus, even if it didn't move (otherwise
-       it will still connect to the widget that's below the popup...). For this
-       we have to push mouse_focus event.
+    (* Warning: We could [check_mouse_motion] continuousy during an animation,
+       like in early Bogue versions (the reason being that even if the mouse
+       doesn't actually move, some animated widget can collide the mouse and
+       become (un)selected). Finally we now chose this behaviour:
+       mouse_enter/leave events are sent only when the mouse really moves. If a
+       widget hits (or leaves) the idle mouse cursor because of an animation,
+       these events are NOT sent. For instance this can happen when scrolling a
+       Select list. We do update mouse focus at the end of the animation, see
+       above.
+
+       It is NOT ideal (what is?), for instance when inserting new elements on
+       the fly, like popups, one has to tell the mouse to update its focus, even
+       if it didn't move (otherwise it will still connect to the widget that's
+       below the popup...). For this we have to push mouse_focus event.
 
        TODO: ça affecte drad-and-drop, cf exemple5 à corriger. ça affecte aussi
        example24 (cliquer sur un objet animé)
 
-       Read below for various trys... *)
+       *)
 
-    (* Comment this for Menu2 keyboard navigation... *)
-
-    (* : even if the mouse doesn't actually move, some animated widget can
-       collide the mouse and become (un)selected. *)
     (* display board; *)
     List.iter Window.to_refresh board.windows;
     (* : we could select only the one which really has an animation *)
@@ -1148,10 +1165,10 @@ let run ?(vsync=true) ?before_display ?after_display board =
   with
   | Exit -> exit_board board
   | e ->
-     let sdl_error = Sdl.get_error () in
-     if sdl_error <> "" then print_endline ("SDL ERROR: " ^ sdl_error);
-     print_endline (Print.layout_down board.windows_house);
-     raise e
+    let sdl_error = Sdl.get_error () in
+    if sdl_error <> "" then print "SDL ERROR: %s" sdl_error;
+    Print.dump board.windows_house;
+    raise e
 
 
 (*************)

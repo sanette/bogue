@@ -32,7 +32,7 @@ let mem w =
 
 let push w =
   if mem w then
-    printd debug_event "Widget #%u is already in the Update.table" w.Widget.wid
+    printd debug_event "Widget #w%u is already in the Update.table" w.Widget.wid
   else begin
     Var.update table (List.cons w);
     Trigger.push_update w.Widget.wid;

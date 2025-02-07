@@ -157,6 +157,7 @@ let add sel i =
 let toggle sel i =
   if mem sel i then remove sel i else add sel i
 
+(* complement of [sel] within [first, last] *)
 let invert ~first ~last sel =
   let rec loop inv mn = function
     | _ when mn > last -> List.rev inv
@@ -195,6 +196,12 @@ let rec intersect sel1 sel2 =
     else if r2 <= s2 then Range (s1,r2) :: intersect rest1 sel2
     else Range (s1,s2) :: intersect sel1 rest2
 
+let minus sel1 sel2 =
+  if sel1 = [] then [] else
+    let i1 = first sel1 in
+    let i2 = last sel1 in
+    intersect sel1 (invert ~first:i1 ~last:i2 sel2)
+
 (* Is [sel1] contained in [sel2]? *)
 let contains sel1 sel2 =
   intersect sel1 sel2 = sel1
@@ -205,10 +212,19 @@ let iter (f : int -> unit) sel =
   let rec loop sl =
     match sl with
     | [] -> ()
-    | Range (i1,i2) :: rest when i2<i1 -> loop rest
-    | Range (i1,i2) :: rest -> f i1; loop (Range (i1+1,i2) :: rest)
+    | Range (i1,i2) :: rest when i2 < i1 -> assert (i1 = i2+1); loop rest
+    | Range (i1,i2) :: rest -> f i1; loop (Range (i1+1, i2) :: rest)
   in
   loop sel
+
+let fold f sel x0 =
+  let rec loop acc sl =
+    match sl with
+    | [] -> acc
+    | Range (i1,i2) :: rest when i2 < i1 -> assert (i1 = i2+1); loop acc rest
+    | Range (i1,i2) :: rest -> loop (f i1 acc) (Range (i1+1, i2) :: rest)
+  in
+  loop x0 sel
 
 let sprint_entry (Range (i1,i2)) =
   if i1=i2 then string_of_int i1

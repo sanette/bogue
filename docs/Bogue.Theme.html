@@ -2,7 +2,7 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
-<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="next" href="Bogue.Utils.html">
@@ -11,6 +11,7 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Accessing Theme variables" rel="Section" href="#2_AccessingThemevariables">
 <link title="Accessing files installed along with your application" rel="Section" href="#2_Accessingfilesinstalledalongwithyourapplication">
 <title>Bogue.Theme</title>
@@ -47,11 +48,11 @@
     <code class="code">$(<span class="constructor">XDG_CONFIG_HOME</span>)/bogue</code>.  (If <code class="code">$<span class="constructor">XDG_CONFIG_HOME</span></code> is not defined in your
     system, you may use <code class="code">$<span class="constructor">HOME</span>/.config/bogue</code>).  So, this is what you can do for
     creating your personal Bogue dir for the first time:</p>
-<pre class="verbatim">cp -r $(opam var
-    share)/bogue $HOME/.config/bogue</pre>
+<pre class="verbatim">cp -r $(opam var share)/bogue $HOME/.config/bogue</pre>
 <ul>
-<li>Each theme has its own directory inside the Bogue share dir, in which
-    there is a <code class="code">bogue.conf</code> file where the Theme variables are defined.</li>
+<li>Each theme has its own directory inside the <code class="code">themes</code> directory (inside the
+    Bogue <code class="code">share</code> dir), in which there is a <code class="code">bogue.conf</code> file where the Theme
+    variables are defined.</li>
 </ul>
 <ul>
 <li>A global user config file <code class="code">$<span class="constructor">HOME</span>/.config/bogue/bogue.conf</code> overrides the
@@ -106,8 +107,11 @@ BACKGROUND = color:azure</pre>
 <li><code class="code"><span class="constructor">NATURAL_SCROLLING</span></code>: "true", "false", or "auto" (default): Control the
   direction of vertical scrolling with the mouse wheel or the touchpad. If set
   to "auto", scrolling will be "natural" on Mac OS, and reversed everywhere
-  else.</li>
-<li><code class="code"><span class="constructor">OPENGL_MULTISAMPLE</span></code>: set to "true" to enable this opengl attribute.</li>
+    else.</li>
+<li><code class="code"><span class="constructor">NO_VSYNC</span></code>: By default, Bogue tries to enable (Adaptive) VSync. Setting this
+    variable to "true" disables this, and then, instead, we try to detect the
+    monitors refresh rates.</li>
+<li><code class="code"><span class="constructor">OPENGL_MULTISAMPLE</span></code>: set this to "true" to enable this opengl attribute.</li>
 <li><code class="code"><span class="constructor">ROOM_MARGIN</span></code></li>
 <li><code class="code"><span class="constructor">SCALE</span></code>: global scale (any non-negative float). For instance if <code class="code"><span class="constructor">SCALE</span>&nbsp;=&nbsp;2.</code>,
   all dimensions given to Bogue functions will be multiplied by 2 before
@@ -115,7 +119,7 @@ BACKGROUND = color:azure</pre>
   the hardware size in pixels.
   If set to <code class="code">0.</code> or not specified, it is autodetected to match your screen DPI
   (using <code class="code">xdpyinfo</code>, if present).</li>
-<li><code class="code"><span class="constructor">INT_SCALE</span></code>: set to "true" to force integer scale when using auto-detection.
+<li><code class="code"><span class="constructor">INT_SCALE</span></code>: set this to "true" to force integer scale when using auto-detection.
   Some games may require this to avoid small graphics artifacts.</li>
 <li><code class="code"><span class="constructor">SEL_BG_COLOR</span></code>: background color for selected items in lists.</li>
 <li><code class="code"><span class="constructor">SEL_FG_COLOR</span></code>: text color for selected items in lists.</li>
@@ -130,7 +134,7 @@ BACKGROUND = color:azure</pre>
   If not specified, the default theme is initially loaded.</li>
 </ul>
 <p>All variables with "COLOR" in their name can be specified either with RGB
-hexadecimal like <code class="code"><span class="keywordsign">#</span>00<span class="constructor">CED1</span></code>, or with a standard html name like <code class="code">darkturquoise</code>,
+hexadecimal like "#00CED1", or with a standard html name like" darkturquoise",
 see <a href="https://www.rapidtables.com/web/color/html-color-codes.html">this color
 table</a>.</p>
 
@@ -182,7 +186,7 @@ environment variables, prepending "BOGUE_". For instance:</p>
 <pre><span id="VALset_text_font"><span class="keyword">val</span> set_text_font</span> : <code class="type">string -&gt; unit</code></pre>
 <pre><span id="VALset_label_font"><span class="keyword">val</span> set_label_font</span> : <code class="type">string -&gt; unit</code></pre>
 <pre><span id="VALset_scale"><span class="keyword">val</span> set_scale</span> : <code class="type">float -&gt; unit</code></pre>
-<pre><span id="VALset_integer_scale"><span class="keyword">val</span> set_integer_scale</span> : <code class="type">bool -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALset_int_scale"><span class="keyword">val</span> set_int_scale</span> : <code class="type">bool -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Set <code class="code"><span class="constructor">INT_SCALE</span></code>.</p>
 </div>

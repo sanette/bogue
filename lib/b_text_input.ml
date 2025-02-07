@@ -116,7 +116,7 @@ let stop ti =
   clear ti;
   Var.set ti.active false
 
-(* Because there is a length test, it should be placed ad the end of all
+(* Because there is a length test, it should be placed at the end of all
    modifications of ti *)
 let set ti keys =
   if keys <> Var.get ti.keys
@@ -329,7 +329,7 @@ let receive_key ti ev =
     | `Text_input -> (* a letter is recognized *)
       let s = get ev text_input_text in
       if ti.filter s then insert ti s
-    | `Text_editing -> print_endline "Text composing mode"
+    | `Text_editing -> printd debug_event "Text composing mode"
     (* TODO:
        Update the composition text.
        Update the cursor position.

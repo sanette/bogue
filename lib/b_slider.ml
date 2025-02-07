@@ -27,7 +27,9 @@ type t = {
     (* The local value of the Tvar is the local slider value: an integer between
        0 and max. The remote value is an arbitrary 'external' integer Avar. *)
     (* TODO: (int Avar.t) is here to make smoother transitions. not done yet *)
-    cache : int Var.t; (* used to avoid computing too many times the same value *)
+    cache : int Var.t;
+    (*  [cache] is used to avoid computing too many times the same local
+        value *)
     mutable pointer_motion : bool;
     clicked_value : (int option) Var.t;
     offset : int Var.t;

@@ -187,7 +187,7 @@ let vertical ?(name = "radiolist") ?(click_on_label=true) ?selected entries =
   let layout = Layout.tower ~sep:0 ~margins:0 ~name
       (List.map (function
            | (b, Some l) ->
-             Layout.flat_of_w ~sep:2 ~align:Draw.Center ~resize:Layout.Resize.Keep
+             Layout.flat_of_w ~sep:2 ~align:Draw.Center ~resize:Layout.Resize.Disable
                [b.widget; l.widget]
            | _ -> invalid_arg "[Radiolist.vertical] this should not happen")
           (Array.to_list widgets))

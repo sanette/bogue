@@ -2,7 +2,7 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
-<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Bogue.Update.html">
@@ -12,6 +12,7 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Backgrounds" rel="Section" href="#2_Backgrounds">
 <link title="Creation of layouts" rel="Section" href="#2_Creationoflayouts">
 <link title="Some useful layout combinations" rel="Section" href="#2_Someusefullayoutcombinations">
@@ -157,7 +158,7 @@
 </div>
 
 <pre><span id="MODULEResize"><span class="keyword">module</span> <a href="Bogue.Layout.Resize.html">Resize</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Layout.Resize.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>Resize strategies</p>
+<p>Resize strategies for <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and <a href="Bogue.Layout.html#VALtower"><code class="code"><span class="constructor">Layout</span>.tower</code></a></p>
 
 </div>
 <h3 id="2_Creationoflayouts">Creation of layouts</h3>
@@ -193,7 +194,8 @@
 <div class="info-desc">
 <p>Create a horizontal arrangement from a list of rooms.</p>
 <OL>
-<li><code class="code">sep</code> = horizontal space between two rooms.</li>
+<li><code class="code">sep</code> = horizontal space between two rooms (except on the right hand side
+      of a room of zero width).</li>
 <li><code class="code">hmargin</code> = horizontal margin (left and right).</li>
 <li><code class="code">vmargin</code> = vertical margin (top and bottom).</li>
 <li>if <code class="code">margins</code> is set, then sep, hmargin and vmargin are all set to this value.</li>
@@ -210,7 +212,8 @@
 <pre><span id="VALsuperpose"><span class="keyword">val</span> superpose</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?name:string -&gt;<br>       ?background:<a href="Bogue.Layout.html#TYPEbackground">background</a> -&gt;<br>       ?canvas:<a href="Bogue.Draw.html#TYPEcanvas">Draw.canvas</a> -&gt;<br>       ?center:bool -&gt; ?scale_content:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; <a href="Bogue.Layout.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Create a new layout by superposing a list of layouts without changing
-     their (x,y) position.</p>
+      their (x,y) position. Warning: if a room in a <code class="code">superpose</code> layout is later
+      moved out of the bounding box, it will never get mouse focus.</p>
 </div>
 </div>
 <p>Remark: when creating a house (a layout) with <code class="code">flat*</code>, <code class="code">tower*</code>, or
@@ -314,6 +317,13 @@
 </div>
 </div>
 
+<pre><span id="VALresize_keep_margins"><span class="keyword">val</span> resize_keep_margins</span> : <code class="type">?margin:int -&gt;<br>       ?min_width:int -&gt;<br>       ?min_height:int -&gt;<br>       ?max_width:int -&gt; ?max_height:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>When asked to resize, the layout will keep the initial 4 margins with
+     respect to its house.</p>
+</div>
+</div>
+
 <pre><span id="VALdisable_resize"><span class="keyword">val</span> disable_resize</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>This makes sure that nothing is executed when someone tries to resize the
@@ -328,11 +338,11 @@
 <div class="info-desc">
 <p><code class="code">on_resize&nbsp;room&nbsp;f</code> will execute <code class="code">f&nbsp;()</code> upon resizing the room's house (or
       the room's window, in case the room is the top house, see <a href="Bogue.Layout.html#VALtop_house"><code class="code"><span class="constructor">Layout</span>.top_house</code></a>),
-      in addition to the already registered resized functions. Warning: placing
+      in addition to the already registered resize functions. Warning: placing
       the room in another layout will likely reset the resize function (unless
-      you set the <code class="code">scale_content</code> flag to <code class="code"><span class="keyword">false</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the
-      remark below that). Hence <code class="code">on_resize</code> should be called after the room is
-      hosted in its house.</p>
+      you set the <code class="code">resize</code> flag to <code class="code"><span class="constructor">Keep</span></code>, see eg. <a href="Bogue.Layout.html#VALflat"><code class="code"><span class="constructor">Layout</span>.flat</code></a> and the remark below
+      that). Hence <code class="code">on_resize</code> should be called after the room is hosted in its
+      house.</p>
 </div>
 </div>
 
@@ -346,7 +356,7 @@
 </div>
 
 <pre><span id="VALset_height"><span class="keyword">val</span> set_height</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
-<pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt; ?update_bg:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int * int -&gt; unit</code></pre>
+<pre><span id="VALset_size"><span class="keyword">val</span> set_size</span> : <code class="type">?keep_resize:bool -&gt;<br>       ?check_window:bool -&gt;<br>       ?update_bg:bool -&gt; ?w:int -&gt; ?h:int -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; unit</code></pre>
 <pre><span id="VALsetx"><span class="keyword">val</span> setx</span> : <code class="type">?keep_resize:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
 <pre><span id="VALsety"><span class="keyword">val</span> sety</span> : <code class="type">?keep_resize:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; int -&gt; unit</code></pre>
 <pre><span id="VALset_show"><span class="keyword">val</span> set_show</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; bool -&gt; unit</code></pre>
@@ -367,8 +377,8 @@
 <pre><span id="VALset_rooms"><span class="keyword">val</span> set_rooms</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; ?sync:bool -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> list -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Modify the layout content by replacing the former content by a new list of
-     rooms. Use <code class="code">sync=<span class="keyword">true</span></code> (the default) as much as possible in order to avoid
-     multi-threading problems. Then the changes will be applied by the main
+      rooms. Use <code class="code">sync=<span class="keyword">true</span></code> (the default) as much as possible in order to avoid
+      multi-threading problems. Then the changes will be applied by the main
       thread at next frame (see <a href="Bogue.Sync.html"><code class="code"><span class="constructor">Sync</span></code></a>).</p>
 </div>
 </div>
@@ -376,12 +386,18 @@
 <pre><span id="VALreplace_room"><span class="keyword">val</span> replace_room</span> : <code class="type">by:<a href="Bogue.Layout.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">t</a> -&gt; bool</code></pre><div class="info ">
 <div class="info-desc">
 <p>Replace <code class="code">room</code> by <code class="code">by</code> inside its "house" in lieu and place of the initial
-      room. No size adjustments are made. Of course this is dangerous, because
-      it modifies both the house and <code class="code">by</code>. Beware of circular
-      dependencies... Cannot be used for the <code class="code">top_house</code> (the window layout)
-      because that layout has no house. Will not accept to proceed if <code class="code">by</code>
-      already belongs to a house. Returns <code class="code"><span class="keyword">true</span></code> if successful.</p>
+      room. No size adjustments are made.</p>
+
+<p>Using <code class="code">replace_room</code> can be dangerous, because it modifies both the
+      <code class="code">room</code>'s house and <code class="code">by</code>. Beware of circular dependencies...</p>
+
+<p>This function cannot be used for the <code class="code">top_house</code> (the window layout)
+      because that layout has no house. Also, the function not accept to proceed
+      if <code class="code">by</code> already belongs to a house.</p>
 </div>
+<ul class="info-attributes">
+<li><b>Returns</b> <code class="code"><span class="keyword">true</span></code> if successful.</li>
+</ul>
 </div>
 
 <pre><span id="VALset_enabled"><span class="keyword">val</span> set_enabled</span> : <code class="type"><a href="Bogue.Layout.html#TYPEt">t</a> -&gt; bool -&gt; unit</code></pre><div class="info ">
