@@ -173,7 +173,7 @@ let insert_text ti text =
 
 let seps = [" "; ";"; "."; ","; "/"; ":"; "\\n"; "\\t"; "\\j"; "?"; "!"]
 
-(* Find a word containg the cursor position *)
+(* Find a word containing the cursor position *)
 let find_word ti =
   let n = Var.get ti.cursor_pos in
   let daeh, tail = split_list_rev (Var.get ti.keys) n in

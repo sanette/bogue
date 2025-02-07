@@ -132,6 +132,7 @@ module Space = B_space
 module Style = B_style
 module Sync = B_sync
 module Table = B_table
+module Text_input = B_text_input
 module Theme = B_theme
 module Trigger = B_trigger
 module Update = B_update
@@ -1443,7 +1444,10 @@ let start_monitor controller path =
   Monitor.start ~action path
 
 let path_selector text =
-  W.text_input ~prompt:"Enter path" ~text ()
+  let ti = W.text_input ~prompt:"Enter path" ~text () in
+  Text_input.last (W.get_text_input ti);
+  ti
+
 
 let new_directory controller message ~options ?full_filter ?name_filter path =
   let monitor = start_monitor controller path in
@@ -1514,6 +1518,7 @@ let update_input t =
   let path = Monitor.path t.directory.monitor in
   printd debug_io "Updating file dialog path= [%s]." path;
   W.set_text t.input.text_input path;
+  Text_input.last (W.get_text_input t.input.text_input);
   t.input.breadcrumb <- breadcrumb path;
   let layout = L.flat_of_w ~sep:0 (List.map fst t.input.breadcrumb) in
   let x, y = L.getx t.input.layout, L.gety t.input.layout in
