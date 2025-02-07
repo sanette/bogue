@@ -2918,6 +2918,11 @@ end (* of Table *)
     {b Warning: } Some {!options} are not implemented yet; these -- and more
     features -- will certainly be added in the future.
 
+    {%html:<div class="figure" style="text-align:center"><img src="images/file_dialog.png"><br>
+    File dialog in a separate window</div>%}
+
+
+
     {5 {{:graph-dot-b_file.html}Dependency graph}}
 *)
 module File : sig
