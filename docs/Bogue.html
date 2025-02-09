@@ -267,7 +267,7 @@
 <p>Tables with sortable columns and selectable rows.</p>
 
 </div>
-<p><code class="code">&nbsp;<span class="keyword">module</span>&nbsp;</code><a href="Bogue.File.html"><code class="code"><span class="constructor">File</span></code></a><code class="code">&nbsp;</code>     file chooser and file monitor</p>
+<p><code class="code">&nbsp;<span class="keyword">module</span>&nbsp;</code><a href="Bogue.File.html"><code class="code"><span class="constructor">File</span></code></a><code class="code">&nbsp;</code> : file chooser and file monitor</p>
 <h3 id="2_OpeningwindowsandrunningyourappwiththeBoguemainloop">Opening windows and running your app with the Bogue mainloop</h3>
 <p>Because a GUI continuously waits for user interaction, everything has to run
     inside a loop. You open your GUI window(s) and start the loop with <code class="code">run</code>,
@@ -300,22 +300,22 @@
 <h3 id="example">Example</h3>
 <p>Here is a minimal example with a label and a check box.</p>
 
-<pre class="codepre"><code class="code"><span class="keyword">open</span> <span class="constructor">Bogue</span>
-<span class="keyword">module</span> <span class="constructor">W</span> = <span class="constructor">Widget</span>
-<span class="keyword">module</span> <span class="constructor">L</span> = <span class="constructor">Layout</span>
+<pre class="codepre"><code class="code">      <span class="keyword">open</span> <span class="constructor">Bogue</span>
+      <span class="keyword">module</span> <span class="constructor">W</span> = <span class="constructor">Widget</span>
+      <span class="keyword">module</span> <span class="constructor">L</span> = <span class="constructor">Layout</span>
 
-<span class="keyword">let</span> main () =
+      <span class="keyword">let</span> main () =
 
-  <span class="keyword">let</span> b = <span class="constructor">W</span>.check_box () <span class="keyword">in</span>
-  <span class="keyword">let</span> l = <span class="constructor">W</span>.label <span class="string">"Hello world"</span> <span class="keyword">in</span>
-  <span class="keyword">let</span> layout = <span class="constructor">L</span>.flat_of_w [b;l] <span class="keyword">in</span>
+        <span class="keyword">let</span> b = <span class="constructor">W</span>.check_box () <span class="keyword">in</span>
+        <span class="keyword">let</span> l = <span class="constructor">W</span>.label <span class="string">"Hello world"</span> <span class="keyword">in</span>
+        <span class="keyword">let</span> layout = <span class="constructor">L</span>.flat_of_w [b;l] <span class="keyword">in</span>
 
-  <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.of_layout layout <span class="keyword">in</span>
-  <span class="constructor">Bogue</span>.run board;;
+        <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.of_layout layout <span class="keyword">in</span>
+        <span class="constructor">Bogue</span>.run board;;
 
-<span class="keyword">let</span> () = main ();
-  <span class="constructor">Bogue</span>.quit ()
-</code></pre>
+      <span class="keyword">let</span> () = main ();
+        <span class="constructor">Bogue</span>.quit ()
+    </code></pre>
 <p>This can be compiled to bytecode with</p>
 
 <pre class="verbatim">ocamlfind ocamlc -package bogue -linkpkg -o minimal -thread minimal.ml</pre>

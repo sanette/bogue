@@ -19,14 +19,22 @@
 
 <pre><span id="MODULEMonitor"><span class="keyword">module</span> Monitor</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.Monitor.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<p>Monitoring changes in a directory. All functions are non-blocking and
-      return very fast, even if the path is remote or the directory is huge. To
-      achieve this, monitoring is done in a separate thread and one has to
-      accept a delay before actual changes to the file-system are reported. We
-      provide two implementations, one is based on the external
+<p>Monitoring changes in a directory.</p>
+
+<p>This module provides functions for watching for changes in a directory (or
+      a single file), and executing arbitrary actions when a change is detected.</p>
+
+<p>All functions are non-blocking and return very fast, even if the path is
+      remote or the directory is huge. To achieve this, monitoring is done in a
+      separate thread and one has to accept a delay before actual changes to the
+      file-system are reported.</p>
+
+<p>We provide two implementations, one is based on the external
       <a href="https://emcrisostomo.github.io/fswatch/">fswatch</a> program, and the other
-      is based only on built-in Ocaml functions (which are maybe more memory and
-      cpu intensive).</p>
+      is based on the built-in Ocaml function <code class="code"><span class="constructor">Unix</span>.stat</code>. The <code class="code">fswatch</code>
+      implementation is automatically chosen by default if the <code class="code">fswatch</code>
+      executable is detected. Otherwise, the <code class="code"><span class="constructor">Unix</span>.stat</code> fallback is used (which
+      is maybe more memory and cpu intensive).</p>
 </div>
 </div>
 <hr width="100%">
@@ -39,15 +47,16 @@
 <div class="info-desc">
 <p><code class="code">start&nbsp;path</code> starts monitoring the directory or file <code class="code">path</code> and
         immediately returns. It is not an error if <code class="code">path</code> does not exist or is
-        deleted, see below. The <code class="code">delay</code> parameter is the time interval (in
-        seconds) between polls. The <code class="code">action</code> function is executed for each
-        modification (it might be a false positive; it should be fast and non
-        blocking (typically just sending an event). Check <code class="code">modified</code> below to get
-        the actual changes.) Thus, what we call "current" will always mean "not
-        older than delay".  The default delay is 1 second. It may be internally
-        increased if the polls take too much time.</p>
+        deleted, see below. Once monitoring has started, check the <a href="Bogue.File.Monitor.html#VALmodified"><code class="code"><span class="constructor">File</span>.<span class="constructor">Monitor</span>.modified</code></a>
+        function below to obtain the actual changes.</p>
 </div>
 </div>
+<div class="param_info"><code class="code">delay</code> : the time interval (in seconds) between polls.  The default
+          delay is 1 second. It may be internally increased if the polls take
+          too much time.</div>
+<div class="param_info"><code class="code">action</code> : executed for each modification. Note that false positive
+          may happen; hence the action should be fast and non blocking
+          (typically just sending an event).</div>
 
 <pre><span id="VALdelay"><span class="keyword">val</span> delay</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; float</code></pre><div class="info ">
 <div class="info-desc">
@@ -58,10 +67,11 @@
 <pre><span id="VALstop"><span class="keyword">val</span> stop</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; unit</code></pre>
 <pre><span id="VALls"><span class="keyword">val</span> ls</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; string list</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">ls&nbsp;m</code> returns the "old" list of files watched by the monitor <code class="code">m</code> when the
-        last <code class="code">*modified</code> function was called. If <code class="code">m</code> monitors a directory, <code class="code">ls&nbsp;m</code>
-        is the content of the directory (without "." and ".."), otherwise <code class="code">ls&nbsp;m</code>
-        is <code class="code">[<span class="string">"."</span>]</code> if the file exists, or <code class="code">[]</code> if not. This function takes
+<p><code class="code">ls&nbsp;m</code> returns the list of files watched by the monitor <code class="code">&nbsp;m&nbsp;</code> when the
+        last <code class="code">*modified</code> function was called. <em>Thus, it may be different from
+        the actual current content.</em> If <code class="code">&nbsp;m&nbsp;</code> monitors a directory, <code class="code">ls&nbsp;m</code> is the
+        content of the directory (without "." and ".."), otherwise <code class="code">ls&nbsp;m</code> is
+        <code class="code">[<span class="string">"."</span>]</code> if the file exists, or <code class="code">[]</code> if not. This function takes
         advantage of the monitoring data to return faster (in general) than
         rescanning the directory with <code class="code"><span class="constructor">Sys</span>.readdir</code>.</p>
 </div>
@@ -78,7 +88,7 @@
 
 <pre><span id="VALmodified"><span class="keyword">val</span> modified</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; string list * string list * string list</code></pre><div class="info ">
 <div class="info-desc">
-<p>Return three lists of files (or directories) names that have been modified
+<p>Return three lists of file (or directory) names that have been modified
         since last call of this function or of <code class="code">was_modified</code>:</p>
 
 <p><em>list of deleted elements, list of added elements, list of modified elements</em></p>
