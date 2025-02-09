@@ -15,43 +15,77 @@
 	height="42px"
 	width="42px" style="vertical-align: middle;"/></a>
   </div>
-<h1 id="bogue-how-to-install-bogue"><img src="images/bogue-icon.png" alt="BOGUE" /> How to install BOGUE</h1>
-<p><code>Bogue</code> is a GUI library for the programming language <a href="https://ocaml.org/"><code>ocaml</code></a>.</p>
+<h1 id="bogue-how-to-install-bogue"><img src="images/bogue-icon.png"
+alt="BOGUE" /> How to install BOGUE</h1>
+<p><code>Bogue</code> is a GUI library for the programming language <a
+href="https://ocaml.org/"><code>ocaml</code></a>.</p>
 <p>You can install it easily with</p>
 <pre><code>opam install bogue</code></pre>
-<p>To discover how to use Bogue, read the <a href="Principles.html">introduction</a>, the <a href="Bogue.html">documentation</a> (API), or a simple <a href="Bogue.html#example">example</a>.</p>
-<p>The library is constantly evolving. If you want to use the latest development version, it’s quite easy, read below. The source code is hosted in <a href="https://github.com/sanette/bogue">github</a>.</p>
-<p>Bogue uses the cross-platform library <a href="http://www.libsdl.org/">SDL</a>, so in principle it can be used everywhere SDL and ocaml can be installed: Linux, Mac OS, Windows… However, it has only be tested for Linux, and a few tweaks will certainly be necessary to port it to other platforms. Any help on this matter will be greatly appreciated.</p>
+<p>To discover how to use Bogue, read the <a
+href="Principles.html">introduction</a>, the <a
+href="Bogue.html">documentation</a> (API), or a simple <a
+href="Bogue.html#example">example</a>.</p>
+<p>The library is constantly evolving. If you want to use the latest
+development version, it’s quite easy, read below. The source code is
+hosted in <a href="https://github.com/sanette/bogue">github</a>.</p>
+<p>Bogue uses the cross-platform library <a
+href="http://www.libsdl.org/">SDL</a>, so in principle it can be used
+everywhere SDL and ocaml can be installed: Linux, Mac OS, Windows…
+However, it has only be tested for Linux, and a few tweaks will
+certainly be necessary to port it to other platforms. Any help on this
+matter will be greatly appreciated.</p>
 <h2 id="prerequisites">Prerequisites</h2>
-<p>You need a working <code>ocaml</code> installation with <code>opam</code>, see the <a href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make sure you have <code>dune</code>, <code>tsdl</code>, <code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
+<p>You need a working <code>ocaml</code> installation with
+<code>opam</code>, see the <a
+href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make
+sure you have <code>dune</code>, <code>tsdl</code>,
+<code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
 <pre><code>opam install dune tsdl tsdl-image tsdl-ttf</code></pre>
 <h2 id="using-the-git-repository">Using the git repository</h2>
-<p>Download the latest <a href="https://github.com/sanette/bogue/archive/master.zip">git archive</a>, unzip it, cd into the <code>bogue-master</code> dir, and then:</p>
+<p>Download the latest <a
+href="https://github.com/sanette/bogue/archive/master.zip">git
+archive</a>, unzip it, cd into the <code>bogue-master</code> dir, and
+then:</p>
 <pre><code>dune build
 opam install .</code></pre>
-<h2 id="detailed-procedure-for-ubuntu-14.04---16.04">Detailed procedure for Ubuntu 14.04 - 16.04</h2>
-<p>See <a href="INSTALL-14.04.html">this</a> for old instructions that should probably be updated…</p>
-<h2 id="detailed-procedure-for-ubuntu-18.04">Detailed procedure for Ubuntu 18.04</h2>
-<p>The default version of SDL2 shipped by this system is too old to run <code>Bogue</code>. You should install a more recent version from https://github.com/libsdl-org/SDL/releases/tag/release-2.26.1, for instance <a href="https://github.com/libsdl-org/SDL/releases/download/release-2.26.1/SDL2-2.26.1.tar.gz">this one</a></p>
+<h2 id="detailed-procedure-for-ubuntu-14.04---16.04">Detailed procedure
+for Ubuntu 14.04 - 16.04</h2>
+<p>See <a href="INSTALL-14.04.html">this</a> for old instructions that
+should probably be updated…</p>
+<h2 id="detailed-procedure-for-ubuntu-18.04">Detailed procedure for
+Ubuntu 18.04</h2>
+<p>The default version of SDL2 shipped by this system is too old to run
+<code>Bogue</code>. You should install a more recent version from
+https://github.com/libsdl-org/SDL/releases/tag/release-2.26.1, for
+instance <a
+href="https://github.com/libsdl-org/SDL/releases/download/release-2.26.1/SDL2-2.26.1.tar.gz">this
+one</a></p>
 <p>An easy way is to first try</p>
 <pre><code>opam install bogue</code></pre>
-<p>This will eventually fail, but in the meantime it will install the dev packages required to compile SDL2. Then unpack the downloaded SDL2 archive, <code>cd</code> into it, and</p>
+<p>This will eventually fail, but in the meantime it will install the
+dev packages required to compile SDL2. Then unpack the downloaded SDL2
+archive, <code>cd</code> into it, and</p>
 <p><code>./configure; make; sudo make install</code></p>
 <p>After this you should be able to:</p>
 <pre><code>opam install bogue</code></pre>
 <p>successfully.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
-<h3 id="sdl-couldnt-find-matching-glx-visual">SDL: Couldn’t find matching GLX visual</h3>
-<p>When running in a VirtualBox environment, sometimes SDL fails with <code>Couldn't find matching GLX visual</code></p>
+<h3 id="sdl-couldnt-find-matching-glx-visual">SDL: Couldn’t find
+matching GLX visual</h3>
+<p>When running in a VirtualBox environment, sometimes SDL fails with
+<code>Couldn't find matching GLX visual</code></p>
 <p>It can usually be solved with</p>
 <pre><code>export SDL_VIDEO_X11_VISUALID=</code></pre>
 <h3 id="too-small">Too small!</h3>
-<p>If everything looks too small, it means that your screen DPI was not correctly detected. Just create a <code>bogue.conf</code> file with the following content:</p>
+<p>If everything looks too small, it means that your screen DPI was not
+correctly detected. Just create a <code>bogue.conf</code> file with the
+following content:</p>
 <pre><code>### BOGUE version SOMEVERSION
 
 SCALE = 2.5
 </code></pre>
-<p>(the <code>SOMEVERSION</code> can be anything. Of course, you can adjust the “2.5” to whatever scale you need.)</p>
+<p>(the <code>SOMEVERSION</code> can be anything. Of course, you can
+adjust the “2.5” to whatever scale you need.)</p>
   <div style="float: right;">
     <a href="https://github.com/sanette/bogue">Find bogue on
       <img 

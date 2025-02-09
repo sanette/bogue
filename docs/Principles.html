@@ -15,109 +15,208 @@
 	height="42px"
 	width="42px" style="vertical-align: middle;"/></a>
   </div>
-<h1 id="bogue-bogue-the-ocaml-gui"><img src="images/bogue-icon.png" alt="BOGUE" /> BOGUE, the ocaml GUI</h1>
+<h1 id="bogue-bogue-the-ocaml-gui"><img src="images/bogue-icon.png"
+alt="BOGUE" /> BOGUE, the ocaml GUI</h1>
 <h2 id="about">About</h2>
-<p><a href="https://github.com/sanette/bogue">BOGUE</a> is a desktop GUI library (graphical user interface) for <a href="https://ocaml.org/">ocaml</a>, which is</p>
+<p><a href="https://github.com/sanette/bogue">BOGUE</a> is a desktop GUI
+library (graphical user interface) for <a
+href="https://ocaml.org/">ocaml</a>, which is</p>
 <ul>
-<li>lightweight (well, at least relatively to <a href="https://www.gtk.org/">gtk</a> or <a href="https://www.qt.io/">qt</a>, everything looks lightweight!);</li>
-<li>not a binding to another library; all widgets are written from scratch in <code>ocaml</code>,</li>
-<li>using <a href="https://www.libsdl.org/">SDL2</a> as a graphics engine.</li>
+<li>lightweight (well, at least relatively to <a
+href="https://www.gtk.org/">gtk</a> or <a
+href="https://www.qt.io/">qt</a>, everything looks lightweight!);</li>
+<li>not a binding to another library; all widgets are written from
+scratch in <code>ocaml</code>,</li>
+<li>using <a href="https://www.libsdl.org/">SDL2</a> as a graphics
+engine.</li>
 </ul>
-<p>It can be used for desktop applications, for games, or simply for debugging programs (modifying variables on-the-fly, printing output, etc.)</p>
+<p>It can be used for desktop applications, for games, or simply for
+debugging programs (modifying variables on-the-fly, printing output,
+etc.)</p>
 <h2 id="disclaimer">Disclaimer</h2>
 <ul>
-<li><p><em>The <a href="Bogue.html">API</a> is still subject to (small) changes.</em></p></li>
-<li><p>Use <a href="https://github.com/sanette/bogue/issues">github’s issues</a> if you need help.</p></li>
-<li><p>Distributed under <a href="https://en.wikipedia.org/wiki/ISC_license">ISC license</a>.</p></li>
+<li><p><em>The <a href="Bogue.html">API</a> is still subject to (small)
+changes.</em></p></li>
+<li><p>Use <a href="https://github.com/sanette/bogue/issues">github’s
+issues</a> if you need help.</p></li>
+<li><p>Distributed under <a
+href="https://en.wikipedia.org/wiki/ISC_license">ISC
+license</a>.</p></li>
 </ul>
 <h2 id="getting-started">Getting started</h2>
-<p>BOGUE is quite easy to use. First, install the library (and examples) with</p>
+<p>BOGUE is quite easy to use. First, install the library (and examples)
+with</p>
 <pre><code>opam install bogue</code></pre>
-<p>(see also <a href="README.html">README</a> or <a href="INSTALL.html">install</a> for more detailed instructions).</p>
+<p>(see also <a href="README.html">README</a> or <a
+href="INSTALL.html">install</a> for more detailed instructions).</p>
 <p>The “hello world” minimal code is as follows:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">open</span> Bogue</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">let</span> () =</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  Widget.label <span class="st">&quot;Hello world&quot;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    |&gt; Layout.resident</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    |&gt; Bogue.of_layout</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    |&gt; Bogue.run</span></code></pre></div>
-<p>After compiling and running (or executing in the toplevel), it should open a tiny window with “Hello world”, like this:</p>
-<div class="figure">
-<img src="hello_world.png" alt="" />
-<p class="caption">Screenshot of the Hello world example. You can see the Bogue icon and the decorations added by my KDE window manager.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="kw">open</span> Bogue</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="kw">let</span> () =</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  Widget.label <span class="st">&quot;Hello world&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    |&gt; Layout.resident</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    |&gt; Bogue.of_layout</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    |&gt; Bogue.run</span></code></pre></div>
+<p>After compiling and running (or executing in the toplevel), it should
+open a tiny window with “Hello world”, like this:</p>
+<div class="float">
+<img src="hello_world.png"
+alt="Screenshot of the Hello world example. You can see the Bogue icon and the decorations added by my KDE window manager." />
+<div class="figcaption">Screenshot of the Hello world example. You can
+see the Bogue icon and the decorations added by my KDE window
+manager.</div>
 </div>
-<p>See the other <a href="Bogue.html#example">example</a> for more details on how to compile or run in the toplevel.</p>
+<p>See the other <a href="Bogue.html#example">example</a> for more
+details on how to compile or run in the toplevel.</p>
 <h2 id="documentation-and-examples">Documentation and examples</h2>
-<p>The <a href="Bogue.html">API</a> is available <a href="Bogue.html">here</a>.</p>
-<p>If you’re new to Bogue, I advise you to read the following paragraphs about the general <a href="#general-principles">principles</a>.</p>
-<p>You can also directly try the <a href="https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html">tutorials</a>.</p>
+<p>The <a href="Bogue.html">API</a> is available <a
+href="Bogue.html">here</a>.</p>
+<p>If you’re new to Bogue, I advise you to read the following paragraphs
+about the general <a href="#general-principles">principles</a>.</p>
+<p>You can also directly try the <a
+href="https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html">tutorials</a>.</p>
 <h3 id="minimal-example">Minimal example</h3>
-<p>There is a minimal <a href="Bogue.html#example">example</a> in the doc, which is slightly more informative than the “hello world” above, with a label and a check button.</p>
-<h3 id="the-50-included-boguex-examples">The 50 included <code>boguex</code> examples</h3>
-<p>Once you installed the <code>bogue</code> package, you should be able to run the <code>boguex</code> command from the terminal. It contains samples of <em>all useful constructions</em> (widgets and layouts). Just type</p>
+<p>There is a minimal <a href="Bogue.html#example">example</a> in the
+doc, which is slightly more informative than the “hello world” above,
+with a label and a check button.</p>
+<h3 id="the-50-included-boguex-examples">The 50 included
+<code>boguex</code> examples</h3>
+<p>Once you installed the <code>bogue</code> package, you should be able
+to run the <code>boguex</code> command from the terminal. It contains
+samples of <em>all useful constructions</em> (widgets and layouts). Just
+type</p>
 <pre class="shell"><code>boguex -h</code></pre>
-<p>to get the list of available examples; there are about 50 of them! To run a particular example, for instance example #41, just type <code>boguex 41</code>. (If you run <code>boguex</code> without argument you will have to go through all examples, which is probably not what you want.) The source code is the file <a href="https://github.com/sanette/bogue/blob/master/examples/example.ml"><code>examples/example.ml</code></a>. It is very useful to quickly check how to use various constructs.</p>
+<p>to get the list of available examples; there are about 50 of them! To
+run a particular example, for instance example #41, just type
+<code>boguex 41</code>. (If you run <code>boguex</code> without argument
+you will have to go through all examples, which is probably not what you
+want.) The source code is the file <a
+href="https://github.com/sanette/bogue/blob/master/examples/examples.ml"><code>examples/examples.ml</code></a>.
+It is very useful to quickly check how to use various constructs.</p>
 <h3 id="the-input-examples">The <code>input</code> examples</h3>
-<p>These two examples demonstrate two interesting ways of obtaining the same result: update a text display with the user-entered text in a separate widget. See <a href="https://github.com/sanette/bogue/tree/master/examples/input"><code>example/input</code></a> and <a href="https://github.com/sanette/bogue/tree/master/examples/input-immediate"><code>example/input-immediate</code></a>. See also <a href="#a-simple-example">below</a> for an explanation of these programs.</p>
+<p>These two examples demonstrate two interesting ways of obtaining the
+same result: update a text display with the user-entered text in a
+separate widget. See <a
+href="https://github.com/sanette/bogue/tree/master/examples/input"><code>example/input</code></a>
+and <a
+href="https://github.com/sanette/bogue/tree/master/examples/input-immediate"><code>example/input-immediate</code></a>.
+See also <a href="#a-simple-example">below</a> for an explanation of
+these programs.</p>
 <h3 id="the-randomize-app">The <code>randomize</code> app</h3>
-<div class="figure">
-<img src="randomize.png" alt="" />
-<p class="caption">Screenshot of the Randomize app.</p>
+<div class="float">
+<img src="randomize.png" alt="Screenshot of the Randomize app." />
+<div class="figcaption">Screenshot of the Randomize app.</div>
 </div>
-<p>Click to obtain a random integer in a fancy way. This simple application shows two text-input widgets, where you can enter only numbers, and a push-button which generates random number while pressed. <a href="https://github.com/sanette/randomize">Source code</a>, <a href="https://www.youtube.com/watch?v=b7rBCctJ7Cw">video</a>.</p>
+<p>Click to obtain a random integer in a fancy way. This simple
+application shows two text-input widgets, where you can enter only
+numbers, and a push-button which generates random number while pressed.
+<a href="https://github.com/sanette/randomize">Source code</a>, <a
+href="https://www.youtube.com/watch?v=b7rBCctJ7Cw">video</a>.</p>
 <h3 id="the-demo-example">The <code>demo</code> example</h3>
-<p>Includes sliding tabs, check boxes, radio buttons, text-input connected to a text display, slider/progress bar, popup, image. See the <a href="https://www.youtube.com/watch?v=isFLxnDooL8">video</a>. Source code can be found <a href="https://github.com/sanette/bogue-demo">here</a>.</p>
-<h3 id="bounce-an-electro-magnetic-game"><code>bounce</code>, an electro-magnetic game!</h3>
-<div class="figure">
-<img src="bounce.png" alt="" />
-<p class="caption">Screenshot of the Bounce game.</p>
+<p>Includes sliding tabs, check boxes, radio buttons, text-input
+connected to a text display, slider/progress bar, popup, image. See the
+<a href="https://www.youtube.com/watch?v=isFLxnDooL8">video</a>. Source
+code can be found <a
+href="https://github.com/sanette/bogue-demo">here</a>.</p>
+<h3 id="bounce-an-electro-magnetic-game"><code>bounce</code>, an
+electro-magnetic game!</h3>
+<div class="float">
+<img src="bounce.png" alt="Screenshot of the Bounce game." />
+<div class="figcaption">Screenshot of the Bounce game.</div>
 </div>
-<p>Play with gravity and magnetic field to try to control a bouncing ball (a classical charged particle with mass)! This app demonstrates how to use BOGUE’s <a href="Bogue.Avar.html">Animated variables</a>. No need to write a game loop! Source code will be soon here.</p>
+<p>Play with gravity and magnetic field to try to control a bouncing
+ball (a classical charged particle with mass)! This app demonstrates how
+to use BOGUE’s <a href="Bogue.Avar.html">Animated variables</a>. No need
+to write a game loop! Source code will be soon here.</p>
 <h2 id="general-principles">General Principles</h2>
-<p>BOGUE is built around usual GUI notions (widgets, events, callbacks) but has some peculiarities that are good to know.</p>
+<p>BOGUE is built around usual GUI notions (widgets, events, callbacks)
+but has some peculiarities that are good to know.</p>
 <h3 id="widgets-and-layouts">Widgets and Layouts</h3>
-<p>There are mainly two types of objects: widgets and layouts. Widgets are small graphics elements (buttons, images, etc.) and they can be combined into a Layout. Roughly speaking:</p>
+<p>There are mainly two types of objects: widgets and layouts. Widgets
+are small graphics elements (buttons, images, etc.) and they can be
+combined into a Layout. Roughly speaking:</p>
 <ul>
 <li>widget = content</li>
 <li>layout = container</li>
 </ul>
 <p>It’s convenient to alias these modules in your program:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">open</span> Bogue</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="kw">module</span> W = Widget</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="kw">module</span> L = Layout</span></code></pre></div>
-<p>Widgets use directly the SDL2 library to draw themselves. Here is the <strong>list of implemented widgets:</strong></p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="kw">open</span> Bogue</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="kw">module</span> W = Widget</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="kw">module</span> L = Layout</span></code></pre></div>
+<p>Widgets use directly the SDL2 library to draw themselves. Here is the
+<strong>list of implemented widgets:</strong></p>
 <ul>
-<li><a href="Bogue.Widget.html#3_Empty"><strong>Empty</strong></a>: draws nothing but can react to an event</li>
-<li><a href="Bogue.Widget.html#3_Simpleboxesrectangles"><strong>Box</strong></a>: draws a rectangular texture (with possible borders and rounded corners)</li>
-<li><a href="Bogue.Widget.html#3_Labelsoricons"><strong>Label</strong></a>: plain text display, or icons</li>
-<li><a href="Bogue.Widget.html#3_Image"><strong>Image</strong></a>: image read from a file (jpg, png, etc.)</li>
-<li><a href="Bogue.Widget.html#3_Checkboxes"><strong>Check</strong></a>: a check box</li>
-<li><a href="Bogue.Widget.html#3_Buttons"><strong>Button</strong></a>: a text or an icon that can be clicked</li>
-<li><a href="Bogue.Widget.html#3_Textdisplay"><strong>TextDisplay</strong></a>: text display with word wrapping and simple formatting (bold, italics, underline)</li>
-<li><a href="Bogue.Widget.html#3_Textinput"><strong>TextInput</strong></a>: let the user enter a one-line text</li>
-<li><a href="Bogue.Widget.html#3_Sliders"><strong>Slider</strong></a>: linear or circular slider to let the user select a value between a range.</li>
-<li><a href="Bogue.Widget.html#3_SdlArea"><strong>Sdl_area</strong></a>: A rectangular area for free drawing. More generally, this gives you a target texture where any function from the SDL Renderer API can be executed.</li>
+<li><a href="Bogue.Widget.html#3_Empty"><strong>Empty</strong></a>:
+draws nothing but can react to an event</li>
+<li><a
+href="Bogue.Widget.html#3_Simpleboxesrectangles"><strong>Box</strong></a>:
+draws a rectangular texture (with possible borders and rounded
+corners)</li>
+<li><a
+href="Bogue.Widget.html#3_Labelsoricons"><strong>Label</strong></a>:
+plain text display, or icons</li>
+<li><a href="Bogue.Widget.html#3_Image"><strong>Image</strong></a>:
+image read from a file (jpg, png, etc.)</li>
+<li><a href="Bogue.Widget.html#3_Checkboxes"><strong>Check</strong></a>:
+a check box</li>
+<li><a href="Bogue.Widget.html#3_Buttons"><strong>Button</strong></a>: a
+text or an icon that can be clicked</li>
+<li><a
+href="Bogue.Widget.html#3_Textdisplay"><strong>TextDisplay</strong></a>:
+text display with word wrapping and simple formatting (bold, italics,
+underline)</li>
+<li><a
+href="Bogue.Widget.html#3_Textinput"><strong>TextInput</strong></a>: let
+the user enter a one-line text</li>
+<li><a href="Bogue.Widget.html#3_Sliders"><strong>Slider</strong></a>:
+linear or circular slider to let the user select a value between a
+range.</li>
+<li><a href="Bogue.Widget.html#3_SdlArea"><strong>Sdl_area</strong></a>:
+A rectangular area for free drawing. More generally, this gives you a
+target texture where any function from the SDL Renderer API can be
+executed.</li>
 </ul>
 <h4 id="widgets-and-connections">Widgets and connections</h4>
-<p>Widgets also carry the <em>logic</em> of the GUI. They respond to <em>events</em> and they can be <em>connected</em> to another widget.</p>
-<p>In some sense, a layout is like a <em>house</em>, or a room in a house, and a widget is a <em>resident</em> (inhabitant) of the house, or an object in a room. Objects can be connected: for instance your thermostat is connected to your heating system. If some event (like a heat wave) makes your thermostat react, then it should tell the heating system to do something.</p>
-<p>More prosaically, if you click on a <strong>checkbox</strong> widget, you may want to change the text in a <strong>label</strong> widget (which can be located in another room (layout).</p>
-<p>BOGUE uses this vocabulary of <em>connections</em>, but if you wish, they can be treated as simple callbacks (actions). The user can create connections either for the main program or to be run in a separate thread (which should be the default as soon at the action to be executed could take a long time to execute — more than the frame rate which is about 17ms).</p>
+<p>Widgets also carry the <em>logic</em> of the GUI. They respond to
+<em>events</em> and they can be <em>connected</em> to another
+widget.</p>
+<p>In some sense, a layout is like a <em>house</em>, or a room in a
+house, and a widget is a <em>resident</em> (inhabitant) of the house, or
+an object in a room. Objects can be connected: for instance your
+thermostat is connected to your heating system. If some event (like a
+heat wave) makes your thermostat react, then it should tell the heating
+system to do something.</p>
+<p>More prosaically, if you click on a <strong>checkbox</strong> widget,
+you may want to change the text in a <strong>label</strong> widget
+(which can be located in another room (layout).</p>
+<p>BOGUE uses this vocabulary of <em>connections</em>, but if you wish,
+they can be treated as simple callbacks (actions). The user can create
+connections either for the main program or to be run in a separate
+thread (which should be the default as soon at the action to be executed
+could take a long time to execute — more than the frame rate which is
+about 17ms).</p>
 <h4 id="layouts-a-tree-structure">Layouts: a tree structure</h4>
-<p>Layouts are created by the user to combine several widgets together. Of course the library also provides a number of predefined layouts, see below.</p>
+<p>Layouts are created by the user to combine several widgets together.
+Of course the library also provides a number of predefined layouts, see
+below.</p>
 <p>There are two types of layouts:</p>
 <ul>
 <li>a single <em>resident</em>: the layout only contains a widget</li>
-<li>a layout that contains a <em>list of layouts</em>. Think of a house containing several rooms.</li>
+<li>a layout that contains a <em>list of layouts</em>. Think of a house
+containing several rooms.</li>
 </ul>
-<p>The geometry of rooms inside a house (= children layouts inside a parent layout) can be arbitrary, but the two main useful ones are:</p>
+<p>The geometry of rooms inside a house (= children layouts inside a
+parent layout) can be arbitrary, but the two main useful ones are:</p>
 <ul>
-<li><em>flat</em> arrangement (sometimes called hbox): rooms are on a horizontal level</li>
+<li><em>flat</em> arrangement (sometimes called hbox): rooms are on a
+horizontal level</li>
 </ul>
 <pre><code>[ [room#1] [room#2] ... [room#n] ]</code></pre>
 <ul>
-<li><em>tower</em> arrangement (sometimes called vbox): rooms are vertically arranged</li>
+<li><em>tower</em> arrangement (sometimes called vbox): rooms are
+vertically arranged</li>
 </ul>
 <pre><code>[
   [room#1]
@@ -125,78 +224,123 @@
   ...
   [room#n]
 ]</code></pre>
-<p>Of course, out of this, many more complicated arrangements can be obtained. See <a href="Bogue.html#2_Layouts">here</a> for a list of useful predefined layouts (menus, lists, radio buttons, tabs, etc.).</p>
+<p>Of course, out of this, many more complicated arrangements can be
+obtained. See <a href="Bogue.html#2_Layouts">here</a> for a list of
+useful predefined layouts (menus, lists, radio buttons, tabs, etc.).</p>
 <h3 id="the-main-loop">The main loop</h3>
 <p>BOGUE has three ways of functioning (and they can be mixed):</p>
 <ol style="list-style-type: decimal">
 <li><p><em>Let it run the mainloop:</em></p>
-<p>it waits for events, draws the graphics, execute predefined actions when the user interacts (for instance, click on a button), and does this forever, until we decide to quit.</p></li>
+<p>it waits for events, draws the graphics, execute predefined actions
+when the user interacts (for instance, click on a button), and does this
+forever, until we decide to quit.</p></li>
 <li><p><em>react on “realtime” with “immediate” actions:</em></p>
-<p>instead of using events to trigger an action, you can directly read data from any widget. For instance, continuously read what the user is typing in English to propose in real-time a translation in esperanto showed in another widget.</p></li>
+<p>instead of using events to trigger an action, you can directly read
+data from any widget. For instance, continuously read what the user is
+typing in English to propose in real-time a translation in esperanto
+showed in another widget.</p></li>
 <li><p><em>embed BOGUE in your own mainloop:</em></p>
-<p>you have written a mainloop for your game, and sometimes you want to show GUI elements without stopping your loop. You just need to call BOGUE’s “one_step” function at each frame, as you need.</p></li>
+<p>you have written a mainloop for your game, and sometimes you want to
+show GUI elements without stopping your loop. You just need to call
+BOGUE’s “one_step” function at each frame, as you need.</p></li>
 </ol>
 <h2 id="a-simple-example">A simple example</h2>
 <p>Here is what we want to program:</p>
-<p>We let the user enter her/his name on top of the window, for instance “Audrey”, and simultaneously there is a large greeting message in the center of the window saying “Hello Audrey!”.</p>
-<h3 id="the-standard-method-events-and-callbacks">The standard method (events and callbacks)</h3>
-<p><a href="https://github.com/sanette/bogue/blob/master/examples/input/input.ml">examples/input</a></p>
-<p>It’s similar to many event-driven GUIs (like GTK+), and it’s both powerful and flexible (and also quite efficient, for large programs).</p>
+<p>We let the user enter her/his name on top of the window, for instance
+“Audrey”, and simultaneously there is a large greeting message in the
+center of the window saying “Hello Audrey!”.</p>
+<h3 id="the-standard-method-events-and-callbacks">The standard method
+(events and callbacks)</h3>
+<p><a
+href="https://github.com/sanette/bogue/blob/master/examples/input/input.ml">examples/input</a></p>
+<p>It’s similar to many event-driven GUIs (like GTK+), and it’s both
+powerful and flexible (and also quite efficient, for large
+programs).</p>
 <p>The program will look like the following.</p>
 <ol style="list-style-type: decimal">
-<li>The <strong>action</strong>: given a TextInput widget and a Label widget, we want to update the Label each time the user presses a key in the TextInput. Here is the action:</li>
+<li>The <strong>action</strong>: given a TextInput widget and a Label
+widget, we want to update the Label each time the user presses a key in
+the TextInput. Here is the action:</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">let</span> action <span class="dt">input</span> label _ =</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">let</span> action <span class="dt">input</span> label _ =</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>The <strong>widgets</strong>: we need a TextInput and a Label:</li>
 </ol>
-<div class="sourceCode" id="cb8"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
-<li>We create a <strong>connection</strong> between them, reacting to the key-pressed events:</li>
+<li>We create a <strong>connection</strong> between them, reacting to
+the key-pressed events:</li>
 </ol>
-<div class="sourceCode" id="cb9"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">let</span> c = W.connect <span class="dt">input</span> label action Sdl.Event.[text_input; key_down] <span class="kw">in</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="kw">let</span> c = W.connect <span class="dt">input</span> label action Sdl.Event.[text_input; key_down] <span class="kw">in</span></span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
-<li>We arrange the widgets in a <strong>layout</strong> (a tower with two residents):</li>
+<li>We arrange the widgets in a <strong>layout</strong> (a tower with
+two residents):</li>
 </ol>
-<div class="sourceCode" id="cb10"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></span></code></pre></div>
 <ol start="5" style="list-style-type: decimal">
 <li>It remains to create the board and run it. That’s it!</li>
 </ol>
-<div class="sourceCode" id="cb11"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.of_layout ~connections:[c] layout <span class="kw">in</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>Bogue.run board</span></code></pre></div>
-<p>Note that the order 1. and 2. can be swapped. In more complex examples, you cannot always separate all these steps like this, you may need to mix them, for instance because you want a widget action to modify a layout on the fly…</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="kw">let</span> board = Bogue.of_layout ~connections:[c] layout <span class="kw">in</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>Bogue.run board</span></code></pre></div>
+<p>Note that the order 1. and 2. can be swapped. In more complex
+examples, you cannot always separate all these steps like this, you may
+need to mix them, for instance because you want a widget action to
+modify a layout on the fly…</p>
 <h3 id="the-immediate-method">The “immediate” method</h3>
-<p><a href="https://github.com/sanette/bogue/blob/master/examples/input-immediate/input.ml">examples/input-immediate</a></p>
-<p>For simple programs like our example, when the action is fast and will not block the interface, one can use the immediate mode, which is easier to program and debug (no event, no callback).</p>
+<p><a
+href="https://github.com/sanette/bogue/blob/master/examples/input-immediate/input.ml">examples/input-immediate</a></p>
+<p>For simple programs like our example, when the action is fast and
+will not block the interface, one can use the immediate mode, which is
+easier to program and debug (no event, no callback).</p>
 <ol style="list-style-type: decimal">
-<li>We define the two widgets and the layout as in steps 2 and 4 in the standard method above:</li>
+<li>We define the two widgets and the layout as in steps 2 and 4 in the
+standard method above:</li>
 </ol>
-<div class="sourceCode" id="cb12"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
-<li>We define the action to be executed at each frame display (of course it’s not a pure function, it uses the variables <code>input</code> and <code>label</code> defined above):</li>
+<li>We define the action to be executed at each frame display (of course
+it’s not a pure function, it uses the variables <code>input</code> and
+<code>label</code> defined above):</li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">let</span> before_display () =</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="kw">let</span> before_display () =</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="kw">let</span> text = W.get_text <span class="dt">input</span> <span class="kw">in</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  W.set_text label (<span class="st">&quot;Hello &quot;</span> ^ text ^ <span class="st">&quot;!&quot;</span>) <span class="kw">in</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li>We create the board and run it. Done!</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">let</span> board = Bogue.of_layout layout <span class="kw">in</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>Bogue.run ~before_display board</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="kw">let</span> board = Bogue.of_layout layout <span class="kw">in</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>Bogue.run ~before_display board</span></code></pre></div>
 <h3 id="the-embedded-method">The “embedded” method</h3>
-<p><a href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a></p>
-<p>This is only useful if you already have an application with an event/display loop (like a game) and you want to add some GUI on top of this.</p>
+<p><a
+href="https://github.com/sanette/bogue/blob/master/examples/embed/embed.ml">examples/embed</a></p>
+<p>This is only useful if you already have an application with an
+event/display loop (like a game) and you want to add some GUI on top of
+this.</p>
 <ol style="list-style-type: decimal">
 <li><p>use one of the methods above to create your board</p></li>
-<li><p>use <code>Bogue.make_sdl_windows</code> to either create news windows for the GUI, or use already existing SDL windows.</p></li>
-<li><p>anytime you want to show the GUI, just call the <code>Bogue.one_step</code> function in your loop, in general after all other renderings and just before <code>Sdl.render_present</code>. When the GUI is displayed, be sure to disable all event handling functions that could interfere with BOGUE.</p></li>
+<li><p>use <code>Bogue.make_sdl_windows</code> to either create news
+windows for the GUI, or use already existing SDL windows.</p></li>
+<li><p>anytime you want to show the GUI, just call the
+<code>Bogue.one_step</code> function in your loop, in general after all
+other renderings and just before <code>Sdl.render_present</code>. When
+the GUI is displayed, be sure to disable all event handling functions
+that could interfere with BOGUE.</p></li>
 </ol>
-<p>See the file <a href="Embedded.html"><code>Embedded.md</code></a> for more details.</p>
+<p>See the file <a href="Embedded.html"><code>Embedded.md</code></a> for
+more details.</p>
   <div style="float: right;">
     <a href="https://github.com/sanette/bogue">Find bogue on
       <img 

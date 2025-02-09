@@ -38,11 +38,11 @@
 <p>The main, all-purpose graphics container.</p>
 
 <p>A layout is a "box" (a rectangle) whose purpose is to place onscreen the
-   various elements composing the GUI. It can contain a single widget, or a list
-   of sub-layouts. In Bogue, we use the housing metaphor: a layout is a <b>   house</b> that contains either a single <b>resident</b>, or several <b>rooms</b>. Each
-   room can be seen as a sub-house, and can contain a resident or
-   sub-rooms. Houses and rooms have the type <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>, while a resident has the type
-   <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>.</p>
+ various elements composing the GUI. It can contain a single widget, or a list
+ of sub-layouts (recursively). In Bogue, we use the housing metaphor: a layout
+ is a <b>house</b> that contains either a single <b>resident</b>, or several <b> rooms</b>. Each room can be seen as a sub-house, and can contain a resident or
+ sub-rooms. Houses and rooms have the type <a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>, while a resident has the type
+ <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a>.</p>
 
 <p>Technically, the usual metaphor in computer science is a <em>Tree</em>. A layout
    is a tree, each vertex (or node) has any number of branches (or children). A
@@ -233,7 +233,7 @@
       not used.</p>
 </div>
 <ul class="info-attributes">
-<li><b>See also</b> <i>example 27</i> .</li>
+<li><b>See also</b> <i>Example #27</i> .</li>
 </ul>
 </div>
 <h3 id="2_Getlayoutattributes">Get layout attributes</h3>

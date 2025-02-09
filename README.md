@@ -72,6 +72,7 @@ Several predefined layouts are available:
 * drop-down select lists
 * radio lists
 * automatic tooltips can be attached to any element
+* file chooser
 
 Layouts can be __animated__ (slide-in, transparency, rotation).  All
 layouts can be automatically __resized__ when the user resizes the

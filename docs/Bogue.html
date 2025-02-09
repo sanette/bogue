@@ -13,6 +13,7 @@
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="List of Modules" rel="Section" href="#1_ListofModules">
 <link title="Widgets" rel="Subsection" href="#2_Widgets">
 <link title="Layouts" rel="Subsection" href="#2_Layouts">
+<link title="Predefined Layouts" rel="Subsection" href="#2_PredefinedLayouts">
 <link title="The Bogue mainloop" rel="Subsection" href="#2_TheBoguemainloop">
 <link title="Example" rel="Subsection" href="#example">
 <title>Bogue</title>
@@ -34,7 +35,7 @@
 </div>
 <ul class="info-attributes">
 <li><b>Author(s):</b> Vu Ngoc San</li>
-<li><b>Version:</b> 20250207</li>
+<li><b>Version:</b> 20250208</li>
 <li><b>See also</b> <a href="https://github.com/sanette/bogue">the source code on github</a></li>
 </ul>
 </div>
@@ -230,24 +231,12 @@
 
 </div>
 
-<pre><span id="MODULEWindow"><span class="keyword">module</span> <a href="Bogue.Window.html">Window</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Window.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>Windows</p>
-
-</div>
-<h3 id="2_TheBoguemainloop">The Bogue mainloop</h3>
-<p>Because a GUI continuously waits for user interaction, everything has to run
-   inside a loop. You start the loop with <code class="code">run</code>, and this is usually the last
-   command of your Bogue code.</p>
-
-<pre><span id="MODULEMain"><span class="keyword">module</span> <a href="Bogue.Main.html">Main</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Main.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>Control the workflow of the GUI mainloop.</p>
-
-</div>
-
 <pre><span id="MODULESnapshot"><span class="keyword">module</span> <a href="Bogue.Snapshot.html">Snapshot</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Snapshot.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 <p>Create an image from a Layout.</p>
 
 </div>
+<h3 id="2_PredefinedLayouts">Predefined Layouts</h3>
+<p>These modules help you create commonly used layouts: lists, menus, etc.</p>
 
 <pre><span id="MODULELong_list"><span class="keyword">module</span> <a href="Bogue.Long_list.html">Long_list</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Long_list.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 <p>Handle large lists by not displaying all elements at once.</p>
@@ -256,11 +245,6 @@
 
 <pre><span id="MODULETabs"><span class="keyword">module</span> <a href="Bogue.Tabs.html">Tabs</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Tabs.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 <p>Switch between layouts using Tabs.</p>
-
-</div>
-
-<pre><span id="MODULEPopup"><span class="keyword">module</span> <a href="Bogue.Popup.html">Popup</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>Put layouts on top of others.</p>
 
 </div>
 
@@ -284,13 +268,32 @@
 
 </div>
 
-<pre><span id="MODULEFile"><span class="keyword">module</span> <a href="Bogue.File.html">File</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
-<p>File dialog and file monitor</p>
+<pre><span id="MODULEWindow"><span class="keyword">module</span> <a href="Bogue.Window.html">Window</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Window.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Windows</p>
+
+</div>
+<h3 id="2_TheBoguemainloop">The Bogue mainloop</h3>
+<p>Because a GUI continuously waits for user interaction, everything has to run
+   inside a loop. You start the loop with <code class="code">run</code>, and this is usually the last
+   command of your Bogue code.</p>
+
+<pre><span id="MODULEMain"><span class="keyword">module</span> <a href="Bogue.Main.html">Main</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Main.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Control the workflow of the GUI mainloop.</p>
 
 </div>
 
 <pre><span id="MODULEBogue"><span class="keyword">module</span> <a href="Bogue.Bogue.html">Bogue</a></span>: <code class="type"><a href="Bogue.Main.html">Main</a></code></pre><div class="info">
 <p>Alias for <a href="Bogue.Main.html"><code class="code"><span class="constructor">Main</span></code></a></p>
+
+</div>
+
+<pre><span id="MODULEPopup"><span class="keyword">module</span> <a href="Bogue.Popup.html">Popup</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Put layouts on top of others, or in new windows.</p>
+
+</div>
+
+<pre><span id="MODULEFile"><span class="keyword">module</span> <a href="Bogue.File.html">File</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.File.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>File dialog and file monitor</p>
 
 </div>
 <h3 id="example">Example</h3>

@@ -15,48 +15,70 @@
 	height="42px"
 	width="42px" style="vertical-align: middle;"/></a>
   </div>
-<h1 id="bogue-bogue-icon">Bogue <img src="https://raw.githubusercontent.com/sanette/bogue/master/bogue-icon.png" alt="bogue-icon" /></h1>
-<p><em>Bogue</em> is an all-purpose GUI (Graphical user interface) library for <a href="https://ocaml.org/">ocaml</a>, with animations, written from scratch in <code>ocaml</code>, based on <a href="http://www.libsdl.org/">SDL2</a>.</p>
+<h1 id="bogue-bogue-icon">Bogue <img
+src="https://raw.githubusercontent.com/sanette/bogue/master/bogue-icon.png"
+alt="bogue-icon" /></h1>
+<p><em>Bogue</em> is an all-purpose GUI (Graphical user interface)
+library for <a href="https://ocaml.org/">ocaml</a>, with animations,
+written from scratch in <code>ocaml</code>, based on <a
+href="http://www.libsdl.org/">SDL2</a>.</p>
 <ul>
 <li>Can be used to add interactivity to any program.</li>
-<li>Can work within an already existing event loop, for instance to add GUI elements to a game.</li>
-<li>Uses <strong>GPU acceleration</strong> (thanks to the <em>SDL2 renderer</em> library), which makes it quite fast.</li>
+<li>Can work within an already existing event loop, for instance to add
+GUI elements to a game.</li>
+<li>Uses <strong>GPU acceleration</strong> (thanks to the <em>SDL2
+renderer</em> library), which makes it quite fast.</li>
 <li>Can deal with several windows.</li>
-<li><em>Bogue</em> is <strong>themable</strong>, and does not try to look like your desktop. Instead, it will look the same on every platform.</li>
-<li>Graphics output is scalable (without need to recompile), and hence easily adapts to <strong>Hi-DPI displays</strong>.</li>
+<li><em>Bogue</em> is <strong>themable</strong>, and does not try to
+look like your desktop. Instead, it will look the same on every
+platform.</li>
+<li>Graphics output is scalable (without need to recompile), and hence
+easily adapts to <strong>Hi-DPI displays</strong>.</li>
 <li>Predefined animations (slide-in, fade-in, fade-out, rotate).</li>
 <li>Built-in audio mixer.</li>
 <li>Works with mouse, touchscreen, and even TAB focusing</li>
 </ul>
-<p>Programming with <em>bogue</em> is easy if you’re used to GUIs with widgets, layouts, callbacks, and of course it has a functional flavor. ​It uses <strong><a href="https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html">Threads</a></strong> when non-blocking reactions are needed.</p>
+<p>Programming with <em>bogue</em> is easy if you’re used to GUIs with
+widgets, layouts, callbacks, and of course it has a functional flavor.
+​It uses <strong><a
+href="https://caml.inria.fr/pub/docs/manual-ocaml/libref/Thread.html">Threads</a></strong>
+when non-blocking reactions are needed.</p>
 <h1 id="hello-world">Hello world</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">open</span> Bogue</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="kw">let</span> () =</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  Widget.label <span class="st">&quot;Hello world&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  |&gt; Layout.resident</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>  |&gt; Bogue.of_layout</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>  |&gt; Bogue.run</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="kw">open</span> Bogue</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="kw">let</span> () =</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  Widget.label <span class="st">&quot;Hello world&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  |&gt; Layout.resident</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  |&gt; Bogue.of_layout</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  |&gt; Bogue.run</span></code></pre></div>
 <h1 id="features">Features</h1>
 <h2 id="widgets">Widgets</h2>
-<p>Widgets are the building bricks, responsible for graphic elements that respond to events (mouse, touchscreen, keyboard, etc.).</p>
-<p>For a more “functional” use, they can be “connected” instead of reacting with callbacks (see examples).</p>
+<p>Widgets are the building bricks, responsible for graphic elements
+that respond to events (mouse, touchscreen, keyboard, etc.).</p>
+<p>For a more “functional” use, they can be “connected” instead of
+reacting with callbacks (see examples).</p>
 <ul>
-<li>boxes with decorations (round corner, border, shadow, gradient background, image pattern)</li>
+<li>boxes with decorations (round corner, border, shadow, gradient
+background, image pattern)</li>
 <li>check box</li>
 <li>push button (with labels or images)</li>
-<li>rich text display (bold, italics, underline), any TTF font can be used.</li>
+<li>rich text display (bold, italics, underline), any TTF font can be
+used.</li>
 <li>image (all usual formats, including SVG)</li>
 <li>slider (horizontal, vertical, or circular)</li>
 <li>text input with select and copy-paste</li>
 <li>SDL area for free drawing with the whole SDL Renderer API</li>
 </ul>
 <h2 id="layouts">Layouts</h2>
-<p>widgets can be combined in various ways into layouts. For instance, a check box followed by a text label is a common layout.</p>
+<p>widgets can be combined in various ways into layouts. For instance, a
+check box followed by a text label is a common layout.</p>
 <p>Several predefined layouts are available:</p>
 <ul>
-<li>sliders (horizontal, vertical, circular). Can be used as progress bars</li>
-<li>scrollable lists (that can easily handle a large number of elements, like one million)</li>
+<li>sliders (horizontal, vertical, circular). Can be used as progress
+bars</li>
+<li>scrollable lists (that can easily handle a large number of elements,
+like one million)</li>
 <li>multi-column tables with sortable columns</li>
 <li>multiple tabs with slide-in animation</li>
 <li>modal popups</li>
@@ -64,8 +86,12 @@
 <li>drop-down select lists</li>
 <li>radio lists</li>
 <li>automatic tooltips can be attached to any element</li>
+<li>file chooser</li>
 </ul>
-<p>Layouts can be <strong>animated</strong> (slide-in, transparency, rotation). All layouts can be automatically <strong>resized</strong> when the user resizes the window. <strong>Timeouts</strong> are available to execute arbitrary actions after a delay.</p>
+<p>Layouts can be <strong>animated</strong> (slide-in, transparency,
+rotation). All layouts can be automatically <strong>resized</strong>
+when the user resizes the window. <strong>Timeouts</strong> are
+available to execute arbitrary actions after a delay.</p>
 <h1 id="screenshots">Screenshots</h1>
 <table>
 <thead>
@@ -81,37 +107,67 @@
 </tr>
 </tbody>
 </table>
-<p>See <a href="https://github.com/sanette/bogue-demo">here</a> for the source code of this demo.</p>
+<p>See <a href="https://github.com/sanette/bogue-demo">here</a> for the
+source code of this demo.</p>
 <h2 id="videos">Videos</h2>
-<p><a href="https://www.youtube.com/watch?v=b7rBCctJ7Cw">randomize</a>, <a href="https://youtu.be/isFLxnDooL8">demo 1907</a></p>
+<p><a href="https://www.youtube.com/watch?v=b7rBCctJ7Cw">randomize</a>,
+<a href="https://youtu.be/isFLxnDooL8">demo 1907</a></p>
 <h1 id="installation">Installation</h1>
 <h2 id="using-the-opam-package">Using the opam package</h2>
-<p>It’s the easiest way unless you want to try out the development version.</p>
+<p>It’s the easiest way unless you want to try out the development
+version.</p>
 <pre><code>opam install bogue</code></pre>
-<p>That’s it. <em>But</em>, if you want to stay in sync with the latest developement, you can directly “pin” the github repository:</p>
+<p>That’s it. <em>But</em>, if you want to stay in sync with the latest
+developement, you can directly “pin” the github repository:</p>
 <pre><code>opam pin add https://github.com/sanette/bogue.git</code></pre>
 <p>(Then update/upgrade opam). And this can easily be undone with</p>
 <pre><code>opam unpin https://github.com/sanette/bogue.git</code></pre>
 <h2 id="sdl2-troubleshooting">SDL2 troubleshooting</h2>
-<p>Bogue needs the SDL2 library. In general you already have it installed, or, if everything goes smoothly, it will be installed automatically with <code>opam install tsdl</code>. <em>However</em>, <code>tsdl</code> is not able to automatically pick up the right version corresponding to your SDL2 version. You might have to tell <code>opam</code> the version you need: for instance for Bogue 20240928 on Ubuntu 20.04 you should <code>opam install tsdl.1.0.0</code>, because the more recent <code>tsdl.1.1.0</code> requires <code>SDL &gt;= 2.0.18</code> which you probably don’t have on your system.</p>
+<p>Bogue needs the SDL2 library. In general you already have it
+installed, or, if everything goes smoothly, it will be installed
+automatically with <code>opam install tsdl</code>. <em>However</em>,
+<code>tsdl</code> is not able to automatically pick up the right version
+corresponding to your SDL2 version. You might have to tell
+<code>opam</code> the version you need: for instance for Bogue 20240928
+on Ubuntu 20.04 you should <code>opam install tsdl.1.0.0</code>, because
+the more recent <code>tsdl.1.1.0</code> requires
+<code>SDL &gt;= 2.0.18</code> which you probably don’t have on your
+system.</p>
 <p>See https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md</p>
 <h2 id="building-from-sources">Building from sources</h2>
 <h3 id="prerequisites">Prerequisites</h3>
-<p>You need a working <code>ocaml</code> installation with <code>opam</code>, see the <a href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make sure you have <code>dune</code>, <code>tsdl</code>, <code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
+<p>You need a working <code>ocaml</code> installation with
+<code>opam</code>, see the <a
+href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make
+sure you have <code>dune</code>, <code>tsdl</code>,
+<code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
 <pre><code>opam install dune tsdl tsdl-image tsdl-ttf</code></pre>
 <h3 id="get-the-latest-source">Get the latest source</h3>
-<p>Download the <a href="https://github.com/sanette/bogue/archive/master.zip">git archive</a>, unzip it, cd into the <code>bogue-master</code> dir, and then:</p>
+<p>Download the <a
+href="https://github.com/sanette/bogue/archive/master.zip">git
+archive</a>, unzip it, cd into the <code>bogue-master</code> dir, and
+then:</p>
 <pre><code>dune build
 opam install .</code></pre>
 <h3 id="ci">CI</h3>
 <p>https://ci.ocamllabs.io/github/sanette/bogue</p>
 <h1 id="documentation">Documentation</h1>
-<p>It’s good to first have a look at Bogue’s <a href="http://sanette.github.io/bogue/Principles.html">general principles</a>.</p>
-<p>You can also directly try the <a href="https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html">tutorials</a>.</p>
-<p>The public API can be found <a href="http://sanette.github.io/bogue/Bogue.html">here</a>.</p>
+<p>It’s good to first have a look at Bogue’s <a
+href="http://sanette.github.io/bogue/Principles.html">general
+principles</a>.</p>
+<p>You can also directly try the <a
+href="https://sanette.github.io/bogue-tutorials/bogue-tutorials/index.html">tutorials</a>.</p>
+<p>The public API can be found <a
+href="http://sanette.github.io/bogue/Bogue.html">here</a>.</p>
 <h1 id="examples">Examples</h1>
-<p>You should first try a <a href="http://sanette.github.io/bogue/Bogue.html#example">minimal example</a>.</p>
-<p>The <code>examples</code> directory contains more sophisticated examples. If you installed the <code>bogue</code> package with <code>opam</code> (as described above), these examples are available via the <code>boguex</code> program. For instance, run examples 34 and 41 by:</p>
+<p>You should first try a <a
+href="http://sanette.github.io/bogue/Bogue.html#example">minimal
+example</a>.</p>
+<p>The <code>examples</code> directory contains more sophisticated
+examples. If you installed the <code>bogue</code> package with
+<code>opam</code> (as described above), these examples are available via
+the <code>boguex</code> program. For instance, run examples 34 and 41
+by:</p>
 <pre><code>boguex 34 41</code></pre>
 <p>Type <code>boguex -h</code> to have the list of all examples.</p>
 <h1 id="a-minimal-app-using-bogue">A minimal app using Bogue</h1>
