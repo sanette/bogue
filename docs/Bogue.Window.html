@@ -23,14 +23,15 @@
 
 <pre><span id="MODULEWindow"><span class="keyword">module</span> Window</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Window.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
 <div class="info-desc">
-<h3 id="2_Windows">Windows</h3>
+<p>Windows</p>
+
 <p>In order to display a Layout, Bogue needs to create a <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a> for it,
     and pass it as argument of <a href="Bogue.Main.html#VALcreate"><code class="code"><span class="constructor">Main</span>.create</code></a>. This is done automatically if you
     use <a href="Bogue.Main.html#VALof_layouts"><code class="code"><span class="constructor">Main</span>.of_layouts</code></a>, so most of the time you don't need to deal with
     <a href="Bogue.Window.html#TYPEt"><code class="code"><span class="constructor">Window</span>.t</code></a>'s.</p>
 
-<p>Windows are created by SDL, and hence will appear with the usual decorations
-    of your Desktop Environment.</p>
+<p>Ultimately, "physical" windows are created by SDL, and hence will appear
+    with the usual decorations of your Desktop Environment.</p>
 
 <h6 id="5_graphdotbwindowhtmlDependencygraph"><a href="graph-dot-b_window.html">Dependency graph</a></h6></div>
 </div>
@@ -44,6 +45,9 @@
 <p>Create a window from the given layout. The layout must not belong to any
       room. If the layout is hidden, the window will be created but not shown.</p>
 </div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>Example #11</i> .</li>
+</ul>
 </div>
 <div class="param_info"><code class="code">on_close</code> : Set the function to be executed when the user wants to
         close the window. By default, the window will be destroyed. Hence,
@@ -53,7 +57,7 @@
 
 <pre><span id="VALon_close"><span class="keyword">val</span> on_close</span> : <code class="type"><a href="Bogue.Window.html#TYPEt">t</a> -&gt; (<a href="Bogue.Window.html#TYPEt">t</a> -&gt; unit) option -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p>Modify the on_close parameter of <a href="Bogue.Window.html#VALcreate"><code class="code"><span class="constructor">Window</span>.create</code></a>.</p>
+<p>Modify the <code class="code">on_close</code> parameter of <a href="Bogue.Window.html#VALcreate"><code class="code"><span class="constructor">Window</span>.create</code></a>.</p>
 </div>
 </div>
 

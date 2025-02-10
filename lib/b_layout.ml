@@ -1986,16 +1986,15 @@ let move_all_to_stack ~dst room =
 let unify_layer_stack room =
   move_all_to_stack ~dst:room room
 
-let set_new_stack win =
-  if is_top win then begin
+let set_new_stack ?(force = false) win =
+  if force || is_top win then begin
     printd debug_board "Creating a new stack for window layout %s."
       (sprint_id win);
     win.layer <- Chain.copy_into ~dst:None (get_layer win);
     Chain.replace win.layer (Draw.new_layer ())
-  end
-  else printd (debug_board + debug_error)
-      "Creating a new stack is only allowed for top layouts (windows), not \
-       for %s" (sprint_id win)
+  end else printd (debug_board + debug_error)
+      "Creating a new stack is only allowed for top layouts (windows), not for %s"
+      (sprint_id win)
 
 let move_to_new_stack room =
   set_new_stack room;
@@ -2013,7 +2012,7 @@ let create_win_house windows =
       let id =
         if List.mem id layer_ids then
           begin
-            set_new_stack win;
+            set_new_stack ~force:true win;
             Chain.get_stack_id (get_layer win)
           end else id in
       unify_layer_stack win;

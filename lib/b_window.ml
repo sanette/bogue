@@ -22,10 +22,9 @@ let create ?on_close layout =
     printd (debug_error + debug_user)
       "Cannot construct a Window from room %s because it is already contained in \
        a house." (Layout.sprint_id layout);
-    raise (Invalid_argument
-             "[Window.create] Cannot create a Window from a Layout that belongs \
-              to a house.")
-  end;
+    invalid_arg "[Window.create] Cannot create a Window from a Layout that \
+                 belongs to a house."
+  end else
   let g = layout.Layout.current_geom in
   Layout.(layout.current_geom <- { g with x = not_specified; y = not_specified });
   { layout; is_fresh = false; bogue = true; on_close}
@@ -74,6 +73,7 @@ let size w =
 let set_size ~w ~h win =
   do_option (Layout.window_opt win.layout) (Draw.set_window_size ~w ~h)
 
+(* utilisé par drawin *)
 let maximize_width win =
   do_option (Layout.window_opt win.layout) (fun sdl_win ->
       let id = go (Sdl.get_window_display_index sdl_win) in
@@ -83,6 +83,18 @@ let maximize_width win =
         "[maximize_width] Detected display size for layout %s: (%i,%i)."
         (Layout.sprint_id win.layout) w (Sdl.Rect.h rect);
       let _w, h = Draw.get_window_size sdl_win in
+      Draw.set_window_size sdl_win ~w ~h)
+
+(* untested *)
+let maximize win =
+  do_option (Layout.window_opt win.layout) (fun sdl_win ->
+      let id = go (Sdl.get_window_display_index sdl_win) in
+      let rect = go (Sdl.get_display_bounds id) in
+      let w = Sdl.Rect.w rect in
+      let h = Sdl.Rect.h rect in
+      printd debug_graphics
+        "[maximize_width] Detected display size for layout %s: (%i,%i)."
+        (Layout.sprint_id win.layout) w h;
       Draw.set_window_size sdl_win ~w ~h)
 
 let get_canvas w =

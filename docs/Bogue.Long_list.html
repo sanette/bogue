@@ -47,15 +47,15 @@
 
 <pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?name:string -&gt;<br>       w:int -&gt;<br>       h:int -&gt;<br>       length:int -&gt;<br>       ?first:int -&gt;<br>       generate:(int -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a>) -&gt;<br>       ?height_fn:(int -&gt; int option) -&gt;<br>       ?cleanup:(<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit) -&gt;<br>       ?max_memory:int -&gt;<br>       ?linear:bool -&gt;<br>       ?scrollbar_width:int -&gt; ?scale_width:bool -&gt; unit -&gt; <a href="Bogue.Long_list.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
-<p>Create a long list through the function <code class="code">generate</code> which maps any index
-     <em>i</em> to the <em>ieth</em> element (layout) of the list. If specified (which is
-     not a good idea), the <code class="code">max_memory</code> should be at least twice the area (in
-     physical pixels) of the visible part of the list. If the number of elements
-     is large (typically 100000 or more, this depends on your CPU), its is
-     highly advisable to provide a <code class="code">height_fn</code>, which to an index <em>i</em> gives
-     the height (in logical pixels) of the <em>ieth</em> entry. If some heights are
-     not known in advance, it's ok to return <code class="code"><span class="constructor">None</span></code>. For instance, if all
-     entries have the same height, say 30 pixels, one can define</p>
+<p>Create a long list through the function <code class="code">generate</code> which maps any index <em>i</em>
+      to the <em>ieth</em> element (layout) of the list. If specified (which is
+      not a good idea), the <code class="code">max_memory</code> should be at least twice the area (in
+      physical pixels) of the visible part of the list. If the number of
+      elements is large (typically 100000 or more, this depends on your CPU),
+      its is highly advisable to provide a <code class="code">height_fn</code>, which to an index <em>i</em>
+      gives the height (in logical pixels) of the <em>ieth</em> entry. If some
+      heights are not known in advance, it's ok to return <code class="code"><span class="constructor">None</span></code>. For instance,
+      if all entries have the same height, say 30 pixels, one can define</p>
 
 <pre class="codepre"><code class="code"> <span class="keyword">let</span> height_fn _ = <span class="constructor">Some</span> 30 </code></pre></div>
 </div>

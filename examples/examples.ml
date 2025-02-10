@@ -231,7 +231,7 @@ let example10 () =
       if W.get_state w then L.show_window l2 else L.hide_window l2);
   let shortcuts = shortcuts_of_list [exit_on_escape] in
   L.set_show l2 show;
-  let board = of_layouts ~shortcuts [l1;l2] in
+  let board = of_layouts ~shortcuts [l1; l2] in
   (* window position can be set after "make" and before "run" *)
   L.set_window_pos l1 (200,200); L.set_window_pos l2 (400,400);
   run board
@@ -707,8 +707,10 @@ let example28 () =
 let desc29 = "radiolist"
 let example29 () =
   let radio = Radiolist.vertical ~selected:2
-      [|"Only one can be selected"; "AAA"; "BBB"; "CCC"|] in
-  let board = of_layout (Radiolist.layout radio) in
+      [|"AAA"; "BBB"; "CCC"; "DDD"|] in
+  let layout = L.tower [ L.resident (W.label "What is your favorite song?");
+                         Radiolist.layout radio ] in
+  let board = of_layout layout in
   run board
 
 let desc30 = "radiolist and interaction + a timeout"
@@ -1283,7 +1285,23 @@ let example53bis () =
   let board = of_layout (L.tower [l; L.resident disable_btn]) in
   run board
 
-
+let desc54 = "File chooser"
+let example54 () =
+  let w, h = 500, 400 in
+  let icon = W.button ~label:(Label.icon ~size:128 "file") "" in
+  let text = W.label "Click on the icon to select a file" in
+  let sel = W.label ~fg:Draw.(opaque blue) "no file selected" in
+  let layout = L.tower ~align:Draw.Center [
+      L.resident icon;
+      L.resident text;
+      L.empty ~w ~h:(h/2) ();
+      L.resident ~w sel] in
+  L.set_height layout h;
+  let update_file s = W.set_text sel s in
+  W.on_button_release ~release:(fun _ -> File.select_file ~dst:layout "." update_file)
+    icon;
+  let board = of_layout layout in
+  run board
 
 let _ =
   let examples = [
@@ -1352,6 +1370,8 @@ let _ =
     "52", (example52, desc52) ;
     "53", (example53, desc53) ;
     "53bis", (example53bis, desc53bis) ;
+    "54", (example54, desc54) ;
+
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)

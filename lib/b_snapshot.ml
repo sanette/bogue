@@ -1,4 +1,6 @@
-(* Experimental *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* This module is still experimental *)
 
 (* We create a Box widget whose image will be a snapshot of a given room. *)
 (* The texture is initialized at the startup event, or upon user call. *)

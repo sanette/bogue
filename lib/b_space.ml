@@ -1,5 +1,8 @@
 (* This file is part of BOGUE, by San Vu Ngoc *)
 
+(* This module is still somewhat experimental (needs more testing and
+   optimization) *)
+
 (* New implementation of Space, based on the Layout resize mechanism. *)
 (* Since we cannot know in advance where the space layout will reside, we invoke
    a Sync action to install the resize actions. Warning: Sync actions are

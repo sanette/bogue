@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250207
+@version 20250210
 
 @author Vu Ngoc San
 
@@ -1841,12 +1841,12 @@ end (* of Update *)
 (** The main, all-purpose graphics container.
 
  A layout is a "box" (a rectangle) whose purpose is to place onscreen the
-   various elements composing the GUI. It can contain a single widget, or a list
-   of sub-layouts. In Bogue, we use the housing metaphor: a layout is a {b
-   house} that contains either a single {b resident}, or several {b rooms}. Each
-   room can be seen as a sub-house, and can contain a resident or
-   sub-rooms. Houses and rooms have the type {!t}, while a resident has the type
-   {!Widget.t}.
+ various elements composing the GUI. It can contain a single widget, or a list
+ of sub-layouts (recursively). In Bogue, we use the housing metaphor: a layout
+ is a {b house} that contains either a single {b resident}, or several {b
+ rooms}. Each room can be seen as a sub-house, and can contain a resident or
+ sub-rooms. Houses and rooms have the type {!t}, while a resident has the type
+ {!Widget.t}.
 
      Technically, the usual metaphor in computer science is a {e Tree}. A layout
    is a tree, each vertex (or node) has any number of branches (or children). A
@@ -2004,7 +2004,7 @@ module Layout : sig
       Currently, only vertical scrolling is implemented. The [?w] variable is
       not used.
 
-      @see "example 27". *)
+      @see "Example #27". *)
 
   (** {2 Get layout attributes} *)
 
@@ -2323,7 +2323,7 @@ end (* of Space *)
 
 (** Convert Bogue objects to strings for debugging.
 
-{5 {{:graph-dot-b_print.html}Dependency graph}}
+    {5 {{:graph-dot-b_print.html}Dependency graph}}
 *)
 module Print : sig
 
@@ -2339,180 +2339,6 @@ module Print : sig
      file. *)
 
 end (* of Print *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** {2 Windows}
-
-    In order to display a Layout, Bogue needs to create a {!Window.t} for it,
-    and pass it as argument of {!Main.create}. This is done automatically if you
-    use {!Main.of_layouts}, so most of the time you don't need to deal with
-    {!Window.t}'s.
-
-    Windows are created by SDL, and hence will appear with the usual decorations
-    of your Desktop Environment.  *)
-module Window : sig
-  type t
-  val create : ?on_close:(t -> unit) -> Layout.t -> t
-  (** Create a window from the given layout. The layout must not belong to any
-      room. If the layout is hidden, the window will be created but not shown.
-
-      @param on_close Set the function to be executed when the user wants to
-        close the window. By default, the window will be destroyed. Hence,
-        setting a function can prevent the window from being closed. However, if
-        this is the sole open window, clicking on the close button will also
-        emit the 'Quit' event, and will terminate Bogue anyways. *)
-
-  val on_close : t -> (t -> unit) option -> unit
-  (** Modify the on_close parameter of {!create}. *)
-
-  val destroy : t -> unit
-  (** Ask Bogue to destroy the window. *)
-
-  val set_size : w:int -> h:int -> t -> unit
-  (** Set window size in physical pixels. Only works after the window is
-     physically created by {!Main.run}. However, you may use [set_size] in
-     advance with {!Sync.push}. *)
-
-  val maximize_width : t -> unit
-  (** See remarks in {!set_size}. *)
-
-  end
-
-(* ---------------------------------------------------------------------------- *)
-
-(** {2 The Bogue mainloop}
-
-Because a GUI continuously waits for user interaction, everything has to run
-   inside a loop. You start the loop with {!run}, and this is usually the last
-   command of your Bogue code.  *)
-
-(** Control the workflow of the GUI mainloop.
-
-{5 {{:graph-dot-b_main.html}Dependency graph}}
-*)
-module Main : sig
-  type board
-  (** The board is the whole universe of your GUI. It contains everything. *)
-
-  type shortcuts
-
-  exception Exit
-  (** Raising the [Exit] exception will tell the GUI loop to terminate. *)
-
-  val exit_on_escape : int * int * (board -> unit)
-  (** If the [exit_on_escape] shortcut is given to the {!make} function, then
-     the {!Exit} exception will be raised upon pressing the Escape key. *)
-
-  val create : ?shortcuts:shortcuts ->
-    ?connections:(Widget.connection list) ->
-    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
-  (** Create a [board] from a list of layouts and connections. The list of
-     connections can be empty, because connections can be added afterwards. Each
-     Layout in the list will open as a new window.
-
-      @param shortcuts This optional argument is a {%html:<a href="#shortcuts">shortcut map</a>%}.
-
-      @param on_user_event This optional argument is a function to be executed
-     (by the main thread) when a {!Trigger.user_event} is emitted.
-
-*)
-
-  val get_monitor_refresh_rate: board -> int option
-  (** [get_monitor_refresh_rate board] returns the monitor refresh rate, for the
-      monitor containing [board]. In case of several monitors with different
-      refresh rates, return the greatest common divisor, or the minimum if the
-      gcd is less than 30. *)
-
-  val of_windows :  ?shortcuts:shortcuts ->
-    ?connections:(Widget.connection list) ->
-    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
-  (** Synonym for {!create}. (Since 20220418) *)
-
-  val of_layouts : ?shortcuts:shortcuts ->
-    ?connections:(Widget.connection list) ->
-    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t list -> board
-  (** Similar to {!create}. Each layout in the list will be displayed in a
-     different window. (Since 20220418) *)
-
-  val of_layout : ?shortcuts:shortcuts ->
-    ?connections:(Widget.connection list) ->
-    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t -> board
-  (** Similar to {!of_layout} but with only one layout. (Since 20220418) *)
-
-  val make : ?shortcuts:shortcuts ->
-    (Widget.connection list) -> Layout.t list -> board
-  (** Similar to {!of_layouts}.
-
-     @deprecated   (since 20220418). Use {!of_layouts} or {!create} instead. *)
-
-  val run :
-    ?vsync:bool ->
-    ?before_display:(unit -> unit) ->
-    ?after_display:(unit -> unit) -> board -> unit
-  (** This is finally how you run your app! It creates the SDL windows
-     associated with the {!Window.t}s registered with the board, and launches
-     the main loop. This function only returns when all windows are closed (in
-     case at least one window was created), or when the {!Exit} exception is
-     raised.
-    [vsync] defaults to [true] and enables synchronization to monitor refresh rate
-    where possible, otherwise a 60 FPS {!Time.adaptive_fps} is used.
-    *)
-
-  (** {3:shortcuts Creating global keyboard shortcuts} *)
-
-  type shortcut_action = board -> unit
-
-  val shortcuts_empty : unit -> shortcuts
-
-  val shortcuts_add : shortcuts ->
-    ?keymod:Tsdl.Sdl.keymod -> int -> shortcut_action -> shortcuts
-
-  val shortcuts_add_ctrl : shortcuts -> int -> shortcut_action -> shortcuts
-
-  val shortcuts_add_ctrl_shift : shortcuts ->
-    int -> shortcut_action -> shortcuts
-
-  val shortcuts_of_list : (int * int * shortcut_action) list -> shortcuts
-  (** Construct shortcuts from a list of (SDL keycode, SDL keymod, action). *)
-
-  (** {2 Using Bogue together with another graphics loop}
-
-      See the [embed] example. *)
-
-  val make_sdl_windows : ?windows:Tsdl.Sdl.window list -> board -> unit
-  (** This is only useful if you have your own graphics loop, and do {e not} use
-     {!run}. This function creates an SDL window for each top layout in the
-     board. One can use predefined windows with the optional argument
-     [windows]. They will be used by the layouts in the order they appear in the
-     list. If there are fewer windows than layouts, new windows are created. If
-      there are more, the excess is disregarded. *)
-
-  val refresh_custom_windows : board -> unit
-  (** Ask the GUI to refresh (ie. repaint) the custom windows (those that were
-     not created by Bogue itself). *)
-
-  val one_step : ?before_display:(unit -> unit) ->
-    bool -> (unit -> unit) * (unit -> unit) -> ?clear:bool -> board -> bool
-(** This is only useful if you have your own graphics loop, and do {e not} use
-   {!run}. Calling [one_step ~before_display anim (start_fps, fps) ~clear board]
-   is what is executed at each step of the Bogue mainloop. If [anim=true] this
-   step is {e non blocking}; this is what you want if either Bogue or your loop
-   has an animation running. If [anim=false] then the function will wait until
-   an event is received.
-   @return [true] if the GUI currently handles an animation. In this case
-   [fps()] was executed by [one_step]. If not, you should handle the frame rate
-   yourself. *)
-
-  val get_frame : unit -> int
-  (** Number of displayed frames since startup. *)
-
-  val quit : unit -> unit
-  (** Use this to close SDL windows and cleanup memory, after {!run} has
-     returned. This does not exit your program. Calling [quit ()] is not
-     necessary if your program exits after {!run}.*)
-
-end (* of Main *)
 
 (* ---------------------------------------------------------------------------- *)
 
@@ -2533,6 +2359,12 @@ module Snapshot : sig
 end (* of Snapshot *)
 
 (* ---------------------------------------------------------------------------- *)
+
+(** {2 Predefined Layouts}
+
+    These modules help you create commonly used layouts: lists, menus, etc.
+
+ *)
 
 (** Handle large lists by not displaying all elements at once.
 
@@ -2560,15 +2392,15 @@ module Long_list : sig
     ?cleanup:(Layout.t -> unit) ->
     ?max_memory:int ->
     ?linear:bool -> ?scrollbar_width:int -> ?scale_width:bool -> unit -> t
-  (** Create a long list through the function [generate] which maps any index
-     {e i} to the {e ieth} element (layout) of the list. If specified (which is
-     not a good idea), the [max_memory] should be at least twice the area (in
-     physical pixels) of the visible part of the list. If the number of elements
-     is large (typically 100000 or more, this depends on your CPU), its is
-     highly advisable to provide a [height_fn], which to an index {e i} gives
-     the height (in logical pixels) of the {e ieth} entry. If some heights are
-     not known in advance, it's ok to return [None]. For instance, if all
-     entries have the same height, say 30 pixels, one can define
+  (** Create a long list through the function [generate] which maps any index {e i}
+      to the {e ieth} element (layout) of the list. If specified (which is
+      not a good idea), the [max_memory] should be at least twice the area (in
+      physical pixels) of the visible part of the list. If the number of
+      elements is large (typically 100000 or more, this depends on your CPU),
+      its is highly advisable to provide a [height_fn], which to an index {e i}
+      gives the height (in logical pixels) of the {e ieth} entry. If some
+      heights are not known in advance, it's ok to return [None]. For instance,
+      if all entries have the same height, say 30 pixels, one can define
 
       {[ let height_fn _ = Some 30 ]} *)
 
@@ -2606,84 +2438,6 @@ module Tabs : sig
     ?canvas:Draw.canvas ->
     ?name:string -> (string * Layout.t) list -> Layout.t
 end (* of Tabs *)
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Put layouts on top of others.
-
-{e Warning:} For all functions in this module, the destination layout must be a
-   house, not a single resident.
-
-{5 {{:graph-dot-b_popup.html}Dependency graph}} *)
-module Popup : sig
-
-  val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
-  (** Add a screen on top of the layout. This can be useful to make the whole
-      layout clickable as a whole.
-      @return the screen. *)
-
-  (** Generic modal type popup *)
-  val attach : ?bg:Draw.color ->
-    ?show:bool -> Layout.t -> Layout.t -> Layout.t
-  (** [attach house layout] adds two layers on top of the house: one for the
-     screen to hide the house, one for the layout on top of the screen.
-     @return the screen. *)
-
-  val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
-    ?button:string -> string -> Layout.t -> unit
-  (** Add to the layout a modal popup with a text and a close button. By
-      default, [button="Close"]. Use the optional parameters [w,h] to impose the
-      size of the button. *)
-
-  val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
-    ?yes:string -> ?no:string ->
-    yes_action:(unit -> unit) ->
-    no_action:(unit -> unit) -> string -> Layout.t -> unit
-  (** Add to the layout a modal popup with two yes/no buttons. By default,
-      [yes="Yes"] and [no="No"]. Use the optional parameters [w,h] to impose the
-      common size of the two buttons. *)
-
-  val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
-    button:string -> dst:Layout.t -> Layout.t -> unit
-  (** Here the optional parameters [w] and [h] set the width and height of the
-      popup (including the buttons) by scaling the given layout.*)
-
-  val two_buttons : ?dst:Layout.t -> ?board:Main.board ->
-    ?button_w:int -> ?button_h:int ->
-    ?w:int -> ?h:int -> ?screen_color:Draw.color ->
-    label1:string -> label2:string ->
-    action1:(unit -> unit) -> action2:(unit -> unit) -> ?connect2:(Widget.t -> unit) ->
-    Layout.t -> unit
-  (** If [dst] is present, a popup containing the given layout (and two buttons)
-      will be contructed inside [dst], otherwise a new window will be
-      created. In the latter case, the creation of the new window depends on the
-      [board] argument. If the [board] argument is provided, the new window will
-      be immediately attached to the board; otherwise, the new window will be
-      created (by the main thread) when the board is running, at the start of
-      the next frame. The [board] argument has no effect if [dst] is provided.
-
-      The optional parameter [connect2] can be used
-      to establish a connection to or from the second button. For instance, one
-      can use this to disable the button if some condition is not met. This is
-      used in {!File.select_file}. *)
-
-  type position =
-  | LeftOf
-  | RightOf
-  | Above
-  | Below
-  | Mouse
-
-  val tooltip : ?background:Layout.background ->
-    ?position:position ->
-    string -> target:Layout.t -> Widget.t -> Layout.t -> unit
-  (** [tooltip text ~target widget layout] adds a tooltip which will appear on
-     [layout], next to [target] (which should be a sublayout of [layout]), when
-     the [widget] gets mouse focus and mouse is idle for some time on it. A
-     tooltip it not a modal popup, it does not prevent from interacting with the
-     rest of the layout. *)
-
-end (* of Popup *)
 
 (* ---------------------------------------------------------------------------- *)
 
@@ -2776,16 +2530,25 @@ end (* of Select *)
 (** Check list with a single choice.
 
     Each item of the list is displayed with a 'radio button' in front of it, and
-   at most one item can be selected, similarly to [<input type="radio"...>] in
-   html. Radiobuttons are implemented with {!Check.t}.
+    at most one item can be selected, similarly to [<input type="radio"...>] in
+    html. Radiobuttons are implemented with {!Check.t}.
+
+    @see "Example #29".
+
+    {%html:<div class="figure" style="text-align:center"><img
+    src="images/example29.png"></div>%}
+
 
 {5 {{:graph-dot-b_radiolist.html}Dependency graph}}
 *)
 module Radiolist : sig
   type t
 
-  val vertical : ?name:string -> ?click_on_label:bool -> ?selected:int -> string array -> t
-  (** A radiolist with the usual vertical layout of items. The option [click_on_label] is true be default: one can click on the label to select it. *)
+  val vertical : ?name:string -> ?click_on_label:bool -> ?selected:int ->
+    string array -> t
+  (** A radiolist with the usual vertical layout of items. The option
+      [click_on_label] is true be default: one can click on the label to select
+      it. *)
 
   val of_widgets : ?selected:int -> Widget.t list -> t
 
@@ -2807,14 +2570,25 @@ end (* of Radiolist *)
 
 (** Tables with sortable columns and selectable rows.
 
-    - Click on a row to select or unselect it.
-    - After clicking on a row, hit CTRL-A to select all rows at once.
-    - After clicking a row, click on another row with SHIFT pressed to select
-      a range of rows.
+    This module helps you create multi-column tables. You just need to provide
+    the contents of each row.
 
-    Tables internally use a {!Long_list} and hence will handle nicely a very
-    large number of rows. A scrollbar will appear as soon as the whole table
-    does not fit in the layout.
+    - Click on the column title to {b sort} the table with respect to this column.
+    - Click on a row to {b select} or {b unselect} it.
+    - After clicking on a row, hit CTRL-A to select {b all rows} at once.
+    - After clicking a row, click on another row with SHIFT pressed to select
+      {b a range of rows}.
+    - One can limit the maximum number of selected rows.
+    - Actions can be executed when a row is clicked on.
+
+    Tables internally use a {!Long_list} and hence will nicely handle a very
+    large number of rows. A vertical scrollbar will appear as soon as the whole
+    table height does not fit in the layout. However, contrary to Long_lists, in
+    a table all rows must have the same height.
+
+    {%html:<div class="figure" style="text-align:center"><img
+    src="images/example35.png"><br> A three-column table (plus two buttons)
+    (Example #35)</div>%}
 
 {5 {{:graph-dot-b_table.html}Dependency graph}}
 *)
@@ -2853,7 +2627,11 @@ module Table : sig
       modified. Its argument is the new selection. This function is executed {e
       before} the new selection is recorded in the table variable (of type [t]).
 
-      @see "example 35". *)
+      Everytime a row is clicked, the [on_click] function is called with two
+      arguments: the table itself and the index of the row. (The first row has
+      index 0.
+      )
+      @see "Example #35". *)
 
   val of_array :
     h:int ->
@@ -2867,7 +2645,7 @@ module Table : sig
   (** Create a table from an array of {b rows}, each row being a string
       array.
 
-      @see "example 35bis". *)
+      @see "Example #35bis". *)
 
   val of_list :
     h:int ->
@@ -2879,7 +2657,7 @@ module Table : sig
     string list list -> t
     (** Create a table from a list of {b rows}, each row being a string list.
 
-       @see "example 35ter". *)
+       @see "Example #35ter". *)
 
   val get_layout : t -> Layout.t
   (** Use this layout to display your table. *)
@@ -2897,6 +2675,335 @@ module Table : sig
     (** Same remark. *)
 end (* of Table *)
 
+(**
+   [ module ]{!File}[ ] : file chooser and file monitor *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** {2 Opening windows and running your app with the Bogue mainloop}
+
+    Because a GUI continuously waits for user interaction, everything has to run
+    inside a loop. You open your GUI window(s) and start the loop with {!run},
+    and this is usually the last command of your Bogue code.  *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Windows
+
+    In order to display a Layout, Bogue needs to create a {!Window.t} for it,
+    and pass it as argument of {!Main.create}. This is done automatically if you
+    use {!Main.of_layouts}, so most of the time you don't need to deal with
+    {!Window.t}'s.
+
+    Ultimately, "physical" windows are created by SDL, and hence will appear
+    with the usual decorations of your Desktop Environment.
+
+    {5 {{:graph-dot-b_window.html}Dependency graph}}
+*)
+module Window : sig
+  type t
+  val create : ?on_close:(t -> unit) -> Layout.t -> t
+  (** Create a window from the given layout. The layout must not belong to any
+      room. If the layout is hidden, the window will be created but not shown.
+
+      @param on_close Set the function to be executed when the user wants to
+        close the window. By default, the window will be destroyed. Hence,
+        setting a function can prevent the window from being closed. However, if
+        this is the sole open window, clicking on the close button will also
+        emit the 'Quit' event, and will terminate Bogue anyways.
+
+      @see "Example #11". *)
+
+  val on_close : t -> (t -> unit) option -> unit
+  (** Modify the [on_close] parameter of {!create}. *)
+
+  val destroy : t -> unit
+  (** Ask Bogue to destroy the window. *)
+
+  val set_size : w:int -> h:int -> t -> unit
+  (** Set window size in physical pixels. Only works after the window is
+      physically created by {!Main.run}. However, you may use [set_size] in
+      advance with {!Sync.push}. *)
+
+  val maximize_width : t -> unit
+  (** See remarks in {!set_size}. *)
+
+end (* of Windows *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Control the workflow of the GUI mainloop.
+
+{5 {{:graph-dot-b_main.html}Dependency graph}}
+*)
+module Main : sig
+  type board
+  (** The board is the whole universe of your GUI. It contains everything.  Most
+      of the time, though, you don't really care, because you will immediately
+      run your board after creating it, like in [run (of_layout my_layout)]. *)
+
+  type shortcuts
+    (** Shortcut maps can be passed to the board to associate an arbitrary
+        action with specific keys (like quitting when ESC is pressed). See
+        {!shortcuts_}. *)
+
+  exception Exit
+  (** Raising the [Exit] exception will tell the GUI loop to terminate. *)
+
+  val create : ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
+  (** Create a [board] from a list of layouts and connections. The list of
+     connections can be empty, because connections can be added afterwards. Each
+     Layout in the list will open as a new window.
+
+      @param shortcuts This optional argument is a {%html:<a href="#shortcuts_">shortcut map</a>%}.
+
+      @param on_user_event This optional argument is a function to be executed
+     (by the main thread) when a {!Trigger.user_event} is emitted.
+
+*)
+
+  val get_monitor_refresh_rate: board -> int option
+  (** [get_monitor_refresh_rate board] returns the monitor refresh rate, for the
+      monitor containing [board]. In case of several monitors with different
+      refresh rates, return the greatest common divisor, or the minimum if the
+      gcd is less than 30. *)
+
+  val of_windows :  ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
+  (** Synonym for {!create}. (Since 20220418) *)
+
+  val of_layouts : ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t list -> board
+  (** Similar to {!create}. Each layout in the list will be displayed in a
+     different window. (Since 20220418) *)
+
+  val of_layout : ?shortcuts:shortcuts ->
+    ?connections:(Widget.connection list) ->
+    ?on_user_event:(Tsdl.Sdl.event -> unit) -> Layout.t -> board
+  (** Similar to {!of_layout} but with only one layout. (Since 20220418) *)
+
+  val make : ?shortcuts:shortcuts ->
+    (Widget.connection list) -> Layout.t list -> board
+  (** Similar to {!of_layouts}.
+
+     @deprecated   (since 20220418). Use {!of_layouts} or {!create} instead. *)
+
+  val run :
+    ?vsync:bool ->
+    ?before_display:(unit -> unit) ->
+    ?after_display:(unit -> unit) -> board -> unit
+  (** This is finally how you run your app! It creates the SDL windows
+     associated with the {!Window.t}s registered with the board, and launches
+     the main loop. This function only returns when all windows are closed (in
+     case at least one window was created), or when the {!Exit} exception is
+     raised.
+    [vsync] defaults to [true] and enables synchronization to monitor refresh rate
+    where possible, otherwise a 60 FPS {!Time.adaptive_fps} is used.
+    *)
+
+  (** {3:shortcuts_ Creating global keyboard shortcuts}
+
+      A shortcut consists of two integers: one for the
+      {{:https://erratique.ch/software/tsdl/doc/Tsdl/Sdl/Kmod/index.html}key
+      modifier} (shift, ctrl, etc.) and one for the key code (from
+      {{:https://erratique.ch/software/tsdl/doc/Tsdl/Sdl/K/index.html}SDL
+      table}), plus an action to be executed when this key combination is
+      pressed.
+
+      For the shortcuts to take effect, one has to pass a [shortcuts] argument
+      to the board creating functions. This argument can be created with
+      [shortcuts_of_list], or by using the [shortcuts_add*] functions below. *)
+
+  type shortcut_action = board -> unit
+
+  val shortcuts_of_list :
+    (Tsdl.Sdl.keymod * Tsdl.Sdl.keycode * shortcut_action) list -> shortcuts
+  (** Construct shortcuts from a list of (SDL keycode, SDL keymod, action). *)
+
+  val exit_on_escape : Tsdl.Sdl.keymod * Tsdl.Sdl.keycode * shortcut_action
+  (** The [exit_on_escape] shortcut will raise the {!Exit} exception upon
+      pressing the Escape key.
+
+      @see "Example #6". *)
+
+  val shortcuts_empty : unit -> shortcuts
+
+  val shortcuts_add : shortcuts ->
+    ?keymod:Tsdl.Sdl.keymod -> Tsdl.Sdl.keycode -> shortcut_action -> shortcuts
+
+  val shortcuts_add_ctrl : shortcuts  -> Tsdl.Sdl.keycode -> shortcut_action -> shortcuts
+
+  val shortcuts_add_ctrl_shift : shortcuts -> Tsdl.Sdl.keycode -> shortcut_action -> shortcuts
+
+
+  (** {2 Using Bogue together with another graphics loop}
+
+      See the [embed] example. *)
+
+  val make_sdl_windows : ?windows:Tsdl.Sdl.window list -> board -> unit
+  (** This is only useful if you have your own graphics loop, and do {e not} use
+      {!run}. This function creates an SDL window for each top layout in the
+      board. One can use predefined windows with the optional argument
+      [windows]. They will be host the layouts in the order they appear in the
+      list. If there are fewer windows than layouts, new windows are created. If
+      there are more, the excess is disregarded. *)
+
+  val refresh_custom_windows : board -> unit
+  (** Ask the GUI to refresh (ie. repaint) the custom windows (those that were
+      not created by Bogue itself). *)
+
+  val one_step : ?before_display:(unit -> unit) ->
+    bool -> (unit -> unit) * (unit -> unit) -> ?clear:bool -> board -> bool
+  (** This is only useful if you have your own graphics loop, and do {e not} use
+      {!run}. Calling [one_step ~before_display anim (start_fps, fps) ~clear
+      board] is what is executed at each step of the Bogue mainloop. If
+      [anim=true] this step is {e non blocking}; this is what you want if either
+      Bogue or your loop has an animation running. If [anim=false] then the
+      function will wait until an event is received.
+
+      @return [true] if the GUI currently handles an animation. In this case
+      [fps()] was executed by [one_step]. If not, you should handle the frame rate
+      yourself. *)
+
+  val get_frame : unit -> int
+  (** Number of displayed frames since startup. *)
+
+  val quit : unit -> unit
+  (** Use this to close SDL windows and cleanup memory, after {!run} has
+      returned. This does not exit your program. Calling [quit ()] is not
+      necessary if your program exits after {!run}.*)
+
+end (* of Main *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Alias for {!Main} *)
+module Bogue = Main
+
+(**/**)
+val run_tests : unit -> unit
+(**/**)
+
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Put layouts on top of others, or in new windows.
+
+    This module provides usual modal popups like "info" boxes or "yes/no" popups.
+
+    Internally, popups are layouts inserted in a destination layout, but
+    belonging to a different {e layer}, which ensures that they are drawn on top
+    of the destination layout.
+
+    {e Warning:} For all functions in this module, the destination layout must
+    be a house, not a single resident. (This means that the layout's
+    {!Layout.room_content} must not be a [Resident].)
+
+    When the [dst] destination parameter is optional, and if it is not provided,
+    then the popup will be created in a {e separate new window}.
+
+        {%html:<div class="figure" style="text-align:center"><img
+        src="images/example21bis.png"><br> A simple modal popup with a single
+        button (Example #21bis)</div>%}
+
+    Popups are also used to display {b tooltips}.
+
+{5 {{:graph-dot-b_popup.html}Dependency graph}} *)
+module Popup : sig
+
+  (** {2 Generic functions}
+
+      These functions allow you to craft your own popups, when the predefined
+      ones below are not enough. See Example #21. *)
+
+  val add_screen : ?color:Draw.color -> Layout.t -> Layout.t
+  (** Add a screen on top of the layout. This can be useful to make the whole
+      layout clickable as a whole.
+      @return the screen. *)
+
+  (** Generic modal type popup *)
+  val attach : ?bg:Draw.color ->
+    ?show:bool -> Layout.t -> Layout.t -> Layout.t
+  (** [attach house layout] adds two layers on top of the house: one for the
+     screen to hide the house, one for the layout on top of the screen.
+     @return the screen. *)
+
+  (** {2 Predefined popups}
+
+  *)
+
+  val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
+    ?button:string -> string -> Layout.t -> unit
+  (** Add to the layout a modal popup with a text and a close button. By
+      default, [button="Close"]. Use the optional parameters [button_w,
+      button_h] to impose the size of the button. The optional parameters [w]
+      and [h] set the width and height of the popup (including the button) by
+      scaling the computed layout. If they are too small, the text might not be
+      fully legible. *)
+
+  val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
+    ?yes:string -> ?no:string ->
+    yes_action:(unit -> unit) ->
+    no_action:(unit -> unit) -> string -> Layout.t -> unit
+  (** Add to the layout a modal popup with two yes/no buttons. By default,
+      [yes="Yes"] and [no="No"]. See {!info} for other common parameters. *)
+
+  val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
+    button:string -> dst:Layout.t -> Layout.t -> unit
+  (** Add to [dst] the given layout and one button with the [button]
+      string. Clicking the button will close the popup and execute the optional
+      [on_close] function. *)
+
+  val two_buttons : ?dst:Layout.t -> ?board:Main.board ->
+    ?button_w:int -> ?button_h:int ->
+    ?w:int -> ?h:int -> ?screen_color:Draw.color ->
+    label1:string -> label2:string ->
+    action1:(unit -> unit) -> action2:(unit -> unit) -> ?connect2:(Widget.t -> unit) ->
+    Layout.t -> unit
+  (** If [dst] is present, a popup containing the given layout (and two buttons)
+      will be contructed inside [dst], otherwise a new window will be
+      created. In the latter case, the creation of the new window depends on the
+      [board] argument. If the [board] argument is provided, the new window will
+      be immediately attached to the board; otherwise, the new window will be
+      created (by the main thread) when the board is running, at the start of
+      the next frame. The [board] argument has no effect if [dst] is provided.
+
+      The optional function [connect2] will be immediately called with the
+      second button widget as argument. It can be used to establish a connection
+      to or from the second button. For instance, one can use this to disable
+      the button if some condition is not met. (This is used for instance in
+      {!File.select_file}.) *)
+
+
+  (** {2 Tooltips}
+
+      Tooltips are informative pieces of text that show up when the pointer
+      stays idle for a moment over a given widget.
+
+      See Example #44. *)
+
+  type position =
+  | LeftOf
+  | RightOf
+  | Above
+  | Below
+  | Mouse
+
+  val tooltip : ?background:Layout.background ->
+    ?position:position ->
+    string -> target:Layout.t -> Widget.t -> Layout.t -> unit
+  (** [tooltip text ~target widget layout] adds a tooltip which will appear on
+     [layout], next to [target] (which should be a sublayout of [layout]), when
+     the [widget] gets mouse focus and mouse is idle for some time on it. A
+     tooltip it not a modal popup, it does not prevent from interacting with the
+     rest of the layout. *)
+
+end (* of Popup *)
+
 (* ---------------------------------------------------------------------------- *)
 
 (** File dialog and file monitor
@@ -2910,6 +3017,7 @@ end (* of Table *)
     - One can optionally limit the number of selected files.
     - The file system is {b monitored} so that changes in the currently opened
     directory are automatically taken into account.
+    - One can easily open huge directories with thousands of files.
     - The file system can be easily {b navigated} by either clicking on the children
     directories, or entering manually the requested path, or clicking on parents
     directories in a special breadcrumb layout.
@@ -2921,11 +3029,93 @@ end (* of Table *)
     {%html:<div class="figure" style="text-align:center"><img src="images/file_dialog.png"><br>
     File dialog in a separate window</div>%}
 
-
+    @see "Example #54".
 
     {5 {{:graph-dot-b_file.html}Dependency graph}}
 *)
 module File : sig
+  (** Monitoring changes in a directory.
+
+      This module provides functions for watching for changes in a directory (or
+      a single file), and executing arbitrary actions when a change is detected.
+
+      All functions are non-blocking and return very fast, even if the path is
+      remote or the directory is huge. To achieve this, monitoring is done in a
+      separate thread and one has to accept a delay before actual changes to the
+      file-system are reported.
+
+      We provide two implementations, one is based on the external
+      {{:https://emcrisostomo.github.io/fswatch/}fswatch} program, and the other
+      is based on the built-in Ocaml function [Unix.stat]. The [fswatch]
+      implementation is automatically chosen by default if the [fswatch]
+      executable is detected. Otherwise, the [Unix.stat] fallback is used (which
+      is maybe more memory and cpu intensive). *)
+  module Monitor : sig
+    type t
+    val path : t -> string
+    val start : ?delay:float -> ?action:(t -> unit) -> string -> t
+    (** [start path] starts monitoring the directory or file [path] and
+        immediately returns. It is not an error if [path] does not exist or is
+        deleted, see below. Once monitoring has started, check the {!modified}
+        function below to obtain the actual changes.
+
+        @param delay the time interval (in seconds) between polls.  The default
+          delay is 1 second. It may be internally increased if the polls take
+          too much time.
+
+        @param action executed for each modification. Note that false positive
+          may happen; hence the action should be fast and non blocking
+          (typically just sending an event).
+
+ *)
+
+    (* Thus, what we call "current" will actually mean "not older than
+       delay". *)
+    val delay : t -> float
+    (** Return the delay (in seconds) between two polls. *)
+
+    val stop : t -> unit
+    val ls : t -> string list
+    (** [ls m] returns the list of files watched by the monitor [ m ] when the
+        last [*modified] function was called. {e Thus, it may be different from
+        the actual current content.} If [ m ] monitors a directory, [ls m] is the
+        content of the directory (without "." and ".."), otherwise [ls m] is
+        [["."]] if the file exists, or [[]] if not. This function takes
+        advantage of the monitoring data to return faster (in general) than
+        rescanning the directory with [Sys.readdir]. *)
+
+    val size : t -> int option
+    (** If [t] monitors a directory, then [size t] is the number of elements of
+        this directory, before recent modifications. Otherwise, [size t] returns
+        None. Calling [size t] is equivalent to but faster than
+        [List.length (ls t)]. *)
+
+    val modified : t -> string list * string list * string list
+    (** Return three lists of file (or directory) names that have been modified
+        since last call of this function or of [was_modified]:
+
+        {e list of deleted elements, list of added elements, list of modified elements}
+
+        File names do not include the directory path. These lists can be equal to
+        the singleton [["."]] in some special cases:
+
+        + if the [path] now exists but did not exist in the previous call to
+        [*modified], then the [added] list is [["."]] and the others are empty (even
+        if some contents of [path] were modified in the meantime: remember that we
+        only compare to the previous call to [*modified].)
+        + if the [path] existed in the previous call to [*modified] but not
+        anymore, then the [deleted] list is [["."]] and the others are empty.
+        + if the [path] existed in the previous call to [*modified], then has
+        disappeared and then reappeared again, the [modified] function will return
+        [[], ["."], []] instead of the explicit difference, telling you that it is
+        safer to read the contents again (using [ls] for instance). *)
+
+    val was_modified : t -> bool
+    (** Simply returns true if files were modified since the last call of this
+        function or of [modified]. The list of modified files cannot be
+        retrieved. This is (semantically) equivalent to checking if the lists
+        returned by [modified] are empty, but possibly faster. *)
+  end (* of Monitor *)
 
   type t (** The type for file dialogs. *)
 
@@ -2979,7 +3169,10 @@ module File : sig
 
       @param board See {!Popup.two_buttons}. Note that, if [board] is omitted,
         the window will be created at the next frame, but the file selector
-        layout is immediately created.  *)
+        layout is immediately created.
+
+      @see "Example #54".
+  *)
 
   val select_files : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?mimetype:Str.regexp ->
@@ -2993,88 +3186,7 @@ module File : sig
   val select_dirs : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?n_dirs:int -> string -> (string list -> unit) -> unit
 
-  (**/**)
-  val select_file_new_window : ?board:Main.board -> ?w:int -> ?h:int -> string ->
-    (string list -> unit) -> unit
-  (**/**)
-
-  (** Monitoring changes in a directory. All functions are non-blocking and
-      return very fast, even if the path is remote or the directory is huge. To
-      achieve this, monitoring is done in a separate thread and one has to
-      accept a delay before actual changes to the file-system are reported. We
-      provide two implementations, one is based on the external
-      {{:https://emcrisostomo.github.io/fswatch/}fswatch} program, and the other
-      is based only on built-in Ocaml functions (which are maybe more memory and
-      cpu intensive). *)
-  module Monitor : sig
-    type t
-    val path : t -> string
-    val start : ?delay:float -> ?action:(t -> unit) -> string -> t
-    (** [start path] starts monitoring the directory or file [path] and
-        immediately returns. It is not an error if [path] does not exist or is
-        deleted, see below. The [delay] parameter is the time interval (in
-        seconds) between polls. The [action] function is executed for each
-        modification (it might be a false positive; it should be fast and non
-        blocking (typically just sending an event). Check [modified] below to get
-        the actual changes.) Thus, what we call "current" will always mean "not
-        older than delay".  The default delay is 1 second. It may be internally
-        increased if the polls take too much time. *)
-
-    val delay : t -> float
-    (** Return the delay (in seconds) between two polls. *)
-
-    val stop : t -> unit
-    val ls : t -> string list
-    (** [ls m] returns the "old" list of files watched by the monitor [m] when the
-        last [*modified] function was called. If [m] monitors a directory, [ls m]
-        is the content of the directory (without "." and ".."), otherwise [ls m]
-        is [["."]] if the file exists, or [[]] if not. This function takes
-        advantage of the monitoring data to return faster (in general) than
-        rescanning the directory with [Sys.readdir]. *)
-
-    val size : t -> int option
-    (** If [t] monitors a directory, then [size t] is the number of elements of
-        this directory, before recent modifications. Otherwise, [size t] returns
-        None. Calling [size t] is equivalent to but faster than
-        [List.length (ls t)]. *)
-
-    val modified : t -> string list * string list * string list
-    (** Return three lists of files (or directories) names that have been modified
-        since last call of this function or of [was_modified]:
-
-        {e list of deleted elements, list of added elements, list of modified elements}
-
-        File names do not include the directory path. These lists can be equal to
-        the singleton ["."] in some special cases:
-
-        + if the [path] now exists but did not exist in the previous call to
-        [*modified], then the [added] list is [["."]] and the others are empty (even
-        if some contents of [path] were modified in the meantime: remember that we
-        only compare to the previous call to [*modified].)
-        + if the [path] existed in the previous call to [*modified] but not
-        anymore, then the [deleted] list is [["."]] and the others are empty.
-        + if the [path] existed in the previous call to [*modified], then has
-        disappeared and then reappeared again, the [modified] function will return
-        [[], ["."], []] instead of the explicit difference, telling you that it is
-        safer to read the contents again (using [ls] for instance). *)
-
-    val was_modified : t -> bool
-    (** Simply returns true if files were modified since the last call of this
-        function or of [modified]. The list of modified files cannot be
-        retrieved. This is (semantically) equivalent to checking if the lists
-        returned by [modified] are empty, but possibly faster. *)
-  end
-
-end
-
-(* ---------------------------------------------------------------------------- *)
-
-(** Alias for {!Main} *)
-module Bogue = Main
-
-(**/**)
-val run_tests : unit -> unit
-(**/**)
+end (* of File *)
 
 (* ---------------------------------------------------------------------------- *)
 
@@ -3082,53 +3194,53 @@ val run_tests : unit -> unit
 
     Here is a minimal example with a label and a check box.
 
-{[
-open Bogue
-module W = Widget
-module L = Layout
+    {[
+      open Bogue
+      module W = Widget
+      module L = Layout
 
-let main () =
+      let main () =
 
-  let b = W.check_box () in
-  let l = W.label "Hello world" in
-  let layout = L.flat_of_w [b;l] in
+        let b = W.check_box () in
+        let l = W.label "Hello world" in
+        let layout = L.flat_of_w [b;l] in
 
-  let board = Bogue.of_layout layout in
-  Bogue.run board;;
+        let board = Bogue.of_layout layout in
+        Bogue.run board;;
 
-let () = main ();
-  Bogue.quit ()
-]}
+      let () = main ();
+        Bogue.quit ()
+    ]}
 
-This can be compiled to bytecode with
+    This can be compiled to bytecode with
 
-{v
+    {v
 ocamlfind ocamlc -package bogue -linkpkg -o minimal -thread minimal.ml
 v}
 
-and to native code with
+    and to native code with
 
-{v
+    {v
 ocamlfind ocamlopt -package bogue -linkpkg -o minimal -thread minimal.ml
 v}
 
-Then execute the compiled code:
+    Then execute the compiled code:
 
-{v
+    {v
 ./minimal
 v}
 
-A window should open which should look like this:
+    A window should open which should look like this:
 
-{%html:<div class="figure"><img src="minimal.png"></div>%}
+    {%html:<div class="figure"><img src="minimal.png"></div>%}
 
-You may also evaluate this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert
+    You may also evaluate this code in a Toplevel! (for instance [utop], or in an [emacs] session...). Just insert
 
-{v
+    {v
 #thread;;
 #require "bogue";;
 v}
 
-at the top, then paste the example code above, and add [;;] at the end.
+    at the top, then paste the example code above, and add [;;] at the end.
 
-  *)
+*)

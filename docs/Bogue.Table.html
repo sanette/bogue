@@ -25,15 +25,26 @@
 <div class="info-desc">
 <p>Tables with sortable columns and selectable rows.</p>
 
+<p>This module helps you create multi-column tables. You just need to provide
+    the contents of each row.</p>
+
 <ul>
-<li>Click on a row to select or unselect it.</li>
-<li>After clicking on a row, hit CTRL-A to select all rows at once.</li>
+<li>Click on the column title to <b>sort</b> the table with respect to this column.</li>
+<li>Click on a row to <b>select</b> or <b>unselect</b> it.</li>
+<li>After clicking on a row, hit CTRL-A to select <b>all rows</b> at once.</li>
 <li>After clicking a row, click on another row with SHIFT pressed to select
-      a range of rows.</li>
+      <b>a range of rows</b>.</li>
+<li>One can limit the maximum number of selected rows.</li>
+<li>Actions can be executed when a row is clicked on.</li>
 </ul>
-<p>Tables internally use a <a href="Bogue.Long_list.html"><code class="code"><span class="constructor">Long_list</span></code></a> and hence will handle nicely a very
-    large number of rows. A scrollbar will appear as soon as the whole table
-    does not fit in the layout.</p>
+<p>Tables internally use a <a href="Bogue.Long_list.html"><code class="code"><span class="constructor">Long_list</span></code></a> and hence will nicely handle a very
+    large number of rows. A vertical scrollbar will appear as soon as the whole
+    table height does not fit in the layout. However, contrary to Long_lists, in
+    a table all rows must have the same height.</p>
+
+<p><div class="figure" style="text-align:center"><img
+    src="images/example35.png"><br> A three-column table (plus two buttons)
+    (Example #35)</div></p>
 
 <h6 id="5_graphdotbtablehtmlDependencygraph"><a href="graph-dot-b_table.html">Dependency graph</a></h6></div>
 </div>
@@ -127,6 +138,11 @@
 
 <p>The function <code class="code">on_select</code> is executed each time the selection is
       modified. Its argument is the new selection. This function is executed <em>      before</em> the new selection is recorded in the table variable (of type <code class="code">t</code>).</p>
+
+<p>Everytime a row is clicked, the <code class="code">on_click</code> function is called with two
+      arguments: the table itself and the index of the row. (The first row has
+      index 0.
+      )</p>
 </div>
 <ul class="info-attributes">
 <li><b>See also</b> <i>Example #35</i> .</li>

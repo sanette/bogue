@@ -1800,17 +1800,17 @@ let select_dirs ?dst ?board ?w ?h ?n_dirs path continue =
   select_popup ?dst ?board ?w ?h path ~n_files:0 ?n_dirs continue
 
 (* Not used any more. Use [select_file] with no [dst] option instead. *)
-let select_file_new_window ?board ?w ?(h=400) path _continue =
-  let options = set_options ?width:w ~height:h ~open_dirs_on_click:true
-      ~hide_backup:true ~max_selected:1 () in
-  let fd = dialog ~options path in
-  let m = Theme.room_margin in
-  L.setx fd.layout m;
-  L.sety fd.layout m;
-  let frame = L.superpose [ fd.layout ]
-      ~w:(L.width fd.layout + 2 * m)
-      ~h:(L.height fd.layout + 2 * m) in
-  L.resize_keep_margins fd.layout;
-  match board with (* etc. à faire dans Popup, use [continue]... *)
-  | Some b -> ignore (Main.add_window b ((* L.cover ~name:"file-dialog cover" *) frame))
-  | None -> L.add_window fd.layout
+(* let select_file_new_window ?board ?w ?(h=400) path _continue = *)
+(*   let options = set_options ?width:w ~height:h ~open_dirs_on_click:true *)
+(*       ~hide_backup:true ~max_selected:1 () in *)
+(*   let fd = dialog ~options path in *)
+(*   let m = Theme.room_margin in *)
+(*   L.setx fd.layout m; *)
+(*   L.sety fd.layout m; *)
+(*   let frame = L.superpose [ fd.layout ] *)
+(*       ~w:(L.width fd.layout + 2 * m) *)
+(*       ~h:(L.height fd.layout + 2 * m) in *)
+(*   L.resize_keep_margins fd.layout; *)
+(*   match board with (\* etc. à faire dans Popup, use [continue]... *\) *)
+(*   | Some b -> ignore (Main.add_window b ((\* L.cover ~name:"file-dialog cover" *\) frame)) *)
+(*   | None -> L.add_window fd.layout *)
