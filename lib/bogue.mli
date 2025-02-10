@@ -2444,8 +2444,8 @@ end (* of Tabs *)
 (** Various types of menus.
 
 The generic {!create} function produces menus whose entries can be arbitrary
-   layouts located at arbitrary places. But for usual entries, it is enough to
-   provide a string for the entry label, and the layout will be constructed
+   layouts located at arbitrary places. But for usual text entries, it is enough
+   to provide a string for the entry label, and the layout will be constructed
    automatically.
 
 The specialized {!bar} function will produce a familiar menu bar with drop-down

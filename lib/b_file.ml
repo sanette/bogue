@@ -1814,3 +1814,6 @@ let select_dirs ?dst ?board ?w ?h ?n_dirs path continue =
 (*   match board with (\* etc. à faire dans Popup, use [continue]... *\) *)
 (*   | Some b -> ignore (Main.add_window b ((\* L.cover ~name:"file-dialog cover" *\) frame)) *)
 (*   | None -> L.add_window fd.layout *)
+
+let save_as () =
+  () (* TODO *)
