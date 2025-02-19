@@ -77,7 +77,7 @@ let set_selection t sel =
   Tvar.set t.selection sel;
   if Selection.size sel = 1
   then Selection.iter (fun i ->
-      t.last_selected <- Array.find_index (fun j -> i = j) t.order) sel
+      t.last_selected <- array_find_index (fun j -> i = j) t.order) sel
   else t.last_selected <- None;
   (* We need to regenerate the entries to update their background. *)
   (* refresh t *) (* abusif? *)

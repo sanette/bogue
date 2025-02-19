@@ -365,6 +365,15 @@ let test_list_prev_check () =
 
 let list_hd_opt = function [] -> None | a::_ -> Some a
 
+(* From ocaml 5.1 *)
+let array_find_index p a = let open Array in
+  let n = length a in
+  let rec loop i =
+    if i = n then None
+    else if p (unsafe_get a i) then Some i
+    else loop (succ i) in
+  loop 0
+
 let run f = f ()
 
 let apply x f = f x

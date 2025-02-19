@@ -1107,7 +1107,7 @@ let entry_is_directory (e : entry) =
   | _ -> false
 
 let find_entry entries name =
-  Array.find_index (fun e -> e.name = name) entries
+  array_find_index (fun e -> e.name = name) entries
 
 let dir_icon_color = Draw.(opaque (find_color "#887a5f"))
 let file_icon_color = Draw.(opaque (find_color "#513d34"))
