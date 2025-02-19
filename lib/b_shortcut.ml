@@ -21,7 +21,7 @@ type 'a t = ('a action) PairsMap.t
 let add_map map (keycode, keymod, action) =
   PairsMap.add (keycode, keymod) action map
 
-let remove map pair = PairsMap.remove pair map
+let remove = PairsMap.remove
 
 (* Some seemingly inocuous modifiers may be pressed, for instance Num_lock, so
    we need to check against the "useful" modifiers.  See

@@ -399,14 +399,13 @@ let get_sdl_area w =
   | SdlArea a -> a
   | _ -> invalid_arg "Expecting an Sdl_area, not a %s" (string_of_kind w.kind)
 
-(** creation of simple widgets *)
+(* Creation of simple widgets *)
 let check_box ?state ?style () =
   let b = create_empty (Check (Check.create ?state ?style ())) in
   let action = fun w _ _ -> Check.action (get_check w) in
   let c = connect_main b b action Trigger.buttons_down in
   add_connection b c;
   b
-
 
 (*let get_check_state b =
   Check.state (get_check b)
@@ -552,6 +551,13 @@ let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
   connect_main w w get_keys Text_input.triggers |> add_connection w;
   w
 
+(* let ( let* ) wdg action = *)
+(*   wdg ~action *)
+
+(* let id : int = *)
+(*   let b = let* ok = button "ready?" in *)
+(*     if ok then print_endline "good" else print_endline "too bad" *)
+(*   in id b *)
 
 (* Some generic functions or 'methods' that can make sense for one or several
    types of widgets *)

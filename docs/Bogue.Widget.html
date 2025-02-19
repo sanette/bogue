@@ -246,9 +246,10 @@ See the <a href="Bogue.Widget.html#inner">conversion functions</a> below.</p>
       selector with <code class="code">&lt;font&nbsp;color=<span class="string">"???"</span>&gt;,&nbsp;&lt;/font&gt;</code>. The "???" string should be
       replaced by a color code, either RGB like "#40E0D0" of "#12C" or RGBA, or
       a color name like "darkturquoise".</p>
-
-<p>See `boguex 47`.</p>
 </div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>Example #47</i> .</li>
+</ul>
 </div>
 <h4 id="3_Labelsoricons">Labels or icons</h4>
 <pre><span id="VALlabel"><span class="keyword">val</span> label</span> : <code class="type">?size:int -&gt;<br>       ?fg:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       ?font:<a href="Bogue.Label.html#TYPEfont">Label.font</a> -&gt;<br>       ?style:<a href="Bogue.Label.html#TYPEstyle">Label.style</a> -&gt;<br>       ?align:<a href="Bogue.Draw.html#TYPEalign">Draw.align</a> -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
@@ -380,8 +381,8 @@ See the <a href="Bogue.Widget.html#inner">conversion functions</a> below.</p>
 </div>
 </div>
 <h3 id="inner">Conversions from the generic Widget type to the specialized inner type</h3>
-<p>These functions raise <code class="code"><span class="constructor">Invalid_argument</span></code> whenever their argument is not of
-     the correct type.</p>
+<p>(Or: frontend to backend.)  These functions raise <code class="code"><span class="constructor">Invalid_argument</span></code>
+      whenever their argument is not of the correct type.</p>
 
 <pre><span id="VALget_box"><span class="keyword">val</span> get_box</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Box.html#TYPEt">Box.t</a></code></pre>
 <pre><span id="VALget_button"><span class="keyword">val</span> get_button</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Button.html#TYPEt">Button.t</a></code></pre>

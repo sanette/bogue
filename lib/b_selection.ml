@@ -17,6 +17,10 @@ val r : selected list = [Range (2, 10); Range (12, 14)]
 
 *)
 
+(* TODO check normalization with type system? cf phantom types
+https://www.dicosmo.org/CourseNotes/pfav/1314/cours5.handout.pdf
+*)
+
 type selected =
     | Range of (int * int)
 

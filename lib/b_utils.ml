@@ -413,6 +413,10 @@ let default_option o od = match o with
   | None -> od
   | o -> o
 
+let default_option_fn o f = match o with
+  | None -> f ()
+  | o -> o
+
 let opt_map fo x = match fo with
   | Some f -> f x
   | None -> x

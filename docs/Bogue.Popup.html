@@ -14,7 +14,7 @@
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Generic functions" rel="Section" href="#2_Genericfunctions">
 <link title="Predefined popups" rel="Section" href="#2_Predefinedpopups">
-<link title="Tooltips" rel="Section" href="#2_Tooltips">
+<link title="Tooltips" rel="Section" href="#tooltips_">
 <title>Bogue.Popup</title>
 </head>
 <body>
@@ -45,7 +45,10 @@
         src="images/example21bis.png"><br> A simple modal popup with a single
         button (Example #21bis)</div></p>
 
-<p>Popups are also used to display <b>tooltips</b>.</p>
+<p>Popups can (optionally) be closed by pressing ESCAPE (even if ESCAPE is used
+    for another action in the main application, see Example 21bis).</p>
+
+<p>Popups are also used to display <a href="Bogue.Popup.html#tooltips_">tooltips</a>.</p>
 
 <h6 id="5_graphdotbpopuphtmlDependencygraph"><a href="graph-dot-b_popup.html">Dependency graph</a></h6></div>
 </div>
@@ -79,22 +82,23 @@
 <pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt; ?button:string -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with a text and a close button. By
-      default, <code class="code">button=<span class="string">"Close"</span></code>. Use the optional parameters <code class="code">button_w,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;button_h</code> to impose the size of the button. The optional parameters <code class="code">w</code>
-      and <code class="code">h</code> set the width and height of the popup (including the button) by
-      scaling the computed layout. If they are too small, the text might not be
-      fully legible.</p>
+      default, <code class="code">button=<span class="string">"Close"</span></code>. This popup can be closed by pressing
+      ESCAPE. Use the optional parameters <code class="code">button_w,&nbsp;button_h</code> to impose the
+      size of the button. The optional parameters <code class="code">w</code> and <code class="code">h</code> set the width and
+      height of the popup (including the button) by scaling the computed
+      layout. If they are too small, the text might not be fully legible.</p>
 </div>
 </div>
 
 <pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?yes:string -&gt;<br>       ?no:string -&gt;<br>       yes_action:(unit -&gt; unit) -&gt;<br>       no_action:(unit -&gt; unit) -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with two yes/no buttons. By default,
-      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>. See <a href="Bogue.Popup.html#VALinfo"><code class="code"><span class="constructor">Popup</span>.info</code></a> for other common parameters.</p>
+      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>. This popup is <em>not</em> closed by pressing
+      ESCAPE. See <a href="Bogue.Popup.html#VALinfo"><code class="code"><span class="constructor">Popup</span>.info</code></a> for other common parameters.</p>
 </div>
 </div>
 
-<pre><span id="VALone_button"><span class="keyword">val</span> one_button</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?on_close:(unit -&gt; unit) -&gt;<br>       button:string -&gt; dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALone_button"><span class="keyword">val</span> one_button</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?on_close:(unit -&gt; unit) -&gt;<br>       button:string -&gt;<br>       dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; ?close_on_escape:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to <code class="code">dst</code> the given layout and one button with the <code class="code">button</code>
       string. Clicking the button will close the popup and execute the optional
@@ -102,7 +106,7 @@
 </div>
 </div>
 
-<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?screen_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt;<br>       ?connect2:(<a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; unit) -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?screen_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt;<br>       ?connect2:(<a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; unit) -&gt;<br>       ?close_on_escape:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>If <code class="code">dst</code> is present, a popup containing the given layout (and two buttons)
       will be contructed inside <code class="code">dst</code>, otherwise a new window will be
@@ -119,11 +123,14 @@
       <a href="Bogue.File.html#VALselect_file"><code class="code"><span class="constructor">File</span>.select_file</code></a>.)</p>
 </div>
 </div>
-<h3 id="2_Tooltips">Tooltips</h3>
+<h3 id="tooltips_">Tooltips</h3>
 <p>Tooltips are informative pieces of text that show up when the pointer
       stays idle for a moment over a given widget.</p>
 
 <p>See Example #44.</p>
+
+<p><div class="figure" style="text-align:center"><img
+        src="images/example44.png"><br> A button with a tooltip (Example #44)</div></p>
 
 <pre><code><span id="TYPEposition"><span class="keyword">type</span> <code class="type"></code>position</span> = </code></pre><table class="typetable">
 <tr>

@@ -152,6 +152,12 @@ let switch ?(keyboard=false) b ev =
   end;
   Var.set b.pressed (Var.get b.state)
 
+(* let simulate_press b = *)
+(*   press b; *)
+(*   match b.kind with *)
+(*   | Trigger -> release b *)
+(*   | Switch -> switch ~keyboard:true b Trigger.(create_event user_event) *)
+
 let mouse_enter b =
   b.mouse_over <- true;
   set_focus b

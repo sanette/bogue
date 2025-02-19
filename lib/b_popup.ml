@@ -150,10 +150,12 @@ let slide_in ~dst ?bg ?w ?h ?screen_color content buttons =
   (* L.slide_in ~dst popup; *)
   popup, screen
 
-let one_button ?w ?h ?on_close ~button ~dst content =
+let one_button ?w ?h ?on_close ~button ~dst ?(close_on_escape=true) content =
   let close_btn = Widget.button ~border_radius:3 button in
   let popup, screen = slide_in ~dst content (L.resident ?w ?h close_btn) in
+  let restore = Main.shortcut_restore_init () in
   let close _ =
+    Main.shortcut_restore restore;
     L.hide popup;
     L.hide screen;
     L.fade_out screen;
@@ -161,7 +163,9 @@ let one_button ?w ?h ?on_close ~button ~dst content =
         L.detach screen;
         L.detach popup) in
     do_option on_close run in
-  Widget.on_button_release ~release:close close_btn
+  Widget.on_button_release ~release:close close_btn;
+  if close_on_escape
+  then Main.add_one_shot_shortcut Tsdl.Sdl.K.escape close restore
 
 (* a text and a close button. *)
 (* TODO the ?w and ?h define the size of the text_display (not automatically
@@ -174,16 +178,18 @@ let info ?w ?h ?button_w ?button_h ?(button="Close") text dst =
 (* TODO check that we don"t resize to 0 size! cf example21ter "*)
 (* ?button_w and ?button_h to specify a common size for both buttons *)
 let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
-    ~label1 ~label2 ~action1 ~action2 ?connect2 content =
+    ~label1 ~label2 ~action1 ~action2 ?connect2 ?(close_on_escape=true) content =
   let btn1 = Widget.button ~border_radius:3 label1 in
   let btn2 = Widget.button ~border_radius:3 label2 in
   let buttons = let w, h = button_w, button_h in
     L.(flat ~vmargin:0 ~sep:(2*Theme.room_margin)
          [resident ?w ?h btn1; L.resident ?w ?h btn2]) in
+  let restore = Main.shortcut_restore_init () in
   let close = match dst with
     | Some dst -> (* We create a popup *)
       let popup, screen = slide_in ~dst ?w ?h ?screen_color content buttons in
       fun () ->
+        Main.shortcut_restore restore;
         let _ = Timeout.add L.default_duration (fun () ->
             L.detach screen;
             L.detach popup) in
@@ -194,10 +200,11 @@ let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
     | None -> (* We create a new window *)
       let frame = add_button_line ?w ?h content buttons in
       let () = match board with
-        | Some b -> ignore (Main.add_window b frame)
+        | Some b -> ignore (Main.add_window b frame : Main.Window.t)
         | None -> L.add_window frame in
       fun () ->
         printd debug_board "Closing [two_buttons] window.";
+        Main.shortcut_restore restore;
         L.destroy_window frame
   in
   apply_option connect2 btn2;
@@ -208,7 +215,9 @@ let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
     close ();
     action2 () in
   Widget.on_button_release ~release:do1 btn1;
-  Widget.on_button_release ~release:do2 btn2
+  Widget.on_button_release ~release:do2 btn2;
+  if close_on_escape
+  then Main.add_one_shot_shortcut ?board Tsdl.Sdl.K.escape (fun _ -> close ()) restore
 
 let yesno ?w ?h ?button_w ?button_h ?(yes="Yes") ?(no="No")
       ~yes_action ~no_action text dst =
@@ -228,7 +237,7 @@ let yesno ?w ?h ?button_w ?button_h ?(yes="Yes") ?(no="No")
     Widget.text_display ?w ?h text
     |> L.resident in
   two_buttons ?w:button_w ?h:button_h ~label1:yes ~label2:no
-    ~action1:yes_action ~action2:no_action
+    ~action1:yes_action ~action2:no_action ~close_on_escape:false
     content ~dst
 
 (* tooltips *)

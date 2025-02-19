@@ -18,9 +18,6 @@ let queue : (action Queue.t) Var.t = Var.create (Queue.create ())
 let is_empty () =
   Queue.is_empty (Var.get queue)
 
-(* Warning: a Sync action cannot push another Sync action, because it will wait
-   forever the release of the mutex *)
-(* TODO: add a test of this using Mutex.try_lock *)
 let push action =
   printd debug_thread "Sync push action";
   Var.protect_fn queue (Queue.push action);

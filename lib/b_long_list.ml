@@ -388,9 +388,6 @@ let get ll i direction =
       entry
     end
 
-(* TODO write a cleanup function, to update everything in case the user modifies
-   the layouts updtream (like in a model-view system) *)
-
 (* Compute entries until reaching at most the given height. Update
    ll.first/last. Return the room and the index of last generated entry. Note
    that the width of the room may vary with i_start. Note that contrary to
@@ -642,9 +639,11 @@ let update_room ?(force=false) ll container o =
            is naturally rendered *after* the room... too bad *)
       end)
 
-(* not widely tested... be careful *)
+(* [free_all] forces recomputing all layouts and heights.
+   not widely tested... be careful *)
 (* Remarque: pour le fun on pourrait ne libérer que certains et les autres on les
    anime pour retourner à leur place, haha *)
+(* TODO mettre à jour computed_height et computed *)
 let free_all container ll =
   if ll.length > 0 then begin
     ll.used_memory <- 0;
@@ -925,3 +924,10 @@ let get_scroll t = (* percentage *)
 
 let set_scroll t x =
   set_scroll_value t (round ((1. -. x) *. (float (get_scroll_steps t))))
+
+let iter_computed_layouts f t =
+  for i = t.first_mem to t.last_mem do
+    match t.array.(i) with
+    | Computed room -> f i room
+    | _ -> ()
+  done

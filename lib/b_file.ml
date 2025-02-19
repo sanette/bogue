@@ -983,9 +983,12 @@ type options = {
   max_selected : int option;
   hide_dirs : bool;
   only_dirs : bool;
+  select_dir : bool;
+  allow_new : bool; (* allow entering non-existing files in the new_file entry *)
+  default_name : string;
   breadcrumb : bool;
   system_icons : bool;
-  open_dirs_on_click : bool;
+  open_dirs_on_click : bool; (* this should not be true if select_dir is true *)
   mimetype : Str.regexp option; (* check mimetype -- from file extension only *)
   on_select : ((int * int) -> unit) option
 }
@@ -997,11 +1000,15 @@ let set_options ?width ?(height = 400)
     ?max_selected
     ?(hide_dirs = false)
     ?(only_dirs = false)
+    ?(select_dir = false)
+    ?(allow_new = false)
+    ?(default_name = "")
     ?(breadcrumb = true)
     ?(system_icons = false)
     ?(open_dirs_on_click = false)
     ?mimetype
     ?on_select () =
+  assert (not select_dir || not open_dirs_on_click);
   {
     width; height;
     dirs_first;
@@ -1010,6 +1017,9 @@ let set_options ?width ?(height = 400)
     max_selected;
     hide_dirs;
     only_dirs;
+    select_dir;
+    allow_new;
+    default_name;
     breadcrumb;
     system_icons;
     open_dirs_on_click;
@@ -1035,6 +1045,7 @@ type t = {
   controller : W.t;
   input : input;
   message : W.t;
+  new_file : W.t;
   name_filter : (string -> bool) option;
   full_filter : (entry -> bool) option;
   layout : L.t;
@@ -1094,6 +1105,9 @@ let entry_is_directory (e : entry) =
       | Some ts when ts.st_kind = S_DIR -> true
       | _ -> false)
   | _ -> false
+
+let find_entry entries name =
+  Array.find_index (fun e -> e.name = name) entries
 
 let dir_icon_color = Draw.(opaque (find_color "#887a5f"))
 let file_icon_color = Draw.(opaque (find_color "#513d34"))
@@ -1431,10 +1445,12 @@ let get_selected_entries t =
   selected_entries entries sel
 
 let get_selected t =
-  get_selected_entries t
+  if t.options.allow_new && t.options.max_selected = Some 1
+  then [W.get_text t.new_file]
+  else get_selected_entries t
   |> List.map (fun e -> e.name)
 
-let set_selection t sel = Table.set_selection t.table sel
+let set_selection t sel = Table.set_selection t.directory.table sel
 
 let basedir t =
    Monitor.path t.directory.monitor
@@ -1447,7 +1463,6 @@ let path_selector text =
   let ti = W.text_input ~prompt:"Enter path" ~text () in
   Text_input.last (W.get_text_input ti);
   ti
-
 
 let new_directory controller message ~options ?full_filter ?name_filter path =
   let monitor = start_monitor controller path in
@@ -1472,6 +1487,11 @@ let update_message t =
     | f, d -> Printf.sprintf "%u file%s and %u director%s selected"
                 f (plural f) d (pluraly d) in
   W.set_text t.message text;
+  if n_files + n_dirs = 1 then begin
+    if (n_files = 1 && not t.options.select_dir) ||
+       (n_dirs = 1 && t.options.select_dir)
+    then W.set_text t.new_file (let e = List.hd entries in e.name)
+  end;
   n_dirs, n_files
 
 let breadcrumb path =
@@ -1506,8 +1526,24 @@ let get_selected_dir t =
     else (printd debug_io "Selected entry [%s] is not a directory." e.name;
           None)
 
+let validate_new_file_input t ti =
+  let name = W.get_text ti in
+  if name <> "" then begin
+    match find_entry t.directory.entries name with
+    | None ->
+      if get_selected_entries t <> []
+      then set_selection t []
+    | Some i -> (* if possible, we add it to the selection. *)
+      if t.options.select_dir || not (entry_is_directory (t.directory.entries.(i)))
+      then let sel = Selection.range (i,i) in
+        if Table.get_selection t.directory.table <> sel
+        then set_selection t sel
+  end
+
 let open_dir t path =
   install_new_directory t path;
+  if t.options.select_dir then W.set_text t.new_file ""
+  else if t.options.max_selected = Some 1 then validate_new_file_input t t.new_file;
   Update.push t.input.text_input
 
 let connect_breadcrumb t =
@@ -1546,14 +1582,36 @@ let open_selected_dir t =
       let path = Monitor.path t.directory.monitor // name in
       open_dir t path)
 
+let validate_text_input t ti =
+  let old_path = Monitor.path t.directory.monitor in
+  let path = W.get_text ti in
+  if path <> old_path then begin
+    if is_directory path then begin
+      install_new_directory t path;
+      if t.options.max_selected = Some 1 then validate_new_file_input t t.new_file;
+      update_input t
+    end
+    else let dir = Filename.dirname path in
+      if is_directory dir then begin
+        (* We use the "basename" part to automatically select the file *)
+        install_new_directory t dir;
+        W.set_text ti dir;
+        W.set_text t.new_file (Filename.basename path);
+        validate_new_file_input t t.new_file;
+        update_input t
+      end
+      else W.set_text ti (Monitor.path t.directory.monitor)
+  end
+
+(* If the user enters a valid dir and presses RETURN, we change to it. If it is
+   a "dir/bla" when dir is valid, we switch to dir and set bla to the new_file
+   input. *)
 let connect_text_input t =
   let on_key_down = fun ti _ ev ->
-    if Sdl.Event.(get ev keyboard_keycode) = Sdl.K.return then
-      let path = W.get_text ti in
-      if is_directory path then install_new_directory t path
-      else W.set_text ti (Monitor.path t.directory.monitor)
-    else if Sdl.Event.(get ev keyboard_keycode) = Sdl.K.escape then
-      W.set_text ti (Monitor.path t.directory.monitor)
+    if Sdl.Event.(get ev keyboard_keycode) = Sdl.K.return
+    then validate_text_input t ti
+    else if Sdl.Event.(get ev keyboard_keycode) = Sdl.K.escape
+    then W.set_text ti (Monitor.path t.directory.monitor)
   in
   let ti = t.input.text_input in
   W.connect_main ti ti on_key_down [Sdl.Event.key_down]
@@ -1610,6 +1668,28 @@ let make_input_layout w input =
       (* setx input.layout () *));
   container, ok
 
+
+(* This is the layout where the user can enter the file name (for saving, in
+   general, but it also works for selecting an existing file).
+   * It is displayed only if one file or dir must be chosen.
+   * It is updated when the user clicks on a file (if a file should be
+     selected) or a directory (if a dir should be selected).
+   * When the name is modified, the selection disappears,
+     except if the entered text matches an existing file:
+     then that file is automatically selected. *)
+let new_file_layout ~label name =
+  let label = W.label label in
+  let inp = W.text_input ~text:name () in
+  let bg = Style.(of_border (mk_border ~radius:5 (mk_line ~width:1 ()))
+                  |> with_bg (color_bg Draw.(opaque white)))
+           |> L.style_bg in
+  let inp_l = L.resident ~background:bg inp in
+  let room = L.flat ~vmargin:0 ~resize:L.Resize.Disable ~align:Draw.Center ~sep:10
+      [L.resident label; inp_l] in
+  L.resize_keep_margins inp_l;
+  room, inp
+  (* TODO add connections, etc... *)
+
 (* We construct the main layout. Note that the table layout and the breadcrumb
    layout are both self-destructing; in order to avoid circular definitions we
    use a controller, see the tutorial:
@@ -1623,6 +1703,7 @@ let dialog ?full_filter ?options path =
   let options = default options (set_options ()) in
   let controller = W.empty ~w:0 ~h:0 () in
   let message = W.label ~fg:hidden_color "No selection" in
+  let new_file_room, new_file = new_file_layout ~label:"Name :" options.default_name in
   let name_filter name = (options.show_hidden || not (is_hidden name)) &&
                          (not options.hide_backup || not (is_backup name)) in
   let full_filter = match options.mimetype with
@@ -1654,16 +1735,20 @@ let dialog ?full_filter ?options path =
   let message_room = L.resident ~name:"message" ~w message in
   let layout =
     L.tower ~resize:L.Resize.Disable ~name:"file_dialog" ~vmargin:0 ~hmargin:0 ~sep:10
-      [ L.resident ~name:"controller" controller;
-        path_selector_combo;
-        table_room;
-        open_btn_room; (* If we want to try some tower resize strategies, don't
-                          put this at the end because when not displayed it will
-                          prevent the tower resizing function from working. *)
-        message_room ] in
+      (List.filter_map (fun x -> x)
+         [ Some (L.resident ~name:"controller" controller);
+           Some path_selector_combo;
+           Some table_room;
+           Some open_btn_room; (* If we want to try some tower resize strategies, don't
+                                  put this at the end because when not displayed it will
+                                  prevent the tower resizing function from working. *)
+           if options.max_selected = Some 1 then Some new_file_room else None;
+           Some message_room ]) in
   L.resize_keep_margins table_room;
   L.resize_follow_width path_selector_combo;
   L.resize_follow_width message_room;
+  L.resize_follow_width new_file_room;
+  Space.keep_bottom_sync ~reset_scaling:false new_file_room;
   Space.keep_bottom_sync ~reset_scaling:true open_btn_room;
   Space.keep_bottom_sync ~reset_scaling:false message_room;
 
@@ -1672,6 +1757,7 @@ let dialog ?full_filter ?options path =
   let t = { controller;
             input;
             message;
+            new_file;
             name_filter = Some name_filter;
             full_filter;
             layout;
@@ -1700,10 +1786,13 @@ let dialog ?full_filter ?options path =
 
   W.on_button_release combo_btn ~release:(fun b ->
       if not (W.get_state b)
-      then let path = W.get_text text_input in
-        if is_directory path then (install_new_directory t path; update_input t)
-        else W.set_text text_input (Monitor.path t.directory.monitor));
+      then validate_text_input t text_input
+      (* let path = W.get_text text_input in *)
+      (* if is_directory path then (install_new_directory t path; update_input t) *)
+      (* else W.set_text text_input (Monitor.path t.directory.monitor) *)
+    );
 
+  (* examine the new selection and react *)
   W.connect_main message open_button
     (fun _ _btn _ ->
        let n_dirs, n_files = update_message t in
@@ -1714,6 +1803,11 @@ let dialog ?full_filter ?options path =
        then L.(show open_btn_room)
        else L.(hide open_btn_room)) [Trigger.update]
   |> W.add_connection message;
+
+  W.connect_main new_file new_file (fun ti _ _ ->
+      validate_new_file_input t ti) Text_input.triggers
+
+  |> W.add_connection new_file;
 
   connect_breadcrumb t;
 
@@ -1732,7 +1826,12 @@ let get_label2 ?n_dirs ?n_files () =
     | _, None -> "Select", None
     | Some d, Some f -> "Select", Some (d + f)
 
-let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype continue =
+let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype ?name
+    ?(allow_new = false) ?button_label continue =
+  let select_one = (n_files = Some 1 && n_dirs = Some 0) ||
+                   (n_dirs = Some 0 && n_files = Some 1) in
+  (* allow_new=true should be set only for selecting ONE file or ONE dir *)
+  if allow_new then assert select_one;
   let w, h = match dst with
     | Some dst ->
       let w0, h0 = L.width dst - 4 * Theme.room_margin,
@@ -1749,17 +1848,33 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype continue =
   let on_select (n_d, n_f) =
     sel_dirs := n_d; sel_files := n_f in
   let label2, max_selected = get_label2 ?n_dirs ?n_files () in
+  let label2 = default button_label label2 in
   let options = set_options (* ~width ~height *) ~on_select
+      ~default_name:(default name "")
+      ~select_dir:(n_dirs = Some 1 && n_files = Some 0)
       ~open_dirs_on_click:(n_dirs = Some 0)
+      ~allow_new
       ~hide_backup:true ?max_selected ?mimetype () in
   let fd = dialog ~options path in
 
+  (* New file name should not be an existing dir *)
+  let ok_new_file name =
+    match find_entry fd.directory.entries name with
+    | None -> true
+    | Some i -> not (entry_is_directory (fd.directory.entries.(i))) in
+
   let enable btn2 b2 =
-    let ok = (((n_dirs = None && !sel_dirs > 0) || Some !sel_dirs = n_dirs) &&
-              ((n_files = None && !sel_files > 0) || Some !sel_files = n_files)) in
+    let ok = ((n_dirs = None && !sel_dirs > 0) || Some !sel_dirs = n_dirs) &&
+             ((n_files = None && !sel_files > 0) || Some !sel_files = n_files) in
+    let ok = ok || (allow_new && let name = W.get_text (fd.new_file) in
+                    name <> "" && (n_dirs = Some 1 || ok_new_file name)) in
     printd debug_io "File dialog enabling select button: %b" ok;
+    (* print "[%s] sle_dirs=%i, sel_files=%i, ok=%b" *)
+    (*   (W.get_text (fd.new_file)) !sel_dirs !sel_files ok; *)
     if ok then begin
-      if !sel_dirs + !sel_files > 0 (* always true unless n_dirs = n_files = Some 0 *)
+      (* if allow_new then sel_dirs and sel_files must be 0. The b2 label never changes. *)
+      if not allow_new && !sel_dirs + !sel_files > 0
+      (* always true unless n_dirs = n_files = Some 0 *)
       then W.set_text btn2 (fst (get_label2 ~n_dirs:!sel_dirs ~n_files:!sel_files ()));
       if b2.L.disabled then (L.fade_in ~from_alpha:0.5 ~to_alpha:1. b2; L.enable b2)
     end else begin
@@ -1769,12 +1884,41 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype continue =
     end
   in
 
+  (* The button2 can be enabled/disabled either by a change of selection, or a
+     change of the new_file text_input. *)
   let connect2 t btn2 =
     do_option (L.containing_widget btn2) (fun b2 ->
         enable btn2 b2;
+        (* We update the "Select" button when the status message changes. *)
         let c = W.connect_main t.message btn2
             (fun _ _ _ -> enable btn2 b2) [Trigger.update] in
-        W.add_connection t.message c) in
+        W.add_connection t.message c;
+        if select_one
+        then begin
+          (* If we press ENTER on the new_file input, we simulate pressing the
+             "Select" button. *)
+          let c = W.connect_main t.new_file btn2
+              (fun _ b ev ->
+                 if not b2.L.disabled && Sdl.Event.(get ev keyboard_keycode) = Sdl.K.return
+                 then (printd debug_board "[File.dialog] Simulate button up.";
+                       W.wake_up_all Trigger.(create_event E.mouse_button_up) b))
+              Sdl.Event.[key_up] in
+          W.add_connection t.new_file c;
+          let c = W.connect_main t.new_file btn2
+              (fun _ b ev ->
+                 if not b2.L.disabled && Sdl.Event.(get ev keyboard_keycode) = Sdl.K.return
+                 then (printd debug_board "[File.dialog] Simulate button down.";
+                       W.wake_up_all Trigger.(create_event E.mouse_button_down) b))
+              Sdl.Event.[key_down] in
+          W.add_connection t.new_file c
+        end;
+        if allow_new
+        (* We enable the "Select" button if the user enters a string in the
+           "new_file" input. *)
+        then let c = W.connect_main t.new_file btn2
+                 (fun _ _ _ -> enable btn2 b2) Sdl.Event.[key_up] in
+          W.add_connection t.new_file c)
+  in
 
   Popup.two_buttons ?dst ?board ?w ?h ~label1:"Cancel" ~label2
     ~action1:(fun () ->
@@ -1785,19 +1929,24 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype continue =
     ~connect2:(connect2 fd)
     fd.layout
 
-let select_file ?dst ?board ?w ?h ?mimetype path continue =
-  select_popup ?dst ?board ?w ?h ?mimetype path ~n_files:1 ~n_dirs:0
+let select_file ?dst ?board ?w ?h ?mimetype ?name path continue =
+  select_popup ?dst ?board ?w ?h ?mimetype ?name path ~n_files:1 ~n_dirs:0
     (fun list -> continue (List.hd list))
 
 let select_files ?dst ?board ?w ?h ?mimetype ?n_files path continue =
   select_popup ?dst ?board ?w ?h ?mimetype path ?n_files ~n_dirs:0 continue
 
-let select_dir ?dst ?board ?w ?h path continue =
-  select_popup ?dst ?board ?w ?h path ~n_files:0 ~n_dirs:1
+let select_dir ?dst ?board ?w ?h ?name path continue =
+  select_popup ?dst ?board ?w ?h ?name path ~n_files:0 ~n_dirs:1
     (fun list -> continue (List.hd list))
 
 let select_dirs ?dst ?board ?w ?h ?n_dirs path continue =
   select_popup ?dst ?board ?w ?h path ~n_files:0 ?n_dirs continue
+
+let save_as ?dst ?board ?w ?h ?name path continue =
+  select_popup ?dst ?board ?w ?h ?name path ~n_files:1 ~n_dirs:0
+    ~allow_new:true ~button_label:"Save"
+    (fun list -> continue (List.hd list))
 
 (* Not used any more. Use [select_file] with no [dst] option instead. *)
 (* let select_file_new_window ?board ?w ?(h=400) path _continue = *)
@@ -1815,5 +1964,8 @@ let select_dirs ?dst ?board ?w ?h ?n_dirs path continue =
 (*   | Some b -> ignore (Main.add_window b ((\* L.cover ~name:"file-dialog cover" *\) frame)) *)
 (*   | None -> L.add_window fd.layout *)
 
-let save_as () =
-  () (* TODO *)
+
+let ( let@ ) dialog f = dialog f  (* same as Utils.( let@ ) *)
+
+(* let () = let@ file = select_file "essai" in *)
+(* print_endline file *)

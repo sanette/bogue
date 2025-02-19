@@ -11,8 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - New module: `File` for file selection dialogs and file
-  monitoring. This is quite a complex layout, we decided make it
-  public now but new features will be added later.
+  monitoring. This is quite a complex layout, so we decided make it
+  public now in a beta-testing phase. New features will be added
+  later, and maybe small API changes.
+- Example #54 with a file dialog.
+- `Popups` can now be closed by pressing ESCAPE.
+- additional functions in `Main` for dynamically updating global shortcuts.
 
 ### Changed
 
@@ -31,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Selection` new functions `is_empty`, `size`, `range`, `first`, `last`, `invert`.
 - `Table` layouts can now be resized dynamically.
 - Can now navigate `tabs` with TAB! ;) (preliminary)
-- Can now enable/disable a layout with `Layout.set_enabled`. New examples 53, 53bis.
+- Can now enable/disable a layout with `Layout.set_enabled`. New Examples #53, #53bis.
 - changing text color in `Text_display` is now possible, using
   `Widget.html`, see exemple 47.
 - underlining text in `Text_display` is now possible, using

@@ -49,8 +49,9 @@
 <pre><span id="VALpara"><span class="keyword">val</span> para</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
 <pre><span id="VALparagraphs_of_string"><span class="keyword">val</span> paragraphs_of_string</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre><h3 id="2_Creatingthewidget">Creating the widget</h3>
 <p>Use <a href="Bogue.Widget.html#VALtext_display"><code class="code"><span class="constructor">Widget</span>.text_display</code></a> or <a href="Bogue.Widget.html#VALverbatim"><code class="code"><span class="constructor">Widget</span>.verbatim</code></a> for plain text, or
-       <a href="Bogue.Widget.html#VALrich_text"><code class="code"><span class="constructor">Widget</span>.rich_text</code></a> for "rich text" (containing bold, italics, etc. using
-       the functions listed above.)</p>
+       <a href="Bogue.Widget.html#VALhtml"><code class="code"><span class="constructor">Widget</span>.html</code></a> for a richer display (bold, italics, color, etc.). You may
+       also use <a href="Bogue.Widget.html#VALrich_text"><code class="code"><span class="constructor">Widget</span>.rich_text</code></a> for "rich text" (containing bold, italics,
+       etc. using the functions listed above.)</p>
 <h3 id="2_Modifyingthewidget">Modifying the widget</h3>
 <pre><span id="VALreplace"><span class="keyword">val</span> replace</span> : <code class="type">by:<a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">

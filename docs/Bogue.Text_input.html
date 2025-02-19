@@ -13,6 +13,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Creating the widget" rel="Section" href="#2_Creatingthewidget">
+<link title="Modifying the widget" rel="Section" href="#2_Modifyingthewidget">
 <title>Bogue.Text_input</title>
 </head>
 <body>
@@ -46,12 +47,11 @@
 <p>Use <a href="Bogue.Widget.html#VALtext_input"><code class="code"><span class="constructor">Widget</span>.text_input</code></a></p>
 
 <pre><span id="VALuint_filter"><span class="keyword">val</span> uint_filter</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEfilter">filter</a></code></pre>
-<pre><span id="VALtext"><span class="keyword">val</span> text</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; string</code></pre>
+<pre><span id="VALtext"><span class="keyword">val</span> text</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; string</code></pre><h3 id="2_Modifyingthewidget">Modifying the widget</h3>
 <pre><span id="VALactivate"><span class="keyword">val</span> activate</span> : <code class="type"><a href="Bogue.Text_input.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<h3 id="2_Modifyingthewidget">Modifying the widget</h3>
 <p>Warning: two Text_input widgets cannot be active at the same time. You can
-    use <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a> to delay the activation.</p>
+      use <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a> to delay the activation.</p>
 </div>
 </div>
 </body></html>

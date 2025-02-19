@@ -44,8 +44,27 @@
       start of the next frame, or at a subsequent frame if the queue is already
       large.</p>
 
-<p><b>Warning:</b> the action should not call <a href="Bogue.Sync.html#VALpush"><code class="code"><span class="constructor">Sync</span>.push</code></a> itself, otherwise this will
-      result in a deadlock.</p>
-</div>
+<p><b>Warning:</b> the action may also call <code class="code">push</code> itself, but since
+      there is only one execution queue, the second action will be executed only
+      after the first action terminates. For instance this program:</p>
+
+<pre class="codepre"><code class="code"><span class="constructor">Sync</span>.push (<span class="keyword">fun</span> () <span class="keywordsign">-&gt;</span>
+    print_endline <span class="string">"push 1"</span>;
+    <span class="constructor">Sync</span>.push (<span class="keyword">fun</span> () <span class="keywordsign">-&gt;</span>
+        print_endline <span class="string">"push 2"</span>;
+        print_endline <span class="string">"end 2"</span>);
+    print_endline <span class="string">"end 1"</span>);
+
+print_endline <span class="string">"Creating board"</span>;
+
+<span class="constructor">W</span>.label <span class="string">"Checking sync... see console"</span>
+|&gt; <span class="constructor">L</span>.resident
+|&gt; <span class="constructor">Main</span>.of_layout
+|&gt; <span class="constructor">Main</span>.run</code></pre><p>will print:</p>
+<pre class="verbatim">Creating board
+push 1
+end 1
+push 2
+end 2</pre></div>
 </div>
 </body></html>

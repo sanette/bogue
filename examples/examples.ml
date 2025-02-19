@@ -425,12 +425,13 @@ let example21 () =
   let board = of_layout global in
   run board
 
-let desc21bis = "Close popup"
+let desc21bis = "Close popup. ESC is used for two different actions"
 let example21bis () =
   let td = W.text_display lorem in
   let layout = L.tower_of_w [W.check_box (); td] in
   Popup.info ~w:100 ~h:70 "Click on Close to close the popup" layout;
-  let board = of_layout layout in
+  let shortcuts = shortcuts_of_list [exit_on_escape] in
+  let board = of_layout ~shortcuts layout in
   run board
 
 let desc21ter = "Yes/No popup"

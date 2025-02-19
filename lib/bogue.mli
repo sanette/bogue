@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250210
+@version 20250219
 
 @author Vu Ngoc San
 
@@ -596,6 +596,7 @@ module Trigger : sig
     | `Bogue_redraw
     | `Bogue_keymap_changed
     | `Bogue_add_window
+    | `SDL_POLLSENTINEL
     ]
 
   val event_kind : Tsdl.Sdl.event -> [sdl_event | bogue_event]
@@ -680,8 +681,31 @@ module Sync : sig
       start of the next frame, or at a subsequent frame if the queue is already
       large.
 
-      {b Warning:} the action should not call {!push} itself, otherwise this will
-      result in a deadlock. *)
+      {b Warning:} the action may also call [push] itself, but since
+      there is only one execution queue, the second action will be executed only
+      after the first action terminates. For instance this program:
+
+{[Sync.push (fun () ->
+    print_endline "push 1";
+    Sync.push (fun () ->
+        print_endline "push 2";
+        print_endline "end 2");
+    print_endline "end 1");
+
+print_endline "Creating board";
+
+W.label "Checking sync... see console"
+|> L.resident
+|> Main.of_layout
+|> Main.run]}
+      will print:
+{v
+Creating board
+push 1
+end 1
+push 2
+end 2 v}
+  *)
 
 end (* of Sync *)
 
@@ -1031,11 +1055,21 @@ end (* of Selection *)
 (** {2 Widgets}
 
     Widgets are building blocks of the GUI. They also receive all events (mouse
-   focus, etc.) and contain the {e intelligence} of your GUI, through {e
-   connections} (or callbacks, see {!Widget.connection}). However, in order to
-   be displayed, they need to be packed into {e layouts} ({!Layout.t}).
+    focus, etc.) and contain the {e intelligence} of your GUI, through {e
+    connections} (or callbacks, see {!Widget.connection}). However, in order to
+    be displayed, they need to be packed into {e layouts} ({!Layout.t}).
 
-   The main module for dealing with widgets is {!Widget}.
+    The main module for dealing with widgets is {!Widget}.
+
+    {b Important:} Each widget possesses two access levels: a frontend and a
+    backend.  The frontend has type {!Widget.t} and is used for creation,
+    connections, insertion into a layout, and simple access like
+    {!Widget.get_text}. The backend contains all the low-level operations to run
+    and display the widget; it has a specific type, for instance
+    {!Label.t}. Sometimes you want to access these specialized functions;
+    for this you may obtain the backend object using the {%html:<a
+    href="Bogue.Widget.html#inner">conversion</a>%} (downcasting) functions: for
+    instance {!Widget.get_label}.
 *)
 
 (** Image widget.
@@ -1292,8 +1326,9 @@ module Text_display : sig
   (** {2 Creating the widget}
 
        Use {!Widget.text_display} or {!Widget.verbatim} for plain text, or
-       {!Widget.rich_text} for "rich text" (containing bold, italics, etc. using
-       the functions listed above.)
+       {!Widget.html} for a richer display (bold, italics, color, etc.). You may
+       also use {!Widget.rich_text} for "rich text" (containing bold, italics,
+       etc. using the functions listed above.)
 *)
 
   (** {2 Modifying the widget} *)
@@ -1328,9 +1363,10 @@ module Text_input : sig
   val text : t -> string
 
   (** {2 Modifying the widget} *)
-  val activate : t -> unit
+
   (** Warning: two Text_input widgets cannot be active at the same time. You can
-    use {!Sync.push} to delay the activation. *)
+      use {!Sync.push} to delay the activation. *)
+  val activate : t -> unit
 
 end (* of Text_input *)
 
@@ -1669,7 +1705,7 @@ See the {{!inner}conversion functions} below. *)
       replaced by a color code, either RGB like "#40E0D0" of "#12C" or RGBA, or
       a color name like "darkturquoise".
 
-      See `boguex 47`. *)
+      @see "Example #47". *)
 
   (** {3 Labels or icons} *)
 
@@ -1793,8 +1829,8 @@ See the {{!inner}conversion functions} below. *)
 
   (** {2:inner Conversions from the generic Widget type to the specialized inner type}
 
-     These functions raise [Invalid_argument] whenever their argument is not of
-     the correct type.  *)
+      (Or: frontend to backend.)  These functions raise [Invalid_argument]
+      whenever their argument is not of the correct type.  *)
 
   val get_box : t -> Box.t
   val get_button : t -> Button.t
@@ -2373,13 +2409,12 @@ Very quickly, displaying a list of layouts (for instance, listing files in a
    the textures of {b all} entries of the list. In these cases you need to use a
    [Long_list].
 
-See for instance the example 34: `boguex 34` that displays a list of 1 million
-   entries.
+    See for instance {b Example #34} that displays a list of 1 million entries.
 
-Long_lists may contain any type of Layout. They don't need to be all of the same
-   dimension. Instead of providing the list of layouts, one must give a function
-   [generate] such that the layout given by [generate i] is the i-eth element of
-   the list.
+    Long_lists may contain any type of Layout. They don't need to be all of the
+    same dimension. Instead of providing the list of layouts, one must give a
+    function [generate] such that the layout given by [generate i] is the i-eth
+    element of the list.
 
 {5 {{:graph-dot-b_long_list.html}Dependency graph}} *)
 module Long_list : sig
@@ -2502,11 +2537,16 @@ end
 
 (** Drop-down select list.
 
-It's the usual select box which opens a drop-down list when clicked on, similar
-   to the [<select>] html tag.
+    It's the usual select box which opens a drop-down list when clicked on,
+    similar to the [<select>] html tag.
 
- Under the hood, a select list is a special type of menu with a single entry
-   having a submenu.
+    Under the hood, a select list is a special type of menu with a single entry
+    having a submenu.
+
+    @see "Example #28".
+
+    {%html:<div class="figure" style="text-align:center"><img
+    src="images/example28.webp" srcset="images/example28.webp 2x"></div>%}
 
 {5 {{:graph-dot-b_select.html}Dependency graph}} *)
 module Select : sig
@@ -2683,8 +2723,8 @@ end (* of Table *)
 (** {2 Opening windows and running your app with the Bogue mainloop}
 
     Because a GUI continuously waits for user interaction, everything has to run
-    inside a loop. You open your GUI window(s) and start the loop with {!run},
-    and this is usually the last command of your Bogue code.  *)
+    inside a loop. You open your GUI window(s) and start the loop with
+    {!Main.run}, and this is usually the last command of your Bogue code.  *)
 
 (* ---------------------------------------------------------------------------- *)
 
@@ -2740,7 +2780,12 @@ module Main : sig
   type board
   (** The board is the whole universe of your GUI. It contains everything.  Most
       of the time, though, you don't really care, because you will immediately
-      run your board after creating it, like in [run (of_layout my_layout)]. *)
+      run your board after creating it, like in [run (of_layout my_layout)].
+
+      However, nothing prevents you from creating several boards and finally
+      choosing the one you want to run. What you should {e not} do is to
+      simultaneously run several boards in different threads, because SDL can
+      manage events only from the main thread. *)
 
   type shortcuts
     (** Shortcut maps can be passed to the board to associate an arbitrary
@@ -2754,15 +2799,15 @@ module Main : sig
     ?connections:(Widget.connection list) ->
     ?on_user_event:(Tsdl.Sdl.event -> unit) -> Window.t list -> board
   (** Create a [board] from a list of layouts and connections. The list of
-     connections can be empty, because connections can be added afterwards. Each
-     Layout in the list will open as a new window.
+      connections can be empty, because connections can be added
+      afterwards. Each Layout in the list will open as a new window.
 
-      @param shortcuts This optional argument is a {%html:<a href="#shortcuts_">shortcut map</a>%}.
+      @param shortcuts This optional argument is a {%html:<a
+        href="#shortcuts_">shortcut map</a>%}.
 
       @param on_user_event This optional argument is a function to be executed
-     (by the main thread) when a {!Trigger.user_event} is emitted.
-
-*)
+        (by the main thread) when a {!Trigger.user_event} is emitted.
+  *)
 
   val get_monitor_refresh_rate: board -> int option
   (** [get_monitor_refresh_rate board] returns the monitor refresh rate, for the
@@ -2835,10 +2880,19 @@ module Main : sig
   val shortcuts_add : shortcuts ->
     ?keymod:Tsdl.Sdl.keymod -> Tsdl.Sdl.keycode -> shortcut_action -> shortcuts
 
-  val shortcuts_add_ctrl : shortcuts  -> Tsdl.Sdl.keycode -> shortcut_action -> shortcuts
+  val shortcuts_add_ctrl : shortcuts  -> Tsdl.Sdl.keycode -> shortcut_action ->
+    shortcuts
 
-  val shortcuts_add_ctrl_shift : shortcuts -> Tsdl.Sdl.keycode -> shortcut_action -> shortcuts
+  val shortcuts_add_ctrl_shift : shortcuts -> Tsdl.Sdl.keycode -> shortcut_action ->
+    shortcuts
 
+  val get_shortcut : ?map:shortcuts -> ?keymod:Tsdl.Sdl.keymod -> int ->
+    shortcut_action option
+
+  val remove_shortcut : ?board:board -> ?keymod:Tsdl.Sdl.keymod -> int -> unit
+
+  val add_shortcut: ?board:board ->
+    ?keymod:Tsdl.Sdl.keymod -> int -> shortcut_action -> unit
 
   (** {2 Using Bogue together with another graphics loop}
 
@@ -2910,7 +2964,10 @@ val run_tests : unit -> unit
         src="images/example21bis.png"><br> A simple modal popup with a single
         button (Example #21bis)</div>%}
 
-    Popups are also used to display {b tooltips}.
+    Popups can (optionally) be closed by pressing ESCAPE (even if ESCAPE is used
+    for another action in the main application, see Example 21bis).
+
+    Popups are also used to display {{!tooltips_}tooltips}.
 
 {5 {{:graph-dot-b_popup.html}Dependency graph}} *)
 module Popup : sig
@@ -2939,21 +2996,22 @@ module Popup : sig
   val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
     ?button:string -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with a text and a close button. By
-      default, [button="Close"]. Use the optional parameters [button_w,
-      button_h] to impose the size of the button. The optional parameters [w]
-      and [h] set the width and height of the popup (including the button) by
-      scaling the computed layout. If they are too small, the text might not be
-      fully legible. *)
+      default, [button="Close"]. This popup can be closed by pressing
+      ESCAPE. Use the optional parameters [button_w, button_h] to impose the
+      size of the button. The optional parameters [w] and [h] set the width and
+      height of the popup (including the button) by scaling the computed
+      layout. If they are too small, the text might not be fully legible. *)
 
   val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
     ?yes:string -> ?no:string ->
     yes_action:(unit -> unit) ->
     no_action:(unit -> unit) -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with two yes/no buttons. By default,
-      [yes="Yes"] and [no="No"]. See {!info} for other common parameters. *)
+      [yes="Yes"] and [no="No"]. This popup is {e not} closed by pressing
+      ESCAPE. See {!info} for other common parameters. *)
 
   val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
-    button:string -> dst:Layout.t -> Layout.t -> unit
+    button:string -> dst:Layout.t -> ?close_on_escape:bool -> Layout.t -> unit
   (** Add to [dst] the given layout and one button with the [button]
       string. Clicking the button will close the popup and execute the optional
       [on_close] function. *)
@@ -2963,7 +3021,7 @@ module Popup : sig
     ?w:int -> ?h:int -> ?screen_color:Draw.color ->
     label1:string -> label2:string ->
     action1:(unit -> unit) -> action2:(unit -> unit) -> ?connect2:(Widget.t -> unit) ->
-    Layout.t -> unit
+    ?close_on_escape:bool -> Layout.t -> unit
   (** If [dst] is present, a popup containing the given layout (and two buttons)
       will be contructed inside [dst], otherwise a new window will be
       created. In the latter case, the creation of the new window depends on the
@@ -2979,12 +3037,17 @@ module Popup : sig
       {!File.select_file}.) *)
 
 
-  (** {2 Tooltips}
+  (** {2:tooltips_ Tooltips}
 
       Tooltips are informative pieces of text that show up when the pointer
       stays idle for a moment over a given widget.
 
-      See Example #44. *)
+      See Example #44.
+
+      {%html:<div class="figure" style="text-align:center"><img
+        src="images/example44.png"><br> A button with a tooltip (Example #44)</div>%}
+
+  *)
 
   type position =
   | LeftOf
@@ -3022,6 +3085,8 @@ end (* of Popup *)
     directories, or entering manually the requested path, or clicking on parents
     directories in a special breadcrumb layout.
     - The whole layout is resizable by the user.
+    - The dialog can be closed by pressing ESCAPE
+    (even if ESCAPE is used for another action in the main application).
 
     {b Warning: } Some {!options} are not implemented yet; these -- and more
     features -- will certainly be added in the future.
@@ -3129,6 +3194,9 @@ module File : sig
     ?max_selected:int ->
     ?hide_dirs:bool ->
     ?only_dirs:bool ->
+    ?select_dir:bool ->
+    ?allow_new:bool ->
+    ?default_name:string ->
     ?breadcrumb:bool ->
     ?system_icons:bool ->
     ?open_dirs_on_click:bool ->
@@ -3159,7 +3227,7 @@ module File : sig
   val basedir : t -> string
 
   val select_file : ?dst:Layout.t -> ?board:Main.board ->
-    ?w:int -> ?h:int -> ?mimetype:Str.regexp ->
+    ?w:int -> ?h:int -> ?mimetype:Str.regexp -> ?name:string ->
     string -> (string -> unit) -> unit
   (** Open a file selector on top of the [dst] layout, or in a new window if
       [dst] is not provided.
@@ -3171,20 +3239,42 @@ module File : sig
         the window will be created at the next frame, but the file selector
         layout is immediately created.
 
+      @param name default name to be chosen.
+
       @see "Example #54".
   *)
 
   val select_files : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?mimetype:Str.regexp ->
     ?n_files:int -> string -> (string list -> unit) -> unit
-  (** Several files can be selected. If [n_files] is provided, it will be the
-      maximum number of files that can be selected. *)
+  (** Similar to {!select_file} except that here several files can be
+      selected. If [n_files] is provided, it will be the maximum number of files
+      that can be selected. *)
 
   val select_dir : ?dst:Layout.t -> ?board:Main.board ->
-    ?w:int -> ?h:int -> string -> (string -> unit) -> unit
+    ?w:int -> ?h:int -> ?name:string -> string -> (string -> unit) -> unit
+  (** Similar to {!select_file} except that here only a directory can be
+         selected. *)
 
   val select_dirs : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?n_dirs:int -> string -> (string list -> unit) -> unit
+  (** Similar to {!select_files} except that here only directories can be
+      selected. *)
+
+  val save_as : ?dst:Layout.t -> ?board:Main.board ->
+    ?w:int -> ?h:int -> ?name:string -> string -> (string -> unit) -> unit
+
+  val ( let@ ) : ('a -> 'b) -> 'a -> 'b
+      (** [ ( let@ ) f x ] is just [ f x ]. You can use this "syntaxic sugar"
+          to write your code like this:
+          {[
+let open File in
+let@ file = select_file "/tmp" in
+print_endline ("Selected file : " ^ file)]} instead of
+          {[
+File.select_file "/tmp" (fun file ->
+    print_endline ("Selected file : " ^ file))]}
+      *)
 
 end (* of File *)
 
@@ -3194,23 +3284,22 @@ end (* of File *)
 
     Here is a minimal example with a label and a check box.
 
-    {[
-      open Bogue
-      module W = Widget
-      module L = Layout
+{[open Bogue
+module W = Widget
+module L = Layout
 
-      let main () =
+let main () =
 
-        let b = W.check_box () in
-        let l = W.label "Hello world" in
-        let layout = L.flat_of_w [b;l] in
+  let b = W.check_box () in
+  let l = W.label "Hello world" in
+  let layout = L.flat_of_w [b;l] in
 
-        let board = Bogue.of_layout layout in
-        Bogue.run board;;
+  let board = Bogue.of_layout layout in
+  Bogue.run board;;
 
-      let () = main ();
-        Bogue.quit ()
-    ]}
+let () =
+  main ();
+  Bogue.quit ()]}
 
     This can be compiled to bytecode with
 

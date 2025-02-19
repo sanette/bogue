@@ -59,6 +59,14 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;shortcuts_add_ctrl_shift&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.shortcuts&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.keycode&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.shortcut_action&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.shortcuts<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;get_shortcut&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?map:<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.shortcuts&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?keymod:<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.keymod&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.shortcut_action&nbsp;option<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;remove_shortcut&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?board:<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.board&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;?keymod:<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.keymod&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_shortcut&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?board:<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.board&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?keymod:<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.keymod&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.shortcut_action&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;make_sdl_windows&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?windows:<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.window&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.board&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;refresh_custom_windows&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Main</span>.board&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>

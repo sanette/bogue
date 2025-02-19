@@ -169,6 +169,7 @@ type bogue_event =
   | `Bogue_redraw
   | `Bogue_keymap_changed (* SDL event, which was missing in Tsdl. *)
   | `Bogue_add_window
+  | `SDL_POLLSENTINEL
   ]
 
 let generalize_sdl_event ev = (ev : sdl_event :> [> sdl_event | bogue_event])
@@ -200,6 +201,10 @@ let event_kind ev : [> sdl_event | bogue_event] =
       (* keymap_changed was forgotten, but corrected in recent Tsdl.
          https://github.com/dbuenzli/tsdl/issues/76#event-6708707941 See also:
          https://github.com/libsdl-org/SDL/issues/5520 *)
+      | i when i = 0x7f00 ->
+        printd (debug_event + debug_error)
+          "SDL lost an SDL_POLLSENTINEL! Maybe you used to many threads?";
+        `SDL_POLLSENTINEL
       | _ -> printd debug_event "UNKNOWN EVENT=0x%x" x;
         `Unknown x
     end

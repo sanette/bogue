@@ -116,23 +116,29 @@ let stop ti =
   clear ti;
   Var.set ti.active false
 
+(* better to inline ? *)
+let unselect ti =
+  printd debug_board "Removing selection";
+  Var.set ti.selection Empty
+
 (* Because there is a length test, it should be placed at the end of all
    modifications of ti *)
 let set ti keys =
   if keys <> Var.get ti.keys
   then begin
-      let keys =
-        if List.length keys > ti.max_size
-        then (printd debug_memory
-                "Warning: text_input was truncated because it should not exceed \
-                 %u symbols" ti.max_size;
-              stop ti;
-              let head, _ = split_list keys ti.max_size in head)
-        else keys in
-      Var.set ti.keys keys;
-      Var.set ti.cursor_pos (min (Var.get ti.cursor_pos) (List.length keys));
-      clear ti
-    end
+    if Var.get ti.selection <> Empty then unselect ti;
+    let keys =
+      if List.length keys > ti.max_size
+      then (printd debug_memory
+              "Warning: text_input was truncated because it should not exceed \
+               %u symbols" ti.max_size;
+            stop ti;
+            let head, _ = split_list keys ti.max_size in head)
+      else keys in
+    Var.set ti.keys keys;
+    Var.set ti.cursor_pos (min (Var.get ti.cursor_pos) (List.length keys));
+    clear ti
+  end
 
 let kill_selection ti =
   match Var.get ti.selection with
@@ -142,11 +148,6 @@ let kill_selection ti =
     Var.set ti.selection Empty;
     set ti (List.flatten [head1; tail2]);
   | _ -> ()
-
-(* better to inline ? *)
-let unselect ti =
-  printd debug_board "Removing selection";
-  Var.set ti.selection Empty
 
 let select_all ti =
   printd debug_board "Select all text";

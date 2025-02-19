@@ -17,6 +17,7 @@ module Time = B_time
 module Timeout = B_timeout
 module Trigger =  B_trigger
 module Update = B_update
+module Var = B_var
 module Widget = B_widget
 module Window = B_window
 module ISet = Set.Make(Int)
@@ -43,7 +44,7 @@ type board = {
   mutable button_down: Layout.t option;
   (* : the room where the button_down has been registered. Used to trigger
      full_click event *)
-  mutable shortcuts: board Shortcut.t;
+  mutable shortcuts: shortcuts Var.t;
   (* Global keyboard shortcuts. TODO some shortcuts should be executed only on
      Key_up to avoid auto-repeat. => create 2 maps, shortcuts_down et
      shortcuts_up. Or maybe all? *)
@@ -55,9 +56,9 @@ type board = {
   on_user_event : (Sdl.event -> unit) option
 }
 
-type shortcuts = board Shortcut.t
+and shortcuts = board Shortcut.t
 
-let exit_on_escape = (Sdl.K.escape, Sdl.Kmod.none, fun (_ : board) -> raise Exit)
+let running_board = ref None
 
 let get_frame () = !Avar.frame
 
@@ -99,7 +100,7 @@ let close_window window =
   (* then begin let text = go(Sdl.get_clipboard_text ()) in *)
   (*   printd debug_warning "Clipboard has [%s]" text *)
   (* end; *)
-  Layout.delete_textures layout;
+  Layout.delete_textures layout; (* TODO remove? redundant with finalize ?*)
   (* now we destroy the canvas (renderer and window): *)
   let canvas = Layout.get_canvas layout in
   Layout.remove_canvas layout;
@@ -654,6 +655,8 @@ let filter_board_events board e =
   (*   remove_mouse_focus board ro; *)
   (*   remove_keyboard_focus board ro; *)
   (*   None *)
+  | `SDL_POLLSENTINEL -> printd (debug_error + debug_event) "Ignoring SDL_POLLSENTINEL";
+    None
   | _ -> Some e
 
 
@@ -677,7 +680,7 @@ let treat_layout_events board e =
     | `Key_down ->
       let pair = get e keyboard_keycode, get e keyboard_keymod in
       if not board.shortcut_pressed
-      then do_option (Shortcut.find board.shortcuts pair)
+      then do_option (Shortcut.find (Var.get board.shortcuts) pair)
           (fun a -> board.shortcut_pressed <- true; a board)
     | `Mouse_button_down
     | `Finger_down ->
@@ -794,9 +797,9 @@ let treat_layout_events board e =
       end;
       (* TODO just display the corresponding window, not all of them *)
     | `User_event ->
-      printd (debug_event+debug_board+debug_user) "User event";
+      printd (debug_event + debug_board + debug_user) "User event";
       do_option board.on_user_event (fun f -> f e)
-    | `Quit -> printd (debug_event+debug_board) "Quit event"; raise Exit
+    | `Quit -> printd (debug_event + debug_board) "Quit event"; raise Exit
     | _ -> ()
   end
 
@@ -1043,7 +1046,8 @@ let create ?shortcuts ?(connections = []) ?on_user_event windows =
     mouse_focus = None;
     keyboard_focus = None;
     button_down = None;
-    shortcuts; shortcut_pressed = false;
+    shortcuts = Var.create shortcuts;
+    shortcut_pressed = false;
     mouse_alive = false;
     on_user_event }
 
@@ -1109,6 +1113,9 @@ let make ?shortcuts connections layouts =
    executed at all if there is no event to trigger display. *)
 let run ?(vsync=true) ?before_display ?after_display board =
   printd debug_board "==> Running board!";
+  if !running_board <> None
+  then printd (debug_board + debug_error) "Running a board while the previous one was not cleanly quit. This is a bad idea.";
+  running_board := Some board;
   Trigger.flush_all ();
   if not (Sync.is_empty ()) then Trigger.push_action ();
   if not (Update.is_empty ()) then Update.push_all ();
@@ -1160,22 +1167,34 @@ let run ?(vsync=true) ?before_display ?after_display board =
     let anim' = one_step ?before_display ~clear:true anim (start,fps) board in
     do_option after_display (fun f -> f ()); (* TODO? *)
     loop anim' in
-  try
-    loop false
-  with
-  | Exit -> exit_board board
-  | e ->
-    let sdl_error = Sdl.get_error () in
-    if sdl_error <> "" then print "SDL ERROR: %s" sdl_error;
-    Print.dump board.windows_house;
-    raise e
+  let () = try
+      loop false
+    with
+    | Exit -> exit_board board
+    | e ->
+      let sdl_error = Sdl.get_error () in
+      if sdl_error <> "" then print "SDL ERROR: %s" sdl_error;
+      Print.dump board.windows_house;
+      raise e in
+  printd debug_board "Board exiting";
+  running_board := None
 
+(* This gives direct access to the board from all Bogue modules... BUT, we
+   mostly don't use this. In rare cases where the board is needed (like adding
+   windows) we rather react to events. This is more complicated, but makes sure
+   the modification is done in a safe point of the main thread. Currently, we
+   use [get_running_board] only for shortcuts (because I'm lazy... even these
+   could also be done by using events.) *)
+let get_running_board () =
+  !running_board
 
 (*************)
 (* Shortcuts *)
 (*************)
 
 type shortcut_action = board Shortcut.action
+
+let exit_on_escape = (Sdl.K.escape, Sdl.Kmod.none, fun (_ : board) -> raise Exit)
 
 let shortcuts_empty () : shortcuts =
   Shortcut.empty ()
@@ -1191,3 +1210,60 @@ let shortcuts_add_ctrl_shift map keycode action : shortcuts =
 
 let shortcuts_of_list list : shortcuts =
   Shortcut.create list
+
+let get_shortcut_map () =
+  match get_running_board () with
+      | None -> None
+      | Some b -> Some (Var.get b.shortcuts)
+
+let get_shortcut ?map ?(keymod = Sdl.Kmod.none) keycode : shortcut_action option =
+  let map = default_option map (get_shortcut_map ()) in
+  check_option map (fun map -> Shortcut.find map (keycode, keymod))
+
+let remove_shortcut ?board ?(keymod = Sdl.Kmod.none) keycode =
+  Sync.push (fun () ->
+      match default_option_fn board get_running_board with
+      | None -> printd (debug_board + debug_error)
+                  "Cannot remove shortcut because no board was provided and no \
+                   board is running."
+      | Some board ->
+        Var.update board.shortcuts (fun map ->
+            printd debug_board "Removing shortcut (code=%i, mod=%i)" keycode keymod;
+            Shortcut.remove (keycode, keymod) map))
+
+let add_shortcut ?board ?(keymod = Sdl.Kmod.none) keycode action =
+  Sync.push (fun () ->
+      match default_option_fn board get_running_board with
+      | None -> printd (debug_board + debug_error)
+                  "Cannot add shortcut because no board was provided and no \
+                   board is running."
+      | Some board ->
+        Var.update board.shortcuts (fun map ->
+            printd debug_board "Adding shortcut (code=%i, mod=%i)" keycode keymod;
+            Shortcut.add_map map (keycode, keymod, action)))
+
+type shortcut_restore = (unit -> unit) option ref
+
+(* Add a shortcut which removes itself atfer execution *)
+let add_one_shot_shortcut ?board ?(keymod = Sdl.Kmod.none) keycode action
+    (restore : shortcut_restore) =
+  Sync.push (fun () ->
+      match default_option_fn board get_running_board with
+      | None -> printd (debug_board + debug_error)
+                  "Cannot add shortcut because no board was provided and no \
+                   board is running."
+      | Some board ->
+        Var.update board.shortcuts (fun map ->
+            printd debug_board "Adding shortcut (code=%i, mod=%i)" keycode keymod;
+            restore := Some (fun () -> Var.set board.shortcuts map);
+            let action b =
+              action b;
+              restore:= None;
+              Var.set b.shortcuts map in
+            let map = Shortcut.remove (keycode, keymod) map in
+            Shortcut.add_map map (keycode, keymod, action)))
+
+(* Use these functions to manually remove the shortcut even if it has not been
+   triggered. See Popup for an example. *)
+let shortcut_restore_init () : shortcut_restore = ref None
+let shortcut_restore (f : shortcut_restore) = apply_option !f ()

@@ -35,7 +35,7 @@
 </div>
 <ul class="info-attributes">
 <li><b>Author(s):</b> Vu Ngoc San</li>
-<li><b>Version:</b> 20250211</li>
+<li><b>Version:</b> 20250218</li>
 <li><b>See also</b> <a href="https://github.com/sanette/bogue">the source code on github</a></li>
 </ul>
 </div>
@@ -142,10 +142,20 @@
 </div>
 <h3 id="2_Widgets">Widgets</h3>
 <p>Widgets are building blocks of the GUI. They also receive all events (mouse
-   focus, etc.) and contain the <em>intelligence</em> of your GUI, through <em>   connections</em> (or callbacks, see <a href="Bogue.Widget.html#TYPEconnection"><code class="code"><span class="constructor">Widget</span>.connection</code></a>). However, in order to
-   be displayed, they need to be packed into <em>layouts</em> (<a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>).</p>
+    focus, etc.) and contain the <em>intelligence</em> of your GUI, through <em>    connections</em> (or callbacks, see <a href="Bogue.Widget.html#TYPEconnection"><code class="code"><span class="constructor">Widget</span>.connection</code></a>). However, in order to
+    be displayed, they need to be packed into <em>layouts</em> (<a href="Bogue.Layout.html#TYPEt"><code class="code"><span class="constructor">Layout</span>.t</code></a>).</p>
 
 <p>The main module for dealing with widgets is <a href="Bogue.Widget.html"><code class="code"><span class="constructor">Widget</span></code></a>.</p>
+
+<p><b>Important:</b> Each widget possesses two access levels: a frontend and a
+    backend.  The frontend has type <a href="Bogue.Widget.html#TYPEt"><code class="code"><span class="constructor">Widget</span>.t</code></a> and is used for creation,
+    connections, insertion into a layout, and simple access like
+    <a href="Bogue.Widget.html#VALget_text"><code class="code"><span class="constructor">Widget</span>.get_text</code></a>. The backend contains all the low-level operations to run
+    and display the widget; it has a specific type, for instance
+    <a href="Bogue.Label.html#TYPEt"><code class="code"><span class="constructor">Label</span>.t</code></a>. Sometimes you want to access these specialized functions;
+    for this you may obtain the backend object using the <a
+    href="Bogue.Widget.html#inner">conversion</a> (downcasting) functions: for
+    instance <a href="Bogue.Widget.html#VALget_label"><code class="code"><span class="constructor">Widget</span>.get_label</code></a>.</p>
 
 <pre><span id="MODULEImage"><span class="keyword">module</span> <a href="Bogue.Image.html">Image</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Image.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 <p>Image widget.</p>
@@ -270,8 +280,8 @@
 <p><code class="code">&nbsp;<span class="keyword">module</span>&nbsp;</code><a href="Bogue.File.html"><code class="code"><span class="constructor">File</span></code></a><code class="code">&nbsp;</code> : file chooser and file monitor</p>
 <h3 id="2_OpeningwindowsandrunningyourappwiththeBoguemainloop">Opening windows and running your app with the Bogue mainloop</h3>
 <p>Because a GUI continuously waits for user interaction, everything has to run
-    inside a loop. You open your GUI window(s) and start the loop with <code class="code">run</code>,
-    and this is usually the last command of your Bogue code.</p>
+    inside a loop. You open your GUI window(s) and start the loop with
+    <a href="Bogue.Main.html#VALrun"><code class="code"><span class="constructor">Main</span>.run</code></a>, and this is usually the last command of your Bogue code.</p>
 
 <pre><span id="MODULEWindow"><span class="keyword">module</span> <a href="Bogue.Window.html">Window</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Window.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
 <p>Windows</p>
@@ -300,22 +310,22 @@
 <h3 id="example">Example</h3>
 <p>Here is a minimal example with a label and a check box.</p>
 
-<pre class="codepre"><code class="code">      <span class="keyword">open</span> <span class="constructor">Bogue</span>
-      <span class="keyword">module</span> <span class="constructor">W</span> = <span class="constructor">Widget</span>
-      <span class="keyword">module</span> <span class="constructor">L</span> = <span class="constructor">Layout</span>
+<pre class="codepre"><code class="code"><span class="keyword">open</span> <span class="constructor">Bogue</span>
+<span class="keyword">module</span> <span class="constructor">W</span> = <span class="constructor">Widget</span>
+<span class="keyword">module</span> <span class="constructor">L</span> = <span class="constructor">Layout</span>
 
-      <span class="keyword">let</span> main () =
+<span class="keyword">let</span> main () =
 
-        <span class="keyword">let</span> b = <span class="constructor">W</span>.check_box () <span class="keyword">in</span>
-        <span class="keyword">let</span> l = <span class="constructor">W</span>.label <span class="string">"Hello world"</span> <span class="keyword">in</span>
-        <span class="keyword">let</span> layout = <span class="constructor">L</span>.flat_of_w [b;l] <span class="keyword">in</span>
+  <span class="keyword">let</span> b = <span class="constructor">W</span>.check_box () <span class="keyword">in</span>
+  <span class="keyword">let</span> l = <span class="constructor">W</span>.label <span class="string">"Hello world"</span> <span class="keyword">in</span>
+  <span class="keyword">let</span> layout = <span class="constructor">L</span>.flat_of_w [b;l] <span class="keyword">in</span>
 
-        <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.of_layout layout <span class="keyword">in</span>
-        <span class="constructor">Bogue</span>.run board;;
+  <span class="keyword">let</span> board = <span class="constructor">Bogue</span>.of_layout layout <span class="keyword">in</span>
+  <span class="constructor">Bogue</span>.run board;;
 
-      <span class="keyword">let</span> () = main ();
-        <span class="constructor">Bogue</span>.quit ()
-    </code></pre>
+<span class="keyword">let</span> () =
+  main ();
+  <span class="constructor">Bogue</span>.quit ()</code></pre>
 <p>This can be compiled to bytecode with</p>
 
 <pre class="verbatim">ocamlfind ocamlc -package bogue -linkpkg -o minimal -thread minimal.ml</pre>
