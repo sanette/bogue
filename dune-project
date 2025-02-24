@@ -31,7 +31,6 @@ layouts, callbacks, and of course it has a functional flavor. It uses
 Threads when non-blocking reactions are needed.")
  (tags ("gui"))
  (depends
-  (dune :build)
   (tsdl-image (>= 0.3.0))
   (tsdl-ttf (>= 0.3))
   (ocaml (>= 4.08.0))

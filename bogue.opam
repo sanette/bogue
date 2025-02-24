@@ -27,7 +27,7 @@ homepage: "https://github.com/sanette/bogue"
 doc: "http://sanette.github.io/bogue/Bogue.html"
 bug-reports: "https://github.com/sanette/bogue/issues"
 depends: [
-  "dune" {>= "2.7" & build}
+  "dune" {>= "2.7"}
   "tsdl-image" {>= "0.3.0"}
   "tsdl-ttf" {>= "0.3"}
   "ocaml" {>= "4.08.0"}

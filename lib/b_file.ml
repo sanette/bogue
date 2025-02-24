@@ -4,10 +4,16 @@
 
    + file or directory chooser
    + one selection or multiple selections
-   + dynamic filtering (* TODO *)
    + file changes monitor to refresh the layout
+   + filter by mimetype
 
    2024-2025: IN PROGRESS
+
+   TODO::
+
+   + dynamic filtering
+   + create directory button
+
 *)
 
 (*
