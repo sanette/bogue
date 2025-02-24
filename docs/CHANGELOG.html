@@ -24,12 +24,23 @@ file.</p>
 <p>The format is based on <a
 href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
 <h2 id="unreleased"><a
-href="https://github.com/sanette/bogue/compare/20241212...HEAD">Unreleased</a></h2>
+href="https://github.com/sanette/bogue/compare/20250219...HEAD">Unreleased</a></h2>
+<h3 id="developement">Developement</h3>
+<ul>
+<li>Move <code>dune</code> dependeny to <code>build</code> only.</li>
+</ul>
+<h2 id="section"><a
+href="https://github.com/sanette/bogue/compare/20241212...20250219">20250219</a></h2>
 <h3 id="added">Added</h3>
 <ul>
 <li>New module: <code>File</code> for file selection dialogs and file
-monitoring. This is quite a complex layout, we decided make it public
-now but new features will be added later.</li>
+monitoring. This is quite a complex layout, so we decided make it public
+now in a beta-testing phase. New features will be added later, and maybe
+small API changes.</li>
+<li>Example #54 with a file dialog.</li>
+<li><code>Popups</code> can now be closed by pressing ESCAPE.</li>
+<li>additional functions in <code>Main</code> for dynamically updating
+global shortcuts.</li>
 </ul>
 <h3 id="changed">Changed</h3>
 <ul>
@@ -40,7 +51,7 @@ now but new features will be added later.</li>
 <code>Theme.set_int_scale</code> to conform with the env var
 INT_SCALE.</li>
 </ul>
-<h2 id="section"><a
+<h2 id="section-1"><a
 href="https://github.com/sanette/bogue/compare/20240928...20241212">20241212</a></h2>
 <h3 id="added-1">Added</h3>
 <ul>
@@ -55,7 +66,7 @@ strategies.</li>
 <li><code>Table</code> layouts can now be resized dynamically.</li>
 <li>Can now navigate <code>tabs</code> with TAB! ;) (preliminary)</li>
 <li>Can now enable/disable a layout with
-<code>Layout.set_enabled</code>. New examples 53, 53bis.</li>
+<code>Layout.set_enabled</code>. New Examples #53, #53bis.</li>
 <li>changing text color in <code>Text_display</code> is now possible,
 using <code>Widget.html</code>, see exemple 47.</li>
 <li>underlining text in <code>Text_display</code> is now possible, using
@@ -89,7 +100,7 @@ margins are not scaled.</li>
 (ocamldoc invocation was wrong for <code>tsdl_ttf</code>), and can also
 be used for <code>Widget.label</code>.</li>
 </ul>
-<h3 id="developement">Developement</h3>
+<h3 id="developement-1">Developement</h3>
 <ul>
 <li>New <code>Resize</code> module inside <code>Layout</code>.</li>
 <li>clarify that <code>dst</code> field of <code>blit</code> is
@@ -97,7 +108,7 @@ be used for <code>Widget.label</code>.</li>
 <li>experimental <code>Detect</code> for detecting flat and tower
 layouts.</li>
 </ul>
-<h2 id="section-1"><a
+<h2 id="section-2"><a
 href="https://github.com/sanette/bogue/compare/20240225...20240928">20240928</a></h2>
 <h3 id="added-2">Added</h3>
 <ul>
@@ -116,7 +127,7 @@ optional argument <code>vsync</code>.</li>
 <li>There is now no difference between the types <code>sdl_event</code>
 and <code>Sdl.Event.enum</code>.</li>
 </ul>
-<h3 id="developement-1">Developement</h3>
+<h3 id="developement-2">Developement</h3>
 <ul>
 <li>New <code>Time.adaptive_fps</code> using swap interval.</li>
 <li><code>Main.get_window_refresh_rate</code></li>
@@ -124,7 +135,7 @@ and <code>Sdl.Event.enum</code>.</li>
 <li>We now use tsdl &gt;= 1.0.0.</li>
 <li>We don’t un/lock audio automatically anymore.</li>
 </ul>
-<h2 id="section-2"><a
+<h2 id="section-3"><a
 href="https://github.com/sanette/bogue/compare/20231209...20240225">20240225</a></h2>
 <h3
 id="warning-last-version-compatible-with-tsdl-0.9.9-and-0.9.7">Warning:
@@ -141,7 +152,7 @@ public.</li>
 saving with idle.</li>
 <li>Fix too large cursor position when using Text_input.set</li>
 </ul>
-<h3 id="developement-2">Developement</h3>
+<h3 id="developement-3">Developement</h3>
 <ul>
 <li><code>mouse_at_rest</code> now uses <code>Timeout</code>.</li>
 <li>Switch from <code>directories</code> to <code>xdg</code> to work on
@@ -154,7 +165,7 @@ more than 50 examples.</li>
 clear they are used) in the header of each file, example
 <code>module   Time = B_time</code>.</li>
 </ul>
-<h2 id="section-3"><a
+<h2 id="section-4"><a
 href="https://github.com/sanette/bogue/compare/20221112...20231209">20231209</a></h2>
 <h3 id="added-4">Added</h3>
 <ul>
@@ -169,7 +180,7 @@ add special care for Windows OS.</li>
 <li>Workaround for Mac OS 13.0.1 cocoa bug when closing windows</li>
 </ul>
 <h4 id="etc.">etc.</h4>
-<h2 id="section-4"><a
+<h2 id="section-5"><a
 href="https://github.com/sanette/bogue/compare/20221002...20221112">20221112</a></h2>
 <h4 id="older-versions-are-not-documented-here-yet">older versions are
 not documented here yet…</h4>

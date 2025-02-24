@@ -1,7 +1,7 @@
 (lang dune 2.7)
 (cram enable)
 (name bogue)
-(version "20250219")
+(version "20250224")
 (generate_opam_files true)
 (license ISC)
 (maintainers "Vu Ngoc San <san.vu-ngoc@laposte.net>")
@@ -31,6 +31,7 @@ layouts, callbacks, and of course it has a functional flavor. It uses
 Threads when non-blocking reactions are needed.")
  (tags ("gui"))
  (depends
+  (dune :build)
   (tsdl-image (>= 0.3.0))
   (tsdl-ttf (>= 0.3))
   (ocaml (>= 4.08.0))
