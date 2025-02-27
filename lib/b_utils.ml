@@ -114,12 +114,16 @@ let printd code =
   let printf = Printf.(if debug then ksprintf else iksprintf) in
   printf (fun s ->
       output_string !log_channel
-        (xterm_blue ^
-         "[" ^ (string_of_int (Int32.to_int (Sdl.get_ticks ()) mod 60000)) ^ "]" ^
-         xterm_light_grey ^ "[" ^
-         (string_of_int (Thread.id (Thread.self ()))) ^ "]" ^ xterm_nc ^ " :\t " ^
-         xterm_nc ^ xterm_red ^ (debug_to_string code) ^ xterm_nc ^ ": "
-         ^ s ^ "\n");
+        (Printf.sprintf "%s[%u]%s[%u]%s :\t %s%s%s: %s\n"
+           xterm_blue
+           ((Int32.to_int (Sdl.get_ticks ())) mod 60000)
+           xterm_light_grey
+           (Thread.id (Thread.self ()))
+           xterm_nc
+           xterm_red
+           (debug_to_string code)
+           xterm_nc
+           s);
       if !log_channel = stdout then flush !log_channel)
 
 let time_it name f x =

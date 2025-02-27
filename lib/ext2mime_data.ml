@@ -1,3 +1,5 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 (* Taken from https://gist.github.com/AshHeskes/6038140
 
    see also https://ocaml.org/p/magic-mime/latest

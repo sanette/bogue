@@ -1,11 +1,9 @@
-(* Module Draw. This file is part of BOGUE
+(* Module Draw. This file is part of BOGUE, by San Vu Ngoc  *)
 
-San Vu Ngoc --2022
-
-Low-level graphics using SDL,
-layer mechanism, etc.
-
+(*
+  This module deals with Low-level graphics using SDL, layer mechanism, etc.
 *)
+
 open Printf
 open Tsdl
 open B_utils

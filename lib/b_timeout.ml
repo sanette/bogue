@@ -80,6 +80,9 @@ let add delay action =
   Var.update stack (fun list -> (insert list t));
   t
 
+let add_ignore delay action =
+  let (_: t) = add delay action in ()
+
 let not_equal t1 t2 =
   t1.id <> t2.id
 

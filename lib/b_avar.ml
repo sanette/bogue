@@ -1,4 +1,6 @@
-(** Animates variables *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* This module provides Animated Variables (sometimes called "signals") *)
 (* This is a special case of dynamic variables, where we know that the variable
    will be used (and thus, updated) at every iteration of the main loop *)
 (* If there is an active Avar, the "anim" flag should be set so that the main

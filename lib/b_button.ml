@@ -1,8 +1,6 @@
-(** a clickable button *)
-(* TODO click on an image *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
 
-(* TODO in case of Switch, dim the label when not selected *)
-(* ==> label_on, label_off ? *)
+(* This module implements two types of clickable buttons: Trigger and Switch *)
 
 open B_utils
 module Theme = B_theme
@@ -75,7 +73,8 @@ let create ?size ?border_radius ?border_color ?fg
     label_on;
     label_off;
     state = Var.create state;
-    pressed = Var.create (if kind = Trigger then false else state);
+    pressed = Var.create (kind <> Trigger && state )
+  (* ie: (if kind = Trigger then false else state) *);
     mouse_over = false;
     keyboard_focus = Var.create false;
     box_on = Box.(create ~style:style_on ());

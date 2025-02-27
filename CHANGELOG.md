@@ -8,10 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20250219...HEAD)
 
-### Developement
-
-- Move `dune` dependeny to `build` only.
-
 ## [20250219](https://github.com/sanette/bogue/compare/20241212...20250219)
 	
 ### Added

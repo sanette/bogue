@@ -1,10 +1,12 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 (* Flow data structure
 
    A flow is a simple FIFO queue like Queue.t which can be rewinded to its
    initial state. As a consequence, an iteration of a flow can be stopped and
    resumed later without destroying the queue.  *)
 
-(* This file is part of BOGUE but can be used independently *)
+(* This file is part of BOGUE but can be used independently. *)
 
 exception End_reached
 
@@ -62,7 +64,7 @@ let add x q =
     q.last <- cell;
     if q.current = Nil then q.current <- cell
 
-(* read and advance in the flow, but do not remove from the queue *)
+(* Read and advance in the flow, but do not remove from the queue. *)
 let read q =
   match q.current with
   | Nil -> raise End_reached
@@ -79,8 +81,7 @@ let read_opt q =
 
 (* TODO use read_opt? *)
 let iter =
-  let rec iter q f cell =
-    match cell with
+  let rec iter q f = function
     | Nil -> ()
     | Cons { content; next } ->
       q.current <- next;
@@ -91,10 +92,9 @@ let iter =
     iter q f q.current;
     q.current <- Nil
 
-(* Stops when the result of [f] evaluated on the queue element is true *)
+(* Stops when the result of [f] evaluated on the queue element is true. *)
 let iter_until f q =
-  let rec loop f cell =
-    match cell with
+  let rec loop f = function
     | Nil -> q.current <- Nil
     | Cons { content; next } ->
       q.current <- next;
@@ -105,11 +105,9 @@ let iter_until f q =
 (* Check if [q] contains an element [x] for which [f x] returns true (starting
    from current position) *)
 let exists f q =
-  let rec loop cell =
-    match cell with
+  let rec loop = function
     | Nil -> false
-    | Cons { content; next } ->
-      if f content then true else loop next
+    | Cons { content; next } -> f content || loop next
   in
   loop q.current
 

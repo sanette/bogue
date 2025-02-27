@@ -1,4 +1,6 @@
-(* draw fancy borders to arbitrary shapes *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* Experimental: draw fancy borders to arbitrary shapes *)
 
 (* f : parameterize the boundary *)
 (* h : distance from boundary (<0 inside) *)

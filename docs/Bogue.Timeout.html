@@ -40,12 +40,18 @@
 <ul class="info-attributes">
 <li><b>Returns</b> the Timeout element.
 
-     Warning: don't expect the delay to be
-     exact at the ms. The precision cannot be better than what the
-     framerate imposes, <em>i.e.</em> usually about 16ms.
+      Warning: don't expect the delay to be exact at the ms. The precision
+      cannot be better than what the framerate imposes, <em>i.e.</em> usually about
+      16ms.
 
       Note: it is legal for an action to add a new Timeout.</li>
 </ul>
+</div>
+
+<pre><span id="VALadd_ignore"><span class="keyword">val</span> add_ignore</span> : <code class="type">int -&gt; (unit -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Same as <code class="code">add</code> except that this does not return the Timeout element.</p>
+</div>
 </div>
 
 <pre><span id="VALcancel"><span class="keyword">val</span> cancel</span> : <code class="type"><a href="Bogue.Timeout.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">

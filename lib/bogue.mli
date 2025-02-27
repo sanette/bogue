@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250224
+@version 20250227
 
 @author Vu Ngoc San
 
@@ -470,16 +470,19 @@ module Timeout : sig
   val add : int -> (unit -> unit) -> t
   (** [add delay action] will execute [action ()] (in the main thread) after the
       delay of [delay] ms.
-     @return the Timeout element.
+      @return the Timeout element.
 
-     Warning: don't expect the delay to be
-     exact at the ms. The precision cannot be better than what the
-     framerate imposes, {e i.e.} usually about 16ms.
+      Warning: don't expect the delay to be exact at the ms. The precision
+      cannot be better than what the framerate imposes, {e i.e.} usually about
+      16ms.
 
       Note: it is legal for an action to add a new Timeout. *)
 
+  val add_ignore : int -> (unit -> unit) -> unit
+  (** Same as [add] except that this does not return the Timeout element. *)
+
   val cancel : t -> unit
-    (** Cancel the Timeout. *)
+  (** Cancel the Timeout. *)
 end (* of Timeout *)
 
 (* ---------------------------------------------------------------------------- *)

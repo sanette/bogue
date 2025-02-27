@@ -1,7 +1,7 @@
 (** BOGUE *)
 (** A GUI Library for Ocaml, using SDL2 *)
 
-(* this is file bogue.ml *)
+(* This is file bogue.ml *)
 
 (** Vu Ngoc San, December 2013 -- now *)
 
@@ -14,6 +14,7 @@ module Check = B_check
 module Draw = B_draw
 module Empty = B_empty
 module File = B_file
+module Flow = B_flow
 module Image = B_image
 module Label = B_label
 module Layout = B_layout
@@ -77,4 +78,8 @@ let run_tests () =
 
   begin let open Layout in
     run_test Detect.test_almost_constant "test_almost_constant"
+  end;
+
+  begin let open Flow in
+    run_test test "Flow.test"
   end
