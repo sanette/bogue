@@ -42,7 +42,12 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALpath"><span class="keyword">val</span> path</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; string</code></pre>
+<pre><span id="VALpath"><span class="keyword">val</span> path</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; string</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the monitored path.</p>
+</div>
+</div>
+
 <pre><span id="VALstart"><span class="keyword">val</span> start</span> : <code class="type">?delay:float -&gt;<br>       ?action:(<a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; unit) -&gt; string -&gt; <a href="Bogue.File.Monitor.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">start&nbsp;path</code> starts monitoring the directory or file <code class="code">path</code> and
@@ -64,7 +69,12 @@
 </div>
 </div>
 
-<pre><span id="VALstop"><span class="keyword">val</span> stop</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; unit</code></pre>
+<pre><span id="VALstop"><span class="keyword">val</span> stop</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Kill the monitoring process.</p>
+</div>
+</div>
+
 <pre><span id="VALls"><span class="keyword">val</span> ls</span> : <code class="type"><a href="Bogue.File.Monitor.html#TYPEt">t</a> -&gt; string list</code></pre><div class="info ">
 <div class="info-desc">
 <p><code class="code">ls&nbsp;m</code> returns the list of files watched by the monitor <code class="code">&nbsp;m&nbsp;</code> when the

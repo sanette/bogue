@@ -8,8 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20250219...HEAD)
 
+### Added
+
+- `Timeout.add_ignore`
+
 ## [20250219](https://github.com/sanette/bogue/compare/20241212...20250219)
-	
+
 ### Added
 
 - New module: `File` for file selection dialogs and file

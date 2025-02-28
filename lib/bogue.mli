@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250227
+@version 20250228
 
 @author Vu Ngoc San
 
@@ -3121,6 +3121,8 @@ module File : sig
   module Monitor : sig
     type t
     val path : t -> string
+    (** Return the monitored path.*)
+
     val start : ?delay:float -> ?action:(t -> unit) -> string -> t
     (** [start path] starts monitoring the directory or file [path] and
         immediately returns. It is not an error if [path] does not exist or is
@@ -3143,6 +3145,8 @@ module File : sig
     (** Return the delay (in seconds) between two polls. *)
 
     val stop : t -> unit
+    (** Kill the monitoring process. *)
+
     val ls : t -> string list
     (** [ls m] returns the list of files watched by the monitor [ m ] when the
         last [*modified] function was called. {e Thus, it may be different from
@@ -3223,17 +3227,33 @@ module File : sig
       common uses, see {!select_file} (and others) below. *)
 
   val get_layout : t -> Layout.t
+  (** Return the layout containing the whole file dialog except for the "select"
+      and "cancel" buttons. *)
+
   val get_selected : t -> string list
   (** Return the (alphabetically sorted) list of selected files or
       directories. *)
 
   val basedir : t -> string
+  (** Return the full path of the currently displayed directory. *)
 
   val select_file : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?mimetype:Str.regexp -> ?name:string ->
     string -> (string -> unit) -> unit
-  (** Open a file selector on top of the [dst] layout, or in a new window if
-      [dst] is not provided.
+  (**  [select_file dirname continue] will open a file dialog, initially showing
+       the content of the directory [dirname]. The user can then navigate to
+       other directories. When the user selects a file in the list and presses
+       the "Select file" button, the dialog will close, and the [continue]
+       function will be applied to the selected filename (full path).
+
+       If the dialog is closed by the user pressing the "Cancel" button or the
+       ESCAPE key, the [continue] function is not used.
+
+       Note that global bindings to the ESCAPE key are temporarily disabled when
+       the file dialog is open.
+
+      @param dst the file selector will show up on top of the [dst] layout, or
+        in a new window if [dst] is not provided.
 
       @param mimetype only show files whose mimetype string (like "image/png")
         matches the regular expression.
@@ -3257,7 +3277,9 @@ module File : sig
   val select_dir : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?name:string -> string -> (string -> unit) -> unit
   (** Similar to {!select_file} except that here only a directory can be
-         selected. *)
+      selected. If the user clicks on a directory name, they will be given the
+      option to either open this directory (for further navigation), or select
+      it (hence closing the dialog).  *)
 
   val select_dirs : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?n_dirs:int -> string -> (string list -> unit) -> unit
@@ -3266,10 +3288,12 @@ module File : sig
 
   val save_as : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?name:string -> string -> (string -> unit) -> unit
+  (** Similar to {!select_file}, but here the user can enter a filename that
+      does not already exist in the displayed directory.  *)
 
   val ( let@ ) : ('a -> 'b) -> 'a -> 'b
-      (** [ ( let@ ) f x ] is just [ f x ]. You can use this "syntaxic sugar"
-          to write your code like this:
+  (** [ ( let@ ) f x ] is just [ f x ]. You can use this "syntaxic sugar"
+      to write your code like this:
           {[
 let open File in
 let@ file = select_file "/tmp" in
