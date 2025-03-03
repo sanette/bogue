@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250228
+@version 20250303
 
 @author Vu Ngoc San
 
@@ -3102,6 +3102,7 @@ end (* of Popup *)
     {5 {{:graph-dot-b_file.html}Dependency graph}}
 *)
 module File : sig
+
   (** Monitoring changes in a directory.
 
       This module provides functions for watching for changes in a directory (or
@@ -3189,6 +3190,19 @@ module File : sig
         returned by [modified] are empty, but possibly faster. *)
   end (* of Monitor *)
 
+  (** Mimetype information *)
+  module Mime : sig
+    val type_string : string -> string
+    (** [type_string filename] returns the mimetype string of [filename],
+        obtained by inspecting only the [filename] extension (no inspection of
+        the file is done), using this
+        {{:https://raw.githubusercontent.com/sanette/bogue/refs/heads/master/lib/ext2mime_data.ml}table}. For
+        instance: ["image/png"].
+
+        The function returns [""] if no mimetype is found. *)
+
+  end(* of Mime *)
+
   type t (** The type for file dialogs. *)
 
   type options
@@ -3272,7 +3286,7 @@ module File : sig
     ?n_files:int -> string -> (string list -> unit) -> unit
   (** Similar to {!select_file} except that here several files can be
       selected. If [n_files] is provided, it will be the maximum number of files
-      that can be selected. *)
+      that may be selected. *)
 
   val select_dir : ?dst:Layout.t -> ?board:Main.board ->
     ?w:int -> ?h:int -> ?name:string -> string -> (string -> unit) -> unit

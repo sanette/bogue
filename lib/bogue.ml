@@ -55,7 +55,7 @@ let run_test test name =
     (Utils.xterm_blue ^ "* " ^ Utils.xterm_light_grey ^ name ^ Utils.xterm_nc);
   let t0 = Unix.gettimeofday () in
   test ();
-  print_endline (Printf.sprintf "    [%s] successful in %f ms"
+  print_endline (Printf.sprintf "    [%s] successful in %f s"
                    name (Unix.gettimeofday () -. t0))
 
 
@@ -82,4 +82,10 @@ let run_tests () =
 
   begin let open Flow in
     run_test test "Flow.test"
+  end;
+
+  begin let open Utf8 in
+    run_test test "Utf8.test";
+    run_test test_perf "Utf8.test_perf";
+    (* run_test test_perf_tmc "Utf8.test_perf_tmc" *)
   end

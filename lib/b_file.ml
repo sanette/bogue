@@ -1047,10 +1047,14 @@ type input = {
   mutable layout : L.t
 }
 
+type message = {
+  label : W.t;
+  mutable clicked_entry : entry option }
+
 type t = {
   controller : W.t;
   input : input;
-  message : W.t;
+  message : message;
   new_file : W.t;
   name_filter : (string -> bool) option;
   full_filter : (entry -> bool) option;
@@ -1215,7 +1219,8 @@ let make_f_table ~options message entries =
     } in
 
   Table.create ~h:400 ~row_height:height ?max_selected:options.max_selected
-    ~on_select:(fun _ -> Update.push message)
+    ~on_select:(fun _ -> Update.push message.label)
+    ~on_click:(fun _ j -> message.clicked_entry <- Some entries.(j))
     [icon_col; name_col; size_col; mod_col]
 (* The height of 400 will be changed later. We could also directly call
    [update_message] from the [on_select] function (there should not be any
@@ -1424,7 +1429,7 @@ let update_table ?(force = false) t =
     let sel2 = sorted_subarray_to_selection entries selected_files comp in
     printd debug_io "Restoring selection = %s." (Selection.sprint sel2);
     Table.set_selection table2_t sel2;
-    Update.push t.message;
+    Update.push t.message.label;
     (* 2. Restore choice of sorted column. Warning, this regenerates the
        table. Hence the selection must be updated before. *)
     do_option (Table.get_sorted_column d.table)
@@ -1481,7 +1486,7 @@ let plural x = if x > 1 then "s" else ""
 let pluraly x  = if x > 1 then "ies" else "y"
 
 let update_message t =
-  printd debug_io "[File.update_message.]";
+  printd debug_io "[File.update_message]";
   let entries = get_selected_entries t in
   let n_files, n_dirs = List.fold_left (fun (f, d) e ->
       if entry_is_directory e then (f, d+1) else (f+1, d))
@@ -1492,7 +1497,7 @@ let update_message t =
     | f, 0 -> Printf.sprintf "%u file%s selected" f (plural f)
     | f, d -> Printf.sprintf "%u file%s and %u director%s selected"
                 f (plural f) d (pluraly d) in
-  W.set_text t.message text;
+  W.set_text t.message.label text;
   if n_files + n_dirs = 1 then begin
     if (n_files = 1 && not t.options.select_dir) ||
        (n_dirs = 1 && t.options.select_dir)
@@ -1514,7 +1519,7 @@ let install_new_directory t path =
       ?name_filter:t.name_filter ?full_filter:t.full_filter path in
   let old_table = get_table_layout t in
   t.directory <- d;
-  Update.push t.message;
+  Update.push t.message.label;
   install_new_table old_table (Table.get_layout d.table)
 
 let get_selected_dir t =
@@ -1547,6 +1552,7 @@ let validate_new_file_input t ti =
   end
 
 let open_dir t path =
+  t.message.clicked_entry <- None;
   install_new_directory t path;
   if t.options.select_dir then W.set_text t.new_file ""
   else if t.options.max_selected = Some 1 then validate_new_file_input t t.new_file;
@@ -1587,6 +1593,12 @@ let open_selected_dir t =
   do_option (get_selected_dir t) (fun name ->
       let path = Monitor.path t.directory.monitor // name in
       open_dir t path)
+
+let open_clicked_dir t =
+  do_option (t.message.clicked_entry) (fun e ->
+      if entry_is_directory e then
+        let path = Monitor.path t.directory.monitor // (e.name) in
+        open_dir t path)
 
 let validate_text_input t ti =
   let old_path = Monitor.path t.directory.monitor in
@@ -1708,7 +1720,8 @@ let dialog ?full_filter ?options path =
     else path in
   let options = default options (set_options ()) in
   let controller = W.empty ~w:0 ~h:0 () in
-  let message = W.label ~fg:hidden_color "No selection" in
+  let message_label = W.label ~fg:hidden_color "No selection" in
+  let message = { label = message_label; clicked_entry = None } in
   let new_file_room, new_file = new_file_layout ~label:"Name :" options.default_name in
   let name_filter name = (options.show_hidden || not (is_hidden name)) &&
                          (not options.hide_backup || not (is_backup name)) in
@@ -1738,7 +1751,7 @@ let dialog ?full_filter ?options path =
   let open_btn_room = if options.open_dirs_on_click
     then L.empty ~name:"empty" ~w ~h:0 ()
     else L.resident open_button in
-  let message_room = L.resident ~name:"message" ~w message in
+  let message_room = L.resident ~name:"message" ~w message.label in
   let layout =
     L.tower ~resize:L.Resize.Disable ~name:"file_dialog" ~vmargin:0 ~hmargin:0 ~sep:10
       (List.filter_map (fun x -> x)
@@ -1798,26 +1811,28 @@ let dialog ?full_filter ?options path =
       (* else W.set_text text_input (Monitor.path t.directory.monitor) *)
     );
 
-  (* examine the new selection and react *)
-  W.connect_main message open_button
+  (* Examine the new selection and react. *)
+  W.connect_main message.label open_button
     (fun _ _btn _ ->
        let n_dirs, n_files = update_message t in
        apply_option t.options.on_select (n_dirs, n_files);
-       if n_dirs = 1 && t.options.open_dirs_on_click
-       then open_selected_dir t
-       else if n_dirs = 1 && n_files = 0
-       then L.(show open_btn_room)
-       else L.(hide open_btn_room)) [Trigger.update]
-  |> W.add_connection message;
+       if Trigger.mouse_left_button_pressed () && n_dirs >= 1
+          && t.options.open_dirs_on_click
+       then open_clicked_dir t
+       else if not t.options.open_dirs_on_click
+       then begin if n_dirs = 1 && n_files = 0
+         then L.(show open_btn_room)
+         else L.(hide open_btn_room)
+       end) [Trigger.update]
+  |> W.add_connection message.label;
 
   W.connect_main new_file new_file (fun ti _ _ ->
       validate_new_file_input t ti) Text_input.triggers
-
   |> W.add_connection new_file;
 
   connect_breadcrumb t;
 
-  Update.push message;
+  Update.push message.label;
   t
 
 (* Return label and max_selected *)
@@ -1896,9 +1911,9 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype ?name
     do_option (L.containing_widget btn2) (fun b2 ->
         enable btn2 b2;
         (* We update the "Select" button when the status message changes. *)
-        let c = W.connect_main t.message btn2
+        let c = W.connect_main t.message.label btn2
             (fun _ _ _ -> enable btn2 b2) [Trigger.update] in
-        W.add_connection t.message c;
+        W.add_connection t.message.label c;
         if select_one
         then begin
           (* If we press ENTER on the new_file input, we simulate pressing the
@@ -1941,6 +1956,10 @@ let select_file ?dst ?board ?w ?h ?mimetype ?name path continue =
 
 let select_files ?dst ?board ?w ?h ?mimetype ?n_files path continue =
   select_popup ?dst ?board ?w ?h ?mimetype path ?n_files ~n_dirs:0 continue
+
+(* FIXME when selecting all with CTRL-A, if the selection contains a unique dir,
+   this dir is immediately opened, this should not happen. **)
+
 
 let select_dir ?dst ?board ?w ?h ?name path continue =
   select_popup ?dst ?board ?w ?h ?name path ~n_files:0 ~n_dirs:1

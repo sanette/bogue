@@ -2522,7 +2522,7 @@ let show ?(duration=default_duration) ?from room =
     let h, duration = match from with
       | None ->
         let current_vo = get_voffset room in
-        let d' = abs ((current_vo * duration) / h) in
+        let d' = if h = 0 then 0 else abs ((current_vo * duration) / h) in
         current_vo, d'
       | Some Avar.Bottom -> h, duration
       | Some Avar.Top -> -h, duration

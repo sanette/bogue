@@ -1,4 +1,6 @@
-(** Basic UTF8 encoding *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* Independent module for Basic UTF8 (NFC) encoding *)
 
 let uencode c =
   if c < 128 then Bytes.make 1 (Char.chr c)
@@ -40,6 +42,49 @@ let split s =
   let rec loop i acc =
     if i = l then acc
     else let n = bytes_first_letter s i in
-      loop (i+n) ((String.sub s i n)::acc)
+      loop (i+n) ((String.sub s i n) :: acc)
   in
-  List.rev (loop 0 []);;
+  List.rev (loop 0 [])
+
+let split_tmc s =
+  let l = String.length s in
+  let[@tail_mod_cons] rec loop i =
+    if i = l then []
+    else let n = bytes_first_letter s i in
+      (String.sub s i n) :: (loop (i+n))
+  in
+  loop 0
+
+
+
+
+
+(* Some tests *)
+
+let test () =
+  let nfc = "V\197\169 Ng\225\187\141c Phan" in
+  let l = split nfc in
+  assert (l = ["V"; "ũ"; " "; "N"; "g"; "ọ"; "c"; " "; "P"; "h"; "a"; "n"]);
+  assert (l = split_tmc nfc)
+
+let test_perf () =
+  let fr = "Cette princesse était belle, quoiqu’elle eût passé la première jeunesse ; elle aimait la grandeur, la magnificence et les plaisirs. Le roi l’avait épousée lorsqu’il était encore duc d’Orléans, et qu’il avait pour aîné le dauphin, qui mourut à Tournon, prince que sa naissance et ses grandes qualités destinaient à remplir dignement la place du roi François premier, son père." in
+  let n = 100_000 in
+  for _ = 0 to n do ignore (split fr) done
+
+(* let test_perf_tmc () = *)
+(*   let fr = "Cette princesse était belle, quoiqu’elle eût passé la première jeunesse ; elle aimait la grandeur, la magnificence et les plaisirs. Le roi l’avait épousée lorsqu’il était encore duc d’Orléans, et qu’il avait pour aîné le dauphin, qui mourut à Tournon, prince que sa naissance et ses grandes qualités destinaient à remplir dignement la place du roi François premier, son père." in *)
+(*   let n = 100_000 in *)
+(*   for _ = 0 to n do ignore (split_tmc fr) done *)
+
+(*
+
+   Conclusion: the TMC version is not faster.
+
+* Utf8.test_perf
+    [Utf8.test_perf] successful in 0.250954 ms
+* Utf8.test_perf_tmc
+    [Utf8.test_perf_tmc] successful in 0.262191 ms
+
+
+*)
