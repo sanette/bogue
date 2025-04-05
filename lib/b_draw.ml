@@ -175,9 +175,10 @@ let font_cache : (((string * int), Tsdl_ttf.Ttf.font) Hashtbl.t) Var.t =
   Var.create (Hashtbl.create 10)
 (* obviously we don't need the mutability of Var.t here for a Hashtbl... *)
 
+(* TODO use https://wiki.libsdl.org/SDL2_ttf/TTF_SetFontSize. *)
 let rec open_font file size =
   (* first we check if it is available in memory *)
-  try let f = Hashtbl.find (Var.get font_cache) (file,size) in
+  try let f = Hashtbl.find (Var.get font_cache) (file, size) in
       printd debug_memory "Font %s (%u) was found in cache" file size; f
   with
   | Not_found -> begin

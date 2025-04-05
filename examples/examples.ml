@@ -258,7 +258,7 @@ let example11 () = (* attention ne marche pas avec DEBUG=false !! OK problème r
 let desc12 = "A check_box and a text input in a line editor."
 let example12 () =
   let b = W.check_box () in
-  let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
+  let ti = W.text_input ~size:16 () in
   let l = L.tower_of_w [b;ti] in
   let board = of_layout l in
   run board
@@ -403,10 +403,10 @@ let example21 () =
   let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
   let td = W.text_display lorem in
   let l = W.label " This is on top of the other widgets " in
-  let close_btn = W.button ~border_radius:3 ~border_color:Draw.(opaque blue) "Close" in
+  let close_btn = W.button ~border_radius:3 ~border_color:Draw.(opaque blue) (I18n.Popup.(tf close)) in
   let popup = L.tower_of_w [l;ti;close_btn] in
   let layout = L.tower_of_w [b;td] in
-  let screen = Popup.attach ~show:false ~bg:(Draw.(set_alpha 220 (pale green))) layout popup in
+  let screen = Popup.attach ~show:false ~bg:(Draw.(rgba_of_int32 0x79a894F0)) layout popup in
   (* TODO use actions *)
   let button = W.button ~kind:Button.Switch
       ~border_radius:4 ~border_color:Draw.(opaque grey) "Popup" in
@@ -1304,6 +1304,30 @@ let example54 () =
   let board = of_layout layout in
   run board
 
+let desc55 = "One-time connection"
+let example55 () =
+  let b = W.button ~action:(fun _-> print_endline "button was pressed")
+      "Click here to say hello!" in
+  let l = W.label "It will work only once (but the button can still react)." in
+  let hello _ _ _ = print_endline "Hello" in
+  let c = W.connect b b hello T.buttons_down in
+  let cancel _ _ _ = W.remove_connection b c in
+  (* One could use W.remove_trigger in one shot instead, see example 56 *)
+  let cc = W.connect b b cancel T.buttons_down in
+  let layout = L.tower_of_w [b; l] in
+  run (of_layout ~connections:[c;cc] layout)
+
+let desc56 = "One-time trigger"
+let example56 () =
+  let b = W.button ~action:(fun _-> print_endline "button was pressed")
+      "Click here to say hello!" in
+  let l = W.label "The button work only once." in
+  let hello w _ _ = print_endline "Hello";
+    List.iter (W.remove_trigger w) T.buttons_down in
+  let cc = W.connect b b hello T.buttons_down in
+  let layout = L.tower_of_w [b; l] in
+  run (of_layout ~connections:[cc] layout)
+
 let _ =
   let examples = [
     "00", (example00, desc00) ;
@@ -1372,7 +1396,8 @@ let _ =
     "53", (example53, desc53) ;
     "53bis", (example53bis, desc53bis) ;
     "54", (example54, desc54) ;
-
+    "55", (example55, desc55) ;
+    "56", (example56, desc56) ;
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)

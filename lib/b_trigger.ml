@@ -110,8 +110,10 @@ let var_changed = new_event_type "var_changed"
 
 (* The update event can be used to trigger some actions when a widget is
    updated, even if it doesn't get mouse focus. It is filtered early in
-   b_main.ml and not sent to the mouse_focus. At this point it is not clear
-   whether we need both var_changed and update *)
+   b_main.ml and not sent to the mouse_focus. A special queue for these events
+   is treated in the Update module. At this point it is not clear whether we
+   need both var_changed and update. The difference is that var_changed is
+   attached to a var and update is attached: to a widget. *)
 let update = new_event_type "update"
 
 let sync_action = new_event_type "sync_action"

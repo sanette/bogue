@@ -128,6 +128,7 @@ module Avar = B_avar
 module Button = B_button
 module Draw = B_draw
 module Empty = B_empty
+module I = B_i18n.File
 module Label = B_label
 module L = B_layout
 module Long_list = B_long_list
@@ -1157,8 +1158,10 @@ let make_f_table ~options message entries =
     (* |> W.add_connection label; *)
     L.resident ~h:height label in
 
+  let open I in
+
   let name_col = Table.{
-      title = "Name";
+      title = tf name;
       length;
       rows = generate;
       compare = Some (compi (fun e1 e2 -> String.compare e1.name e2.name));
@@ -1174,7 +1177,7 @@ let make_f_table ~options message entries =
     L.resident ~h:height (W.label ~fg ~size:font_size s) in
 
   let size_col = Table.{
-      title = "Size";
+      title = tf size;
       length;
       rows = generate_size;
       compare = Some (compi (fun e1 e2 -> Int.compare (entry_size e1) (entry_size e2)));
@@ -1209,7 +1212,7 @@ let make_f_table ~options message entries =
     L.resident ~h:height (W.label ~fg ~size:font_size text) in
 
   let mod_col = Table.{
-      title = "Modified";
+      title = tf modified;
       length;
       rows = generate_mod;
       compare = Some (compi (fun e1 e2 ->
@@ -1471,7 +1474,7 @@ let start_monitor controller path =
   Monitor.start ~action path
 
 let path_selector text =
-  let ti = W.text_input ~prompt:"Enter path" ~text () in
+  let ti = W.text_input ~prompt:I.(tf enter_path) ~text () in
   Text_input.last (W.get_text_input ti);
   ti
 
@@ -1491,12 +1494,14 @@ let update_message t =
   let n_files, n_dirs = List.fold_left (fun (f, d) e ->
       if entry_is_directory e then (f, d+1) else (f+1, d))
       (0, 0) entries in
-  let text = match n_files, n_dirs with
-    | 0, 0 -> "No selection"
-    | 0, d -> Printf.sprintf "%u director%s selected" d (pluraly d)
-    | f, 0 -> Printf.sprintf "%u file%s selected" f (plural f)
-    | f, d -> Printf.sprintf "%u file%s and %u director%s selected"
-                f (plural f) d (pluraly d) in
+  let text = begin let open I in match n_files, n_dirs with
+    | 0, 0 -> tf no_selection
+    | 0, 1 -> tf one_dir_selected
+    | 0, d -> (tf x_dirs_selected) d
+    | 1, 0 -> tf one_file_selected
+    | f, 0 -> (tf x_files_selected) f
+    | f, d -> (tf x_files_x_dirs_selected) f d
+  end in
   W.set_text t.message.label text;
   if n_files + n_dirs = 1 then begin
     if (n_files = 1 && not t.options.select_dir) ||
@@ -1722,7 +1727,8 @@ let dialog ?full_filter ?options path =
   let controller = W.empty ~w:0 ~h:0 () in
   let message_label = W.label ~fg:hidden_color "No selection" in
   let message = { label = message_label; clicked_entry = None } in
-  let new_file_room, new_file = new_file_layout ~label:"Name :" options.default_name in
+  let label = I.(tf name) ^ " :" in
+  let new_file_room, new_file = new_file_layout ~label options.default_name in
   let name_filter name = (options.show_hidden || not (is_hidden name)) &&
                          (not options.hide_backup || not (is_backup name)) in
   let full_filter = match options.mimetype with
@@ -1747,7 +1753,7 @@ let dialog ?full_filter ?options path =
                 layout = L.flat_of_w ~sep:0 (List.map fst ariane) } in
   let path_selector_combo, combo_btn = make_input_layout w input in
   let table_room = Table.get_layout directory.table in
-  let open_button = W.button "Open dir" in
+  let open_button = W.button I.(tf open_dir) in
   let open_btn_room = if options.open_dirs_on_click
     then L.empty ~name:"empty" ~w ~h:0 ()
     else L.resident open_button in
@@ -1837,15 +1843,16 @@ let dialog ?full_filter ?options path =
 
 (* Return label and max_selected *)
 let get_label2 ?n_dirs ?n_files () =
- match n_dirs, n_files with
-    | Some 0, Some 0 -> "Continue", Some 0
-    | Some 1, Some 0 -> "Select directory", Some 1
-    | Some 0, Some 1 -> "Select file", Some 1
-    | _, Some 0 -> "Select dirs", n_dirs
-    | Some 0, _ -> "Select files", n_files
-    | None, _
-    | _, None -> "Select", None
-    | Some d, Some f -> "Select", Some (d + f)
+  let open I in
+  match n_dirs, n_files with
+  | Some 0, Some 0 -> tf continue, Some 0
+  | Some 1, Some 0 -> tf select_directory, Some 1
+  | Some 0, Some 1 -> tf select_file, Some 1
+  | _, Some 0 -> tf select_dirs, n_dirs
+  | Some 0, _ -> tf select_files, n_files
+  | None, _
+  | _, None -> tf select, None
+  | Some d, Some f -> tf select, Some (d + f)
 
 let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype ?name
     ?(allow_new = false) ?button_label continue =
@@ -1941,7 +1948,7 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype ?name
           W.add_connection t.new_file c)
   in
 
-  Popup.two_buttons ?dst ?board ?w ?h ~label1:"Cancel" ~label2
+  Popup.two_buttons ?dst ?board ?w ?h ~label1:I.(tf cancel) ~label2
     ~action1:(fun () ->
         Monitor.stop fd.directory.monitor)
     ~action2:(fun () ->
@@ -1970,7 +1977,7 @@ let select_dirs ?dst ?board ?w ?h ?n_dirs path continue =
 
 let save_as ?dst ?board ?w ?h ?name path continue =
   select_popup ?dst ?board ?w ?h ?name path ~n_files:1 ~n_dirs:0
-    ~allow_new:true ~button_label:"Save"
+    ~allow_new:true ~button_label:I.(tf save)
     (fun list -> continue (List.hd list))
 
 (* Not used any more. Use [select_file] with no [dst] option instead. *)

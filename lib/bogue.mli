@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250303
+@version 20250405
 
 @author Vu Ngoc San
 
@@ -293,6 +293,201 @@ module Theme : sig
       (using [fc-list], if available). *)
 
 end (* of Theme *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Internationalization.
+
+    This module provide ways to automatically translate strings into the user's
+    language. The translations are grouped by contexts (predefined contexts
+    correspond to Bogue's modules); this allows different translations for the
+    same English word, depending on the context. If a translation is not found
+    in the current context, all contexts will be examined.
+
+    Example for a one-time translation of the string "save as" in the [File] context:
+    {[
+module I = I18n.File
+print_endline (I.gettext "save as")
+]}
+
+    Example for declaring a cached translated variable [s] to be re-used several times:
+    {[
+module I = I18n.File
+let s = I.tt "save as" in
+print_endline (I.tf s)
+...]}
+
+
+     {%html:<div class="figure"><img src="images/file_dialog_zh.png"><br> A file dialog with Chinese localization. We used the configuration variables <pre>LANGUAGE=zh BOGUE_LABEL_FONT="/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc"</pre></div>%}
+*)
+module I18n : sig
+
+  type locale = { language : string; country : string option }
+
+  val get_locales : unit -> locale list
+  (** Return the list of preferred locales as detected from the user's OS. *)
+
+  (** Functions available in every context. *)
+  module type ContextInit = sig
+    val gettext : string -> string
+    (** [gettext text] tries to return the translation of the [text] string into
+        the user's preferred language, in the current context. This will load
+        the corresponding "locales" files, when available. If the translation is
+        not found, other contexts will be examined. If everything fails, the
+        original [text] string is returned. *)
+
+    val gettext_opt : string -> string option
+    (** Similar to {{!gettext}[gettext]} but returns [None] if the translation
+        cannot be found. *)
+
+    val tt : string -> string Lazy.t
+    (** Lazy version of {{!gettext}[gettext]}. This is preferred over [gettext]
+        if the string is used several times, because the translation is
+        cached.
+
+        [tt] means "translate text". *)
+
+    val tf : 'a Lazy.t -> 'a
+    (** Shorthand for [Lazy.force]. Example:
+        {[
+let translated = tt "Hello" in
+for _ = 1 to 10 do print_endline (tf translated)]}
+
+        [tf] means "translation force"
+    *)
+
+    (** {2 Translating [printf] formats}
+
+        Sometimes the translation of a format string like
+        ["%u dollars off coupon"]
+        imposes to change the location of the special flags, as in
+        ["bon de réduction de %u dollars"].
+
+        Therefore it's easier to translate the whole format string instead of
+        working word by word. The [I18n] module provides facilities for
+        this. *)
+
+    val t_uint : string -> (int -> string) Lazy.t
+    (** For instance:
+        {[
+let f = t_uint "%u dollars off coupon" in
+print_endline (f 150)]}
+        will print, for French locale:
+        {[
+"bon de réduction de 150 dollars"]}
+        as soon as the French translation of  ["%u dollars off coupon"] is declared to be
+        ["bon de réduction de %u dollars"]. See {!translate}.
+    *)
+
+    val t_int : string -> (int -> string) Lazy.t
+    (** Same as {{!t_uint}[t_uint]} but for usual (signed) integers (flag [%i]). *)
+
+    val t_str : string -> (string -> string) Lazy.t
+    (** Same as {{!t_uint}[t_uint]} but for strings (flag [%s]). *)
+
+    val t_uint2 : string -> (int -> int -> string) Lazy.t
+    (** Similar to {{!t_uint}[t_uint]} but the format string should contain two
+        [%s] flags. *)
+
+    (** {2:translate Declaring new translations}
+
+    Translations can be added either programmatically using
+    {{!add_translation}[add_translation]} or by directly editing the
+    configurations files. *)
+
+    val add_translation : locale -> string -> string -> unit
+        (** [add_translation locale text translation] will declare the string
+            [translation] to be the translation of the string [text] within the
+            current context and for the given [locale]. This will overwrite
+            previously defined translations for [text].
+
+            This function does not modifies the translation files. *)
+  end
+
+  (** {2 Translation files}
+
+      Translation files are located in the [locales] directory of Bogue's
+      [share] directory. See {%html:<a href="Bogue.Theme.html#config">Where are
+      the config files?</a>%}.  They are called "[locale_ll_CC.conf]" where [ll]
+      is the language code and [CC] the country code, for instance
+      "[locale_fr_FR.conf]". They can also be called simply "[locale_ll.conf]"
+      for translations which follow the language's main dialect.
+
+      We don't use the traditional ".po" syntax: for simplicity, the syntax of
+      the translation files is the one of Bogue's configuration files: each
+      translation is written on a new line of the form
+
+  {v English text = Translated text v}
+
+      for instance {v Save as = Enregistrer sous v}
+      There is a special syntax for contexts: the line
+
+      {v __CONTEXT = Context name v}
+
+      indicates that the following translations should apply to the context
+      called "Context name", up until a new [__CONTEXT] line.
+*)
+
+  (** {2 List of predefined contexts} *)
+
+
+  module File : sig
+    include ContextInit
+    (* Recopier les définitions dans b_i18n.ml et modifier avec cherche-remplace:
+       let → val
+       = tt .* → : string Lazy.t
+       = t_uint .* → : (int -> string) Lazy.t
+       = t_uint2 .* → : (int -> int -> string) Lazy.t
+    *)
+    val cancel : string Lazy.t
+    val close : string Lazy.t
+    val continue : string Lazy.t
+    val enter_path : string Lazy.t
+    val modified : string Lazy.t
+    val name : string Lazy.t
+    val no_selection : string Lazy.t
+    val one_dir_selected : string Lazy.t
+    val one_file_selected : string Lazy.t
+    val open_ : string Lazy.t
+    val open_dir : string Lazy.t
+    val save : string Lazy.t
+    val save_as : string Lazy.t
+    val select : string Lazy.t
+    val select_directory : string Lazy.t
+    val select_dirs : string Lazy.t
+    val select_file : string Lazy.t
+    val select_files : string Lazy.t
+    val size : string Lazy.t
+    val x_dirs_selected : (int -> string) Lazy.t
+    val x_files_selected : (int -> string) Lazy.t
+    val x_files_x_dirs_selected : (int -> int -> string) Lazy.t
+
+  end
+
+  module Menu : sig
+    include ContextInit
+    val copy : string Lazy.t
+    val edit : string Lazy.t
+    val open_ : string Lazy.t
+    val paste : string Lazy.t
+    val save : string Lazy.t
+    val save_as : string Lazy.t
+  end
+
+  module Popup : sig
+    include ContextInit
+    val cancel : string Lazy.t
+    val close : string Lazy.t
+    val no : string Lazy.t
+    val yes : string Lazy.t
+
+  end
+
+  module Text_input : sig
+    include ContextInit
+  end
+
+end (* of I18n *)
 
 (* ---------------------------------------------------------------------------- *)
 
@@ -780,6 +975,7 @@ module Draw: sig
   val darker : color -> color
   val set_alpha : int -> rgb -> color
   val random_color : unit -> color
+  val rgba_of_int32 : int -> color
   val find_color : string -> rgb
   (** Convert a string of the form ["grey"] or ["#FE01BC"] to a rgb code
      [(r,g,b)]. Color names are taken from
@@ -1647,6 +1843,14 @@ let l = get_label w in
 
      {e [add_connection] is separated from {!connect} because it is not pure: it
      mutates the widget. This might change in future versions.} *)
+
+  val remove_connection : t -> connection -> unit
+  (** Unregister the connection. If the connection was already triggered and the
+      corresponding action is active, the action will not be cancelled. *)
+
+  val remove_trigger : t -> Trigger.t -> unit
+  (** Remove all the connections from the given widget that respond to the given
+      trigger (=event) *)
 
   val update : t -> unit
   (** [update w] asks the widget [w] to refresh at next frame. The most probable

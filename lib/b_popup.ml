@@ -8,6 +8,7 @@
 module Box = B_box
 module Chain = B_chain
 module Draw = B_draw
+module I = B_i18n.Popup
 module L = B_layout
 module Main = B_main
 module Space = B_space
@@ -170,7 +171,7 @@ let one_button ?w ?h ?on_close ~button ~dst ?(close_on_escape=true) content =
 (* a text and a close button. *)
 (* TODO the ?w and ?h define the size of the text_display (not automatically
    detected). It should also include the size of the close button *)
-let info ?w ?h ?button_w ?button_h ?(button="Close") text dst =
+let info ?w ?h ?button_w ?button_h ?(button = I.(tf close)) text dst =
   let td = Widget.text_display ?w ?h text
            |> L.resident in
   one_button ?w:button_w ?h:button_h ~button ~dst td
@@ -219,7 +220,7 @@ let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
   if close_on_escape
   then Main.add_one_shot_shortcut ?board Tsdl.Sdl.K.escape (fun _ -> close ()) restore
 
-let yesno ?w ?h ?button_w ?button_h ?(yes="Yes") ?(no="No")
+let yesno ?w ?h ?button_w ?button_h ?(yes = I.(tf yes)) ?(no = I.(tf no))
       ~yes_action ~no_action text dst =
   let dst =
     if L.has_resident dst

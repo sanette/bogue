@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Theme.html">
+<link rel="next" href="Bogue.Utils.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Translation files" rel="Section" href="#2_Translationfiles">
+<link title="List of predefined contexts" rel="Section" href="#2_Listofpredefinedcontexts">
+<title>Bogue.I18n</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Theme.html" title="Bogue.Theme">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Utils.html" title="Bogue.Utils">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.I18n.html">Bogue.I18n</a></h1>
+
+<pre><span id="MODULEI18n"><span class="keyword">module</span> I18n</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Internationalization.</p>
+
+<p>This module provide ways to automatically translate strings into the user's
+    language. The translations are grouped by contexts (predefined contexts
+    correspond to Bogue's modules); this allows different translations for the
+    same English word, depending on the context. If a translation is not found
+    in the current context, all contexts will be examined.</p>
+
+<p>Example for a one-time translation of the string "save as" in the <code class="code"><span class="constructor">File</span></code> context:</p>
+<pre class="codepre"><code class="code"><span class="keyword">module</span> <span class="constructor">I</span> = <span class="constructor">I18n</span>.<span class="constructor">File</span>
+print_endline (<span class="constructor">I</span>.gettext <span class="string">"save as"</span>)
+</code></pre>
+<p>Example for declaring a cached translated variable <code class="code">s</code> to be re-used several times:</p>
+<pre class="codepre"><code class="code"><span class="keyword">module</span> <span class="constructor">I</span> = <span class="constructor">I18n</span>.<span class="constructor">File</span>
+<span class="keyword">let</span> s = <span class="constructor">I</span>.tt <span class="string">"save as"</span> <span class="keyword">in</span>
+print_endline (<span class="constructor">I</span>.tf s)
+...</code></pre>
+<p><div class="figure"><img src="images/file_dialog_zh.png"><br> A file dialog with Chinese localization. We used the configuration variables <pre>LANGUAGE=zh BOGUE_LABEL_FONT="/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc"</pre></div></p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPElocale"><span class="keyword">type</span> <code class="type"></code>locale</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTlocale.language">language</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTlocale.country">country</span>&nbsp;: <code class="type">string option</code>;</code></td>
+
+</tr></table>
+<code>}</code>
+
+
+
+<pre><span id="VALget_locales"><span class="keyword">val</span> get_locales</span> : <code class="type">unit -&gt; <a href="Bogue.I18n.html#TYPElocale">locale</a> list</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the list of preferred locales as detected from the user's OS.</p>
+</div>
+</div>
+
+<pre><span id="MODULETYPEContextInit"><span class="keyword">module type</span> <a href="Bogue.I18n.ContextInit.html">ContextInit</a></span> = <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.ContextInit.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Functions available in every context.</p>
+
+</div>
+<h3 id="2_Translationfiles">Translation files</h3>
+<p>Translation files are located in the <code class="code">locales</code> directory of Bogue's
+      <code class="code">share</code> directory. See <a href="Bogue.Theme.html#config">Where are
+      the config files?</a>.  They are called "<code class="code">locale_ll_CC.conf</code>" where <code class="code">ll</code>
+      is the language code and <code class="code"><span class="constructor">CC</span></code> the country code, for instance
+      "<code class="code">locale_fr_FR.conf</code>". They can also be called simply "<code class="code">locale_ll.conf</code>"
+      for translations which follow the language's main dialect.</p>
+
+<p>We don't use the traditional ".po" syntax: for simplicity, the syntax of
+      the translation files is the one of Bogue's configuration files: each
+      translation is written on a new line of the form</p>
+
+<pre class="verbatim">English text = Translated text</pre>
+<p>for instance</p>
+<pre class="verbatim">Save as = Enregistrer sous</pre><p>There is a special syntax for contexts: the line</p>
+
+<pre class="verbatim">__CONTEXT = Context name</pre>
+<p>indicates that the following translations should apply to the context
+      called "Context name", up until a new <code class="code">__CONTEXT</code> line.</p>
+<h3 id="2_Listofpredefinedcontexts">List of predefined contexts</h3>
+<pre><span id="MODULEFile"><span class="keyword">module</span> <a href="Bogue.I18n.File.html">File</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.File.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="MODULEMenu"><span class="keyword">module</span> <a href="Bogue.I18n.Menu.html">Menu</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="MODULEPopup"><span class="keyword">module</span> <a href="Bogue.I18n.Popup.html">Popup</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.Popup.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="MODULEText_input"><span class="keyword">module</span> <a href="Bogue.I18n.Text_input.html">Text_input</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.Text_input.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>

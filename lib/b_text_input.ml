@@ -9,6 +9,7 @@
 *)
 open Tsdl
 open B_utils
+module I = B_i18n.Text_input
 module Utf8 = B_utf8
 module Theme = B_theme
 module Var = B_var
@@ -49,14 +50,17 @@ type t =
 let triggers = Sdl.Event.[text_editing; text_input; key_down; key_up]
 
 let no_filter _ = true
-let uint_filter s = List.mem s ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"]
+
+let zero_code = Char.code '0' (* 48 *)
+let uint_filter s = (* List.mem s ["0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"] *)
+  String.length s = 1 && let c = Char.code s.[0] in c >= zero_code && c <= zero_code + 9
 
 let and_filter f1 f2 = function
     s -> (f1 s) && (f2 s)
 
 let default_font = Label.File !Theme.text_font
 
-let create ?(max_size = 2048) ?(prompt = "Enter text")
+let create ?(max_size = 2048) ?(prompt = I.(tf prompt))
     ?(size = Theme.text_font_size)
     ?(filter = no_filter) ?(font = default_font) text =
   Draw.ttf_init ();
@@ -421,8 +425,9 @@ let render_key font key color =
   surf
 
 (* memoize. Warning: do NOT free the resulting surfaces !! *)
-(* NOTE: it seems that this memoing does not really improve speed, but at least
-   it does not degrade speed... *)
+(* NOTE: it seems that this memoing does not really improve speed (probably
+   because SDL_ttf already has some caching mechanism), but at least it does not
+   degrade speed... *)
 (* Warning: the arguments should not be mutable, otherwise memo is likely to
    fail (equality problem). For instance, do not use Sdl.Color type instead of
    (r,g,b,a) *)

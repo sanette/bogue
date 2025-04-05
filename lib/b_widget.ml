@@ -72,7 +72,7 @@ and t = {
      come first in the list *)
   mutable connections : connection list;
   (* the [connections] field lists all possible connections from this widget. In
-     the order to be executed. Particular case: the local actions are connection
+     the order to be executed. Particular case: the local actions are connections
      from and to the same widget. *)
   (* mutable à cause de définition cyclique *)
   wid : int;
@@ -335,13 +335,24 @@ let add_connection w c =
 
 (* Remove connection. Not thread safe, should be used only in main thread. *)
 let remove_connection w c =
-  let clist = List.filter (fun cc -> cc.id <> c.id) w.connections in
-  if List.compare_lengths clist w.connections <> 0
-  then w.connections <- clist
-  else printd (debug_error + debug_user)
-      "Cannot remove connection because it is not present in the widget."
+  match list_remove_first_opt (fun cc -> cc.id = c.id) w.connections with
+  | Some clist ->
+    begin
+      w.connections <- clist;
+      printd debug_board "Removing connection %i from widget #w%u." c.id w.wid;
+      if !debug then begin
+        if List.exists (fun a -> a.connect_id = c.id) (Var.get w.actives)
+        then printd (debug_board + debug_user)
+            "Note that a triggered instance of connection %i is still active in \
+             widget #w%u." c.id w.wid
+      end
+    end
+  | None ->
+    printd (debug_board + debug_user)
+      "Cannot remove connection %i from widget #w%u because it is not present."
+      c.id w.wid
 
-(* Remove all connection that respond to the given trigger (=event) *)
+(* Remove all connections that respond to the given trigger (=event) *)
 let remove_trigger w tr =
   let clist = List.filter (fun cc -> not (List.mem tr cc.triggers)) w.connections in
   if List.compare_lengths clist w.connections <> 0
@@ -704,7 +715,7 @@ let add_action c action ev =
       event = e_copy;
       connect_id = c.id }
 
-(** check if the trigger can wake up a connection, and if so, run the action *)
+(* Check if the trigger can wake up a connection, and if so, run the action. *)
 let wake_up event c =
   if List.mem (Trigger.of_event event) c.triggers then
     begin
@@ -740,13 +751,12 @@ let wake_up event c =
 let wake_up_all ev w =
   List.iter (wake_up ev) w.connections
 
-(** remove all active connections from this widget and ask for the threads to
-    terminate *)
+(* Remove all active connections from this widget and ask for the threads to
+   terminate. *)
 let remove_active_connections widget =
   let actives = Var.get widget.actives in
   List.iter wait_terminate actives;
   Var.set widget.actives []
-
 
 (*******************)
 

@@ -242,6 +242,11 @@ let list_remove_first f l =
   | _, [] -> raise Not_found
   | l1, _::l2 -> List.rev_append l1 l2
 
+let list_remove_first_opt f l =
+  match list_split_first_rev f l with
+  | _, [] -> None
+  | l1, _::l2 -> Some (List.rev_append l1 l2)
+
 (* Splits a list atfer the xth element. (x=0 for first element; the first
    returned list has length x.) *)
 let split_list_rev list x =
@@ -257,11 +262,17 @@ let split_list list x =
   let daeh, tail = split_list_rev list x in
   List.rev daeh, tail
 
-(* checks if 'a' contained in the list, with 'equal' function *)
+(* checks if 'a' contained in the list, with 'equal' function -- one could use
+   also List.exists *)
 let rec mem equal a list =
   match list with
     | [] -> false
     | b::rest -> equal a b || mem equal a rest
+
+let list_filter_exists f list =
+  let found = ref false in
+  let res = List.filter (fun x -> if f x then (found:=true; true) else false) list in
+  res, !found
 
 (* checks if all elements are different (using the 'equal' function) *)
 (* not used, use "repeated" below instead *)

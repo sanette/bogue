@@ -12,8 +12,11 @@ Format of the $HOME/.config/bogue/bogue.conf file ($HOME/.bogue.conf is also ok)
 # The version string is compulsory
 # it must not contain space
 
-# syntax VAR = value
-# the spaces around "=" are required
+# syntax: each line has the form: VAR = value
+
+# + VAR and value may contain inner whitespaces.
+# + Leading and trailing whitespaces for VAR and value are ignored.
+# + VAR should not contain any "="
 
 SCALE = 2.15
 DIR = /home/john/.config/bogue/themes
@@ -22,7 +25,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20250303"  (* see VERSION file *)
+let this_version = "20250405"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -142,7 +145,8 @@ let load_vars config_file =
   let rec loop list =
     skip_comment buffer;
     try
-      let varname, value = Scanf.bscanf buffer " %s = %s" (fun a b -> a,b) in
+      let varname, value = Scanf.bscanf buffer " %[^=] = %[^\n]"
+          (fun a b -> String.trim a, String.trim b) in
       printd debug_io "Reading %s=%s" varname value;
       if varname = "DEBUG"
       then debug := (String.lowercase_ascii value = "true");
@@ -182,12 +186,14 @@ let user_vars = ref user_vars
 let get_var s =
   let v = try Sys.getenv ("BOGUE_" ^ s) with
     | Not_found ->
-      try List.assoc s !user_vars with
-      | Not_found -> begin
+      match List.assoc_opt s !user_vars with
+      | Some v -> v
+      | None -> begin
           printd debug_warning
             "User variable '%s' not found in config." s;
-          try List.assoc s default_vars with
-          | Not_found ->
+          match List.assoc_opt s default_vars with
+          | Some v -> v
+          | None ->
             printd debug_error "Variable '%s' not found. Prepare for a crash." s;
             ""
         end in
@@ -421,6 +427,8 @@ let get_font_path_opt name =
   let file = get_font_path name in
   if Sys.file_exists file then Some file else None
 
+
+
 let background = get_var "BACKGROUND"
 let bg_color = get_var "BG_COLOR"
 let button_color_off = get_var "BUTTON_COLOR_OFF"
@@ -521,9 +529,9 @@ let fa_symbols = load_fa_variables ()
 (* http://fortawesome.github.io/Font-Awesome/cheatsheet/ *)
 (* http://bluejamesbond.github.io/CharacterMap/ *)
 let fa_symbol name =
-  try
-    List.assoc name fa_symbols
-  with Not_found ->
+  match List.assoc_opt name fa_symbols with
+  | Some s -> s
+  | None ->
     printd debug_error "FA symbol '%s' was not found. Using 'question' instead" name;
     List.assoc "question" fa_symbols
 

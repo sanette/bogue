@@ -23,6 +23,8 @@ module Trigger = B_trigger
 module Var = B_var
 module Widget = B_widget
 
+let min_row_height = 10
+
 (* this is the public, non-mutable type *)
 type column =
   { title : string;
@@ -184,7 +186,7 @@ let make_columns (columns : column list) widths_icons =
 
 let make_table ?row_height ?selection ?max_selected ?on_click
     ?on_select (columns : column list) =
-  let length, rw = match columns with
+  let length, rh = match columns with
     | [] -> failwith "Cannot create empty table"
     | c0::_ ->
       List.iter (fun (c : column) ->
@@ -192,9 +194,15 @@ let make_table ?row_height ?selection ?max_selected ?on_click
           then failwith "Table columns must have same length")
         columns;
       c0.length,
-      if c0.length > 0 then Layout.height (c0.rows 0)
-      else (printd debug_warning "Table column has zero element"; 10) in
-  let row_height = default row_height rw in
+      if c0.length > 0 then begin
+        (* We take the max of all heights of cells of the first row. *)
+        let rh = List.fold_left (fun h (c : column) ->
+            imax h (Layout.height (c.rows 0))) min_row_height columns in
+        printd debug_user "Selecting row height=%i for Table." rh;
+        rh
+      end
+      else (printd debug_warning "Table column has zero element"; min_row_height) in
+  let row_height = default row_height rh in
   let titles_icons = List.map make_title columns in
   let min_width = List.fold_left (fun m ti -> m + Layout.width ti) 0
       (List.map fst titles_icons) in
@@ -222,7 +230,6 @@ let make_table ?row_height ?selection ?max_selected ?on_click
     long_list = Var.create None; (* will be computed afterwards *)
     min_width; min_height
   }
-
 
 let unselected_bg ii =
   if ii mod 2 = 1
@@ -278,6 +285,7 @@ let make_long_list ~w ~h t  =
       |> Array.to_list
       (* |> List.cons (resident left_margin) *)
       |> flat ~margins:0 ?background in
+    Layout.set_height row t.row_height;
     let enter _ = (Layout.set_background ca (Some row_hl)
     (* Layout.fade_in ca ~duration:150 *)) in
     let leave _ = Layout.set_background ca None

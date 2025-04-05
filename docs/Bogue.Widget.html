@@ -12,6 +12,7 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Connections" rel="Section" href="#connections">
 <link title="Creation of Widgets" rel="Section" href="#widget_create">
 <link title="Creation of combined widgets" rel="Section" href="#2_Creationofcombinedwidgets">
@@ -183,6 +184,20 @@
 
 <p><em><code class="code">add_connection</code> is separated from <a href="Bogue.Widget.html#VALconnect"><code class="code"><span class="constructor">Widget</span>.connect</code></a> because it is not pure: it
      mutates the widget. This might change in future versions.</em></p>
+</div>
+</div>
+
+<pre><span id="VALremove_connection"><span class="keyword">val</span> remove_connection</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEconnection">connection</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Unregister the connection. If the connection was already triggered and the
+      corresponding action is active, the action will not be cancelled.</p>
+</div>
+</div>
+
+<pre><span id="VALremove_trigger"><span class="keyword">val</span> remove_trigger</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; <a href="Bogue.Trigger.html#TYPEt">Trigger.t</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Remove all the connections from the given widget that respond to the given
+      trigger (=event)</p>
 </div>
 </div>
 

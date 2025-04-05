@@ -15,6 +15,7 @@ module Draw = B_draw
 module Empty = B_empty
 module File = B_file
 module Flow = B_flow
+module I18n = B_i18n
 module Image = B_image
 module Label = B_label
 module Layout = B_layout
@@ -82,6 +83,11 @@ let run_tests () =
 
   begin let open Flow in
     run_test test "Flow.test"
+  end;
+
+  begin let open I18n in
+    run_test test_gettext "I18n.test_gettext";
+    run_test File.test "I18n.File.test"
   end;
 
   begin let open Utf8 in

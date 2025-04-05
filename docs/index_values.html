@@ -8,6 +8,7 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="Bogue" rel="Chapter" href="Bogue.html"><title>Index of values</title>
 </head>
 <body>
@@ -86,6 +87,14 @@
 </td></tr>
 <tr><td><a href="Bogue.Main.html#VALadd_shortcut">add_shortcut</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALadd_translation">add_translation</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p><code class="code">add_translation&nbsp;locale&nbsp;text&nbsp;translation</code> will declare the string
+            <code class="code">translation</code> to be the translation of the string <code class="code">text</code> within the
+            current context and for the given <code class="code">locale</code>.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.html#VALanimate_alpha">animate_alpha</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALanimate_angle">animate_angle</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -182,6 +191,10 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.Popup.html#VALcancel">cancel</a> [<a href="Bogue.I18n.Popup.html">Bogue.I18n.Popup</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALcancel">cancel</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALchange_volume">change_volume</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td><div class="info">
 <p>Multiply sound intensity by a float factor</p>
@@ -221,6 +234,10 @@
 </td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALclose">close</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.I18n.Popup.html#VALclose">close</a> [<a href="Bogue.I18n.Popup.html">Bogue.I18n.Popup</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALclose">close</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALcolor_bg">color_bg</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Construct a background from an RGBA color.</p>
@@ -249,6 +266,10 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALcontinue">continue</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.Menu.html#VALcopy">copy</a> [<a href="Bogue.I18n.Menu.html">Bogue.I18n.Menu</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Main.html#VALcreate">create</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
 <p>Create a <code class="code">board</code> from a list of layouts and connections.</p>
@@ -475,6 +496,8 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>E</div></td></tr>
+<tr><td><a href="Bogue.I18n.Menu.html#VALedit">edit</a> [<a href="Bogue.I18n.Menu.html">Bogue.I18n.Menu</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALempty">empty</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>An empty layout can reserve some space without stealing focus.</p>
@@ -498,6 +521,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALenter_path">enter_path</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALevent_kind">event_kind</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Union of <a href="Bogue.Trigger.html#TYPEsdl_event"><code class="code"><span class="constructor">Trigger</span>.sdl_event</code></a> and <a href="Bogue.Trigger.html#TYPEbogue_event"><code class="code"><span class="constructor">Trigger</span>.bogue_event</code></a></p>
@@ -664,6 +689,12 @@
 </td></tr>
 <tr><td><a href="Bogue.Long_list.html#VALget_layout">get_layout</a> [<a href="Bogue.Long_list.html">Bogue.Long_list</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.I18n.html#VALget_locales">get_locales</a> [<a href="Bogue.I18n.html">Bogue.I18n</a>]</td>
+<td><div class="info">
+<p>Return the list of preferred locales as detected from the user's OS.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Slider.html#VALget_max">get_max</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Main.html#VALget_monitor_refresh_rate">get_monitor_refresh_rate</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
@@ -754,6 +785,20 @@
 <tr><td><a href="Bogue.Layout.html#VALget_window_pos">get_window_pos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>Return the window position within the desktop, in physical pixels.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALgettext">gettext</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p><code class="code">gettext&nbsp;text</code> tries to return the translation of the <code class="code">text</code> string into
+        the user's preferred language, in the current context.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALgettext_opt">gettext_opt</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.I18n.ContextInit.html#VALgettext"><code class="code">gettext</code></a> but returns <code class="code"><span class="constructor">None</span></code> if the translation
+        cannot be found.</p>
 
 </div>
 </td></tr>
@@ -1078,6 +1123,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALmodified">modified</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALmouse_at_rest">mouse_at_rest</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Triggered when the mouse did not move for a while.</p>
@@ -1100,6 +1147,8 @@
 <tr><td><a href="Bogue.Widget.html#VALmouse_over">mouse_over</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
 <tr><td align="left"><div>N</div></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALname">name</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Trigger.html#VALnice_delay">nice_delay</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p><code class="code">nice_delay&nbsp;ev&nbsp;t</code> Wait during a delay (<code class="code">t</code> seconds), but quit anyway when
@@ -1107,6 +1156,10 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.Popup.html#VALno">no</a> [<a href="Bogue.I18n.Popup.html">Bogue.I18n.Popup</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALno_selection">no_selection</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALnone">none</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td><div class="info">
 <p><code class="code">none&nbsp;=&nbsp;(0,0,0,0)</code> is completely transparent black.</p>
@@ -1206,6 +1259,10 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALone_dir_selected">one_dir_selected</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALone_file_selected">one_file_selected</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Main.html#VALone_step">one_step</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
 <p>This is only useful if you have your own graphics loop, and do <em>not</em> use
@@ -1222,6 +1279,12 @@
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Style.html#VALopaque_bg">opaque_bg</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.Menu.html#VALopen_">open_</a> [<a href="Bogue.I18n.Menu.html">Bogue.I18n.Menu</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALopen_">open_</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALopen_dir">open_dir</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALoscillate">oscillate</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
@@ -1242,6 +1305,8 @@
 <tr><td><a href="Bogue.Text_display.html#VALpara">para</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALparagraphs_of_string">paragraphs_of_string</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.Menu.html#VALpaste">paste</a> [<a href="Bogue.I18n.Menu.html">Bogue.I18n.Menu</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.File.Monitor.html#VALpath">path</a> [<a href="Bogue.File.Monitor.html">Bogue.File.Monitor</a>]</td>
 <td><div class="info">
@@ -1378,6 +1443,12 @@
 </td></tr>
 <tr><td><a href="Bogue.Selection.html#VALremove">remove</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Widget.html#VALremove_connection">remove_connection</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td><div class="info">
+<p>Unregister the connection.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALremove_element">remove_element</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
 <p>Remove the <a href="Bogue.Sdl_area.html#TYPEdraw_element"><code class="code"><span class="constructor">Sdl_area</span>.draw_element</code></a> from the command queue.</p>
@@ -1392,6 +1463,13 @@
 </td></tr>
 <tr><td><a href="Bogue.Main.html#VALremove_shortcut">remove_shortcut</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Widget.html#VALremove_trigger">remove_trigger</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td><div class="info">
+<p>Remove all the connections from the given widget that respond to the given
+      trigger (=event)</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALreplace">replace</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td><div class="info">
 <p><code class="code">replace&nbsp;~by:t2&nbsp;t1</code> replaces the text content of <code class="code">t1</code> by the one of <code class="code">t2</code>.</p>
@@ -1424,6 +1502,8 @@
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALretower">retower</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Draw.html#VALrgba_of_int32">rgba_of_int32</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALrich_text">rich_text</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Theme.html#VALroom_margin">room_margin</a> [<a href="Bogue.Theme.html">Bogue.Theme</a>]</td>
@@ -1455,6 +1535,10 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>S</div></td></tr>
+<tr><td><a href="Bogue.I18n.Menu.html#VALsave">save</a> [<a href="Bogue.I18n.Menu.html">Bogue.I18n.Menu</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALsave">save</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.File.html#VALsave_as">save_as</a> [<a href="Bogue.File.html">Bogue.File</a>]</td>
 <td><div class="info">
 <p>Similar to <a href="Bogue.File.html#VALselect_file"><code class="code"><span class="constructor">File</span>.select_file</code></a>, but here the user can enter a filename that
@@ -1462,6 +1546,10 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.Menu.html#VALsave_as">save_as</a> [<a href="Bogue.I18n.Menu.html">Bogue.I18n.Menu</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALsave_as">save_as</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Theme.html#VALscale_int">scale_int</a> [<a href="Bogue.Theme.html">Bogue.Theme</a>]</td>
 <td><div class="info">
 <p>Conversion: Bogue dimension -&gt; hardware pixel dimension.</p>
@@ -1474,6 +1562,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALselect">select</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.File.html#VALselect_dir">select_dir</a> [<a href="Bogue.File.html">Bogue.File</a>]</td>
 <td><div class="info">
 <p>Similar to <a href="Bogue.File.html#VALselect_file"><code class="code"><span class="constructor">File</span>.select_file</code></a> except that here only a directory can be
@@ -1481,6 +1571,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALselect_directory">select_directory</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.File.html#VALselect_dirs">select_dirs</a> [<a href="Bogue.File.html">Bogue.File</a>]</td>
 <td><div class="info">
 <p>Similar to <a href="Bogue.File.html#VALselect_files"><code class="code"><span class="constructor">File</span>.select_files</code></a> except that here only directories can be
@@ -1488,6 +1580,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALselect_dirs">select_dirs</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.File.html#VALselect_file">select_file</a> [<a href="Bogue.File.html">Bogue.File</a>]</td>
 <td><div class="info">
 <p><code class="code">select_file&nbsp;dirname&nbsp;continue</code> will open a file dialog, initially showing
@@ -1495,6 +1589,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALselect_file">select_file</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.File.html#VALselect_files">select_files</a> [<a href="Bogue.File.html">Bogue.File</a>]</td>
 <td><div class="info">
 <p>Similar to <a href="Bogue.File.html#VALselect_file"><code class="code"><span class="constructor">File</span>.select_file</code></a> except that here several files can be
@@ -1502,6 +1598,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALselect_files">select_files</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Menu.html#VALseparator">separator</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Slider.html#VALset">set</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
@@ -1728,6 +1826,8 @@
 
 </div>
 </td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALsize">size</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALslide_in">slide_in</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALslide_to">slide_to</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
@@ -1803,6 +1903,35 @@
 </div>
 </td></tr>
 <tr><td align="left"><div>T</div></td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALt_int">t_int</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>Same as <a href="Bogue.I18n.ContextInit.html#VALt_uint"><code class="code">t_uint</code></a> but for usual (signed) integers (flag <code class="code">%i</code>).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALt_str">t_str</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>Same as <a href="Bogue.I18n.ContextInit.html#VALt_uint"><code class="code">t_uint</code></a> but for strings (flag <code class="code">%s</code>).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALt_uint">t_uint</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>For instance:</p>
+<pre class="codepre"><code class="code"><span class="keyword">let</span> f = t_uint <span class="string">"%u dollars off coupon"</span> <span class="keyword">in</span>
+print_endline (f 150)</code></pre><p>will print, for French locale:</p>
+<pre class="codepre"><code class="code"><span class="string">"bon de réduction de 150 dollars"</span></code></pre><p>as soon as the French translation of  <code class="code"><span class="string">"%u&nbsp;dollars&nbsp;off&nbsp;coupon"</span></code> is declared to be
+        <code class="code"><span class="string">"bon&nbsp;de&nbsp;réduction&nbsp;de&nbsp;%u&nbsp;dollars"</span></code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALt_uint2">t_uint2</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>Similar to <a href="Bogue.I18n.ContextInit.html#VALt_uint"><code class="code">t_uint</code></a> but the format string should contain two
+        <code class="code">%s</code> flags.</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Mixer.html#VALtest">test</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Text_input.html#VALtext">text</a> [<a href="Bogue.Text_input.html">Bogue.Text_input</a>]</td>
@@ -1818,6 +1947,12 @@
 <tr><td><a href="Bogue.Trigger.html#VALtext_input">text_input</a> [<a href="Bogue.Trigger.html">Bogue.Trigger</a>]</td>
 <td><div class="info">
 <p>Same as Tsdl.Sdl.Event.text_input</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALtf">tf</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>Shorthand for <code class="code"><span class="constructor">Lazy</span>.force</code>.</p>
 
 </div>
 </td></tr>
@@ -1886,6 +2021,12 @@
 <tr><td><a href="Bogue.Slider.html#VALtriggers">triggers</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td><div class="info">
 <p>The list of events that a Slider can react to.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Bogue.I18n.ContextInit.html#VALtt">tt</a> [<a href="Bogue.I18n.ContextInit.html">Bogue.I18n.ContextInit</a>]</td>
+<td><div class="info">
+<p>Lazy version of <a href="Bogue.I18n.ContextInit.html#VALgettext"><code class="code">gettext</code></a>.</p>
 
 </div>
 </td></tr>
@@ -2070,6 +2211,12 @@
 <tr><td><a href="Bogue.Style.html#VALwith_shadow">with_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td align="left"><div>X</div></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALx_dirs_selected">x_dirs_selected</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALx_files_selected">x_files_selected</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.File.html#VALx_files_x_dirs_selected">x_files_x_dirs_selected</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALxpos">xpos</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
 <p>get current absolute x position of the layout (relative to the top-left
@@ -2079,6 +2226,8 @@
 </td></tr>
 <tr><td align="left"><div>Y</div></td></tr>
 <tr><td><a href="Bogue.Draw.html#VALyellow">yellow</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.I18n.Popup.html#VALyes">yes</a> [<a href="Bogue.I18n.Popup.html">Bogue.I18n.Popup</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Popup.html#VALyesno">yesno</a> [<a href="Bogue.Popup.html">Bogue.Popup</a>]</td>
 <td><div class="info">
