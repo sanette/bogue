@@ -94,4 +94,8 @@ let run_tests () =
     run_test test "Utf8.test";
     run_test test_perf "Utf8.test_perf";
     (* run_test test_perf_tmc "Utf8.test_perf_tmc" *)
+
+    (* let fr = { language = "fr"; country = Some "FR" } in *)
+    (* add_translation ~context="Text" fr "some test" "Un test"; *)
+    (* save_locale fr  *)
   end

@@ -17,6 +17,7 @@ _Bogue_ is an all-purpose GUI (Graphical user interface) library for
 * Predefined animations (slide-in, fade-in, fade-out, rotate).
 * Built-in audio mixer.
 * Works with mouse, touchscreen, and even TAB focusing
+* Internationalization mechanism
 
 Programming with _bogue_ is easy if you're used to GUIs with widgets,
 layouts, callbacks, and of course it has a functional flavor.  ​It uses

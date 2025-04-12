@@ -1550,6 +1550,13 @@
 <td></td></tr>
 <tr><td><a href="Bogue.I18n.File.html#VALsave_as">save_as</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.I18n.html#VALsave_locale">save_locale</a> [<a href="Bogue.I18n.html">Bogue.I18n</a>]</td>
+<td><div class="info">
+<p>Save the translation file for the given locale (including all contexts,
+      and all user additions made with <code class="code">add_translation</code>).</p>
+
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Theme.html#VALscale_int">scale_int</a> [<a href="Bogue.Theme.html">Bogue.Theme</a>]</td>
 <td><div class="info">
 <p>Conversion: Bogue dimension -&gt; hardware pixel dimension.</p>
@@ -1919,7 +1926,7 @@
 <td><div class="info">
 <p>For instance:</p>
 <pre class="codepre"><code class="code"><span class="keyword">let</span> f = t_uint <span class="string">"%u dollars off coupon"</span> <span class="keyword">in</span>
-print_endline (f 150)</code></pre><p>will print, for French locale:</p>
+print_endline ((tf f) 150)</code></pre><p>will print, for French locale:</p>
 <pre class="codepre"><code class="code"><span class="string">"bon de réduction de 150 dollars"</span></code></pre><p>as soon as the French translation of  <code class="code"><span class="string">"%u&nbsp;dollars&nbsp;off&nbsp;coupon"</span></code> is declared to be
         <code class="code"><span class="string">"bon&nbsp;de&nbsp;réduction&nbsp;de&nbsp;%u&nbsp;dollars"</span></code>.</p>
 

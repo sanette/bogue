@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250405
+@version 20250412
 
 @author Vu Ngoc San
 
@@ -371,7 +371,7 @@ for _ = 1 to 10 do print_endline (tf translated)]}
     (** For instance:
         {[
 let f = t_uint "%u dollars off coupon" in
-print_endline (f 150)]}
+print_endline ((tf f) 150)]}
         will print, for French locale:
         {[
 "bon de réduction de 150 dollars"]}
@@ -427,6 +427,13 @@ print_endline (f 150)]}
       indicates that the following translations should apply to the context
       called "Context name", up until a new [__CONTEXT] line.
 *)
+
+   val save_locale : ?domain:string -> locale -> unit
+  (** Save the translation file for the given locale (including all contexts,
+      and all user additions made with [add_translation]). The config file is
+      saved in the [domain] (= application) directory, which must be found under a "share"
+      directory, as given by the function {!Theme.find_share}[ domain "."]. If
+      this dir is not found, the locale is saved in the current directory. *)
 
   (** {2 List of predefined contexts} *)
 

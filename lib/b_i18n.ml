@@ -51,6 +51,7 @@ let languages = Var.create (Hashtbl.create 15)
    contains "ctxb" context tables. *)
 
 let common_context = "Common context"
+let ctx_tag = "__CONTEXT"
 
 let get_ctxb db context =
   let@ db = Var.with_protect db in
@@ -67,11 +68,14 @@ let get_country_extension locale =
   | Some cc -> "_" ^ cc
   | None -> ""
 
+let filename locale =
+  sprintf "locale_%s%s.conf" locale.language
+     (get_country_extension locale)
+
 let load_locale locale =
   let db = Var.create (Hashtbl.create 15) in
   let ctxb = get_ctxb db common_context in
-  let file = sprintf "locale_%s%s.conf" locale.language
-      (get_country_extension locale)
+  let file = filename locale
              |> Filename.concat "%locales"
              |> Theme.get_path in
   let () = if Sys.file_exists file
@@ -80,7 +84,7 @@ let load_locale locale =
         let rec loop table = function
           | [] -> ()
           | (key, t) :: rest ->
-            if key = "__CONTEXT" then loop (get_ctxb db t) rest
+            if key = ctx_tag then loop (get_ctxb db t) rest
             else begin
               Hashtbl.replace table key t;
               loop table rest
@@ -149,6 +153,48 @@ let test_gettext () =
 let add_translation ~context locale text translation =
   let table = get_ctxb (get_db locale) context in
   Hashtbl.replace table text translation
+
+let save_locale_alist ?domain locale alist =
+  let share = match domain with
+    | None -> "."
+    | Some domain ->
+      match Theme.find_share domain "." with
+      | None ->
+      print_endline "Cannot find share directory!";
+      "."
+      | Some path -> path in
+  let file = Filename.concat share (filename locale) in
+  let outch = try open_out file
+    with _ -> begin
+        printd (debug_error + debug_user) "Cannot open file [%s] for write access." file;
+        stdout
+      end in
+  try
+    output_string outch (sprintf "## BOGUE version %s\n\n" Theme.this_version);
+    List.iter (fun (text, translation) ->
+        output_string outch (sprintf "%s = %s\n" text translation)) alist;
+    close_out outch;
+    printd (debug_io + debug_user) "Wrote [%s]" file
+  with _ -> begin
+      printd (debug_io + debug_error + debug_user)
+        "Error while writing to file [%s.]" file;
+      close_out outch
+    end
+
+let ctxb_to_alist table context =
+  Hashtbl.fold (fun k t list -> (k, t) :: list) table [ctx_tag, context]
+  |> List.sort (fun a1 a2 -> Stdlib.compare (fst a1) (fst a2))
+
+let db_to_alist db =
+  Hashtbl.fold (fun context table list -> List.append list (ctxb_to_alist table context))
+    db []
+
+(* This saves all the bogue's locales (all contexts) plus the additional
+   bindings added by [add_translation]. *)
+let save_locale ?domain locale =
+  let@ db = Var.with_protect (get_db locale) in
+  db_to_alist db
+  |> save_locale_alist ?domain locale
 
 (* Now some functions for detecting the user's locales *)
 

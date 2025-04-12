@@ -96,6 +96,16 @@ print_endline (<span class="constructor">I</span>.tf s)
 <pre class="verbatim">__CONTEXT = Context name</pre>
 <p>indicates that the following translations should apply to the context
       called "Context name", up until a new <code class="code">__CONTEXT</code> line.</p>
+
+<pre><span id="VALsave_locale"><span class="keyword">val</span> save_locale</span> : <code class="type">?domain:string -&gt; <a href="Bogue.I18n.html#TYPElocale">locale</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Save the translation file for the given locale (including all contexts,
+      and all user additions made with <code class="code">add_translation</code>). The config file is
+      saved in the <code class="code">domain</code> (= application) directory, which must be found under a "share"
+      directory, as given by the function <a href="Bogue.Theme.html#VALfind_share"><code class="code"><span class="constructor">Theme</span>.find_share</code></a><code class="code">&nbsp;domain&nbsp;<span class="string">"."</span></code>. If
+      this dir is not found, the locale is saved in the current directory.</p>
+</div>
+</div>
 <h3 id="2_Listofpredefinedcontexts">List of predefined contexts</h3>
 <pre><span id="MODULEFile"><span class="keyword">module</span> <a href="Bogue.I18n.File.html">File</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.File.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span id="MODULEMenu"><span class="keyword">module</span> <a href="Bogue.I18n.Menu.html">Menu</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.I18n.Menu.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
