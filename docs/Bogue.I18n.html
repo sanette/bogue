@@ -91,7 +91,9 @@ print_endline (<span class="constructor">I</span>.tf s)
 
 <pre class="verbatim">English text = Translated text</pre>
 <p>for instance</p>
-<pre class="verbatim">Save as = Enregistrer sous</pre><p>There is a special syntax for contexts: the line</p>
+<pre class="verbatim">Save as = Enregistrer sous</pre><p>The strings (English and
+      translated) should not contain any equal ('=') char.  There is a special
+      syntax for contexts: the line</p>
 
 <pre class="verbatim">__CONTEXT = Context name</pre>
 <p>indicates that the following translations should apply to the context
@@ -100,10 +102,12 @@ print_endline (<span class="constructor">I</span>.tf s)
 <pre><span id="VALsave_locale"><span class="keyword">val</span> save_locale</span> : <code class="type">?domain:string -&gt; <a href="Bogue.I18n.html#TYPElocale">locale</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Save the translation file for the given locale (including all contexts,
-      and all user additions made with <code class="code">add_translation</code>). The config file is
-      saved in the <code class="code">domain</code> (= application) directory, which must be found under a "share"
-      directory, as given by the function <a href="Bogue.Theme.html#VALfind_share"><code class="code"><span class="constructor">Theme</span>.find_share</code></a><code class="code">&nbsp;domain&nbsp;<span class="string">"."</span></code>. If
-      this dir is not found, the locale is saved in the current directory.</p>
+      and all user additions made with <code class="code">add_translation</code>). The file is saved in
+      the <code class="code">domain</code> (= application) directory, which must be found under a
+      "share" directory, as given by the function
+      <a href="Bogue.Theme.html#VALfind_share"><code class="code"><span class="constructor">Theme</span>.find_share</code></a><code class="code">&nbsp;domain&nbsp;<span class="string">"."</span></code>.
+      If this dir is not found, the locale is saved in the current
+      directory.</p>
 </div>
 </div>
 <h3 id="2_Listofpredefinedcontexts">List of predefined contexts</h3>

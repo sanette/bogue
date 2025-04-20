@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250412
+@version 20250420
 
 @author Vu Ngoc San
 
@@ -401,7 +401,7 @@ print_endline ((tf f) 150)]}
             current context and for the given [locale]. This will overwrite
             previously defined translations for [text].
 
-            This function does not modifies the translation files. *)
+            This function does not modifies the translation files. See {!save_locale}.*)
   end
 
   (** {2 Translation files}
@@ -419,8 +419,9 @@ print_endline ((tf f) 150)]}
 
   {v English text = Translated text v}
 
-      for instance {v Save as = Enregistrer sous v}
-      There is a special syntax for contexts: the line
+      for instance {v Save as = Enregistrer sous v} The strings (English and
+      translated) should not contain any equal ('=') char.  There is a special
+      syntax for contexts: the line
 
       {v __CONTEXT = Context name v}
 
@@ -430,10 +431,12 @@ print_endline ((tf f) 150)]}
 
    val save_locale : ?domain:string -> locale -> unit
   (** Save the translation file for the given locale (including all contexts,
-      and all user additions made with [add_translation]). The config file is
-      saved in the [domain] (= application) directory, which must be found under a "share"
-      directory, as given by the function {!Theme.find_share}[ domain "."]. If
-      this dir is not found, the locale is saved in the current directory. *)
+      and all user additions made with [add_translation]). The file is saved in
+      the [domain] (= application) directory, which must be found under a
+      "share" directory, as given by the function
+      {!Theme.find_share}[ domain "."].
+      If this dir is not found, the locale is saved in the current
+      directory. *)
 
   (** {2 List of predefined contexts} *)
 
@@ -3210,19 +3213,20 @@ module Popup : sig
   val info : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
     ?button:string -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with a text and a close button. By
-      default, [button="Close"]. This popup can be closed by pressing
-      ESCAPE. Use the optional parameters [button_w, button_h] to impose the
-      size of the button. The optional parameters [w] and [h] set the width and
-      height of the popup (including the button) by scaling the computed
-      layout. If they are too small, the text might not be fully legible. *)
+      default, [button="Close"] (or, rather, the translation of "Close" into the
+      user local language). This popup can be closed by pressing ESCAPE. Use the
+      optional parameters [button_w, button_h] to impose the size of the
+      button. The optional parameters [w] and [h] set the width and height of
+      the popup (including the button) by scaling the computed layout. If they
+      are too small, the text might not be fully legible. *)
 
   val yesno : ?w:int -> ?h:int -> ?button_w:int -> ?button_h:int ->
     ?yes:string -> ?no:string ->
     yes_action:(unit -> unit) ->
     no_action:(unit -> unit) -> string -> Layout.t -> unit
   (** Add to the layout a modal popup with two yes/no buttons. By default,
-      [yes="Yes"] and [no="No"]. This popup is {e not} closed by pressing
-      ESCAPE. See {!info} for other common parameters. *)
+      [yes="Yes"] and [no="No"] (localized). This popup is {e not} closed by
+      pressing ESCAPE. See {!info} for other common parameters. *)
 
   val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
     button:string -> dst:Layout.t -> ?close_on_escape:bool -> Layout.t -> unit

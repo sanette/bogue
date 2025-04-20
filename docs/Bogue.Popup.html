@@ -83,19 +83,20 @@
 <pre><span id="VALinfo"><span class="keyword">val</span> info</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt; ?button:string -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with a text and a close button. By
-      default, <code class="code">button=<span class="string">"Close"</span></code>. This popup can be closed by pressing
-      ESCAPE. Use the optional parameters <code class="code">button_w,&nbsp;button_h</code> to impose the
-      size of the button. The optional parameters <code class="code">w</code> and <code class="code">h</code> set the width and
-      height of the popup (including the button) by scaling the computed
-      layout. If they are too small, the text might not be fully legible.</p>
+      default, <code class="code">button=<span class="string">"Close"</span></code> (or, rather, the translation of "Close" into the
+      user local language). This popup can be closed by pressing ESCAPE. Use the
+      optional parameters <code class="code">button_w,&nbsp;button_h</code> to impose the size of the
+      button. The optional parameters <code class="code">w</code> and <code class="code">h</code> set the width and height of
+      the popup (including the button) by scaling the computed layout. If they
+      are too small, the text might not be fully legible.</p>
 </div>
 </div>
 
 <pre><span id="VALyesno"><span class="keyword">val</span> yesno</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?yes:string -&gt;<br>       ?no:string -&gt;<br>       yes_action:(unit -&gt; unit) -&gt;<br>       no_action:(unit -&gt; unit) -&gt; string -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to the layout a modal popup with two yes/no buttons. By default,
-      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code>. This popup is <em>not</em> closed by pressing
-      ESCAPE. See <a href="Bogue.Popup.html#VALinfo"><code class="code"><span class="constructor">Popup</span>.info</code></a> for other common parameters.</p>
+      <code class="code">yes=<span class="string">"Yes"</span></code> and <code class="code">no=<span class="string">"No"</span></code> (localized). This popup is <em>not</em> closed by
+      pressing ESCAPE. See <a href="Bogue.Popup.html#VALinfo"><code class="code"><span class="constructor">Popup</span>.info</code></a> for other common parameters.</p>
 </div>
 </div>
 
