@@ -424,19 +424,30 @@ module Fswatch : Monitor = struct
         if SSet.equal p.created dot
         then printd debug_io "Monitord path [%s] was created but not checked \
                               yet; we don't record modifications untill then." p.path
-        else if List.mem "Created" flags then
-          (if SSet.mem file p.removed
-           then (p.removed <- SSet.remove file p.removed;
-                 p.updated <- SSet.add file p.updated)
-           else p.created <- if SSet.equal p.created dot then SSet.singleton file
-               else SSet.add file p.created)
-        else if List.mem "Removed" flags then
-          (if SSet.mem file p.created
-           then (p.created <- SSet.remove file p.created;
-                 p.updated <- SSet.add file p.updated)
-           else p.removed <- SSet.add file p.removed)
-        else if not (SSet.mem file p.created)
-        then p.updated <- SSet.add file p.updated
+        else if List.mem "Created" flags then begin
+          if SSet.mem file p.removed
+          then (p.removed <- SSet.remove file p.removed;
+                p.updated <- SSet.add file p.updated)
+          else p.created <- if SSet.equal p.created dot then SSet.singleton file
+              else SSet.add file p.created
+        end else if List.mem "Removed" flags then begin
+          if SSet.mem file p.created
+          then (p.created <- SSet.remove file p.created;
+                p.updated <- SSet.add file p.updated)
+          else (if SSet.mem file p.old_content
+                then p.removed <- SSet.add file p.removed
+                else printd (debug_warning + debug_io)
+                    "File [%s] was reported as removed but we did not record its \
+                     prior existence. Ignoring it." file)
+        end else if not (SSet.mem file p.created)
+        then begin if SSet.mem file p.old_content
+          then p.updated <- SSet.add file p.updated
+          else begin printd (debug_warning + debug_io)
+              "File [%s] was reported as updated but we did not record its prior \
+               existence. Moving it to 'created'." file;
+            p.created <- SSet.add file p.created;
+          end
+        end
       end else begin
         (* Here we treat the special case where the path itself is modified. On
            my linux machine, when removing the path, instead of "Removed",
@@ -960,7 +971,7 @@ let regular_fa_name file =
 
 let entry_fa_name e =
   match e.stat with
-  | None -> "car" (* debug *)
+  | None -> "question-circle" (* debug *)
   | Some s -> let open Unix in match s.st_kind with
     | S_REG -> regular_fa_name e.name (* Regular file *)
     | S_DIR -> "folder-o" (* Directory *)
@@ -1239,12 +1250,14 @@ let get_stat path name stats_hash =
   match Hashtbl.find_opt stats_hash name with
   | None -> begin try
         printd debug_io "Loading stats for file [%s]" name;
-        let ls = Unix.lstat (path // name) in
-        if ls.st_kind = S_LNK
-        then let ts = try Some (Unix.stat (path // name)) with _ -> None in
-          Hashtbl.add stats_hash name (ls, ts);
-          Some (ls, ts)
-        else Some (ls, None)
+        let stat =
+          let ls = Unix.lstat (path // name) in
+          if ls.st_kind = S_LNK
+          then let ts = try Some (Unix.stat (path // name)) with _ -> None in
+            (ls, ts)
+          else (ls, None) in
+        Hashtbl.add stats_hash name stat;
+        Some stat
       with _ -> (
           printd debug_io "Cannot access file %s for stats" name;
           None)
@@ -1342,7 +1355,11 @@ let sorted_subarray_to_selection a sub compare =
     else
     if smax - smin = amax - amin then [Selection.Range (amin, amax)]
     else let find ~first ~last j =
-           find_index_sorted ~first ~last a (uget sub j) compare |> Option.get in
+           let e = uget sub j in
+           match find_index_sorted ~first ~last a e compare with
+           | Some i -> i
+           | None -> printd debug_error "[sorted_subarray_to_selection]: cannot find entry %i of [sub] inside [a]. Aborting now." j;
+             raise Not_found in
       let i1 = find ~first:amin ~last:amax smin in
       let i2 = find ~first:amin ~last:amax smax in
       if i1 = i2 || i1 + 1 = i2 then [Selection.Range (i1, i2)]
@@ -1392,14 +1409,20 @@ let install_new_table old_table new_table =
 (* But this does not seem to be the usual behaviour amongst file dialogs out
    there.*)
 
+(* For debugging: *)
+let print_entries list = Array.iteri (fun i e ->
+    print_endline
+      (Printf.sprintf "%i : %s%s" i e.name
+      (if entry_is_directory e then " (d)" else ""))) list
+
 (* In this function [update_table] we create a new Table.t if the path content
    was modified, but the monitor was not changed (same directory). We transfer
    the scrollbar position, the choice of sorted column, and the file selection,
    from the old table to the new. We also delete the obsolete entries from the
    [stats_hash] table. For modified files, this will force a new invocation of
    Unix.stats. *)
-(* TODO if there are only modified files (no deletion or creation) it's not
-   necesary to recreate the table, we could update the individual widgets by
+(* TODO? if there are only modified files (no deletion or creation) it's not
+   necessary to recreate the table, we could update the individual widgets by
    keeping a Weay.array of visible widgets, populated by the "generate"
    functions.  *)
 let update_table ?(force = false) t =
@@ -1412,21 +1435,27 @@ let update_table ?(force = false) t =
     let path = Monitor.path mon in
     let stats_hash = Var.get d.stats_hash in (* lock ? *)
     let comp = compare_fn t.options.dirs_first String.compare in
-    (* update Hash table: *)
-    List.iter (Hashtbl.remove (Var.get d.stats_hash)) dl;
-    List.iter (Hashtbl.remove (Var.get d.stats_hash)) md;
+
     (* remove [dl] (deleted files) from old selection: *)
     let dl_sub = List.map (entry_from_name path stats_hash) dl
-                 |> Array.of_list in Array.(sort comp dl_sub);
+                 |> Array.of_list in
+    Array.(sort comp dl_sub);
+    (* print_entries d.entries; print_newline (); *)
+    (* print_entries dl_sub; *)
     let dl_sel = sorted_subarray_to_selection d.entries dl_sub comp in
     printd debug_io "Deleted entries: %s" (Selection.sprint dl_sel);
     let sel = Selection.minus (Table.get_selection d.table) dl_sel in
     printd debug_io "remaining selection: %s." (Selection.sprint sel);
+
+    (* Now we can update Hash table: *)
+    List.iter (Hashtbl.remove stats_hash) dl;
+    List.iter (Hashtbl.remove stats_hash) md;
+
     (* Construct the new table: *)
     let table2_t, entries, _finalize =
       make_table ~options:t.options t.message mon
         ?name_filter:t.name_filter ?full_filter:t.full_filter
-        (Var.get d.stats_hash) in
+        stats_hash in
     (* 1. Restore the updated selection: *)
     let selected_files = Array.of_list (selected_entries d.entries sel) in
     let sel2 = sorted_subarray_to_selection entries selected_files comp in
