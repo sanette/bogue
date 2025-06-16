@@ -25,7 +25,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20250614"  (* see VERSION file *)
+let this_version = "20250616"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -55,7 +55,11 @@ let default_vars = [
   "CHECK_OFF", "fa:square-o";
   (* The cursor color for text input: *)
   "CURSOR_COLOR", "#2a7da2"; (* a color identifier. Either a name like "black" or a RGB code as "#FE01BC" *)
-  (* Color for unimportant things that should not be so visible *)
+  (* Background color indicating a disabled area: *)
+  "DISABLED_BG", "lightgray";
+  (* Text color for disabled items like button texts: *)
+  "DISABLED_FG", "gray";
+  (* Color for unimportant things that should not be so visible: *)
   "FAINT_COLOR", "gainsboro"; (* idem *)
   (* The color for standard text display: *)
   "TEXT_COLOR", "black"; (* idem *)
@@ -436,6 +440,8 @@ let button_color_on = get_var "BUTTON_COLOR_ON"
 let check_on = get_fa_or_path (get_var "CHECK_ON")
 let check_off = get_fa_or_path (get_var "CHECK_OFF")
 let cursor_color = get_var "CURSOR_COLOR"
+let disabled_fg = get_var "DISABLED_FG"
+let disabled_bg = get_var "DISABLED_BG"
 let faint_color = get_var "FAINT_COLOR"
 let text_color = get_var "TEXT_COLOR"
 let sel_bg_color = get_var "SEL_BG_COLOR"

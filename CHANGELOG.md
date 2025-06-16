@@ -12,8 +12,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - New module: `I18n` (*Internationalization*), for translating string
   to the user's language. Configuration files for 15 languages.
-- `Timeout.add_ignore`
-- `Widget.remove_connection`, `Widget.remove_trigger`
+- New 'moonfish' theme (dark).
+- Theme variables: `[DISABLED_BG]` and `[DISABLED_FG]`.
+- `Timeout.add_ignore`.
+- `Widget.remove_connection`, `Widget.remove_trigger`.
+
+### Fixed
+
+- `File`: fix file dialog crashing when monitoring a directory being deleted.
 
 ## [20250219](https://github.com/sanette/bogue/compare/20241212...20250219)
 

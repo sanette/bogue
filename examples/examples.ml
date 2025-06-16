@@ -567,7 +567,7 @@ let example25 () =
     add_bar ~dst:main [file; menu2; about]
   in
   let layout = L.tower ~margins:0
-      ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
+      (* ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) *) [main] in
   let board = of_layout layout in
   run board
 

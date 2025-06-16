@@ -138,7 +138,7 @@ let add_button_line ?background ?w ?h content buttons =
   room
 
 let slide_in ~dst ?bg ?w ?h ?screen_color content buttons =
-  let background = default bg (Style.Solid Draw.(opaque white)) in
+  let background = default bg (Style.Solid Draw.(opaque bg_color)) in
   let style = let open Style in create
       ~border:(mk_border (mk_line ~color:Draw.(opaque grey) ()))
       ~shadow:(mk_shadow ())
@@ -146,7 +146,7 @@ let slide_in ~dst ?bg ?w ?h ?screen_color content buttons =
       ~background () in
   let background = L.Box (Box.create ~style ()) in
   let popup = add_button_line ~background ?w ?h content buttons in
-  let screen_bg = default screen_color (Draw.(set_alpha 200 (pale grey))) in
+  let screen_bg = default screen_color (Draw.(set_alpha 200 disabled_bg_color)) in
   let screen = attach ~bg:screen_bg dst popup in
   (* L.slide_in ~dst popup; *)
   popup, screen
@@ -179,34 +179,34 @@ let info ?w ?h ?button_w ?button_h ?(button = I.(tf close)) text dst =
 (* TODO check that we don"t resize to 0 size! cf example21ter "*)
 (* ?button_w and ?button_h to specify a common size for both buttons *)
 let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
-    ~label1 ~label2 ~action1 ~action2 ?connect2 ?(close_on_escape=true) content =
+      ~label1 ~label2 ~action1 ~action2 ?connect2 ?(close_on_escape=true) content =
   let btn1 = Widget.button ~border_radius:3 label1 in
   let btn2 = Widget.button ~border_radius:3 label2 in
   let buttons = let w, h = button_w, button_h in
-    L.(flat ~vmargin:0 ~sep:(2*Theme.room_margin)
-         [resident ?w ?h btn1; L.resident ?w ?h btn2]) in
+                L.(flat ~vmargin:0 ~sep:(2*Theme.room_margin)
+                     [resident ?w ?h btn1; L.resident ?w ?h btn2]) in
   let restore = Main.shortcut_restore_init () in
   let close = match dst with
     | Some dst -> (* We create a popup *)
-      let popup, screen = slide_in ~dst ?w ?h ?screen_color content buttons in
-      fun () ->
-        Main.shortcut_restore restore;
-        let _ = Timeout.add L.default_duration (fun () ->
-            L.detach screen;
-            L.detach popup) in
-        (*L.hide popup;*)
-        L.fade_out ~hide:true popup;
-        (*L.hide screen*)
-        L.fade_out ~hide:true screen
+       let popup, screen = slide_in ~dst ?w ?h ?screen_color content buttons in
+       fun () ->
+       Main.shortcut_restore restore;
+       let _ = Timeout.add L.default_duration (fun () ->
+                   L.detach screen;
+                   L.detach popup) in
+       (*L.hide popup;*)
+       L.fade_out ~hide:true popup;
+       (*L.hide screen*)
+       L.fade_out ~hide:true screen
     | None -> (* We create a new window *)
-      let frame = add_button_line ?w ?h content buttons in
-      let () = match board with
-        | Some b -> ignore (Main.add_window b frame : Main.Window.t)
-        | None -> L.add_window frame in
-      fun () ->
-        printd debug_board "Closing [two_buttons] window.";
-        Main.shortcut_restore restore;
-        L.destroy_window frame
+       let frame = add_button_line ?w ?h content buttons in
+       let () = match board with
+         | Some b -> ignore (Main.add_window b frame : Main.Window.t)
+         | None -> L.add_window frame in
+       fun () ->
+       printd debug_board "Closing [two_buttons] window.";
+       Main.shortcut_restore restore;
+       L.destroy_window frame
   in
   apply_option connect2 btn2;
   let do1 _ =

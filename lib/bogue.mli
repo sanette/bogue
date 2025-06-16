@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250614
+@version 20250616
 
 @author Vu Ngoc San
 
@@ -142,7 +142,9 @@ v}
 - [CHECK_OFF]: the image used for the 'unchecked' icon. See [CHECK_ON].
 - [CURSOR_COLOR]
 - [DIR]: the directory containing the themes subdirectories.
-  Default: auto-detected at startup, usually [$HOME/.config/bogue/themes]
+    Default: auto-detected at startup, usually [$HOME/.config/bogue/themes]
+- [DISABLED_BG]: background color indicating a disabled area.
+- [DISABLED_FG]: color for disabled texts.
 - [FA_DIR]: the fontawesome directory inside [DIR/common/].
 - [FAINT_COLOR]: a non-obtrusive color for disabled options or
   text of little importance.

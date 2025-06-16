@@ -30,9 +30,17 @@ href="https://github.com/sanette/bogue/compare/20250219...HEAD">Unreleased</a></
 <li>New module: <code>I18n</code> (<em>Internationalization</em>), for
 translating string to the user’s language. Configuration files for 15
 languages.</li>
-<li><code>Timeout.add_ignore</code></li>
+<li>New ‘moonfish’ theme (dark).</li>
+<li>Theme variables: <code>[DISABLED_BG]</code> and
+<code>[DISABLED_FG]</code>.</li>
+<li><code>Timeout.add_ignore</code>.</li>
 <li><code>Widget.remove_connection</code>,
-<code>Widget.remove_trigger</code></li>
+<code>Widget.remove_trigger</code>.</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li><code>File</code>: fix file dialog crashing when monitoring a
+directory being deleted.</li>
 </ul>
 <h2 id="section"><a
 href="https://github.com/sanette/bogue/compare/20241212...20250219">20250219</a></h2>
@@ -94,7 +102,7 @@ option instead.</li>
 <li><code>Layout.unload_textures</code> is renamed
 <code>Layout.iter_unload_textures</code></li>
 </ul>
-<h3 id="fixed">Fixed</h3>
+<h3 id="fixed-1">Fixed</h3>
 <ul>
 <li><code>Table</code> layouts can now be resized dynamically.</li>
 <li>Better resizing for <code>tabs</code>: menu height is fixed.</li>
@@ -151,7 +159,7 @@ Last version compatible with tsdl &lt; 0.9.9 (and &gt;= 0.9.7)</h3>
 <li><code>Box.get_style</code> and <code>Box.set_style</code> are now
 public.</li>
 </ul>
-<h3 id="fixed-1">Fixed</h3>
+<h3 id="fixed-2">Fixed</h3>
 <ul>
 <li>Take advantage of recent SDL version to (greatly!) reduce power
 saving with idle.</li>
@@ -179,7 +187,7 @@ add special care for Windows OS.</li>
 <li>Deal with systems without audio device</li>
 </ul>
 <h3 id="changed-3">Changed</h3>
-<h3 id="fixed-2">Fixed</h3>
+<h3 id="fixed-3">Fixed</h3>
 <ul>
 <li>fix flickering menus</li>
 <li>Workaround for Mac OS 13.0.1 cocoa bug when closing windows</li>
