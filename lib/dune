@@ -66,6 +66,7 @@
   ("../share/themes/common/font-awesome-4.6.3/css/font-awesome.css" as "themes/common/font-awesome-4.6.3/css/font-awesome.css")
   ("../share/themes/common/font-awesome-4.6.3/css/font-awesome.min.css" as "themes/common/font-awesome-4.6.3/css/font-awesome.min.css")
   ("../share/themes/moonfish/bogue.conf" as "themes/moonfish/bogue.conf")
+  ("../share/themes/moonfish/bogue-icon.png" as "themes/moonfish/bogue-icon.png")
   ("../share/locales/locale_tr_TR.conf" as "locales/locale_tr_TR.conf")
   ("../share/locales/locale_nl.conf" as "locales/locale_nl.conf")
   ("../share/locales/locale_pt_BR.conf" as "locales/locale_pt_BR.conf")
