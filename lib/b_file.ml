@@ -1327,14 +1327,14 @@ let get_table_layout t =
   Table.get_layout (t.directory.table)
 
 (* Dichotomy search. Returns immediately if x is the first or last element. *)
-let find_index_sorted ?first ?last a x compare =
+let find_index_sorted ?first ?last a x my_compare =
   let open Array in
   let rec loop i1 i2 =
-    if compare x (unsafe_get a i1) = 0 then Some i1
-    else if compare x (unsafe_get a i2) = 0 then Some i2
+    if my_compare x (unsafe_get a i1) = 0 then Some i1
+    else if my_compare x (unsafe_get a i2) = 0 then Some i2
     else if i1 = i2 || i1 + 1 = i2 then None
     else let mid = (i1 + i2) / 2 in
-      if compare x (unsafe_get a mid) > 0 then loop mid i2 else loop i1 mid in
+      if my_compare x (unsafe_get a mid) > 0 then loop mid i2 else loop i1 mid in
   loop (default first 0) (default last (Array.length a - 1))
 
 let test_find_index_sorted () =

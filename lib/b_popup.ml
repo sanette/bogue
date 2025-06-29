@@ -265,8 +265,10 @@ let tooltip ?background ?(position = Below) text ~target widget layout =
   let background = match background with
     | Some b -> b
     | None ->
-      let style = Style.(create ~border:(mk_border ~radius:5 (mk_line ()))
-                           ~background:(Solid Draw.(opaque (pale grey))) ()) in
+      let style = Style.(create
+                           ~border:(mk_border ~radius:5
+                                      (mk_line ~color:Draw.(opaque disabled_fg_color)()))
+                           ~background:(Solid Draw.(opaque disabled_bg_color)) ()) in
       L.Box (Box.create ~style ()) in
   let tooltip = L.tower_of_w ~sep:3 ~background [t] in
   attach_on_top layout tooltip;
