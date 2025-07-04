@@ -24,7 +24,7 @@ href="https://ocaml.org/">ocaml</a>, which is</p>
 <ul>
 <li>lightweight (well, at least relatively to <a
 href="https://www.gtk.org/">gtk</a> or <a
-href="https://www.qt.io/">qt</a>, everything looks lightweight!);</li>
+href="https://www.qt.io/">qt</a>);</li>
 <li>not a binding to another library; all widgets are written from
 scratch in <code>ocaml</code>,</li>
 <li>using <a href="https://www.libsdl.org/">SDL2</a> as a graphics
@@ -87,11 +87,12 @@ to run the <code>boguex</code> command from the terminal. It contains
 samples of <em>all useful constructions</em> (widgets and layouts). Just
 type</p>
 <pre class="shell"><code>boguex -h</code></pre>
-<p>to get the list of available examples; there are about 50 of them! To
-run a particular example, for instance example #41, just type
+<p>to get the list of available examples; there are more than 50 of
+them! To run a particular example, for instance example #41, just type
 <code>boguex 41</code>. (If you run <code>boguex</code> without argument
-you will have to go through all examples, which is probably not what you
-want.) The source code is the file <a
+you will have to go through all examples, which what I do each time a
+new feature is implemented, but probably not what you want.) The source
+code is the file <a
 href="https://github.com/sanette/bogue/blob/master/examples/examples.ml"><code>examples/examples.ml</code></a>.
 It is very useful to quickly check how to use various constructs.</p>
 <h3 id="the-input-examples">The <code>input</code> examples</h3>
@@ -156,7 +157,7 @@ draws a rectangular texture (with possible borders and rounded
 corners)</li>
 <li><a
 href="Bogue.Widget.html#3_Labelsoricons"><strong>Label</strong></a>:
-plain text display, or icons</li>
+one-line plain text display, or icons</li>
 <li><a href="Bogue.Widget.html#3_Image"><strong>Image</strong></a>:
 image read from a file (jpg, png, etc.)</li>
 <li><a href="Bogue.Widget.html#3_Checkboxes"><strong>Check</strong></a>:
@@ -165,8 +166,8 @@ a check box</li>
 text or an icon that can be clicked</li>
 <li><a
 href="Bogue.Widget.html#3_Textdisplay"><strong>TextDisplay</strong></a>:
-text display with word wrapping and simple formatting (bold, italics,
-underline)</li>
+multiline text display with word wrapping and simple formatting (bold,
+italics, underline, colors)</li>
 <li><a
 href="Bogue.Widget.html#3_Textinput"><strong>TextInput</strong></a>: let
 the user enter a one-line text</li>
@@ -208,6 +209,9 @@ lists, file chooser, etc.</p>
 <li>a layout that contains a <em>list of layouts</em>. Think of a house
 containing several rooms.</li>
 </ul>
+<p>Note that this definition is “recursive”: a layout can contain a list
+of layouts, each of which is itself a fully-fledged layout, and can
+therefore also contain a list of layouts, and so on…</p>
 <p>The geometry of rooms inside a house (= children layouts inside a
 parent layout) can be arbitrary, but the two main useful ones are:</p>
 <ul>

@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- WARNING! `Table.create` now returns a private type. In order to obtain the layout you should then apply `Table.get_layout`.
 - `Layout.set_size` now takes optional arguments for sizes (allows to
   reduce the number of calls to `resize_content`)
 - `Theme.set_integer_scale` is renamed to `Theme.set_int_scale` to

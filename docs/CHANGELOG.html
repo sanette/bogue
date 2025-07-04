@@ -57,6 +57,9 @@ global shortcuts.</li>
 </ul>
 <h3 id="changed">Changed</h3>
 <ul>
+<li>WARNING! <code>Table.create</code> now returns a private type. In
+order to obtain the layout you should then apply
+<code>Table.get_layout</code>.</li>
 <li><code>Layout.set_size</code> now takes optional arguments for sizes
 (allows to reduce the number of calls to
 <code>resize_content</code>)</li>
