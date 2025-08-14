@@ -19,12 +19,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Fall back to default theme if new theme is not found.
 - `File`: fix file dialog crashing when monitoring a directory being deleted.
 
 ## [20250219](https://github.com/sanette/bogue/compare/20241212...20250219)
 
 ### Added
 
+- `BOX_BG_COLOR`
 - New module: `File` for file selection dialogs and file
   monitoring. This is quite a complex layout, so we decided make it
   public now in a beta-testing phase. New features will be added
@@ -35,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `Popup.one_button` and `Popup.two_buttons` now have a `bg` optional argument.
 - WARNING! `Table.create` now returns a private type. In order to obtain the layout you should then apply `Table.get_layout`.
 - `Layout.set_size` now takes optional arguments for sizes (allows to
   reduce the number of calls to `resize_content`)
