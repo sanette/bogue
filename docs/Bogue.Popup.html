@@ -100,7 +100,7 @@
 </div>
 </div>
 
-<pre><span id="VALone_button"><span class="keyword">val</span> one_button</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?on_close:(unit -&gt; unit) -&gt;<br>       button:string -&gt;<br>       dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; ?close_on_escape:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALone_button"><span class="keyword">val</span> one_button</span> : <code class="type">?w:int -&gt;<br>       ?h:int -&gt;<br>       ?bg:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?on_close:(unit -&gt; unit) -&gt;<br>       button:string -&gt;<br>       dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; ?close_on_escape:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Add to <code class="code">dst</code> the given layout and one button with the <code class="code">button</code>
       string. Clicking the button will close the popup and execute the optional
@@ -108,7 +108,7 @@
 </div>
 </div>
 
-<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?screen_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt;<br>       ?connect2:(<a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; unit) -&gt;<br>       ?close_on_escape:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
+<pre><span id="VALtwo_buttons"><span class="keyword">val</span> two_buttons</span> : <code class="type">?dst:<a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt;<br>       ?board:<a href="Bogue.Main.html#TYPEboard">Main.board</a> -&gt;<br>       ?button_w:int -&gt;<br>       ?button_h:int -&gt;<br>       ?w:int -&gt;<br>       ?h:int -&gt;<br>       ?bg:<a href="Bogue.Style.html#TYPEbackground">Style.background</a> -&gt;<br>       ?screen_color:<a href="Bogue.Draw.html#TYPEcolor">Draw.color</a> -&gt;<br>       label1:string -&gt;<br>       label2:string -&gt;<br>       action1:(unit -&gt; unit) -&gt;<br>       action2:(unit -&gt; unit) -&gt;<br>       ?connect2:(<a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; unit) -&gt;<br>       ?close_on_escape:bool -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>If <code class="code">dst</code> is present, a popup containing the given layout (and two buttons)
       will be contructed inside <code class="code">dst</code>, otherwise a new window will be

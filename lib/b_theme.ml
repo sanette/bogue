@@ -25,7 +25,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20250704"  (* see VERSION file *)
+let this_version = "20250814"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -43,8 +43,10 @@ let default_vars = [
      inside THEME. *)
   (* The window background image (eg: "file:background.png") or color: *)
   "BACKGROUND", "color:white";
+  (* A color similar or equal to BACKGROUND: *)
+  "BG_COLOR", "aliceblue";
   (* This background color should be clearly visible over the BACKGROUND *)
-  "BG_COLOR", "lightsteelblue";
+  "BOX_BG_COLOR", "lightsteelblue";
   (* Color for active or inactive button *)
   "BUTTON_COLOR_ON", "darkturquoise";
   "BUTTON_COLOR_OFF", "#8bc0d1"; (* 8bc0c7 ou #74a0c4 ou #92cae5 ou steelblue *)
@@ -102,9 +104,11 @@ let default_vars = [
   (* By default, we try to enable (Adaptive) VSync. Setting this variable to
      "true" disables this, and then, instead, we try to detect the monitors
      refresh rates. *)
-  "NATURAL_SCROLLING", "auto"
+  "NATURAL_SCROLLING", "auto";
   (* Scrolling in the "natural for a tablet/phone" direction. "auto" will set
      it to "true" on MacOS, "false" everywhere else. *)
+  "USE_FSWATCH", "true"
+  (* Use the external program "fswatch" (if available) for file monitoring. If set to "false", we use Unix.stat. *)
 ]
 
 let id x = x
@@ -161,6 +165,12 @@ let load_vars config_file =
   in
   loop []
 
+let load_vars config_file =
+  if Sys.file_exists config_file then load_vars config_file
+  else begin
+    printd (debug_error + debug_io) "Config file [%s] does not exists." config_file;
+    []
+  end
 
 (* TODO move this in an "init" function (and hence theme vars must be mutable)
 *)
@@ -226,24 +236,42 @@ let get_bool s =
   let b = get_var s in
   String.lowercase_ascii b = "true" || b = "1"
 
+let dir_exists d = Sys.file_exists d && Sys.is_directory d
+
 let rev_insert_theme_vars theme_path vars rest =
   let theme_vars = load_vars theme_path in
   List.rev_append vars (List.append theme_vars rest)
+
+let chk_theme_dir th_dir =
+  dir_exists th_dir || begin
+    printd (debug_error + debug_io) "Theme directory [%s] does not exist." th_dir;
+    false
+  end
 
 (* Checks the (first) THEME entry in user's vars, and then loads & inserts the
    theme variables. If there is no THEME entry, we add ("THEME", "default"). *)
 let load_theme_vars dir vars =
   let rec loop newv = function
     | [] ->
-      let value = get_var "THEME" in (* should be "default" *)
-      printd debug_io "No theme specified, using default=%s" value;
+      let value0 = get_var "THEME" in (* should be "default" if not BOGUE_THEME was set *)
+      let value = if chk_theme_dir (dir // value0) then value0
+        else if value0 = "default" then failwith "Cannot find default theme."
+        else "default" in
+      printd debug_io "No theme specified, using default=%s." value;
+      if value <> value0 then begin
+        print "Bogue Warning: Using theme [%s] because [%s] could not be loaded."
+          value value0;
+        Unix.putenv "BOGUE_THEME" value
+      end;
       loop newv ["THEME", value]
     | (name, value)::rest ->
-       if name = "THEME"
-       then
-         let theme_path = dir // value // conf_file in
-         (name, value) :: (rev_insert_theme_vars theme_path newv rest)
-       else loop ((name, value)::newv) rest
+      if name = "THEME"
+      then
+        if chk_theme_dir (dir // value)
+        then let theme_path = dir // value // conf_file in
+          (name, value) :: (rev_insert_theme_vars theme_path newv rest)
+        else loop newv rest
+      else loop ((name, value)::newv) rest
   in
   loop [] vars
 
@@ -327,10 +355,9 @@ let app_share_dir = match Filename.basename Sys.executable_name with
    install .` is done, it should work.  *)
 let dir =
   let dir = get_var "DIR" in
-  if Sys.file_exists dir && Sys.is_directory dir
-  then dir
+  if dir_exists dir then dir
   else let config = conf // "themes" in
-    if Sys.file_exists config && Sys.is_directory config
+    if dir_exists config
     then if dir = ""
       then begin
         printd debug_warning "Using [%s] as bogue themes directory" config;
@@ -347,8 +374,7 @@ let dir =
         | Unix.WEXITED 0 ->
           let res = Filename.(dirname @@ dirname res) in
           let dir = Printf.sprintf "%s/share/bogue/themes" res in
-          if Sys.file_exists dir && Sys.is_directory dir
-          then dir else begin
+          if dir_exists dir then dir else begin
             printd debug_error "Cannot find themes directory";
             raise Not_found
           end
@@ -435,6 +461,7 @@ let get_font_path_opt name =
 
 let background = get_var "BACKGROUND"
 let bg_color = get_var "BG_COLOR"
+let box_bg_color = get_var "BOX_BG_COLOR"
 let button_color_off = get_var "BUTTON_COLOR_OFF"
 let button_color_on = get_var "BUTTON_COLOR_ON"
 let check_on = get_fa_or_path (get_var "CHECK_ON")
@@ -467,6 +494,7 @@ let natural_scrolling =
   if String.lowercase_ascii (get_var "NATURAL_SCROLLING") = "auto"
   then os_type () = "Darwin" else get_bool "NATURAL_SCROLLING"
 let mouse_wheel_scale = ref (if natural_scrolling then -1. else 1.)
+let use_fswatch = get_bool "USE_FSWATCH"
 
 (** some standard (?) UTF8 symbols *)
 let symbols = [

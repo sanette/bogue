@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250704
+@version 20250814
 
 @author Vu Ngoc San
 
@@ -189,6 +189,9 @@ v}
   As soon as this variable is set, all variables from that theme
   are loaded and override previously defined variables.
   If not specified, the default theme is initially loaded.
+- [USE_FSWATCH]: (default="true") Use the external program "fswatch" (if
+  available) for file monitoring. If set to "false", (or if "fswatch" is not
+   available) we use [Unix.stat]. *
 
 All variables with "COLOR" in their name can be specified either with RGB
 hexadecimal like "#00CED1", or with a standard html name like" darkturquoise",
@@ -3230,15 +3233,16 @@ module Popup : sig
       [yes="Yes"] and [no="No"] (localized). This popup is {e not} closed by
       pressing ESCAPE. See {!info} for other common parameters. *)
 
-  val one_button : ?w:int -> ?h:int -> ?on_close:(unit -> unit) ->
-    button:string -> dst:Layout.t -> ?close_on_escape:bool -> Layout.t -> unit
+  val one_button : ?w:int -> ?h:int -> ?bg:Style.background ->
+    ?on_close:(unit -> unit) -> button:string -> dst:Layout.t ->
+    ?close_on_escape:bool -> Layout.t -> unit
   (** Add to [dst] the given layout and one button with the [button]
       string. Clicking the button will close the popup and execute the optional
       [on_close] function. *)
 
   val two_buttons : ?dst:Layout.t -> ?board:Main.board ->
     ?button_w:int -> ?button_h:int ->
-    ?w:int -> ?h:int -> ?screen_color:Draw.color ->
+    ?w:int -> ?h:int -> ?bg:Style.background -> ?screen_color:Draw.color ->
     label1:string -> label2:string ->
     action1:(unit -> unit) -> action2:(unit -> unit) -> ?connect2:(Widget.t -> unit) ->
     ?close_on_escape:bool -> Layout.t -> unit
@@ -3344,8 +3348,8 @@ module File : sig
     val start : ?delay:float -> ?action:(t -> unit) -> string -> t
     (** [start path] starts monitoring the directory or file [path] and
         immediately returns. It is not an error if [path] does not exist or is
-        deleted, see below. Once monitoring has started, check the {!modified}
-        function below to obtain the actual changes.
+        eventually deleted, see below. Once monitoring has started, check the
+        {!modified} function below to obtain the actual changes.
 
         @param delay the time interval (in seconds) between polls.  The default
           delay is 1 second. It may be internally increased if the polls take
@@ -3368,11 +3372,13 @@ module File : sig
     val ls : t -> string list
     (** [ls m] returns the list of files watched by the monitor [ m ] when the
         last [*modified] function was called. {e Thus, it may be different from
-        the actual current content.} If [ m ] monitors a directory, [ls m] is the
-        content of the directory (without "." and ".."), otherwise [ls m] is
+        the actual current content.} If [ m ] monitors a directory, [ls m] is
+        the content of the directory (without "." and ".."), otherwise [ls m] is
         [["."]] if the file exists, or [[]] if not. This function takes
         advantage of the monitoring data to return faster (in general) than
-        rescanning the directory with [Sys.readdir]. *)
+        rescanning the directory with [Sys.readdir]. The order of the list is
+        not specified (although for the [fswatch] implementation it should be
+        sorted by increasing alphabetical order.) *)
 
     val size : t -> int option
     (** If [t] monitors a directory, then [size t] is the number of elements of
@@ -3386,8 +3392,9 @@ module File : sig
 
         {e list of deleted elements, list of added elements, list of modified elements}
 
-        File names do not include the directory path. These lists can be equal to
-        the singleton [["."]] in some special cases:
+         Lists are not sorted (except when using the [fswatch]
+         implementation). File names do not include the directory path. These
+         lists can be equal to the singleton [["."]] in some special cases:
 
         + if the [path] now exists but did not exist in the previous call to
         [*modified], then the [added] list is [["."]] and the others are empty (even
@@ -3404,7 +3411,7 @@ module File : sig
     (** Simply returns true if files were modified since the last call of this
         function or of [modified]. The list of modified files cannot be
         retrieved. This is (semantically) equivalent to checking if the lists
-        returned by [modified] are empty, but possibly faster. *)
+        returned by [modified] are not all empty, but possibly faster. *)
   end (* of Monitor *)
 
   (** Mimetype information *)

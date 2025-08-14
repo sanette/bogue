@@ -137,8 +137,8 @@ let add_button_line ?background ?w ?h content buttons =
   L.set_size room ?w ?h;
   room
 
-let slide_in ~dst ?bg ?w ?h ?screen_color content buttons =
-  let background = default bg (Style.Solid Draw.(opaque bg_color)) in
+let create ~dst ?bg ?w ?h ?screen_color content buttons =
+  let background = default bg (Style.Solid Draw.(opaque box_bg_color)) in
   let style = let open Style in create
       ~border:(mk_border (mk_line ~color:Draw.(opaque grey) ()))
       ~shadow:(mk_shadow ())
@@ -151,9 +151,9 @@ let slide_in ~dst ?bg ?w ?h ?screen_color content buttons =
   (* L.slide_in ~dst popup; *)
   popup, screen
 
-let one_button ?w ?h ?on_close ~button ~dst ?(close_on_escape=true) content =
+let one_button ?w ?h ?bg ?on_close ~button ~dst ?(close_on_escape=true) content =
   let close_btn = Widget.button ~border_radius:3 button in
-  let popup, screen = slide_in ~dst content (L.resident ?w ?h close_btn) in
+  let popup, screen = create ~dst ?bg content (L.resident ?w ?h close_btn) in
   let restore = Main.shortcut_restore_init () in
   let close _ =
     Main.shortcut_restore restore;
@@ -178,7 +178,7 @@ let info ?w ?h ?button_w ?button_h ?(button = I.(tf close)) text dst =
 
 (* TODO check that we don"t resize to 0 size! cf example21ter "*)
 (* ?button_w and ?button_h to specify a common size for both buttons *)
-let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
+let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?bg ?screen_color
       ~label1 ~label2 ~action1 ~action2 ?connect2 ?(close_on_escape=true) content =
   let btn1 = Widget.button ~border_radius:3 label1 in
   let btn2 = Widget.button ~border_radius:3 label2 in
@@ -188,7 +188,7 @@ let two_buttons ?dst ?board ?button_w ?button_h ?w ?h ?screen_color
   let restore = Main.shortcut_restore_init () in
   let close = match dst with
     | Some dst -> (* We create a popup *)
-       let popup, screen = slide_in ~dst ?w ?h ?screen_color content buttons in
+       let popup, screen = create ~dst ?w ?h ?bg ?screen_color content buttons in
        fun () ->
        Main.shortcut_restore restore;
        let _ = Timeout.add L.default_duration (fun () ->

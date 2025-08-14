@@ -538,6 +538,7 @@ end (* of module Fswatch*)
 
 (* Test if [fswatch] is available. One could do a more thorough test. *)
 let fswatch_check () =
+  Theme.use_fswatch &&
   which "fswatch" <> None
 
 module Diff = struct
@@ -888,32 +889,35 @@ module Monitor =
 
 let test_monitor () =
 
-  (* adapted from ocaml 5.1*)
+  (* Adapted from ocaml 5.1*)
   let temp_dir prefix suffix =
-  let rec try_name counter =
-    let name = Filename.temp_file prefix suffix in
-    try
-      Sys.remove name;
-      Unix.mkdir name 0o700;
-      name
-    with Sys_error _ as e ->
-      if counter >= 20 then raise e else try_name (counter + 1)
-  in try_name 0 in
+    let rec try_name counter =
+      let name = Filename.temp_file prefix suffix in
+      try
+        Sys.remove name;
+        Unix.mkdir name 0o700;
+        name
+      with Sys_error _ as e ->
+        if counter >= 20 then raise e else try_name (counter + 1)
+    in try_name 0 in
 
   let temp_dir = temp_dir "bogue_file" ".d" in
   let t = Monitor.start ~delay:1. temp_dir in
   Thread.delay 0.2;
   let foo = Filename.temp_file ~temp_dir "foo-" ".txt" in
+  Unix.mkdir (temp_dir // "foo_dir") 0o700;
   Thread.delay 1.2;
   let d, a, m = Monitor.modified t in
   assert (d = []);
-  assert (a = [Filename.basename foo]);
+  assert (List.sort Stdlib.compare a = [Filename.basename foo; "foo_dir"]);
+  (* note that '_' comes after '-' in alphabetical order *)
   assert (m = []);
   assert (Monitor.path t = Filename.dirname foo);
+  Sys.rmdir (temp_dir // "foo_dir");
   Sys.remove foo;
   Thread.delay 1.2;
   let d, _a, _m = Monitor.modified t in
-  assert (d = [Filename.basename foo]);
+  assert (List.sort Stdlib.compare d = [Filename.basename foo; "foo_dir"]);
   Monitor.stop t
 
 module Mime = struct
@@ -1977,7 +1981,8 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype ?name
           W.add_connection t.new_file c)
   in
 
-  Popup.two_buttons ?dst ?board ?w ?h ~label1:I.(tf cancel) ~label2
+  let bg = Style.Solid Draw.(opaque bg_color) in
+  Popup.two_buttons ?dst ~bg ?board ?w ?h ~label1:I.(tf cancel) ~label2
     ~action1:(fun () ->
         Monitor.stop fd.directory.monitor)
     ~action2:(fun () ->

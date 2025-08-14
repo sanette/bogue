@@ -522,6 +522,7 @@ let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8
   (r,g,b,alpha)
 
 let bg_color = find_color Theme.bg_color
+let box_bg_color = find_color Theme.box_bg_color
 let cursor_color = find_color Theme.cursor_color
 let disabled_bg_color = find_color Theme.disabled_bg
 let disabled_fg_color = find_color Theme.disabled_fg

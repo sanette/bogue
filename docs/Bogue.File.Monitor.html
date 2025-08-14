@@ -55,8 +55,8 @@
 <div class="info-desc">
 <p><code class="code">start&nbsp;path</code> starts monitoring the directory or file <code class="code">path</code> and
         immediately returns. It is not an error if <code class="code">path</code> does not exist or is
-        deleted, see below. Once monitoring has started, check the <a href="Bogue.File.Monitor.html#VALmodified"><code class="code"><span class="constructor">File</span>.<span class="constructor">Monitor</span>.modified</code></a>
-        function below to obtain the actual changes.</p>
+        eventually deleted, see below. Once monitoring has started, check the
+        <a href="Bogue.File.Monitor.html#VALmodified"><code class="code"><span class="constructor">File</span>.<span class="constructor">Monitor</span>.modified</code></a> function below to obtain the actual changes.</p>
 </div>
 </div>
 <div class="param_info"><code class="code">delay</code> : the time interval (in seconds) between polls.  The default
@@ -82,11 +82,13 @@
 <div class="info-desc">
 <p><code class="code">ls&nbsp;m</code> returns the list of files watched by the monitor <code class="code">&nbsp;m&nbsp;</code> when the
         last <code class="code">*modified</code> function was called. <em>Thus, it may be different from
-        the actual current content.</em> If <code class="code">&nbsp;m&nbsp;</code> monitors a directory, <code class="code">ls&nbsp;m</code> is the
-        content of the directory (without "." and ".."), otherwise <code class="code">ls&nbsp;m</code> is
+        the actual current content.</em> If <code class="code">&nbsp;m&nbsp;</code> monitors a directory, <code class="code">ls&nbsp;m</code> is
+        the content of the directory (without "." and ".."), otherwise <code class="code">ls&nbsp;m</code> is
         <code class="code">[<span class="string">"."</span>]</code> if the file exists, or <code class="code">[]</code> if not. This function takes
         advantage of the monitoring data to return faster (in general) than
-        rescanning the directory with <code class="code"><span class="constructor">Sys</span>.readdir</code>.</p>
+        rescanning the directory with <code class="code"><span class="constructor">Sys</span>.readdir</code>. The order of the list is
+        not specified (although for the <code class="code">fswatch</code> implementation it should be
+        sorted by increasing alphabetical order.)</p>
 </div>
 </div>
 
@@ -106,8 +108,9 @@
 
 <p><em>list of deleted elements, list of added elements, list of modified elements</em></p>
 
-<p>File names do not include the directory path. These lists can be equal to
-        the singleton <code class="code">[<span class="string">"."</span>]</code> in some special cases:</p>
+<p>Lists are not sorted (except when using the <code class="code">fswatch</code>
+         implementation). File names do not include the directory path. These
+         lists can be equal to the singleton <code class="code">[<span class="string">"."</span>]</code> in some special cases:</p>
 
 <OL>
 <li>if the <code class="code">path</code> now exists but did not exist in the previous call to
@@ -129,7 +132,7 @@
 <p>Simply returns true if files were modified since the last call of this
         function or of <code class="code">modified</code>. The list of modified files cannot be
         retrieved. This is (semantically) equivalent to checking if the lists
-        returned by <code class="code">modified</code> are empty, but possibly faster.</p>
+        returned by <code class="code">modified</code> are not all empty, but possibly faster.</p>
 </div>
 </div>
 </body></html>

@@ -134,6 +134,9 @@ BACKGROUND = color:azure</pre>
   As soon as this variable is set, all variables from that theme
   are loaded and override previously defined variables.
   If not specified, the default theme is initially loaded.</li>
+<li><code class="code"><span class="constructor">USE_FSWATCH</span></code>: (default="true") Use the external program "fswatch" (if
+  available) for file monitoring. If set to "false", (or if "fswatch" is not
+   available) we use <code class="code"><span class="constructor">Unix</span>.stat</code>. *</li>
 </ul>
 <p>All variables with "COLOR" in their name can be specified either with RGB
 hexadecimal like "#00CED1", or with a standard html name like" darkturquoise",

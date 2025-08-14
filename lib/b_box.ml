@@ -33,7 +33,7 @@ let size b =
   b.size
 
 let default_size = (256,64)
-let default_background = Style.theme_bg (* Style.Solid Draw.(opaque pale_grey) *)
+let default_background = Draw.box_bg_color (* Style.Solid Draw.(opaque pale_grey) *)
 let default_border = Style.(mk_border {
     color = Draw.(opaque grey);
     width = 1;

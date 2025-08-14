@@ -102,7 +102,7 @@ let color_bg color =
 let opaque_bg rgb =
   color_bg (Draw.opaque rgb)
 
-let theme_bg = opaque_bg (Draw.bg_color)
+let theme_bg = opaque_bg Draw.bg_color
 
 let get_color = function
   | Solid c -> c
