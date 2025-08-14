@@ -913,7 +913,7 @@ let test_monitor () =
   (* note that '_' comes after '-' in alphabetical order *)
   assert (m = []);
   assert (Monitor.path t = Filename.dirname foo);
-  Sys.rmdir (temp_dir // "foo_dir");
+  Unix.rmdir (temp_dir // "foo_dir");
   Sys.remove foo;
   Thread.delay 1.2;
   let d, _a, _m = Monitor.modified t in
