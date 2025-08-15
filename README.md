@@ -84,7 +84,7 @@ a delay.
 
 | demo, tab1 | demo, tab2 |
 |-----|-----|
-|![demo1](tabs1.png)| ![demo2](tabs2.png) |
+|![demo1](https://raw.githubusercontent.com/sanette/bogue/refs/heads/master/tabs1.png)| ![demo2](https://raw.githubusercontent.com/sanette/bogue/refs/heads/master/tabs2.png) |
 
 See [here](https://github.com/sanette/bogue-demo) for the source code
 of this demo.
