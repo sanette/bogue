@@ -27,6 +27,7 @@ href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>.</p>
 href="https://github.com/sanette/bogue/compare/20250219...HEAD">Unreleased</a></h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><code>BOX_BG_COLOR</code></li>
 <li>New module: <code>I18n</code> (<em>Internationalization</em>), for
 translating string to the user’s language. Configuration files for 15
 languages.</li>
@@ -36,6 +37,11 @@ languages.</li>
 <li><code>Timeout.add_ignore</code>.</li>
 <li><code>Widget.remove_connection</code>,
 <code>Widget.remove_trigger</code>.</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li><code>Popup.one_button</code> and <code>Popup.two_buttons</code> now
+have a <code>bg</code> optional argument.</li>
 </ul>
 <h3 id="fixed">Fixed</h3>
 <ul>
@@ -47,7 +53,6 @@ directory being deleted.</li>
 href="https://github.com/sanette/bogue/compare/20241212...20250219">20250219</a></h2>
 <h3 id="added-1">Added</h3>
 <ul>
-<li><code>BOX_BG_COLOR</code></li>
 <li>New module: <code>File</code> for file selection dialogs and file
 monitoring. This is quite a complex layout, so we decided make it public
 now in a beta-testing phase. New features will be added later, and maybe
@@ -57,10 +62,8 @@ small API changes.</li>
 <li>additional functions in <code>Main</code> for dynamically updating
 global shortcuts.</li>
 </ul>
-<h3 id="changed">Changed</h3>
+<h3 id="changed-1">Changed</h3>
 <ul>
-<li><code>Popup.one_button</code> and <code>Popup.two_buttons</code> now
-have a <code>bg</code> optional argument.</li>
 <li>WARNING! <code>Table.create</code> now returns a private type. In
 order to obtain the layout you should then apply
 <code>Table.get_layout</code>.</li>
@@ -99,7 +102,7 @@ in addition to the Theme fonts (which is not recommended anyways for
 good design).</li>
 <li>font example 52.</li>
 </ul>
-<h3 id="changed-1">Changed</h3>
+<h3 id="changed-2">Changed</h3>
 <ul>
 <li>Scrolling direction is “natural” by default on Mac OS.</li>
 <li>Options for <code>Layout.flat*</code> and <code>Layout.tower*</code>
@@ -139,7 +142,7 @@ href="https://github.com/sanette/bogue/compare/20240225...20240928">20240928</a>
 <li><code>Main.get_monitors_refresh_rate</code>.</li>
 <li>“NO_VSYNC” theme variable.</li>
 </ul>
-<h3 id="changed-2">Changed</h3>
+<h3 id="changed-3">Changed</h3>
 <ul>
 <li><code>Main.run</code> and <code>Time.adaptive_fps</code> have an
 optional argument <code>vsync</code>.</li>
@@ -193,7 +196,7 @@ href="https://github.com/sanette/bogue/compare/20221112...20231209">20231209</a>
 add special care for Windows OS.</li>
 <li>Deal with systems without audio device</li>
 </ul>
-<h3 id="changed-3">Changed</h3>
+<h3 id="changed-4">Changed</h3>
 <h3 id="fixed-3">Fixed</h3>
 <ul>
 <li>fix flickering menus</li>

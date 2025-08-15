@@ -10,12 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `BOX_BG_COLOR`
 - New module: `I18n` (*Internationalization*), for translating string
   to the user's language. Configuration files for 15 languages.
 - New 'moonfish' theme (dark).
 - Theme variables: `[DISABLED_BG]` and `[DISABLED_FG]`.
 - `Timeout.add_ignore`.
 - `Widget.remove_connection`, `Widget.remove_trigger`.
+
+### Changed
+- `Popup.one_button` and `Popup.two_buttons` now have a `bg` optional argument.
 
 ### Fixed
 
@@ -26,7 +30,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- `BOX_BG_COLOR`
 - New module: `File` for file selection dialogs and file
   monitoring. This is quite a complex layout, so we decided make it
   public now in a beta-testing phase. New features will be added
@@ -37,7 +40,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- `Popup.one_button` and `Popup.two_buttons` now have a `bg` optional argument.
 - WARNING! `Table.create` now returns a private type. In order to obtain the layout you should then apply `Table.get_layout`.
 - `Layout.set_size` now takes optional arguments for sizes (allows to
   reduce the number of calls to `resize_content`)
