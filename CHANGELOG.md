@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20250815...HEAD)
 
-## [20250815](https://github.com/sanette/bogue/compare/20250219...20250815)
+## [20250815](https://github.com/sanette/bogue/compare/20250224...20250815)
 
 ### Added
 
@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Fall back to default theme if new theme is not found.
 - `File`: fix file dialog crashing when monitoring a directory being deleted.
 
-## [20250219](https://github.com/sanette/bogue/compare/20241212...20250219)
+## [20250219](https://github.com/sanette/bogue/compare/20241212...20250224)
 
 ### Added
 
