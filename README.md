@@ -18,6 +18,7 @@ _Bogue_ is an all-purpose GUI (Graphical user interface) library for
 * Built-in audio mixer.
 * Works with mouse, touchscreen, and even TAB focusing
 * Internationalization mechanism
+* Low energy consumption
 
 Programming with _bogue_ is easy if you're used to GUIs with widgets,
 layouts, callbacks, and of course it has a functional flavor.  ​It uses
@@ -183,3 +184,15 @@ Type `boguex -h` to have the list of all examples.
 # A minimal app using Bogue
 
 See [here](https://github.com/sanette/randomize).
+
+# Low energy, no AI
+
++ _On the user side:_ using Bogue should be quite energy friendly,
+  probably more than any web-based solution. From my experience, it
+  should be comparable to opening a folder from your local open source
+  WM, like KDE. Athough, no serious testing have been performed yet.
+
++ _On the dev side_ (I'm only speaking for myself, as the main Bogue
+  developper): as of December, 2025, no AI whatsoever was used in the
+  developement of Bogue, not even for getting pieces of advice. On the
+  other hand, I did do quite a few google searches, of course.

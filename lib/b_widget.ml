@@ -740,6 +740,7 @@ let wake_up event c =
               (* printd debug_thread "Killing connection #%d" a.connect_id;*)
               (* Thread.kill a.thread; *) (* Thread.kill is in fact NOT
                                              implemented... ! *)
+              (* TODO one could try to use https://guillaume.munch.name/software/ocaml/memprof-limits.0.3.0/ *)
               terminate a;
               remove c.source (Thread.id a.thread);
               add_action c action event

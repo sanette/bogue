@@ -77,6 +77,17 @@ print_endline (<span class="constructor">I</span>.tf s)
 <p>Functions available in every context.</p>
 
 </div>
+
+<pre><span id="VALmake_context"><span class="keyword">val</span> make_context</span> : <code class="type">string -&gt; (module Bogue.I18n.ContextInit)</code></pre><div class="info ">
+<div class="info-desc">
+<p>Create a new module for using the given context. New translations aliases
+      can be added by extending the module, as follows:</p>
+
+<pre class="codepre"><code class="code"><span class="keyword">module</span> <span class="constructor">My_context</span> = <span class="keyword">struct</span>
+  <span class="keyword">include</span> (<span class="keyword">val</span> (make_context <span class="string">"my_context"</span>) : <span class="constructor">ContextInit</span>)
+  <span class="keyword">let</span> hello = tt <span class="string">"Hello"</span>
+<span class="keyword">end</span></code></pre></div>
+</div>
 <h3 id="2_Translationfiles">Translation files</h3>
 <p>Translation files are located in the <code class="code">locales</code> directory of Bogue's
       <code class="code">share</code> directory. See <a href="Bogue.Theme.html#config">Where are

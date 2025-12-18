@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20250815
+@version 20251218
 
 @author Vu Ngoc San
 
@@ -406,8 +406,20 @@ print_endline ((tf f) 150)]}
             current context and for the given [locale]. This will overwrite
             previously defined translations for [text].
 
-            This function does not modifies the translation files. See {!save_locale}.*)
+            This function does not modify the translation files. See
+            {!save_locale}.*)
   end
+
+  val make_context : string -> (module ContextInit)
+  (** Create a new module for using the given context. New translations aliases
+      can be added by extending the module, as follows:
+
+      {[module My_context = struct
+  include (val (make_context "my_context") : ContextInit)
+  let hello = tt "Hello"
+end]}
+
+  *)
 
   (** {2 Translation files}
 
