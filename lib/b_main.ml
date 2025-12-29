@@ -9,6 +9,7 @@ module Avar = B_avar
 module Draw = B_draw
 module E = Sdl.Event
 module Layout = B_layout
+module Mailbox = B_mailbox
 module Mouse = B_mouse
 module Print = B_print
 module Shortcut = B_shortcut
@@ -589,8 +590,8 @@ let check_removed board ro =
   (* First: we treat the events that should be filtered or modified. This
      returns the [evo_layout] that the layout (& widget) is authorized to treat
      thereafter. Returning None means that widgets will never react to such
-     event. Currently all events are returned, except for the Update and
-     Remove_focus events. *)
+     event. Currently all events are returned, except for the Update, New_mail
+     and Remove_focus events. *)
 let filter_board_events board e =
   let open E in
   printd debug_event "1==> Filtering event type: %s" (Trigger.sprint_ev e);
@@ -627,6 +628,10 @@ let filter_board_events board e =
   | `Bogue_update ->
     printd debug_event "Update";
     Update.execute e;
+    None
+  | `Bogue_new_mail ->
+    printd debug_event "New_mail";
+    Mailbox.reach_widget e;
     None
   | `Bogue_remove_focus ->
     let id = get e user_code in

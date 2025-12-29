@@ -20,6 +20,7 @@ module Image = B_image
 module Label = B_label
 module Layout = B_layout
 module Long_list = B_long_list
+module Mailbox = B_mailbox
 module Main = B_main
 module Menu = B_menu
 module Mixer = B_mixer

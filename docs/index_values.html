@@ -17,6 +17,12 @@
 <h1>Index of values</h1>
 <table>
 <tr><td align="left"><div>A</div></td></tr>
+<tr><td><a href="Bogue.Mailbox.html#VALactivate">activate</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
+<td><div class="info">
+<code class="code">activate&nbsp;mbx&nbsp;handler</code> sets the owner widget ready to receive messages,
+      and each received message will be handled by the <code class="code">handler</code> function.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Text_input.html#VALactivate">activate</a> [<a href="Bogue.Text_input.html">Bogue.Text_input</a>]</td>
 <td><div class="info">
 Warning: two Text_input widgets cannot be active at the same time.
@@ -279,6 +285,12 @@ Create a long list through the function <code class="code">generate</code> which
 Should be called from the main thread only.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Mailbox.html#VALcreate">create</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
+<td><div class="info">
+Create an empty mailbox for the given widget, which will receive messages
+      of type <code class="code"><span class="keywordsign">'</span>a</code>.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALcreate">create</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
 Create an empty SDL area.
@@ -393,6 +405,8 @@ Emit the destroy_window event to ask Bogue to destroy the SDL window
 Use this function if you need unusual combinations of options.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Mailbox.html#VALdisable">disable</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALdisable">disable</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
 Mark an element for skipping its execution.
@@ -452,6 +466,8 @@ Create a widget that does not display anything but still gets focus and
 <tr><td><a href="Bogue.Style.html#VALempty">empty</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Selection.html#VALempty">empty</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Mailbox.html#VALenable">enable</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALenable">enable</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
@@ -1419,6 +1435,11 @@ Similar to <a href="Bogue.File.html#VALselect_file"><code class="code"><span cla
 </td></tr>
 <tr><td><a href="Bogue.I18n.File.html#VALselect_files">select_files</a> [<a href="Bogue.I18n.File.html">Bogue.I18n.File</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Mailbox.html#VALsend">send</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
+<td><div class="info">
+<code class="code">send&nbsp;mbx&nbsp;msg</code> sends the message <code class="code">msg</code> to the mailbox <code class="code">mbx</code>.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Menu.html#VALseparator">separator</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Slider.html#VALset">set</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Update.html">
+<link rel="next" href="Bogue.Layout.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Mailbox</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Update.html" title="Bogue.Update">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Layout.html" title="Bogue.Layout">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Mailbox.html">Bogue.Mailbox</a></h1>
+
+<pre><span id="MODULEMailbox"><span class="keyword">module</span> Mailbox</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Mailbox.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Sending arbitrary messages to widgets</p>
+
+<h6 id="5_graphdotbmailboxhtmlDependencygraph"><a href="graph-dot-b_mailbox.html">Dependency graph</a></h6></div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEmbx"><span class="keyword">type</span> <code class="type">'a</code> mbx</span> </pre>
+
+
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; 'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Create an empty mailbox for the given widget, which will receive messages
+      of type <code class="code"><span class="keywordsign">'</span>a</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALactivate"><span class="keyword">val</span> activate</span> : <code class="type">?sync:bool -&gt; 'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; ('a -&gt; unit) -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">activate&nbsp;mbx&nbsp;handler</code> sets the owner widget ready to receive messages,
+      and each received message will be handled by the <code class="code">handler</code> function.</p>
+
+<p>By default, "the mailman delivers at each frame": messages are handled one
+      by one in the <a href="Bogue.Sync.html"><code class="code"><span class="constructor">Sync</span></code></a> queue, in the order of reception (FIFO). Setting
+      <code class="code">sync=<span class="keyword">false</span></code> will on the contrary execute the handler in a separate
+      thread. (Only one thread for all messages.)</p>
+
+<p>Note that the mailbox is emptied as soon as the first delivery occurs, so
+      in principle the handler is authorized itself to send new messages to its
+      own mailbox. Of course if all messages trigger sending a new one, this
+      will loop forever.</p>
+</div>
+</div>
+
+<pre><span id="VALsend"><span class="keyword">val</span> send</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; 'a -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">send&nbsp;mbx&nbsp;msg</code> sends the message <code class="code">msg</code> to the mailbox <code class="code">mbx</code>.</p>
+
+<p>Recall that all messages sent to a given mailbox must be of the same
+      type. It can be handy to use polymorphic variants like</p>
+
+<pre class="codepre"><code class="code">send mbx (<span class="keywordsign">`</span><span class="constructor">Start_new_level</span> 7)</code></pre></div>
+</div>
+
+<pre><span id="VALenable"><span class="keyword">val</span> enable</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; unit</code></pre>
+<pre><span id="VALdisable"><span class="keyword">val</span> disable</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; unit</code></pre></body></html>

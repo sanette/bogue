@@ -1328,6 +1328,33 @@ let example56 () =
   let layout = L.tower_of_w [b; l] in
   run (of_layout ~connections:[cc] layout)
 
+let desc57 = "Sending messages"
+let example57 () =
+  let controller = W.empty ~w:0 ~h:0 () in
+  let mbx1 = Mailbox.create controller in
+  let mbx2 = Mailbox.create controller in
+  let button1 = W.button "Say Hello to mbx1" ~action:(fun _ ->
+      Mailbox.send mbx1 "Sending: Hello") in
+  let button2 = W.button "Say Good bye to mbx2" ~action:(fun _ ->
+      Mailbox.send mbx2 "Sending: Good bye") in
+  let button3 = W.button "Say Hi to both" ~action:(fun _ ->
+      Mailbox.send mbx1 "Sending: Hi1";
+      Mailbox.send mbx2 "Sending: Hi2"
+    ) in
+  let act1 = W.button ~kind:Button.Switch "Toggle mbx1" ~state:true ~action:(fun b ->
+      if b then Mailbox.enable mbx1 else Mailbox.disable mbx1) in
+  let act2 = W.button ~kind:Button.Switch "Toggle mbx2" ~state:true ~action:(fun b ->
+      if b then Mailbox.enable mbx2 else Mailbox.disable mbx2) in
+
+  let layout = L.tower
+      [L.tower_of_w [button1; button2; button3];
+       L.flat_of_w [act1; act2]] in
+  (* Not that the controller widget does not have to be "rendered" in a layout. *)
+  (* TODO BUG interting the controller destroys the nice rescaling of the buttons... *)
+  Mailbox.activate mbx1 print_endline;
+  Mailbox.activate mbx2 print_endline;
+  run (of_layout layout)
+
 let _ =
   let examples = [
     "00", (example00, desc00) ;
@@ -1398,6 +1425,8 @@ let _ =
     "54", (example54, desc54) ;
     "55", (example55, desc55) ;
     "56", (example56, desc56) ;
+    "57", (example57, desc57) ;
+
   ] in
   let all = List.map fst examples in
   let to_run = List.tl (Array.to_list Sys.argv)

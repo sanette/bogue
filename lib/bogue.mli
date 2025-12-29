@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20251218
+@version 20251229
 
 @author Vu Ngoc San
 
@@ -821,6 +821,7 @@ module Trigger : sig
     | `Bogue_redraw
     | `Bogue_keymap_changed
     | `Bogue_add_window
+    | `Bogue_new_mail
     | `SDL_POLLSENTINEL
     ]
 
@@ -2097,6 +2098,49 @@ module Update : sig
   (** Register a widget for being updated (at next frame) by the main loop. *)
 
 end (* of Update *)
+
+(* ---------------------------------------------------------------------------- *)
+
+(** Sending arbitrary messages to widgets
+
+    {5 {{:graph-dot-b_mailbox.html}Dependency graph}}
+*)
+module Mailbox : sig
+
+  type 'a mbx
+
+  val create : Widget.t -> 'a mbx
+  (** Create an empty mailbox for the given widget, which will receive messages
+      of type ['a]. *)
+
+
+  val activate: ?sync:bool -> 'a mbx -> ('a -> unit) -> unit
+  (** [activate mbx handler] sets the owner widget ready to receive messages,
+      and each received message will be handled by the [handler] function.
+
+      By default, "the mailman delivers at each frame": messages are handled one
+      by one in the {!Sync} queue, in the order of reception (FIFO). Setting
+      [sync=false] will on the contrary execute the handler in a separate
+      thread. (Only one thread for all messages.)
+
+      Note that the mailbox is emptied as soon as the first delivery occurs, so
+      in principle the handler is authorized itself to send new messages to its
+      own mailbox. Of course if all messages trigger sending a new one, this
+      will loop forever.*)
+
+  val send : 'a mbx -> 'a -> unit
+  (** [send mbx msg] sends the message [msg] to the mailbox [mbx].
+
+      Recall that all messages sent to a given mailbox must be of the same
+      type. It can be handy to use polymorphic variants like
+
+      {[send mbx (`Start_new_level 7)]}
+
+  *)
+
+  val enable : 'a mbx -> unit
+  val disable : 'a mbx -> unit
+end (* of Mailbox *)
 
 (* ---------------------------------------------------------------------------- *)
 

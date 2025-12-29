@@ -1,4 +1,9 @@
-(* we use Sdlevent plus some additions *)
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* As a design choice, Bogue uses the low-level SDL events (plus some
+   additions), so that even the end user can play with the whole SDL event API.
+*)
+
 (* Warning, SDL is not thread-safe, so we implement some mutexes and
    don't use wait_event *)
 (* Doc wiki:
@@ -130,6 +135,8 @@ let destroy_window = new_event_type "destroy_window"
 
 let add_window = new_event_type "add_window"
 
+let new_mail = new_event_type "new_mail"
+
 let not_used = new_event_type "not_used"
 
 (* Some aliases. Beware that in case of finger events, the OS or SDL will most
@@ -171,6 +178,7 @@ type bogue_event =
   | `Bogue_redraw
   | `Bogue_keymap_changed (* SDL event, which was missing in Tsdl. *)
   | `Bogue_add_window
+  | `Bogue_new_mail
   | `SDL_POLLSENTINEL
   ]
 
@@ -200,6 +208,7 @@ let event_kind ev : [> sdl_event | bogue_event] =
       | i when i = sync_action -> `Bogue_sync_action
       | i when i = add_window -> `Bogue_add_window
       | i when i = 0x304 -> `Bogue_keymap_changed
+      | i when i = new_mail -> `Bogue_new_mail
       (* keymap_changed was forgotten, but corrected in recent Tsdl.
          https://github.com/dbuenzli/tsdl/issues/76#event-6708707941 See also:
          https://github.com/libsdl-org/SDL/issues/5520 *)
@@ -708,6 +717,9 @@ let push_var_changed = push_from_id var_changed
 
 (* the widget_id is stored in the update event *)
 let push_update = push_from_id update
+
+(* The receiver widget (= mailbox owner) id is stored in the new_mail event *)
+let push_new_mail = push_from_id new_mail
 
 (* id of layout to add as a new window *)
 let push_add_window = push_from_id add_window
