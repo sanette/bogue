@@ -57,7 +57,7 @@ let draw_rect renderer tr =
   go (Sdl.render_fill_rect renderer (Some tr.rect))
 
 let make_board () =
-  let input = W.text_input ~max_size:200 ~prompt:"Enter your name" () in
+  let input = W.text_input ~max_len:200 ~prompt:"Enter your name" () in
   let label = W.label ~size:40 "Hello !" in
   let background = L.color_bg (Draw.(transp (find_color "olivedrab"))) in
   let w = width - 2*margin in

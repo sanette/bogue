@@ -17,6 +17,8 @@
 
    On the other hand, in more complicated cases, using mailboxes is cleary
    easier and reduces the boilerplate.
+
+   WARNING: API not stabilized yet
 *)
 
 open B_utils
@@ -37,7 +39,15 @@ type 'a mbx = {
 }
 
 (* Create a mailbox for widget [owner] whose messages are of type ['a]. *)
-let create owner = {
+let create ?owner () =
+  let owner = match owner with
+    | Some widget -> widget
+    | None ->
+      let w = W.empty ~w:0 ~h:0 () in
+      printd (debug_board) "Creating an empty Widget #%u for hosting new Mailbox"
+        (W.id w);
+      w in
+  {
   owner;
   queue = Var.create [];
   active = false
@@ -99,3 +109,10 @@ let enable mbx =
 
 let disable mbx =
   mbx.active <- false
+
+let clear mbx =
+  Var.update mbx.queue (function
+      | [] -> []
+      | _ ->
+        printd debug_user "Clearing the Mailbox #%u" (W.id mbx.owner);
+        [])

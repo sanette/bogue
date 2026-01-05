@@ -894,7 +894,7 @@ let example36 () =
 let desc37 = "playing sound when clicking"
 let example37 () =
   let devname = Mixer.init () in
-  let mixer = Mixer.create_mixer devname in
+  let mixer = Mixer.create_mixer ~freq:48000 devname in
   let check_sound = Mixer.load_chunk mixer "%assets/audio/button.wav" in
   let uncheck_sound = Mixer.load_chunk mixer "%assets/audio/swoosh.wav" in
   Mixer.change_volume 0.1 uncheck_sound;
@@ -1330,9 +1330,8 @@ let example56 () =
 
 let desc57 = "Sending messages"
 let example57 () =
-  let controller = W.empty ~w:0 ~h:0 () in
-  let mbx1 = Mailbox.create controller in
-  let mbx2 = Mailbox.create controller in
+  let mbx1 = Mailbox.create () in
+  let mbx2 = Mailbox.create () in
   let button1 = W.button "Say Hello to mbx1" ~action:(fun _ ->
       Mailbox.send mbx1 "Sending: Hello") in
   let button2 = W.button "Say Good bye to mbx2" ~action:(fun _ ->
@@ -1345,15 +1344,40 @@ let example57 () =
       if b then Mailbox.enable mbx1 else Mailbox.disable mbx1) in
   let act2 = W.button ~kind:Button.Switch "Toggle mbx2" ~state:true ~action:(fun b ->
       if b then Mailbox.enable mbx2 else Mailbox.disable mbx2) in
+  let act3 = W.button "Clear all" ~action:(fun _ -> Mailbox.clear mbx1; Mailbox.clear mbx2) in
 
   let layout = L.tower
       [L.tower_of_w [button1; button2; button3];
-       L.flat_of_w [act1; act2]] in
+       L.flat_of_w [act1; act2; act3]] in
   (* Not that the controller widget does not have to be "rendered" in a layout. *)
   (* TODO BUG interting the controller destroys the nice rescaling of the buttons... *)
   Mailbox.activate mbx1 print_endline;
   Mailbox.activate mbx2 print_endline;
   run (of_layout layout)
+
+
+let desc58 = "text input validator"
+let example58 () =
+  let reg5 = List.init 5 (fun _ -> {|[A-Za-z]|}) |> String.concat "" in
+  let tivs = Ti_validate.of_regexp ~strict:true reg5
+      ~prompt:"only plain text" "Hello" in
+  let tiv = Ti_validate.of_regexp ~strict:false reg5
+      ~prompt:"only plain text" "Salut" in
+
+  run (of_layout (Layout.tower [
+      W.text_display ~h:40
+        "The goal is to have the user type exactly 5 letters of the alphabet..."
+      |> L.resident;
+      W.label "Strict:" |> L.resident;
+      Ti_validate.get_layout tivs;
+      W.label "Non strict:" |> L.resident;
+      Ti_validate.get_layout tiv;
+    ]))
+
+let desc59 = "Email validator"
+let example59 () =
+  let emailv = Ti_validate.(make Email.validator) ~prompt:"enter email                                                               " "" in
+  run (of_layout (Layout.flat [Ti_validate.get_layout emailv]))
 
 let _ =
   let examples = [
@@ -1426,6 +1450,8 @@ let _ =
     "55", (example55, desc55) ;
     "56", (example56, desc56) ;
     "57", (example57, desc57) ;
+    "58", (example58, desc58) ;
+    "59", (example59, desc59) ;
 
   ] in
   let all = List.map fst examples in

@@ -149,6 +149,11 @@ Shortcut maps can be passed to the board to associate an arbitrary
 </td></tr>
 <tr><td><a href="Bogue.Mixer.html#TYPEsound">sound</a> [<a href="Bogue.Mixer.html">Bogue.Mixer</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#TYPEstatus">status</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td><div class="info">
+String status: Some true = good text, Some false = bad text, None = undecided yet
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Layout.Resize.html#TYPEstrategy">strategy</a> [<a href="Bogue.Layout.Resize.html">Bogue.Layout.Resize</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Check.html#TYPEstyle">style</a> [<a href="Bogue.Check.html">Bogue.Check</a>]</td>
@@ -175,6 +180,8 @@ The type for file dialogs.
 <tr><td><a href="Bogue.Menu.html#TYPEt">t</a> [<a href="Bogue.Menu.html">Bogue.Menu</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Long_list.html#TYPEt">t</a> [<a href="Bogue.Long_list.html">Bogue.Long_list</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#TYPEt">t</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#TYPEt">t</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
@@ -229,6 +236,14 @@ a transform variable of type <code class="code">(<span class="keywordsign">'</sp
 <td></td></tr>
 <tr><td><a href="Bogue.Draw.html#TYPEtexture">texture</a> [<a href="Bogue.Draw.html">Bogue.Draw</a>]</td>
 <td></td></tr>
+<tr><td align="left"><div>V</div></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#TYPEvalidator">validator</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td><div class="info">
+A validator function takes a string that the user has typed in the
+    Text_input widget, and returns: the status: "is this string valid?", optionally, the string that should be entered instead. None means: keep
+    the user entry.
+</div>
+</td></tr>
 <tr><td align="left"><div>W</div></td></tr>
 <tr><td><a href="Bogue.Text_display.html#TYPEwords">words</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>

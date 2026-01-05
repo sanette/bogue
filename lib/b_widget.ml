@@ -536,8 +536,8 @@ let slider_with_action ?priority ?step ?kind ~value ?length ?thickness ?tick_siz
   let var = Tvar.create v ~t_from ~t_to in
   slider ?priority ?step ?kind ~var ?length ?thickness ?tick_size max
 
-let text_input ?(text = "") ?prompt ?size ?filter ?max_size () =
-  let ti = Text_input.create ?size ?prompt ?filter ?max_size text in
+let text_input ?(text = "") ?prompt ?size ?filter ?max_len () =
+  let ti = Text_input.create ?size ?prompt ?filter ?max_len text in
   let w = create_empty (TextInput ti) in
   let onbutton_down = fun w _ ev ->
     let ti = get_text_input w in (* = ti ! *)

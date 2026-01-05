@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Bogue.Snapshot.html">
+<link rel="next" href="Bogue.Long_list.html">
+<link rel="Up" href="Bogue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Ti_validate</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Bogue.Snapshot.html" title="Bogue.Snapshot">Previous</a>
+&nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
+&nbsp;<a class="post" href="Bogue.Long_list.html" title="Bogue.Long_list">Next</a>
+</div>
+<h1>Module <a href="type_Bogue.Ti_validate.html">Bogue.Ti_validate</a></h1>
+
+<pre><span id="MODULETi_validate"><span class="keyword">module</span> Ti_validate</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Ti_validate.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>Add a validator to a Text_input</p>
+
+<p>A validator is a small icon, located next to a Text entry, indicating
+    whether the text typed by the user is "valid" under certain rules (for
+    instance, a valid email address). In strict mode, the validator can also
+    completely prevent the user from typing any invalid string.</p>
+
+<h6 id="5_graphdotbtivalidatehtmlDependencygraph"><a href="graph-dot-b_ti_validate.html">Dependency graph</a></h6></div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+
+<pre><span id="TYPEstatus"><span class="keyword">type</span> <code class="type"></code>status</span> = <code class="type">bool option</code> </pre>
+<div class="info ">
+<div class="info-desc">
+<p>String status:</p>
+<OL>
+<li>Some true = good text</li>
+<li>Some false = bad text</li>
+<li>None = undecided yet</li>
+</OL>
+</div>
+</div>
+
+
+<pre><span id="TYPEvalidator"><span class="keyword">type</span> <code class="type"></code>validator</span> = <code class="type">string -&gt; <a href="Bogue.Ti_validate.html#TYPEstatus">status</a> * string option</code> </pre>
+<div class="info ">
+<div class="info-desc">
+<p>A validator function takes a string that the user has typed in the
+    Text_input widget, and returns:</p>
+<OL>
+<li>the status: "is this string valid?"</li>
+<li>optionally, the string that should be entered instead. None means: keep
+    the user entry.</li>
+</OL>
+</div>
+</div>
+
+
+<pre><span id="VALget_status"><span class="keyword">val</span> get_status</span> : <code class="type"><a href="Bogue.Ti_validate.html#TYPEt">t</a> -&gt; <a href="Bogue.Ti_validate.html#TYPEstatus">status</a></code></pre>
+<pre><span id="VALget_layout"><span class="keyword">val</span> get_layout</span> : <code class="type"><a href="Bogue.Ti_validate.html#TYPEt">t</a> -&gt; <a href="Bogue.Layout.html#TYPEt">Layout.t</a></code></pre>
+<pre><span id="VALget_text_input"><span class="keyword">val</span> get_text_input</span> : <code class="type"><a href="Bogue.Ti_validate.html#TYPEt">t</a> -&gt; <a href="Bogue.Widget.html#TYPEt">Widget.t</a></code></pre>
+<pre><span id="VALget_text"><span class="keyword">val</span> get_text</span> : <code class="type"><a href="Bogue.Ti_validate.html#TYPEt">t</a> -&gt; string</code></pre>
+<pre><span id="VALregexp_validator"><span class="keyword">val</span> regexp_validator</span> : <code class="type">?strict:bool -&gt; string -&gt; <a href="Bogue.Ti_validate.html#TYPEvalidator">validator</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Construct a validator function from a regular expression. If <code class="code">strîct</code> is
+    true, the complete string must match the complete regular expression to
+    validate. Only valid text is allowed (so make sure that the default string
+    does validate!)</p>
+
+<p>If <code class="code">strict=<span class="keyword">false</span></code>, the status stays "undecided" as long as the whole string
+    is a prefix of a potential string that would strictly match. Thus, the user
+    is allowed to type strings that are "not complete yet".</p>
+</div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>Example #58</i> .</li>
+</ul>
+</div>
+
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type"><a href="Bogue.Ti_validate.html#TYPEvalidator">validator</a> -&gt;<br>       ?bg:<a href="Bogue.Draw.html#TYPErgb">Draw.rgb</a> -&gt;<br>       ?prompt:string -&gt; ?size:int -&gt; string -&gt; <a href="Bogue.Ti_validate.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a layout containing a Text Entry and a Validity indicator; also
+    return a function to examine the validity of the last user entry.</p>
+</div>
+</div>
+
+<pre><span id="VALof_regexp"><span class="keyword">val</span> of_regexp</span> : <code class="type">?strict:bool -&gt;<br>       string -&gt;<br>       ?bg:<a href="Bogue.Draw.html#TYPErgb">Draw.rgb</a> -&gt;<br>       ?prompt:string -&gt; ?size:int -&gt; string -&gt; <a href="Bogue.Ti_validate.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Same as <a href="Bogue.Ti_validate.html#VALmake"><code class="code"><span class="constructor">Ti_validate</span>.make</code></a>, with a validator obtained from a regular expression via
+    <a href="Bogue.Ti_validate.html#VALregexp_validator"><code class="code"><span class="constructor">Ti_validate</span>.regexp_validator</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="MODULEEmail"><span class="keyword">module</span> <a href="Bogue.Ti_validate.Email.html">Email</a></span>: <code class="code"><span class="keyword">sig</span></code> <a href="Bogue.Ti_validate.Email.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info">
+<p>Implement email validation following
+    <a href="https://html.spec.whatwg.org/multipage/input.html#email-state-(type=email)">HTML
+    specs</a>.</p>
+
+</div>
+</body></html>

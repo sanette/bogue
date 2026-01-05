@@ -42,7 +42,7 @@ type t =
     active : bool Var.t;
     room_x : int Var.t; (* physical x *) (* TODO this is a hack to access room geometry (we need this to treat click events). do better? *)
     selection : selection Var.t;
-    max_size : int; (* max number of letters *)
+    max_len : int; (* max number of letters *)
     prompt : string; (* text to display when there is no user input *)
     filter : filter; (* which letters are accepted *)
   }
@@ -60,7 +60,7 @@ let and_filter f1 f2 = function
 
 let default_font = Label.File !Theme.text_font
 
-let create ?(max_size = 2048) ?(prompt = I.(tf prompt))
+let create ?(max_len = 2048) ?(prompt = I.(tf prompt))
     ?(size = Theme.text_font_size)
     ?(filter = no_filter) ?(font = default_font) text =
   Draw.ttf_init ();
@@ -77,7 +77,7 @@ let create ?(max_size = 2048) ?(prompt = I.(tf prompt))
     active = Var.create false;
     room_x = Var.create 0;
     selection = Var.create Empty;
-    max_size;
+    max_len;
     prompt;
     filter;
   }
@@ -132,12 +132,12 @@ let set ti keys =
   then begin
     if Var.get ti.selection <> Empty then unselect ti;
     let keys =
-      if List.length keys > ti.max_size
+      if List.length keys > ti.max_len
       then (printd debug_memory
               "Warning: text_input was truncated because it should not exceed \
-               %u symbols" ti.max_size;
+               %u symbols" ti.max_len;
             stop ti;
-            let head, _ = split_list keys ti.max_size in head)
+            let head, _ = split_list keys ti.max_len in head)
       else keys in
     Var.set ti.keys keys;
     Var.set ti.cursor_pos (min (Var.get ti.cursor_pos) (List.length keys));

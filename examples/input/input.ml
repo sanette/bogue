@@ -11,7 +11,7 @@ module W = Widget
 module L = Layout
 
 let main () =
-  let input = W.text_input ~max_size:200 ~prompt:"Enter your name" () in
+  let input = W.text_input ~max_len:200 ~prompt:"Enter your name" () in
   let label = W.label ~size:40 "Hello!" in
   let layout = L.tower [L.resident ~w:400 input;
                        L.resident ~w:400 ~h:200 label] in

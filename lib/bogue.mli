@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20251229
+@version 20260105
 
 @author Vu Ngoc San
 
@@ -1979,8 +1979,8 @@ See the {{!inner}conversion functions} below. *)
   (** {3 Text input} *)
 
   val text_input : ?text:string -> ?prompt:string ->
-    ?size:int -> ?filter:Text_input.filter -> ?max_size:int -> unit -> t
-  (** [size] is the font size. [max_size] is the maximum number of chars
+    ?size:int -> ?filter:Text_input.filter -> ?max_len:int -> unit -> t
+  (** [size] is the font size. [max_len] is the maximum number of chars
       allowed. The [prompt] is used to display a message when there is no user
       input. It also influences the size of the widget.  *)
 
@@ -2103,15 +2103,44 @@ end (* of Update *)
 
 (** Sending arbitrary messages to widgets
 
+    Working with messages can go a long way simplifying an intricate GUI.
+
+
+    Technically, Mailboxes are build upon Bogues's {e connections}, and can be
+    seen as a (semantic) extension to the simple {!Update} mechanism. Mailboxes
+    can be useful
+
+    + for letting two widgets talk together in suitations where they are far
+    away from each other in the code (distinct scopes), making the use of standard connections
+    difficult.
+    + for avoiding recursivity issues: widgets can "send orders" at places
+    in the code where the way to achieve theses orders are not even defined yet.
+    + more generally, for rethinking all or part of your UI logic to delegate
+    decision making to a few "decision centers" (the mail handlers).
+
+    WARNING: new API, not stabilized yet.
+
     {5 {{:graph-dot-b_mailbox.html}Dependency graph}}
 *)
 module Mailbox : sig
 
   type 'a mbx
 
-  val create : Widget.t -> 'a mbx
-  (** Create an empty mailbox for the given widget, which will receive messages
-      of type ['a]. *)
+  val create : ?owner:Widget.t -> unit -> 'a mbx
+  (** Create an empty mailbox which will receive messages of type
+      ['a].
+
+      Specifying an [owner] widget is optional (and may disappear in future
+      API); it {e could} help structuring the code: we think of it as "the
+      widget that handles the incoming mail".
+
+      Once a mailbox is created, anyone can send messages to it using
+      {!send}. However the mail will be effectively handled only once
+      {!activate} is called.
+
+      @see "Example #57".
+
+  *)
 
 
   val activate: ?sync:bool -> 'a mbx -> ('a -> unit) -> unit
@@ -2121,12 +2150,12 @@ module Mailbox : sig
       By default, "the mailman delivers at each frame": messages are handled one
       by one in the {!Sync} queue, in the order of reception (FIFO). Setting
       [sync=false] will on the contrary execute the handler in a separate
-      thread. (Only one thread for all messages.)
+      thread. (Only one thread per mailbox.)
 
-      Note that the mailbox is emptied as soon as the first delivery occurs, so
-      in principle the handler is authorized itself to send new messages to its
-      own mailbox. Of course if all messages trigger sending a new one, this
-      will loop forever.*)
+      Note that all messages are transfered to the handler as soon as the first
+      delivery occurs, so in principle the handler is authorized itself to send
+      new messages to its own mailbox. Of course if all messages trigger sending
+      a new one, this will loop forever.*)
 
   val send : 'a mbx -> 'a -> unit
   (** [send mbx msg] sends the message [msg] to the mailbox [mbx].
@@ -2136,10 +2165,16 @@ module Mailbox : sig
 
       {[send mbx (`Start_new_level 7)]}
 
+      Even if the mailbox is not activated, or disabled, messages can still be sent:
+      they accumulate in the mailbox queue, and will all be handled once the
+      mailbox is activated or re-enabled.
+
   *)
 
   val enable : 'a mbx -> unit
   val disable : 'a mbx -> unit
+  val clear : 'a mbx -> unit
+
 end (* of Mailbox *)
 
 (* ---------------------------------------------------------------------------- *)
@@ -2679,6 +2714,77 @@ end (* of Snapshot *)
     These modules help you create commonly used layouts: lists, menus, etc.
 
  *)
+
+(** Add a validator to a Text_input
+
+
+    A validator is a small icon, located next to a Text entry, indicating
+    whether the text typed by the user is "valid" under certain rules (for
+    instance, a valid email address). In strict mode, the validator can also
+    completely prevent the user from typing any invalid string.
+
+{5 {{:graph-dot-b_ti_validate.html}Dependency graph}}
+*)
+module Ti_validate : sig
+  type t
+
+  type status = bool option
+  (** String status:
+ + Some true = good text
+ + Some false = bad text
+ + None = undecided yet
+  *)
+
+type validator = string -> status * string option
+(** A validator function takes a string that the user has typed in the
+    Text_input widget, and returns:
+    + the status: "is this string valid?"
+    + optionally, the string that should be entered instead. None means: keep
+    the user entry.
+*)
+
+val get_status : t -> status
+val get_layout : t -> Layout.t
+val get_text_input : t -> Widget.t
+val get_text : t -> string
+
+val regexp_validator : ?strict:bool -> string -> validator
+(** Construct a validator function from a regular expression. If [strîct] is
+    true, the complete string must match the complete regular expression to
+    validate. Only valid text is allowed (so make sure that the default string
+    does validate!)
+
+    If [strict=false], the status stays "undecided" as long as the whole string
+    is a prefix of a potential string that would strictly match. Thus, the user
+    is allowed to type strings that are "not complete yet".
+
+        @see "Example #58".
+*)
+
+val make : validator -> ?bg:Draw.rgb -> ?prompt:string -> ?size:int ->
+  string -> t
+(** Return a layout containing a Text Entry and a Validity indicator; also
+    return a function to examine the validity of the last user entry. *)
+
+val of_regexp : ?strict:bool -> string -> ?bg:Draw.rgb ->
+  ?prompt:string -> ?size:int -> string -> t
+(** Same as {!make}, with a validator obtained from a regular expression via
+    {!regexp_validator}. *)
+
+
+(** Implement email validation following
+    {{:https://html.spec.whatwg.org/multipage/input.html#email-state-(type=email)}HTML
+    specs}.
+
+    @see "Example #59".
+*)
+module Email : sig
+  val validator : validator
+  val is_valid : string -> bool
+  val hint : string -> string
+  end
+end (* of Ti_validate *)
+
 
 (** Handle large lists by not displaying all elements at once.
 

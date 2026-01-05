@@ -26,6 +26,23 @@
 <div class="info-desc">
 <p>Sending arbitrary messages to widgets</p>
 
+<p>Working with messages can go a long way simplifying an intricate GUI.</p>
+
+<p>Technically, Mailboxes are build upon Bogues's <em>connections</em>, and can be
+    seen as a (semantic) extension to the simple <a href="Bogue.Update.html"><code class="code"><span class="constructor">Update</span></code></a> mechanism. Mailboxes
+    can be useful</p>
+
+<OL>
+<li>for letting two widgets talk together in suitations where they are far
+    away from each other in the code (distinct scopes), making the use of standard connections
+    difficult.</li>
+<li>for avoiding recursivity issues: widgets can "send orders" at places
+    in the code where the way to achieve theses orders are not even defined yet.</li>
+<li>more generally, for rethinking all or part of your UI logic to delegate
+    decision making to a few "decision centers" (the mail handlers).</li>
+</OL>
+<p>WARNING: new API, not stabilized yet.</p>
+
 <h6 id="5_graphdotbmailboxhtmlDependencygraph"><a href="graph-dot-b_mailbox.html">Dependency graph</a></h6></div>
 </div>
 <hr width="100%">
@@ -33,11 +50,22 @@
 <pre><span id="TYPEmbx"><span class="keyword">type</span> <code class="type">'a</code> mbx</span> </pre>
 
 
-<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; 'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a></code></pre><div class="info ">
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">?owner:<a href="Bogue.Widget.html#TYPEt">Widget.t</a> -&gt; unit -&gt; 'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a></code></pre><div class="info ">
 <div class="info-desc">
-<p>Create an empty mailbox for the given widget, which will receive messages
-      of type <code class="code"><span class="keywordsign">'</span>a</code>.</p>
+<p>Create an empty mailbox which will receive messages of type
+      <code class="code"><span class="keywordsign">'</span>a</code>.</p>
+
+<p>Specifying an <code class="code">owner</code> widget is optional (and may disappear in future
+      API); it <em>could</em> help structuring the code: we think of it as "the
+      widget that handles the incoming mail".</p>
+
+<p>Once a mailbox is created, anyone can send messages to it using
+      <a href="Bogue.Mailbox.html#VALsend"><code class="code"><span class="constructor">Mailbox</span>.send</code></a>. However the mail will be effectively handled only once
+      <a href="Bogue.Mailbox.html#VALactivate"><code class="code"><span class="constructor">Mailbox</span>.activate</code></a> is called.</p>
 </div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>Example #57</i> .</li>
+</ul>
 </div>
 
 <pre><span id="VALactivate"><span class="keyword">val</span> activate</span> : <code class="type">?sync:bool -&gt; 'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; ('a -&gt; unit) -&gt; unit</code></pre><div class="info ">
@@ -48,12 +76,12 @@
 <p>By default, "the mailman delivers at each frame": messages are handled one
       by one in the <a href="Bogue.Sync.html"><code class="code"><span class="constructor">Sync</span></code></a> queue, in the order of reception (FIFO). Setting
       <code class="code">sync=<span class="keyword">false</span></code> will on the contrary execute the handler in a separate
-      thread. (Only one thread for all messages.)</p>
+      thread. (Only one thread per mailbox.)</p>
 
-<p>Note that the mailbox is emptied as soon as the first delivery occurs, so
-      in principle the handler is authorized itself to send new messages to its
-      own mailbox. Of course if all messages trigger sending a new one, this
-      will loop forever.</p>
+<p>Note that all messages are transfered to the handler as soon as the first
+      delivery occurs, so in principle the handler is authorized itself to send
+      new messages to its own mailbox. Of course if all messages trigger sending
+      a new one, this will loop forever.</p>
 </div>
 </div>
 
@@ -64,8 +92,13 @@
 <p>Recall that all messages sent to a given mailbox must be of the same
       type. It can be handy to use polymorphic variants like</p>
 
-<pre class="codepre"><code class="code">send mbx (<span class="keywordsign">`</span><span class="constructor">Start_new_level</span> 7)</code></pre></div>
+<pre class="codepre"><code class="code">send mbx (<span class="keywordsign">`</span><span class="constructor">Start_new_level</span> 7)</code></pre>
+<p>Even if the mailbox is not activated, or disabled, messages can still be sent:
+      they accumulate in the mailbox queue, and will all be handled once the
+      mailbox is activated or re-enabled.</p>
+</div>
 </div>
 
 <pre><span id="VALenable"><span class="keyword">val</span> enable</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; unit</code></pre>
-<pre><span id="VALdisable"><span class="keyword">val</span> disable</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; unit</code></pre></body></html>
+<pre><span id="VALdisable"><span class="keyword">val</span> disable</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; unit</code></pre>
+<pre><span id="VALclear"><span class="keyword">val</span> clear</span> : <code class="type">'a <a href="Bogue.Mailbox.html#TYPEmbx">mbx</a> -&gt; unit</code></pre></body></html>

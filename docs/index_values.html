@@ -201,6 +201,8 @@ Multiply sound intensity by a float factor
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALclaim_keyboard_focus">claim_keyboard_focus</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Mailbox.html#VALclear">clear</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALclear">clear</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
 <td><div class="info">
 Clear the area (this removes all commands from the render queue).
@@ -287,8 +289,8 @@ Should be called from the main thread only.
 </td></tr>
 <tr><td><a href="Bogue.Mailbox.html#VALcreate">create</a> [<a href="Bogue.Mailbox.html">Bogue.Mailbox</a>]</td>
 <td><div class="info">
-Create an empty mailbox for the given widget, which will receive messages
-      of type <code class="code"><span class="keywordsign">'</span>a</code>.
+Create an empty mailbox which will receive messages of type
+      <code class="code"><span class="keywordsign">'</span>a</code>.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Sdl_area.html#VALcreate">create</a> [<a href="Bogue.Sdl_area.html">Bogue.Sdl_area</a>]</td>
@@ -623,6 +625,8 @@ Use this layout to display your table.
 </td></tr>
 <tr><td><a href="Bogue.Long_list.html#VALget_layout">get_layout</a> [<a href="Bogue.Long_list.html">Bogue.Long_list</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALget_layout">get_layout</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.I18n.html#VALget_locales">get_locales</a> [<a href="Bogue.I18n.html">Bogue.I18n</a>]</td>
 <td><div class="info">
 Return the list of preferred locales as detected from the user's OS.
@@ -692,7 +696,11 @@ Which rows were selected by the user.
 Query a boolean state.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALget_status">get_status</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Box.html#VALget_style">get_style</a> [<a href="Bogue.Box.html">Bogue.Box</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALget_text">get_text</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_text">get_text</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
@@ -700,6 +708,8 @@ Return the text of the widget.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_text_display">get_text_display</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALget_text_input">get_text_input</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALget_text_input">get_text_input</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td></td></tr>
@@ -770,6 +780,8 @@ See <a href="Bogue.Layout.html#VALshow"><code class="code"><span class="construc
 Hide the window containing the layout.
 </div>
 </td></tr>
+<tr><td><a href="Bogue.Ti_validate.Email.html#VALhint">hint</a> [<a href="Bogue.Ti_validate.Email.html">Bogue.Ti_validate.Email</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Widget.html#VALhtml">html</a> [<a href="Bogue.Widget.html">Bogue.Widget</a>]</td>
 <td><div class="info">
 Display basic html text by interpreting the following tags: <code class="code">&lt;em&gt;,&lt;/em&gt;,<br>
@@ -846,6 +858,8 @@ Not tail-recursive
 <tr><td><a href="Bogue.Button.html#VALis_pressed">is_pressed</a> [<a href="Bogue.Button.html">Bogue.Button</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Layout.html#VALis_shown">is_shown</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
+<td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.Email.html#VALis_valid">is_valid</a> [<a href="Bogue.Ti_validate.Email.html">Bogue.Ti_validate.Email</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Text_display.html#VALitalic">italic</a> [<a href="Bogue.Text_display.html">Bogue.Text_display</a>]</td>
 <td></td></tr>
@@ -937,6 +951,12 @@ Load a WAV file.
 <td><div class="info">
 <span class="deprecated">Similar to <a href="Bogue.Main.html#VALof_layouts"><code class="code"><span class="constructor">Main</span>.of_layouts</code></a>.
 </span></div>
+</td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALmake">make</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td><div class="info">
+Return a layout containing a Text Entry and a Validity indicator; also
+    return a function to examine the validity of the last user entry.
+</div>
 </td></tr>
 <tr><td><a href="Bogue.Layout.html#VALmake_clip">make_clip</a> [<a href="Bogue.Layout.html">Bogue.Layout</a>]</td>
 <td><div class="info">
@@ -1082,6 +1102,12 @@ Create a table from a list of <b>rows</b>, each row being a string list.
 </td></tr>
 <tr><td><a href="Bogue.Selection.html#VALof_list">of_list</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
 <td></td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALof_regexp">of_regexp</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td><div class="info">
+Same as <a href="Bogue.Ti_validate.html#VALmake"><code class="code"><span class="constructor">Ti_validate</span>.make</code></a>, with a validator obtained from a regular expression via
+    <a href="Bogue.Ti_validate.html#VALregexp_validator"><code class="code"><span class="constructor">Ti_validate</span>.regexp_validator</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="Bogue.Style.html#VALof_shadow">of_shadow</a> [<a href="Bogue.Style.html">Bogue.Style</a>]</td>
 <td></td></tr>
 <tr><td><a href="Bogue.Radiolist.html#VALof_widgets">of_widgets</a> [<a href="Bogue.Radiolist.html">Bogue.Radiolist</a>]</td>
@@ -1287,6 +1313,11 @@ Adjust an existing layout to arrange its rooms in a "flat" fashion, as if
 <tr><td><a href="Bogue.Main.html#VALrefresh_custom_windows">refresh_custom_windows</a> [<a href="Bogue.Main.html">Bogue.Main</a>]</td>
 <td><div class="info">
 Ask the GUI to refresh (ie.
+</div>
+</td></tr>
+<tr><td><a href="Bogue.Ti_validate.html#VALregexp_validator">regexp_validator</a> [<a href="Bogue.Ti_validate.html">Bogue.Ti_validate</a>]</td>
+<td><div class="info">
+Construct a validator function from a regular expression.
 </div>
 </td></tr>
 <tr><td><a href="Bogue.Selection.html#VALremove">remove</a> [<a href="Bogue.Selection.html">Bogue.Selection</a>]</td>
@@ -1887,6 +1918,8 @@ Same as <code class="code"><span class="constructor">Tsdl</span>.<span class="co
 </div>
 </td></tr>
 <tr><td align="left"><div>V</div></td></tr>
+<tr><td><a href="Bogue.Ti_validate.Email.html#VALvalidator">validator</a> [<a href="Bogue.Ti_validate.Email.html">Bogue.Ti_validate.Email</a>]</td>
+<td></td></tr>
 <tr><td><a href="Bogue.Slider.html#VALvalue">value</a> [<a href="Bogue.Slider.html">Bogue.Slider</a>]</td>
 <td><div class="info">
 Get current value.

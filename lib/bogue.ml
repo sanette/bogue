@@ -40,6 +40,7 @@ module Table = B_table
 module Tabs = B_tabs
 module Text_display = B_text_display
 module Text_input = B_text_input
+module Ti_validate = B_ti_validate
 module Theme = B_theme
 module Time = B_time
 module Timeout = B_timeout

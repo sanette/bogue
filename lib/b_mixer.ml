@@ -48,19 +48,13 @@ let init  () =
                   "mixer.ml: cannot find audio driver."
       | Some s -> printd debug_io "Using audio driver: %s." s
     end;
-    match Sdl.get_num_audio_drivers () with
+    match Sdl.get_audio_device_name 0 false with
     | Error (`Msg e) ->
-      printd (debug_error + debug_io) "Cannot get number of audio drivers. SDL error! %s" e;
+      printd (debug_error + debug_io) "Cannot get Audio device name. SDL error! %s" e;
       None
-    | Ok i -> if i < 1
-      then begin
-        printd (debug_error + debug_io) "Don't see any specific audio devices!";
-        None
-      end else Some "default" (* This will select the default device; I don't know
-                                 how to find out its real name... *)
-(* let devname = go(Sdl.get_audio_device_name 0 false) in printd debug_io "Using
-   audio device #%d: ('%s')..." 0 devname; *)
-(* Some devname *)
+    | Ok devname ->
+      printd debug_io "Using audio device: %s." devname;
+      Some devname
 
 let print_spec spec =
   let open Sdl in
@@ -371,7 +365,7 @@ let interpolate e1 e2 data1 data2 =
       (* interpolate_sample jj j rest value1left value2left; *) (* left sample *)
       (* we inline this: (but this doesn't speed up) *)
       value2left := Array1.unsafe_get data1 j;
-      let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
+      let value = if rest = 0. (* ce test n'améliore pas la vitesse... *)
         then !value1left
         else round (float !value1left +. rest *. (float (!value2left - !value1left))) in
       Array1.unsafe_set data2 jj value;
@@ -388,7 +382,7 @@ let interpolate e1 e2 data1 data2 =
 
       incr ii; if !ii = e2 then ii:=0;
     done
-  end;;
+  end
 
 (* stretch frequency (f1 => f2) for a s16le sound with 2 channels *)
 let stretch f1 f2 sound =
@@ -411,6 +405,7 @@ let stretch f1 f2 sound =
     (Array1.sub sound 0 ((l1/e1 - 2) * ch * e1 + ch))
     (Array1.sub output 0 ((l1/e1 - 2) * ch * e2));
   let finalpos = ch * (l1/e1 - 1) * e1 in
+  print "finalpos=%i" finalpos;
   interpolate e1 e2 (* final small part *)
     (Array1.sub sound finalpos (imin (ch * e1) (Array1.dim sound - finalpos)))
     (Array1.sub output (ch * (l1/e1 - 1) * e2) (Array1.dim sound - finalpos - ch));

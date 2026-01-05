@@ -1,7 +1,5 @@
 # Changelog
 
-#### Warning: this changelog is not complete for changes before 2023
-
 All notable changes to the Bogue project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
@@ -10,7 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- New module: `Ti_Validator` (automatic validating text inputs)
+  Includes an email validator.
+- New module: `Mailbox` for sending arbitrary message to widgets
+  (experimental, but should be quite powerful to help organizing large
+  and complex UIs)
 - `I18n.make_context` is now public.
+
+### Changed
+- argument `max_size` of `Text_input.create` and `Widget.text_input`
+  is now renamed to `max_len` ("size" is used for font size).
 
 ## [20250815](https://github.com/sanette/bogue/compare/20250224...20250815)
 

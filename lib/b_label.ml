@@ -61,13 +61,16 @@ let set l text =
   if Var.get l.text <> text
   then begin
     Var.set l.text text;
-    let texo = Var.get l.render in
-    Var.set l.render None;
-    do_option texo Draw.forget_texture
+    unload l
   end
 
 let set_fg_color l color =
-  Var.set l.fg (Some color)
+  Var.set l.fg (Some color);
+  unload l
+
+let set_icon l name =
+  Var.set l.font (File Theme.fa_font);
+  set l (Theme.fa_symbol name)
 
 (************* display ***********)
 
