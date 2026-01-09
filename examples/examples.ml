@@ -1365,8 +1365,9 @@ let example58 () =
       ~prompt:"only plain text" "Salut" in
 
   run (of_layout (Layout.tower [
-      W.text_display ~h:40
-        "The goal is to have the user type exactly 5 letters of the alphabet..."
+      W.text_display ~h:50
+        "The goal is, by using a regular expression, to have the user type \
+         exactly 5 letters of the alphabet..."
       |> L.resident;
       W.label "Strict:" |> L.resident;
       Ti_validate.get_layout tivs;

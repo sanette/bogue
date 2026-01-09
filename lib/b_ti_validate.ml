@@ -166,8 +166,10 @@ module Email = struct
   ]
   let test () =
     List.iter (fun s -> assert (is_valid s)) valid_emails;
-    List.iter (fun s -> assert (not (is_valid s))) invalid_emails;;
+    List.iter (fun s -> assert (not (is_valid s))) invalid_emails
 
+  (* TODO: show hints as tooltips or popup when clicking on the validator
+     icon. *)
   let hint s =
     let b = Buffer.create 256 in
     let add = Buffer.add_string b in
@@ -187,7 +189,7 @@ module Email = struct
     let ok = match String.split_on_char '@' s with
       | [first; dom] when first_part first ->
       if dom = "" then None else Some (domain dom)
-    | [first] -> if first_part first then None else Some false
+    | [first] -> if first = "" || first_part first then None else Some false
     | _ -> Some false in
     ok, None
 end
