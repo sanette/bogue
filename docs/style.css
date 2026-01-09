@@ -7,7 +7,7 @@ body {
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
-  font: 11pt "Roboto Slab", sans-serif;
+  font: 12pt "Roboto Slab", sans-serif;
   color: black;
   text-align: left;
   padding: 5px;
@@ -19,7 +19,7 @@ body > h1 > img {
   margin-right: 10px; }
 
 table {
-  font-size: 11pt; }
+  font-size: 12pt; }
 
 hr {
   display: none; }
@@ -55,7 +55,7 @@ em {
   font-weight: bold; }
   [id^=VAL] .keyword {
     color: #3d547f87;
-    font-size: 11pt; }
+    font-size: 12pt; }
 
 .keywordsign {
   color: #C04600; }
@@ -117,9 +117,8 @@ code.code {
 pre code.code {
   background: none; }
 
-.typetable {
-  margin-left: 1em;
-  border-style: hidden; }
+pre.sourceCode {
+  padding: 1em; }
 
 .paramstable {
   border-style: hidden;
@@ -202,9 +201,13 @@ a:hover {
 pre, .typetable {
   background-color: #c5dbe68f;
   margin-bottom: 4px;
-  padding: 6px;
-  border-radius: 4px;
+  padding: 1em;
+  border-radius: 1em;
   font-family: 'Fira Mono', monospace; }
+
+table.typetable {
+  margin-top: -4px;
+  padding-top: 4px; }
 
 pre {
   width: -moz-fit-content;
@@ -212,7 +215,7 @@ pre {
   width: fit-content;
   max-width: 100%;
   overflow: auto;
-  margin-top: 0;
+  margin-top: 1em;
   white-space: pre-wrap; }
   pre a {
     color: black; }
@@ -278,7 +281,7 @@ svg {
     fill: rgba(74, 166, 157, 0.3);
     transition: all 0.2s ease; }
   svg text {
-    font: 12pt "Roboto Slab", sans-serif;
+    font: 13pt "Roboto Slab", sans-serif;
     fill: black; }
   svg g.edge path {
     stroke: #a24d25;
@@ -307,7 +310,7 @@ div.float, div.figure {
   max-width: 400px; }
   div.float img, div.figure img {
     max-width: 100%; }
-  div.float .caption, div.figure .caption {
+  div.float .caption, div.float .figcaption, div.figure .caption, div.figure .figcaption {
     text-align: center;
     margin-top: -2em; }
 

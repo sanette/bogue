@@ -276,7 +276,7 @@ class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb7-1"><a href
 <li>The <strong>widgets</strong>: we need a TextInput and a Label:</li>
 </ol>
 <div class="sourceCode" id="cb8"><pre
-class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_len:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></span></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li>We create a <strong>connection</strong> between them, reacting to
@@ -311,7 +311,7 @@ easier to program and debug (no event, no callback).</p>
 standard method above:</li>
 </ol>
 <div class="sourceCode" id="cb12"><pre
-class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_size:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="kw">let</span> <span class="dt">input</span> = W.text_input ~max_len:<span class="dv">200</span> ~prompt:<span class="st">&quot;Enter your name&quot;</span> () <span class="kw">in</span></span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="kw">let</span> label = W.label ~size:<span class="dv">40</span> <span class="st">&quot;Hello!&quot;</span> <span class="kw">in</span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="kw">let</span> layout = L.tower [L.resident ~w:<span class="dv">400</span> <span class="dt">input</span>; L.resident ~w:<span class="dv">400</span> ~h:<span class="dv">200</span> label] <span class="kw">in</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
