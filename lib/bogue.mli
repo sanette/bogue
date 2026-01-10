@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20260109
+@version 20260110
 
 @author Vu Ngoc San
 
@@ -2781,7 +2781,12 @@ val of_regexp : ?strict:bool -> string -> ?bg:Draw.rgb ->
 module Email : sig
   val validator : validator
   val is_valid : string -> bool
+  (** [is_valid addr] is true when (and only when) [addr] is a valid email
+      address according to the HTML specs. *)
+
   val hint : string -> string
+  (** [hint addr] returns a message explaining why [addr] might not be a valid
+      email address.*)
   end
 end (* of Ti_validate *)
 

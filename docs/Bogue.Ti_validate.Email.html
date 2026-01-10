@@ -31,5 +31,17 @@
 <hr width="100%">
 
 <pre><span id="VALvalidator"><span class="keyword">val</span> validator</span> : <code class="type"><a href="Bogue.Ti_validate.html#TYPEvalidator">Ti_validate.validator</a></code></pre>
-<pre><span id="VALis_valid"><span class="keyword">val</span> is_valid</span> : <code class="type">string -&gt; bool</code></pre>
-<pre><span id="VALhint"><span class="keyword">val</span> hint</span> : <code class="type">string -&gt; string</code></pre></body></html>
+<pre><span id="VALis_valid"><span class="keyword">val</span> is_valid</span> : <code class="type">string -&gt; bool</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">is_valid&nbsp;addr</code> is true when (and only when) <code class="code">addr</code> is a valid email
+      address according to the HTML specs.</p>
+</div>
+</div>
+
+<pre><span id="VALhint"><span class="keyword">val</span> hint</span> : <code class="type">string -&gt; string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hint&nbsp;addr</code> returns a message explaining why <code class="code">addr</code> might not be a valid
+      email address.</p>
+</div>
+</div>
+</body></html>
