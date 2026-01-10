@@ -1,0 +1,60 @@
+name: Main workflow
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        ocaml-compiler:
+          - 5
+          - 4.14.x
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt-get update -y
+
+      - name: Checkout tree
+        uses: actions/checkout@v6
+
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: opam pin https://github.com/sanette/tsdl.git
+
+      - run: opam pin https://github.com/sanette/tsdl-ttf.git
+
+      - run: opam pin https://github.com/sanette/tsdl-image.git
+
+      - run: opam install . --deps-only --with-doc --with-test
+
+      - run: opam exec -- dune build
+
+      - run: opam exec -- dune runtest
+
+      - run: opam install .
+
+  lint-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v6
+
+      - name: Use OCaml 4.14.x
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+
+      - name: Lint fmt
+        uses: ocaml/setup-ocaml/lint-fmt@v3
