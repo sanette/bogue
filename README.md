@@ -130,6 +130,18 @@ tsdl.1.0.0`, because the more recent `tsdl.1.1.0` requires
 
 See https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md
 
+## Installing on Windows
+
+Due to some issues with SDL on Windows, in case the above doen't work
+for you, you can try:
+
+```bash
+opam pin https://github.com/sanette/tsdl.git
+opam pin https://github.com/sanette/tsdl-ttf.git
+opam pin https://github.com/sanette/tsdl-image.git
+opam install bogue
+```
+
 ## Building from sources
 
 ### Prerequisites
