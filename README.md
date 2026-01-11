@@ -154,21 +154,6 @@ you have `dune`, `tsdl`, `tsdl-image` and `tsdl-ttf`:
 opam install dune tsdl tsdl-image tsdl-ttf
 ```
 
-### Get the latest source
-
-Download the
-[git archive](https://github.com/sanette/bogue/archive/master.zip),
-unzip it, cd into the `bogue-master` dir, and then:
-
-```
-dune build
-opam install .
-```
-
-### CI
-
-https://ci.ocamllabs.io/github/sanette/bogue
-
 # Documentation
 
 It's good to first have a look at Bogue's
