@@ -96,6 +96,8 @@ of this demo.
 
 # Installation
 
+(See also [here](https://sanette.github.io/bogue/INSTALL.html).)
+
 ## Using the opam package
 
 It's the easiest way unless you want to try out the development
