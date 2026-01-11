@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20260110
+@version 20260111
 
 @author Vu Ngoc San
 

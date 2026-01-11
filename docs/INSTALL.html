@@ -31,9 +31,11 @@ hosted in <a href="https://github.com/sanette/bogue">github</a>.</p>
 <p>Bogue uses the cross-platform library <a
 href="http://www.libsdl.org/">SDL</a>, so in principle it can be used
 everywhere SDL and ocaml can be installed: Linux, Mac OS, Windows…
-However, it has only be tested for Linux, and a few tweaks will
-certainly be necessary to port it to other platforms. Any help on this
-matter will be greatly appreciated.</p>
+However, it is mainly tested for Linux, and to a lesser extend, Mac OS.
+For Windows, I can only rely on the CI. (See also <a
+href="https://github.com/sanette/bogue#installing-on-windows">here</a>.)
+Any help on this matter will be greatly appreciated. Please report
+issues on github.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <p>You need a working <code>ocaml</code> installation with
 <code>opam</code>, see the <a
@@ -41,17 +43,18 @@ href="https://ocaml.org/docs/install.html">ocaml doc</a>. Then, make
 sure you have <code>dune</code>, <code>tsdl</code>,
 <code>tsdl-image</code> and <code>tsdl-ttf</code>:</p>
 <pre><code>opam install dune tsdl tsdl-image tsdl-ttf</code></pre>
+<p>For Windows, see <a
+href="https://github.com/sanette/bogue#installing-on-windows">here</a>.</p>
 <h2 id="using-the-git-repository">Using the git repository</h2>
-<p>Download the latest <a
+<p>Clone it with git, or manually download the latest <a
 href="https://github.com/sanette/bogue/archive/master.zip">git
 archive</a>, unzip it, cd into the <code>bogue-master</code> dir, and
 then:</p>
-<pre><code>dune build
-opam install .</code></pre>
+<pre><code>opam install .</code></pre>
 <h2 id="detailed-procedure-for-ubuntu-14.04---16.04">Detailed procedure
 for Ubuntu 14.04 - 16.04</h2>
 <p>See <a href="INSTALL-14.04.html">this</a> for old instructions that
-should probably be updated…</p>
+should probably be updated… However nowadays probably nobody cares.</p>
 <h2 id="detailed-procedure-for-ubuntu-18.04">Detailed procedure for
 Ubuntu 18.04</h2>
 <p>The default version of SDL2 shipped by this system is too old to run
@@ -77,9 +80,12 @@ matching GLX visual</h3>
 <p>It can usually be solved with</p>
 <pre><code>export SDL_VIDEO_X11_VISUALID=</code></pre>
 <h3 id="too-small">Too small!</h3>
-<p>If everything looks too small, it means that your screen DPI was not
-correctly detected. Just create a <code>bogue.conf</code> file with the
-following content:</p>
+<p>If everything looks too small (or too large, by the way), it means
+that your screen DPI was not correctly detected. You can correct this by
+setting the scale manually:</p>
+<pre><code>export BOGUE_SCALE=2.5</code></pre>
+<p>To make this permanent, just create a <code>bogue.conf</code> file
+with the following content:</p>
 <pre><code>### BOGUE version SOMEVERSION
 
 SCALE = 2.5

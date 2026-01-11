@@ -132,8 +132,8 @@ See https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md
 
 ## Installing on Windows
 
-Due to some issues with SDL on Windows, in case the above doen't work
-for you, you can try:
+Ocaml+SDL on Windows can be tricky; in case the above dosen't work for
+you, you can try:
 
 ```bash
 opam pin https://github.com/sanette/tsdl.git

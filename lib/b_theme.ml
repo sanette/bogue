@@ -25,7 +25,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20260110"  (* see VERSION file *)
+let this_version = "20260111"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
