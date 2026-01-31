@@ -25,7 +25,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20260111"  (* see VERSION file *)
+let this_version = "20260131"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -62,7 +62,7 @@ let default_vars = [
   (* Text color for disabled items like button texts: *)
   "DISABLED_FG", "gray";
   (* Color for unimportant things that should not be so visible: *)
-  "FAINT_COLOR", "gainsboro"; (* idem *)
+  "FAINT_COLOR", "#B1C7D5"; (* idem *)
   (* The color for standard text display: *)
   "TEXT_COLOR", "black"; (* idem *)
   (* Text section background and foreground colors: *)

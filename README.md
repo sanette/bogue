@@ -121,20 +121,37 @@ opam unpin https://github.com/sanette/bogue.git
 
 ## SDL2 troubleshooting
 
-Bogue needs the SDL2 library. In general you already have it
-installed, or, if everything goes smoothly, it will be installed
-automatically with `opam install tsdl`. _However_, `tsdl` is not able
-to automatically pick up the right version corresponding to your SDL2
-version. You might have to tell `opam` the version you need: for
-instance for Bogue 20240928 on Ubuntu 20.04 you should `opam install
-tsdl.1.0.0`, because the more recent `tsdl.1.1.0` requires
-`SDL >= 2.0.18` which you probably don't have on your system.
+Bogue needs the [SDL2](http://www.libsdl.org/) library. In general you
+already have it installed, or, if everything goes smoothly, it will be
+installed automatically with `opam install bogue`. This installs SDL2
+from your package manager, and then `tsdl`, a library for using SDL2
+with ocaml.
 
-See https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md
+_However_, `tsdl` may fail to install itself if the SDL version is
+too old: for instance,
+
++ `tsdl` 1.2.0 requires SDL 2.0.22 or higher.
+
+On the other hand, Bogue itself only uses classic SDL 2.0.0 functions,
+so if your SDL2 version is old, don't worry, you just need to install
+the modified `tsdl` from here:
+
+	opam pin https://github.com/sanette/tsdl.git
+
+before doing `opam install bogue`. This modified version works with
+SDL 2.0.6 or higher.
+
+Another solution is to downgrade the official `tsdl`, for instance
+with `opam install tsdl.1.0.0`, see
+https://github.com/dbuenzli/tsdl/blob/master/CHANGES.md
+
+Note that _Bogue does not work with SDL3 yet_. If you install SDL yourself
+from https://github.com/libsdl-org/SDL/releases, be sure to pick up
+a 2.x.x release.
 
 ## Installing on Windows
 
-Ocaml+SDL on Windows can be tricky; in case the above dosen't work for
+Ocaml+SDL on Windows can be tricky; in case the above doesn't work for
 you, you can try:
 
 ```bash
@@ -144,15 +161,8 @@ opam pin https://github.com/sanette/tsdl-image.git
 opam install bogue
 ```
 
-## Building from sources
-
-### Prerequisites
-
-You need a working `ocaml` installation with `opam`, see the [ocaml doc](https://ocaml.org/docs/install.html). Then, make sure
-you have `dune`, `tsdl`, `tsdl-image` and `tsdl-ttf`:
-```
-opam install dune tsdl tsdl-image tsdl-ttf
-```
+(These packages are guaranteed to pass a CI test that uses, among
+others, Windows mingw64.)
 
 # Documentation
 

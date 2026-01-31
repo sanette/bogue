@@ -6,6 +6,7 @@ open B_utils
 module Draw = B_draw
 module Label = B_label
 module Layout = B_layout
+module Style = B_style
 module Text_input = B_text_input
 module Trigger = B_trigger
 module Widget = B_widget
@@ -87,7 +88,7 @@ let connect_ok validator old_status default ti ok _ =
   do_option s (fun s ->
       Widget.set_text ti (if s="" then default else s))
 
-let make validator ?(bg = Draw.menu_bg_color) ?prompt ?size text : t =
+let make validator ?(bg = Draw.bg_color) ?prompt ?size text : t =
   if fst (validator text) = Some false
   then printd (debug_error + debug_user)
       "The default text [%s] for the text_input validator is invalid. Please \
@@ -99,11 +100,13 @@ let make validator ?(bg = Draw.menu_bg_color) ?prompt ?size text : t =
   let c = Widget.connect_main ti ok (connect_ok validator old_status text)
       (List.append Text_input.triggers Trigger.buttons_down) in
   Widget.add_connection ti c;
-  let background = Layout.color_bg (Draw.opaque bg) in {
-    ti; ok; status = old_status; validator;
-    layout =  Layout.flat_of_w ~sep:2 ~background
-        ~resize:Layout.Resize.Linear ~align:Draw.Center [ok; ti]
-  }
+  let background = Layout.style_bg
+      Style.(of_bg (opaque_bg bg)
+             |> with_border (mk_border ~radius:12 (mk_line ()))) in
+  { ti; ok; status = old_status; validator;
+    layout =  Layout.(flat ~hmargin:6 ~vmargin:2 ~sep:2 ~background
+                        ~resize:Resize.Linear ~align:Draw.Center
+                        [resident ok; resident ti])}
 
 let of_regexp ?strict regexp =
   make (regexp_validator ?strict regexp)
@@ -188,8 +191,14 @@ module Email = struct
   let validator s =
     let ok = match String.split_on_char '@' s with
       | [first; dom] when first_part first ->
-      if dom = "" then None else Some (domain dom)
-    | [first] -> if first = "" || first_part first then None else Some false
-    | _ -> Some false in
+        if dom = "" then None else begin match domain dom with
+          | true -> Some true
+          | false when dom.[String.length dom - 1] = '.' &&
+                       domain (String.sub dom 0 (String.length dom - 1)) ->
+            None
+          | _ -> Some false
+        end
+      | [first] -> if first = "" || first_part first then None else Some false
+      | _ -> Some false in
     ok, None
 end
