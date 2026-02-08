@@ -970,7 +970,7 @@ end (* of RGB *)
 module RGBA: sig
 
   type t = int * int * int * int
-  (** red, green and blue values are integers in the range [0..255] *)
+  (** red, green, blue and alpha values are integers in the range [0..255] *)
 
   (** {3 Predefined colors} *)
 
@@ -1033,7 +1033,6 @@ module Draw: sig
   type rgb = RGB.t
 
   type color = RGBA.t
-  (** r,g,b,a *)
 
   type fill =
     | Pattern of texture
@@ -1049,7 +1048,7 @@ module Draw: sig
   val rgba_of_int32 : int -> color
 
   val find_color : string -> rgb
-  (** Same as {!RGB.find_color_color}. (For back-compatibility) *)
+  (** Same as {!RGB.find_color}. (For backward compatibility) *)
 
   (** {3 Using colors} *)
 
@@ -1057,7 +1056,7 @@ module Draw: sig
   (** Equivalent to [Sdl.set_render_draw_color]. *)
 
   val set_text_color : rgb -> unit
-  (** Same as {!RGB.set_text_color}. (For back-compatibility) *)
+  (** Same as {!RGB.set_text_color}. (For backward compatibility) *)
 
 
   (** {2:drawing_functions Drawing functions}

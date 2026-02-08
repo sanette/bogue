@@ -1,3 +1,5 @@
+(** See {{:http://www.rapidtables.com/web/color/html-color-codes.htm}this color table}. All colors here have alpha value 255 (opaque). *)
+
 val maroon : int * int * int * int
 val brown : int * int * int * int
 val sienna : int * int * int * int

@@ -74,11 +74,6 @@
 
 
 <pre><span id="TYPEcolor"><span class="keyword">type</span> <code class="type"></code>color</span> = <code class="type"><a href="Bogue.RGBA.html#TYPEt">RGBA.t</a></code> </pre>
-<div class="info ">
-<div class="info-desc">
-<p>r,g,b,a</p>
-</div>
-</div>
 
 
 <pre><code><span id="TYPEfill"><span class="keyword">type</span> <code class="type"></code>fill</span> = </code></pre><table class="typetable">
@@ -102,10 +97,22 @@
 <pre><span id="VALopaque"><span class="keyword">val</span> opaque</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALtransp"><span class="keyword">val</span> transp</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALadd_alpha"><span class="keyword">val</span> add_alpha</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALrgba_of_int32"><span class="keyword">val</span> rgba_of_int32</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre><h4 id="3_Usingcolors">Using colors</h4>
+<pre><span id="VALrgba_of_int32"><span class="keyword">val</span> rgba_of_int32</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
+<pre><span id="VALfind_color"><span class="keyword">val</span> find_color</span> : <code class="type">string -&gt; <a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Same as <a href="Bogue.RGB.html#VALfind_color"><code class="code"><span class="constructor">RGB</span>.find_color</code></a>. (For backward compatibility)</p>
+</div>
+</div>
+<h4 id="3_Usingcolors">Using colors</h4>
 <pre><span id="VALset_color"><span class="keyword">val</span> set_color</span> : <code class="type">Tsdl.Sdl.renderer -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALset_text_color"><span class="keyword">val</span> set_text_color</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Same as <a href="Bogue.RGB.html#VALset_text_color"><code class="code"><span class="constructor">RGB</span>.set_text_color</code></a>. (For backward compatibility)</p>
 </div>
 </div>
 <h3 id="drawing_functions">Drawing functions</h3>
