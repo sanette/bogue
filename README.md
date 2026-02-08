@@ -51,7 +51,7 @@ reacting with callbacks (see examples).
   background, image pattern)
 * check box
 * push button (with labels or images)
-* rich text display (bold, italics, underline), any TTF font can be used.
+* rich text display (bold, italics, underline), any TTF font can be used
 * image (all usual formats, including SVG)
 * slider (horizontal, vertical, or circular)
 * text input with select and copy-paste
@@ -75,6 +75,7 @@ Several predefined layouts are available:
 * radio lists
 * automatic tooltips can be attached to any element
 * file chooser
+* text input validator
 
 Layouts can be __animated__ (slide-in, transparency, rotation).  All
 layouts can be automatically __resized__ when the user resizes the
