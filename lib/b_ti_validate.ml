@@ -6,6 +6,8 @@ open B_utils
 module Draw = B_draw
 module Label = B_label
 module Layout = B_layout
+module RGB = B_rgb
+module RGBA = B_rgba
 module Style = B_style
 module Text_input = B_text_input
 module Trigger = B_trigger
@@ -30,8 +32,8 @@ let get_text t = Widget.get_text t.ti
 
 let fa_warning = "warning"
 let fa_ok = "check"
-let warning_color = Draw.(opaque (find_color "crimson"))
-let ok_color = Draw.(opaque (find_color "limegreen"))
+let warning_color = RGBA.crimson
+let ok_color = RGBA.limegreen
 
 let regexp_validator ?(strict = false) regexp =
   let r = Str.regexp regexp in
@@ -66,7 +68,7 @@ let set_ok ok =
 
 let set_neutral ok =
   let l = Widget.get_label ok in
-  Label.set_fg_color l Draw.(opaque faint_color);
+  Label.set_fg_color l RGBA.faint_color;
   Label.set_icon l fa_ok
 
 let set_warning ok =
@@ -88,13 +90,13 @@ let connect_ok validator old_status default ti ok _ =
   do_option s (fun s ->
       Widget.set_text ti (if s="" then default else s))
 
-let make validator ?(bg = Draw.bg_color) ?prompt ?size text : t =
+let make validator ?(bg = RGB.bg_color) ?prompt ?size text : t =
   if fst (validator text) = Some false
   then printd (debug_error + debug_user)
       "The default text [%s] for the text_input validator is invalid. Please \
        change it." text;
   let ti = Widget.text_input ~text ?prompt ?size () in
-  let ok = Widget.icon ?size ~fg:Draw.(opaque faint_color) fa_ok in
+  let ok = Widget.icon ?size ~fg:RGBA.faint_color fa_ok in
   let old_status = ref None in
 
   let c = Widget.connect_main ti ok (connect_ok validator old_status text)

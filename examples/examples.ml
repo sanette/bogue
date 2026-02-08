@@ -46,28 +46,26 @@ let europe = [|
 let image_file = "%assets/images/chl.png"
 
 (* We define some styles shared by several examples *)
-let sandybrown = Draw.find_color "sandybrown"
-let cornsilk = Draw.find_color "cornsilk"
 let no_line = Style.mk_line ~width:0 ()
-let thick_grey_line = Style.mk_line ~color:Draw.(opaque grey)
+let thick_grey_line = Style.mk_line ~color:RGBA.grey
     ~width:3 ~style:Solid ()
 
 (* Round corner without border line. *)
 let round_blue_box = let open Style in
   let border = mk_border ~radius:25 thick_grey_line in
-  create ~border ~background:(color_bg Draw.(opaque @@ find_color "lightblue")) ()
+  create ~border ~background:(color_bg RGBA.lightblue) ()
 
 (* Image pattern with rounded corner and thick grey border line *)
 let round_image_box = let open Style in
   let border = mk_border ~radius:10 thick_grey_line in
   (* the image is used as a pattern background, and so will not be scaled by
      theme (is this good?) *)
-  let p = Image.create ~bg:Draw.(opaque white) image_file in
+  let p = Image.create ~bg:RGBA.white image_file in
   create ~border ~background:(image_bg p) ()
 
 (* Grey with shadow *)
 let shadow_box = let open Style in
-  create ~background:(opaque_bg Draw.grey)
+  create ~background:(color_bg RGBA.grey)
     ~shadow:(mk_shadow ()) ()
 
 (*************************)
@@ -175,7 +173,7 @@ let example5 () =
 let desc6 = "A button and a colored underlined label. Global shortcut (ESC)."
 let example6 () =
   let b = W.check_box () in
-  let l = W.label ~fg:(Draw.(opaque (find_color "firebrick")))
+  let l = W.label ~fg:RGBA.firebrick
       ~style:Tsdl_ttf.Ttf.Style.underline
       "Merry Christmas !" in
   let layout = L.flat_of_w ~align:Draw.Center [b;l] in
@@ -296,8 +294,8 @@ let example14 () =
   let c'' = W.connect_main s'' l'' action events in
 
   let slider = L.resident ~background:L.theme_bg s in
-  let slider' = L.resident ~background:(L.color_bg Draw.(transp green)) s' in
-  let slider'' = L.resident ~background:(L.color_bg Draw.(transp red)) s'' in
+  let slider' = L.resident ~background:(L.color_bg Draw.(transp RGB.green)) s' in
+  let slider'' = L.resident ~background:(L.color_bg Draw.(transp RGB.red)) s'' in
   let lay =  L.tower [
       L.flat ~align:Draw.Center [slider; L.resident l];
       L.flat ~align:Draw.Center [slider'; L.resident l'];
@@ -338,13 +336,13 @@ let example16 () =
   let action b = print_endline (sprintf "Button: %b" b) in
   let b = W.button ~action "Press Me" in
   let c = W.button ~kind:Button.Switch ~action "Click Me" in
-  let fg = Draw.(opaque black) in
-  let bg_off = Style.color_bg Draw.none in
+  let fg = RGBA.black in
+  let bg_off = Style.color_bg RGBA.none in
   (* let bg_on = Style.color_bg Draw.(opaque blue) in *)
-  let bg_over = Some (Style.opaque_bg Draw.grey) in
+  let bg_over = Some (Style.color_bg RGBA.grey) in
   let d = W.button ~bg_off (* ~bg_on *) ~bg_over ~kind:Button.Switch
       ~label_on:(Label.icon ~fg "train")
-      ~label_off:(Label.icon ~fg:(Draw.(lighter (lighter fg))) "train")
+      ~label_off:(Label.icon ~fg:(RGBA.lighter (RGBA.lighter fg)) "train")
       ~action "" in
   let layout = L.flat_of_w [b;c;d] in
   let board = of_layout layout in
@@ -352,7 +350,7 @@ let example16 () =
 
 let desc17 = "A simple image at original pixel size."
 let example17 () =
-  let img = W.image ~noscale:true ~bg:Draw.(opaque white)
+  let img = W.image ~noscale:true ~bg:RGBA.white
       image_file in
   let layout = L.flat_of_w [img] in
   let board = of_layout layout in
@@ -361,8 +359,8 @@ let example17 () =
 (* TODO *)
 let desc18 = "zoom_in and oscillate animations"
 let example18 () =
-  let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) image_file in
-  let img2 = W.image ~w:250 ~h:300 ~bg:Draw.(opaque cyan) image_file in
+  let img1 = W.image ~w:300 ~h:300 ~bg:RGBA.white image_file in
+  let img2 = W.image ~w:250 ~h:300 ~bg:RGBA.cyan image_file in
   let l1 = L.resident img1 in
   let l2 = L.resident img2 in
   let layout = L.flat [l1; l2] in
@@ -375,7 +373,7 @@ let example18 () =
 
 let desc19 = "tabs"
 let example19 () =
-  let img = W.image ~w:320 ~h:300 ~bg:Draw.(opaque white) image_file in
+  let img = W.image ~w:320 ~h:300 ~bg:RGBA.white image_file in
   let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
   let b,l = W.check_box_with_label "you may click here too" in
   let tab1 = L.flat_of_w [img] in
@@ -388,8 +386,8 @@ let example19 () =
 
 let desc20 = "two images"
 let example20 () =
-  let img1 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque white) image_file in
-  let img2 = W.image ~w:300 ~h:300 ~bg:Draw.(opaque grey) image_file in
+  let img1 = W.image ~w:300 ~h:300 ~bg:RGBA.white image_file in
+  let img2 = W.image ~w:300 ~h:300 ~bg:RGBA.grey image_file in
   let l1 = L.flat_of_w [img1] in
   let l2 = L.flat_of_w [img2] in
   (* this has no effct: L.animate_w l1 (Avar.fromto ~duration:600 10 300); *)
@@ -403,13 +401,13 @@ let example21 () =
   let ti = W.text_input ~size:16 ~prompt:"Click and enter some text " () in
   let td = W.text_display lorem in
   let l = W.label " This is on top of the other widgets " in
-  let close_btn = W.button ~border_radius:3 ~border_color:Draw.(opaque blue) (I18n.Popup.(tf close)) in
+  let close_btn = W.button ~border_radius:3 ~border_color:RGBA.blue (I18n.Popup.(tf close)) in
   let popup = L.tower_of_w [l;ti;close_btn] in
   let layout = L.tower_of_w [b;td] in
   let screen = Popup.attach ~show:false ~bg:(Draw.(rgba_of_int32 0x79a894F0)) layout popup in
   (* TODO use actions *)
   let button = W.button ~kind:Button.Switch
-      ~border_radius:4 ~border_color:Draw.(opaque grey) "Popup" in
+      ~border_radius:4 ~border_color:RGBA.grey "Popup" in
   let release b =
     let state = Button.state (W.get_button b) in
     L.set_show popup state;
@@ -497,7 +495,7 @@ let example24 () =
   let btns = L.flat_of_w [b1;b2] in
   L.oscillate ~frequency:10. 20 btns;
   let layout = L.flat [btns; L.resident l] in
-  let screen = Popup.add_screen ~color:(Draw.(transp green)) btns in
+  let screen = Popup.add_screen ~color:(Draw.(transp RGB.green)) btns in
   let action _ w2 _ =
     Label.set (W.get_label w2) "You clicked on the screen layer!";
     W.update w2;
@@ -628,7 +626,7 @@ let example25bis () =
                    L.resident (W.check_box ())]]] in
 
   let layout = L.tower ~margins:0
-      ~background:(L.color_bg (Draw.(lighter (opaque pale_grey)))) [main] in
+      ~background:(L.color_bg RGBA.(lighter pale_grey)) [main] in
   let board = of_layout layout in
   run board
 
@@ -730,7 +728,7 @@ let example30 () =
      latter is preferable in case the radio buttons are modified directly
      without clicking, cf Timeout below. (or via TAB, not implemented yet) *)
 
-  let background = L.color_bg Draw.(set_alpha 40 blue) in
+  let background = L.color_bg RGBA.(set_alpha 40 blue) in
   let layout = L.flat ~align:Draw.Center [Radiolist.layout radio;
                                           L.resident ~background label] in
   let board = of_layout ~connections:cs layout in
@@ -742,7 +740,7 @@ let example30 () =
 let desc31 = "a Long List"
 let example31 () =
   Random.self_init ();
-  let background = L.color_bg Draw.(set_alpha 40 blue) in
+  let background = L.color_bg RGBA.(set_alpha 40 blue) in
   let sizes = Array.init (Array.length europe) (fun _ -> 100+(Random.int 100)) in
   let generate i = L.resident ~background ~h:(sizes.(i)) (W.label europe.(i)) in
   let long = Long_list.create ~w:300 ~h:400 ~generate
@@ -757,7 +755,7 @@ let desc32 = "a very Long List"
 let example32 () =
   let w = 200 in
   let generate i = let background = if i mod 2 = 0
-                     then Some (L.color_bg Draw.(transp (pale (pale green))))
+                     then Some (L.color_bg Draw.(transp RGB.(pale (pale green))))
                      else None in
     L.resident ~h:50 ~w ?background (W.label (string_of_int i)) in
   (* for very long lists a height_fn should be provided, otherwise it can be
@@ -775,7 +773,7 @@ let example33 () =
   let w = 200 in
   let height_fn i = Some (Utils.round (50. *. sin (float i /. 10.) +. 60.)) in
   let generate i =
-    let background = Some (L.color_bg Draw.(set_alpha ((27*i) mod 255) green)) in
+    let background = Some (L.color_bg RGBA.(set_alpha ((27*i) mod 255) green)) in
     L.resident ?h:(height_fn i) ~w ?background (W.label (string_of_int i)) in
 
   let long = Long_list.create ~w ~h:400 ~generate ~height_fn
@@ -794,7 +792,7 @@ let example34 () =
   let w = 200 and h = 30 in
   let generate i =
     let background = if i mod 2 = 0
-      then Some (L.color_bg Draw.(transp (pale (pale green))))
+      then Some (L.color_bg Draw.(transp RGB.(pale (pale green))))
       else None in
     let state = data.(i) in
     let b = W.check_box ~state () in
@@ -927,7 +925,7 @@ let example38 () =
 
   (* one can load an svg image as a widget; it will be scaled to fit the size:
   *)
-  let img = W.image_from_svg ~h:300 ~bg:Draw.(opaque @@ find_color "darkseagreen")
+  let img = W.image_from_svg ~h:300 ~bg:RGBA.darkseagreen
       "%assets/images/koala.svg" in
 
   let layout = L.flat_of_w [box; img] in
@@ -974,7 +972,7 @@ let example39 () =
 let desc39bis = "Keep bottom/right"
 let example39bis () =
   let background = L.theme_bg in
-  let bg_red = L.color_bg (Draw.(transp red)) in
+  let bg_red = L.color_bg (Draw.(transp RGB.red)) in
   let bottom = L.resident ~background:bg_red (W.label "Bottom") in
   let right = L.resident ~background:bg_red (W.label "Right") in
   let resize = Layout.Resize.Disable in
@@ -1001,7 +999,7 @@ let example40 () =
           |> L.resident in
   let style = let open Style in
     create ~border:(mk_border ~radius:5 no_line)
-      ~background:(gradient ~angle:45. Draw.[opaque sandybrown; opaque cornsilk])
+      ~background:(gradient ~angle:45. [RGBA.sandybrown; RGBA.cornsilk])
       () in
   let box = W.box ~style () in
   let layout = L.tower [L.resident b1;L.resident box;l] in
@@ -1022,11 +1020,11 @@ let desc41 = "game (fake)"
 let example41 () =
   let image = W.image ~w:1024 ~h:768 "%assets/images/nasa_black_hole_cygx1_ill.jpg" in
   let image = L.flat ~name:"image" [L.resident image] in
-  let title = W.label ~size:32 ~fg:(Draw.(opaque (find_color "firebrick")))
+  let title = W.label ~size:32 ~fg:RGBA.firebrick
       "The Black Hole Game"
               |> L.resident in
   let style = Style.(create ~border:(mk_border thick_grey_line) ()) in
-  let fg = Draw.(opaque white) in
+  let fg = RGBA.white in
   let make_btn x y text =
     let l = W.label ~fg text in
     (* alternative: *)
@@ -1113,10 +1111,10 @@ let example44 () =
 let desc45 = "layout shadow"
 let example45 () =
   let shadow = Style.mk_shadow () in
-  let background = Style.color_bg Draw.(transp blue) in
+  let background = Style.color_bg Draw.(transp RGB.blue) in
   let style = Style.create ~shadow ~background () in
   let b = W.box ~style ~w:50 ~h:50 () in (* OK *)
-  let bg = L.color_bg Draw.(transp green) in
+  let bg = L.color_bg Draw.(transp RGB.green) in
   let l = L.flat ~margins:50 ~shadow ~background:bg [L.resident b] in(* BUG *)
   let l2 = L.flat ~margins:50 ~shadow ~background:(L.style_bg style)
              [L.empty ~w:50 ~h:50 ()] in
@@ -1159,7 +1157,7 @@ let example49 () =
   (* We draw a diagonal line and a centered thick rectangle. *)
   let draw renderer =
     let w,h = Sdl_area.drawing_size area in
-    Draw.rectangle renderer ~color:Draw.(opaque blue)
+    Draw.rectangle renderer ~color:RGBA.blue
       ~w:(w/2) ~h:(h/2) ~thick:20 ~x:(w/4) ~y:(h/4);
     match Sdl.render_draw_line renderer 0 0 w h with
     | Error (`Msg m) -> print_endline ("SDL ERROR: " ^ m)
@@ -1169,7 +1167,7 @@ let example49 () =
   (* We draw a thick circle *)
   let circle renderer =
     let w,h = Sdl_area.drawing_size area in
-    Draw.circle renderer ~color:Draw.(opaque black) ~thick:20 ~x:(3*w/4) ~y:(h/4)
+    Draw.circle renderer ~color:RGBA.black ~thick:20 ~x:(3*w/4) ~y:(h/4)
       ~radius:(h/2)
   in
 
@@ -1213,7 +1211,7 @@ let example50 () =
   let random_circle () =
     let radius = Random.int 100 + 1 in
     let thick = Random.int radius in
-    let color = Draw.random_color () in
+    let color = RGBA.random_color () in
     let x = Random.int w in
     let y = Random.int h in
     Sdl_area.draw_circle area ~color ~thick ~radius (x, y)
@@ -1232,7 +1230,7 @@ let example51 () =
   let w,h = Sdl_area.drawing_size area in
   let random_line () =
     let thick = Random.int 50 + 1 in
-    let color = Draw.random_color () in
+    let color = RGBA.random_color () in
     let x0 = Random.int w in
     let y0 = Random.int h in
     let x1 = Random.int w in
@@ -1291,7 +1289,7 @@ let example54 () =
   let w, h = 500, 400 in
   let icon = W.button ~label:(Label.icon ~size:128 "file") "" in
   let text = W.label "Click on the icon to select a file" in
-  let sel = W.label ~fg:Draw.(opaque blue) "no file selected" in
+  let sel = W.label ~fg:RGBA.blue "no file selected" in
   let layout = L.tower ~align:Draw.Center [
       L.resident icon;
       L.resident text;

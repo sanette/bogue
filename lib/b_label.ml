@@ -3,6 +3,7 @@
 (* A simple text display in one line *)
 
 open B_utils
+module RGBA = B_rgba
 open Tsdl_ttf
 module Theme = B_theme
 module Var = B_var
@@ -148,7 +149,7 @@ let display canvas layer l g =
   let tex = match Var.get l.render with
     | Some t -> t
     | None ->
-      let fg = default (Var.get l.fg) Draw.(opaque label_color) in
+      let fg = default (Var.get l.fg) RGBA.label_color in
       let tex = render_text canvas.Draw.renderer (font l) l.style (text l) ~fg in
       Var.set l.render (Some tex); tex in
   [Draw.center_tex_to_layer ~horiz:l.align canvas layer tex g]

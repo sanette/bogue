@@ -9,6 +9,8 @@ open Tsdl
 open B_utils
 module Chain = B_chain
 module Theme = B_theme
+module RGB = B_rgb
+module RGBA = B_rgba
 module Var = B_var
 open Result
 module TImage = Tsdl_image.Image
@@ -16,7 +18,7 @@ module TImage = Tsdl_image.Image
 let draw_error = debug_error + debug_graphics
 
 type color = int * int * int * int (* RGBA *)
-type rgb = int * int * int
+type rgb = RGB.t
 type texture = Sdl.texture
 
 type fill =
@@ -447,133 +449,29 @@ let make_geom ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) () =
 let window_id canvas =
   Sdl.get_window_id canvas.window
 
-(* colors *)
-let black = (0,0,0)
-let grey = (100,100,100)
-let pale_grey = (150,150,150)
-let dark_grey = (75,75,75)
-let white = (255,255,255)
-let red = (255,0,0)
-let blue = (0,0,255)
-let green = (0,255,0)
-let magenta = (255,0,255)
-let cyan = (0,255,255)
-let yellow = (255,255,0)
-let sienna = (160,82,45)
-let none = (0,0,0,0)
-let colors =
-  [ "black", black;
-    "grey", grey;
-    "pale_grey", pale_grey;
-    "dark_grey", dark_grey;
-    "white", white;
-    "red", red;
-    "blue", blue;
-    "green", green;
-    "sienna", sienna
-  ]
+let sqrt_color x = round (255. *. sqrt (float x /. 255.))
 
-let colors = List.flatten [colors; Theme.color_names]
-(* we add all colors from: *)
-(* http://www.rapidtables.com/web/color/html-color-codes.htm *)
+let add_alpha = RGBA.add_alpha
 
-let color_of_int24 i =
-  (i lsr 16) land 255, (i lsr 8) land 255, i land 255
+let set_alpha = add_alpha
 
-let rgba_of_int32 i =
-  (i lsr 24) land 255, (i lsr 16) land 255, (i lsr 8) land 255, i land 255
-
-let color_of_int12 i =
-  let r,g,b = (i lsr 8) land 15, (i lsr 4) land 15, i land 15 in
-  (r * 255 / 15), (g *255 / 15), (b * 255 / 15)
-
-let rgba_of_int16 i =
-  let a = i land 15 in
-  let r,g,b = color_of_int12 (i lsr 4) in
-  r,g,b, (a * 255 / 15)
-
-(* example c="#FFF"  -> 0xFFF*)
-let int_of_hex c =
-  try
-    Some (int_of_string ("0x" ^ (String.sub c 1 (String.length c - 1))))
-  with
-  | Failure _ -> (* int_of_string *)
-    printd debug_error "Cannot extract hex integer from '0x%s'" c;
-    None
-  | e -> raise e
-
-(* convert a string of the form "grey" or "#FE01BC" to a color code (r,g,b) *)
-let find_color c =
-  if String.length c <> 0 && c.[0] = '#' then
-    match int_of_hex c with
-    | Some i -> color_of_int24 i
-    | None ->
-      printd debug_error "Cannot extract color code from '%s'" c;
-      grey
-  else
-    try List.assoc c colors
-    with
-    | Not_found ->
-      printd debug_error "Color '%s' unknown" c;
-      grey
-
-(* alpha=0 means totally transparent, alpha=255 means totally opaque *)
-let set_alpha alpha (r,g,b) : (*Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * Tsdl.Sdl.uint8 * int *) color =
-  (r,g,b,alpha)
-
-let bg_color = find_color Theme.bg_color
-let box_bg_color = find_color Theme.box_bg_color
-let cursor_color = find_color Theme.cursor_color
-let disabled_bg_color = find_color Theme.disabled_bg
-let disabled_fg_color = find_color Theme.disabled_fg
-let faint_color = find_color Theme.faint_color
-let text_color = ref (find_color Theme.text_color)
-let sel_bg_color = find_color Theme.sel_bg_color
-let sel_fg_color = find_color Theme.sel_fg_color
-let label_color = find_color Theme.label_color
-let menu_hl_color = find_color Theme.menu_hl_color
-let menu_bg_color = find_color Theme.menu_bg_color
-(* TODO put in VAR: *)
-let scrollbar_color = set_alpha 20 blue
-
-let set_text_color c =
-  text_color := c
-
-let opaque = set_alpha 255
+let opaque = add_alpha 255
 
 let color_of_rgb = opaque
 
-let transp = set_alpha 127
+let transp = add_alpha 127
 
 let more_transp (r,g,b,a) : color =
   (r,g,b, a/2)
 
-let random_color () : color =
-  let r () = Random.int 256 in
-  (r(), r(), r(), r())
-
-let sqrt_color x = round (255. *. sqrt (float x /. 255.))
-
-(* non linear increase of color *)
-(* f(x) = a - exp(-bx), f(0)=0.1, f(1)=1  => a = 1.1, b = - ln 0.1 = 2.3... *)
-let incr_color x = min 255 (round (255. *. (1.1 -. exp (-.2.3 *. float x /. 255.))))
-
-let pale (r,g,b) = (incr_color r, incr_color g, incr_color b)
-
-let darker (r,g,b,a) : color =
-  (3*r/4, 3*g/4, 3*b/4, a)
-
-let component_lighter x =
-  min 255 ((4*x)/3 + 80)
-
-let lighter (r,g,b,a) : color =
-  (component_lighter r, component_lighter g, component_lighter b, a)
-
-let median (r1,g1,b1,a1) (r2,g2,b2,a2) : color =
-  (r1+r2)/2, (g1+g2)/2, (b1+b2)/2, (a1+a2)/2
+let rgba_of_int32 = RGBA.of_int32
+let rgba_of_int16 = RGBA.of_int16
 
 let set_color renderer (r,g,b,a) =
   go (Sdl.set_render_draw_color renderer r g b a)
+
+let set_text_color = RGB.set_text_color
+let find_color = RGB.find_color
 
 (* get the color mask for creating textures *)
 let mask renderer =
@@ -735,7 +633,7 @@ let render_blit blit =
        follows: *)
     (* set_color blit.rndr (random_color ()); *)
     (* go (Sdl.render_draw_rect blit.rndr blit.clip); *)
-    set_color blit.rndr none;
+    set_color blit.rndr RGBA.none;
     go (Sdl.render_draw_point blit.rndr (-1) (-1));
     (* END WORKAROUND *)
 
@@ -1037,7 +935,7 @@ let load_image renderer file =
 
 (* either load an image (eg: "images.png") or a font-awesome symbol (eg:
    "fa:circle") into a texture *)
-let load_image_or_fa ?(fg = opaque menu_hl_color) renderer path =
+let load_image_or_fa ?(fg = RGBA.menu_hl_color) renderer path =
   if startswith path "fa:"
   then let fa = String.(sub path 3 (length path - 3)) in
     let fa_font = open_font Theme.fa_font Theme.(scale_int fa_font_size) in
@@ -1052,11 +950,11 @@ let fill_of_string renderer s =
   if startswith s "file:"
   then Pattern (load_image renderer (Theme.get_path (sub s 5 (length s - 5))))
   else if startswith s "color:"
-  then let r,g,b = find_color (sub s 6 (length s - 6)) in
+  then let r,g,b = RGB.find_color (sub s 6 (length s - 6)) in
     printd debug_graphics "Fill color = %u,%u,%u" r g b;
     Solid (opaque (r,g,b))
   else (printd draw_error "Wrong background format. Expecting color:... or file:..., got %s instead" s;
-        Solid (opaque pale_grey))
+        Solid (RGBA.pale_grey))
 
 
 let svg_loader =
@@ -1115,7 +1013,7 @@ let image_size file =
 (** create a texture filled with a color *)
 (* One could also create a target texture and clear it with color, but tests in
    tests/line suggest it's no faster. *)
-let texture ?(color = opaque grey) renderer ~w ~h =
+let texture ?(color = RGBA.grey) renderer ~w ~h =
   let surf = create_surface ~renderer ~color w h in
   let tex = create_texture_from_surface renderer surf in
   free_surface surf;
@@ -1133,7 +1031,7 @@ let box renderer ?bg x y w h =
     end
 
 (** create a "blit" of a filled rectangle *)
-let box_to_layer canvas layer ?(bg = opaque grey) ?voffset x y w h =
+let box_to_layer canvas layer ?(bg = RGBA.grey) ?voffset x y w h =
   let tex = texture canvas.renderer ~color:bg ~w ~h in
   let dst = Sdl.Rect.create ~x ~y ~w ~h in
   forget_texture tex;
@@ -1141,7 +1039,7 @@ let box_to_layer canvas layer ?(bg = opaque grey) ?voffset x y w h =
 
 (** save and reset some useful settings before setting a render target *)
 (* TODO : not thread safe !*)
-let push_target ?(clear=true) ?(bg=none) renderer target =
+let push_target ?(clear=true) ?(bg = RGBA.none) renderer target =
   (* we save the clip rectangle of the current target *)
   let clip = if Sdl.render_is_clip_enabled renderer
              then Some (Sdl.render_get_clip_rect renderer)
@@ -1346,7 +1244,7 @@ let init ?window ?(name="BOGUE Window") ?fill ?x ?y ~w ~h () =
 
   (* set dummy solid background in case of new window *)
   if window = None then begin
-      set_color renderer (opaque red);
+    set_color renderer (RGBA.red);
       go (Sdl.render_clear renderer)
     end;
 
@@ -1382,7 +1280,7 @@ let clear_canvas c =
      says that render_clear does not take clip_rect into account... *)
   let color = match c.fill with
     | Solid x -> x
-    | _ -> opaque grey in
+    | _ -> RGBA.grey in
   set_color c.renderer color;
   go (Sdl.render_clear c.renderer);
   (* paste background image *)
@@ -1426,7 +1324,7 @@ let make_ray renderer ~bg ~radius ~width ?thickness x y =
     (* environ h = 1 + round (2. *. (sin alpha) *. (float radius)) *)
     | Some t -> t in
   let w, h = (max 1 w), (max 1 h) in
-  let surf = create_surface ~renderer ~color:none w h in
+  let surf = create_surface ~renderer ~color:RGBA.none w h in
   (* let surf = create_rgb_surface ~w ~h ~depth cmask in *)
   printd debug_graphics "Ring: radius:%d, length of ray:%d, heigth:%d, steps=%d" radius w h steps;
   (* fill_rect surf None none; *)
@@ -1442,11 +1340,11 @@ let make_ray renderer ~bg ~radius ~width ?thickness x y =
   tex, center, dst, steps
 
 (* draw the "ray" (radius) on the renderer *)
-let ray renderer ?(bg = opaque black) ~radius ~width ?thickness ~angle x y =
+let ray renderer ?(bg = RGBA.black) ~radius ~width ?thickness ~angle x y =
   let tex, center, dst, _ = make_ray renderer ?thickness ~bg ~radius ~width x y in
     go(Sdl.render_copy_ex renderer ~dst tex angle (Some center) Sdl.Flip.none)
 
-let ray_to_layer canvas layer ?(bg = opaque black) ?voffset ~radius ~width ?thickness ~angle x y =
+let ray_to_layer canvas layer ?(bg = RGBA.black) ?voffset ~radius ~width ?thickness ~angle x y =
   let tex, center, dst, _ = make_ray canvas.renderer
       ?thickness ~bg ~radius ~width x y in
   let transform = make_transform ~angle ~center () in
@@ -2043,11 +1941,11 @@ let disc renderer ~color ~x0 ~y0 ~radius =
 (* draw a ring (=annulus) on a new transparent texture *)
 (* and returns the texture. *)
 (* radius is the exterior radius. Total size is 2*radius+2 *)
-let ring_tex renderer ?(color = opaque grey) ~radius ~width x y =
+let ring_tex renderer ?(color = RGBA.grey) ~radius ~width x y =
   (* diameter = 2*radius+1 and we add 1 for antialiasing *)
   let w = imax (x+radius+2) (2*radius+2) |> imax (y+radius+2) in
   let target = create_target renderer w w in
-  let push = push_target  ~bg:(set_alpha 0 white) renderer target in
+  let push = push_target  ~bg:(add_alpha 0 RGB.white) renderer target in
   annulus renderer color x y ~radius1:(radius-width+1) ~radius2:radius;
   pop_target renderer push;
   target
@@ -2279,7 +2177,7 @@ let gradient_texture renderer ~w ~h ?angle ?(pop=true) colors =
 (* Note: shadows look better if the box has a white (or light) background *)
 (* Warning: the 'radius' here corresponds to 'width' in Style module (+ theme
    scaling) *)
-let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
+let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = RGB.pale_grey)
       ?(size=Theme.scale_int 2) ?(offset=scale_pos (3,5))
       ?voffset ?(fill = true) dst  =
   (* size = 0 means that the complete shadow has the same size as the box -- and
@@ -2303,8 +2201,8 @@ let box_shadow canvas layer ?(radius = Theme.scale_int 8) ?(color = pale_grey)
       []
     end else
     begin
-      let tcolor = set_alpha 0 color in
-      let scolor = set_alpha 200 color in
+      let tcolor = add_alpha 0 color in
+      let scolor = add_alpha 200 color in
 
       (* create the textures *)
       (* TODO: pre-compute and store this!  On the other hand, the advantage of
@@ -2502,7 +2400,7 @@ let alpha_mult_tex renderer tex =
   target
 
 (* f is a function with values in [0,1] *)
-let convolution renderer ?(emboss=false) ?(bg = opaque grey) f radius texture =
+let convolution renderer ?(emboss=false) ?(bg = RGBA.grey) f radius texture =
   let pf, _, (w,h) = go (Sdl.query_texture texture) in
   (*  let buffer =  go(Sdl.create_texture renderer pf Sdl.Texture.access_target ~w ~h) in *)
   let target =  create_texture renderer pf Sdl.Texture.access_target ~w ~h in
@@ -2556,7 +2454,7 @@ let convolution renderer ?(emboss=false) ?(bg = opaque grey) f radius texture =
   target
 
 (* f is a function with values in [0,1] *)
-let convolution_emboss renderer ?(bg = opaque grey) f radius texture =
+let convolution_emboss renderer ?(bg = RGBA.grey) f radius texture =
   let pf, _, (w,h) = go (Sdl.query_texture texture) in
   let target =  create_texture renderer pf Sdl.Texture.access_target ~w:(w+2*radius) ~h:(h+2*radius) in
   let push = push_target renderer target in
@@ -2823,7 +2721,7 @@ let fast_mask_texture renderer ~mask texture =
   let w' = imin wm w and h' = imin hm h in
   let rect = Sdl.Rect.create ~x:0 ~y:0 ~w:w' ~h:h' in
   let target = create_target renderer w' h' in
-  let push = push_target ~clear:true ~bg:none renderer target in
+  let push = push_target ~clear:true ~bg:RGBA.none renderer target in
   go (Sdl.set_texture_blend_mode mask Sdl.Blend.mode_none);
   go (Sdl.render_copy ~src:rect renderer mask);
   go (Sdl.set_texture_blend_mode texture Sdl.Blend.mode_add);

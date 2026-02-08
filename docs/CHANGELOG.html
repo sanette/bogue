@@ -25,7 +25,7 @@ href="https://github.com/sanette/bogue/compare/20250815...HEAD">Unreleased</a></
 <h3 id="added">Added</h3>
 <ul>
 <li>New module: <code>Ti_Validator</code> (automatic validating text
-inputs) Includes an email validator.</li>
+inputs). Includes an <strong>email validator</strong>.</li>
 <li>New module: <code>Mailbox</code> for sending arbitrary message to
 widgets (experimental, but should be quite powerful to help organizing
 large and complex UIs)</li>
@@ -33,9 +33,22 @@ large and complex UIs)</li>
 </ul>
 <h3 id="changed">Changed</h3>
 <ul>
-<li>argument <code>max_size</code> of <code>Text_input.create</code> and
-<code>Widget.text_input</code> is now renamed to <code>max_len</code>
-(“size” is used for font size).</li>
+<li><p><strong>breaking!</strong> Colors are now separated in two
+modules <code>RGB</code> and <code>RGBA</code>. Several functions have
+been moved to these modules. If you want to cheaply workaround this,
+just add</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="kw">open</span> Bogue.RGBA</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="kw">open</span> Bogue.RGB</span></code></pre></div>
+<p>at the top of your file, this should do the job in most
+cases.</p></li>
+<li><p>argument <code>max_size</code> of <code>Text_input.create</code>
+and <code>Widget.text_input</code> is now renamed to
+<code>max_len</code> (“size” is used for font size).</p></li>
+</ul>
+<h3 id="removed">Removed</h3>
+<ul>
+<li>Remove <code>colors</code> dir from the common themes dir.</li>
 </ul>
 <h2 id="section"><a
 href="https://github.com/sanette/bogue/compare/20250224...20250815">20250815</a></h2>

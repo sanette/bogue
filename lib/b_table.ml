@@ -94,10 +94,11 @@ let min_height t = t.min_height
 
 
 let title_margin = 4
+(* TODO make this cutomizable *)
 let title_background = Layout.color_bg Draw.(set_alpha 90 Button.color_off)
 let row_hl = Layout.color_bg Draw.(set_alpha 40 Button.color_off)
-let row_selected = Layout.opaque_bg Draw.(pale Button.color_off)
-let icon_color = Draw.(set_alpha 100 grey)
+let row_selected = Layout.opaque_bg Draw.(RGB.pale Button.color_off)
+let icon_color = Draw.(set_alpha 100 RGB.grey)
 
 (* [max_width c] returns the max width of the entries of the column c,
    optionally limited to the first n_max entries. *)
@@ -233,7 +234,7 @@ let make_table ?row_height ?selection ?max_selected ?on_click
 
 let unselected_bg ii =
   if ii mod 2 = 1
-  then Some (Layout.color_bg Draw.(set_alpha 20 grey))
+  then Some (Layout.color_bg Draw.(set_alpha 20 RGB.grey))
   else None
 
 (* [get_background] returns the background to use for this entry. [i] is the

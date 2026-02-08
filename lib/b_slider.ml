@@ -369,7 +369,7 @@ let display canvas layer s g =
   let c = if shadow then opaque Button.color_on
           else set_alpha 200 Button.color_on in
   let color = if has_keyboard_focus s && not shadow
-              then Draw.(darker c)
+              then Draw.(RGBA.darker c)
               else c in
   let x0 = scale (x_pos s) in
   (*   set_color renderer (opaque color); *)
@@ -415,7 +415,7 @@ let display canvas layer s g =
      let tex = match Var.get s.render with
        | Some t -> t
        | None ->
-          let t' = ring_tex renderer ~color:(lighter (transp grey))
+          let t' = ring_tex renderer ~color:(RGBA.lighter (transp RGB.grey))
                      ~radius ~width:thickness (g.w/2) (g.h/2) in
           (* j'ai essayé de mettre une taille double puis de réduire avec
            render_copy, mais apparemment ça ne fait pas d'antialiasing *)

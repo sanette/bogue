@@ -1,3 +1,5 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 (* a 'window' is in fine just a layout *)
 (* Do not mistake it with a hardware (SDL) window *)
 open Tsdl

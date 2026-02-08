@@ -14,6 +14,7 @@ module Draw = B_draw
 module Layout = B_layout
 module Popup = B_popup
 module Print = B_print
+module RGBA = B_rgba
 module Style = B_style
 module Sync = B_sync
 module Timeout = B_timeout
@@ -102,11 +103,11 @@ module Engine = struct
 
   (* the entry below mouse should always be highlighted. But we also highlight
      the parent of each open menu. *)
-  let highlight_entry ?(bg=Layout.opaque_bg Draw.menu_hl_color) entry =
+  let highlight_entry ?(bg=Layout.color_bg RGBA.menu_hl_color) entry =
     set_entry_bg ~bg entry;
     entry.selected <- true
 
-  let reset_entry ?(bg=Layout.opaque_bg Draw.menu_bg_color) entry =
+  let reset_entry ?(bg=Layout.color_bg RGBA.menu_bg_color) entry =
     set_entry_bg ~bg entry;
     entry.selected <- false
 
@@ -590,7 +591,7 @@ let format_label ?w ?h = function
     let res = Layout.resident ?w ?h (Widget.label s) in
     (* : here we cannot use a resident as is because we will need to add another
        room later; we need to wrap it: *)
-    let background = Layout.opaque_bg Draw.menu_bg_color in
+    let background = Layout.color_bg RGBA.menu_bg_color in
     Layout.flat ~name:"menu entry label"
       ~margins:text_margin ~background [res]
   | Layout l ->
@@ -688,7 +689,7 @@ module Tmp = struct
       then get_layout entry
       else match entry.content with
         | Separator->
-          let background = Layout.opaque_bg Draw.grey in
+          let background = Layout.color_bg RGBA.grey in
           Layout.empty ~background ~w:10 ~h:1 ()
         | Menu _
         | Action _ -> format_label entry.label
@@ -713,12 +714,12 @@ module Tmp = struct
 
   let menu_formatter = function
     | Flat -> (fun list ->
-        let background = Layout.opaque_bg Draw.menu_bg_color in
+        let background = Layout.color_bg RGBA.menu_bg_color in
         let shadow = Style.mk_shadow ~offset:(1,1) ~size:1 () in
         Layout.flat ~name:"menu flat" ~margins:0 ~background ~shadow list)
     | Tower -> (fun list ->
         let shadow = Style.mk_shadow ~offset:(1,1) ~size:1 () in
-        let background = Layout.opaque_bg Draw.menu_bg_color in
+        let background = Layout.color_bg RGBA.menu_bg_color in
         let l = Layout.tower ~name:"menu tower" ~margins:0 ~sep:0
             ~background ~shadow list in
         Layout.expand_width l; l)

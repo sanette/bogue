@@ -134,6 +134,7 @@ module L = B_layout
 module Long_list = B_long_list
 module Main = B_main
 module Popup = B_popup
+module RGBA = B_rgba
 module Selection = B_selection
 module Space = B_space
 module Style = B_style
@@ -1135,11 +1136,11 @@ let entry_is_directory (e : entry) =
 let find_entry entries name =
   array_find_index (fun e -> e.name = name) entries
 
-let dir_icon_color = Draw.(opaque (find_color "#887a5f"))
-let file_icon_color = Draw.(opaque (find_color "#513d34"))
-let path_entry_color = Draw.(opaque (find_color "#dbc8a4"))
-let fg = Draw.(opaque label_color)
-let hidden_color = Draw.(transp label_color)
+let dir_icon_color = RGBA.find_color "#887a5f"
+let file_icon_color = RGBA.find_color "#513d34"
+let path_entry_color = RGBA.find_color "#dbc8a4"
+let fg = RGBA.label_color
+let hidden_color = Draw.(transp RGB.label_color)
 
 (* Final table with filtered entries *)
 let make_f_table ~options message entries =
@@ -1677,11 +1678,11 @@ let connect_text_input t =
 (*   L.superpose *)
 
 let bg1 = L.style_bg
-    Style.(of_bg (gradient ~angle:90. [(Draw.(opaque (pale Button.color_off)));
+    Style.(of_bg (gradient ~angle:90. [(Draw.(opaque (RGB.pale Button.color_off)));
                                        path_entry_color])
            |> with_border (mk_border ~radius:5 (mk_line ~width:0 ())))
 
-let bg_over = Some (Style.opaque_bg Draw.grey)
+let bg_over = Some (Style.color_bg RGBA.grey)
 
 let show room = L.show ~duration:0 room; L.fade_in room
 
@@ -1737,7 +1738,7 @@ let new_file_layout ~label name =
   let label = W.label label in
   let inp = W.text_input ~text:name () in
   let bg = Style.(of_border (mk_border ~radius:5 (mk_line ~width:1 ()))
-                  |> with_bg (color_bg Draw.(opaque white)))
+                  |> with_bg (color_bg RGBA.white))
            |> L.style_bg in
   let inp_l = L.resident ~background:bg inp in
   let room = L.flat ~vmargin:0 ~resize:L.Resize.Disable ~align:Draw.Center ~sep:10
@@ -1981,7 +1982,7 @@ let select_popup ?dst ?board ?w ?h path ?n_files ?n_dirs ?mimetype ?name
           W.add_connection t.new_file c)
   in
 
-  let bg = Style.Solid Draw.(opaque bg_color) in
+  let bg = Style.Solid RGBA.bg_color in
   Popup.two_buttons ?dst ~bg ?board ?w ?h ~label1:I.(tf cancel) ~label2
     ~action1:(fun () ->
         Monitor.stop fd.directory.monitor)

@@ -14,6 +14,7 @@ module Theme = B_theme
 module Var = B_var
 module Draw = B_draw
 module Image = B_image
+module RGBA = B_rgba
 module Style = B_style
 
 (* "themes/textures/subtle-patterns/subtle-pattern-7.bmp" *)
@@ -33,9 +34,9 @@ let size b =
   b.size
 
 let default_size = (256,64)
-let default_background = Draw.box_bg_color (* Style.Solid Draw.(opaque pale_grey) *)
+let default_background = RGBA.box_bg_color (* Style.Solid Draw.(opaque pale_grey) *)
 let default_border = Style.(mk_border {
-    color = Draw.(opaque grey);
+    color = RGBA.grey;
     width = 1;
     style = Solid }) (* not used *)
 
@@ -151,12 +152,12 @@ let display canvas layer b g =
           let radius = max 0 (Theme.scale_int radius - thick) in
           (* TODO treat case line width < 0 *)
           let shape = create_target canvas.renderer g.w g.h in
-          let bg = set_alpha 0 black in
+          let bg = set_alpha 0 RGB.black in
           (* any fully transparent color will do as long as we don't blend onto
              the resulting texture. *)
           let save_target = push_target ~clear:true ~bg canvas.renderer shape in
           go (Sdl.set_render_draw_blend_mode canvas.renderer Sdl.Blend.mode_none);
-          filled_rounded_box ~antialias:true canvas.renderer (opaque black)
+          filled_rounded_box ~antialias:true canvas.renderer RGBA.black
             (* for [mask_texture], any opaque color will do, but for
                [fast_mask_texture] we need black.  *)
             ~w:(g.w-2*thick) ~h:(g.h-2*thick) ~radius (thick) (thick);
@@ -222,7 +223,7 @@ let display canvas layer b g =
           "Shadow with rounded corner not implemented yet.";
         [] (* TODO *)
       ) else (
-        box_shadow ~voffset:g.voffset canvas layer ~color:black
+        box_shadow ~voffset:g.voffset canvas layer ~color:RGB.black
           ~radius:(Theme.scale_int s.Style.width)
           ~size:(Theme.scale_int s.Style.size)
           ~offset:(Draw.scale_pos s.Style.offset) dst

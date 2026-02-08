@@ -9,6 +9,7 @@ module Draw = B_draw
 module Style = B_style
 module Box = B_box
 module Label = B_label
+module RGB = B_rgb
 module Trigger = B_trigger
 
 type kind =
@@ -32,8 +33,8 @@ type t =
     action : action option
   }
 
-let color_on = Draw.find_color Theme.button_color_on
-let color_off = Draw.find_color Theme.button_color_off
+let color_on = RGB.find_color Theme.button_color_on
+let color_off = RGB.find_color Theme.button_color_off
 let bg_over = Style.gradient
     Draw.[opaque color_off; opaque color_off; opaque color_on]
 

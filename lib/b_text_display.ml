@@ -2,10 +2,11 @@ open Str
 open B_utils
 open Tsdl
 open Tsdl_ttf
-module Theme = B_theme
-module Var = B_var
 module Draw = B_draw
 module Label = B_label
+module RGBA = B_rgba
+module Theme = B_theme
+module Var = B_var
 
 (* TODO: use TTF_RenderUTF8_Blended_Wrapped *)
 (* cf SDL_ttf.h *)
@@ -26,9 +27,9 @@ type entity =
 type words = entity list
 
 let example : words = let open Ttf.Style in
-  [ Color Draw.(opaque blue); Word "Hello";
+  [ Color RGBA.blue; Word "Hello";
     Space; Word "I"; Space; Word "am"; Space;
-    Style bold; Word "bold"; Color Draw.(opaque !text_color);
+    Style bold; Word "bold"; Color !RGBA.text_color;
     Style normal; Space; Word "and"; Space;
     Style italic; Word "italic." ]
 
@@ -217,22 +218,7 @@ let close_style line stylestack style =
   let line = add_style line (style_from_stack stk) in
   stk, line
 
-let color_from_html c =
-  let open Draw in
-  if String.length c <> 0 && c.[0] = '#'
-  then
-    let i, c = match int_of_hex c with
-      | Some i -> i, c
-      | None -> printd debug_error "Cannot recognize color code '0x%s'" c;
-    0xAAAA, "AAAA" in
-    match String.length c - 1 with
-    | 3 -> opaque @@ color_of_int12 i
-    | 4 -> rgba_of_int16 i
-    | 6 -> opaque @@ color_of_int24 i
-    | 8 -> rgba_of_int32 i
-    | _ -> printd debug_error "Cannot recognize HTML color '%s'" c;
-      opaque grey
-  else opaque @@ find_color c
+let color_from_html = RGBA.find_color
 
 let color_from_tag s =
   let s = global_replace delims " " s in
@@ -243,14 +229,14 @@ let color_from_tag s =
     end
   else begin
     printd debug_error "Cannot recognize an HTML color tag in [%s]" s;
-    Draw.(opaque grey)
+    RGBA.grey
   end
 
 (* TODO? write a truly recursive fn instead of manually handling stacks? but
    then we should eliminate redundant information like (bold (bold (bold
    aaa))). *)
 let paragraphs_of_html src =
-  let def_color = Color Draw.(opaque !text_color) in
+  let def_color = Color !RGBA.text_color in
   let colorstack = Stack.create () in
   Stack.push def_color colorstack;
   let rec loop stylestack paras line = function
@@ -388,7 +374,7 @@ let display canvas layer td g =
       | Some t -> Some t
       | None -> begin
           let font = get_font td in
-          let fg = ref (opaque !text_color) in
+          let fg = ref !RGBA.text_color in
           let lineskip = Ttf.font_line_skip font in
           let space = fst (Label.physical_size_text font " ") in (* idem *)
           let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in

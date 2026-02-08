@@ -59,7 +59,7 @@ let draw_rect renderer tr =
 let make_board () =
   let input = W.text_input ~max_len:200 ~prompt:"Enter your name" () in
   let label = W.label ~size:40 "Hello !" in
-  let background = L.color_bg (Draw.(transp (find_color "olivedrab"))) in
+  let background = L.color_bg (Draw.transp RGB.olivedrab) in
   let w = width - 2*margin in
   let layout = L.tower ~margins:margin [L.resident ~background ~w input;
                                         L.resident ~w ~h:200 label] in

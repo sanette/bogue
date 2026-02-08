@@ -25,7 +25,7 @@ DIR = /home/john/.config/bogue/themes
 
 *)
 
-let this_version = "20260131"  (* see VERSION file *)
+let this_version = "20260208"  (* see VERSION file *)
 (* Versions are compared using usual (lexicographic) string ordering. *)
 
 let default_vars = [
@@ -569,37 +569,5 @@ let fa_symbol name =
     printd debug_error "FA symbol '%s' was not found. Using 'question' instead" name;
     List.assoc "question" fa_symbols
 
-let load_colors () =
-  let file = common // "colors" // "liste.txt" in
-  printd debug_io "Reading color names from [%s]." file;
-  let buffer = Scanf.Scanning.from_file file in
-  let rec loop list =
-    try
-      let name,_,r,g,b = Scanf.bscanf buffer "%s #%x rgb(%u,%u,%u)\n" (fun n h r g b -> n,h,r,g,b) in
-      (* printd debug_io "Reading color [%s]=(%u,%u,%u)" name r g b; *)
-      loop ( (name,(r,g,b))::list )
-    with
-    | End_of_file ->
-      Scanf.Scanning.close_in buffer;
-      list
-    | Scanf.Scan_failure _ ->
-      let fail = Scanf.bscanf buffer "%s@\n" (fun x -> x) in
-      printd (debug_error+debug_io) "Fail to read [%s]" fail;
-      loop list
-    | e -> raise e
-  in
-  loop []
-
-let color_names = load_colors ()
-(* http://www.rapidtables.com/web/color/html-color-codes.htm *)
-
-
-(* some unused functions, just for me... *)
-let print_bin c =
-  let rec loop code list =
-    if code = 0 then list
-    else loop (code lsr 1) ((string_of_int (code land 1)) :: list)
-  in
-  if c = 0 then "0" else String.concat "" (loop c [])
 
 let () = printd debug_custom "Detected os type: [%s]" (os_type ())

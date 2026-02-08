@@ -28,6 +28,7 @@ module Chain = B_chain
 module Draw = B_draw
 module Label = B_label
 module Mouse = B_mouse
+module RGBA = B_rgba
 module Selection = B_selection
 module Slider = B_slider
 module Style = B_style
@@ -51,7 +52,7 @@ let color_bg color =
 
 let opaque_bg color = color_bg Draw.(opaque color)
 
-let theme_bg = opaque_bg Draw.bg_color
+let theme_bg = color_bg RGBA.bg_color
 
 let style_bg s =
   Style s
@@ -317,7 +318,7 @@ let delete_background room =
     (fun b ->
       let () =
         room.background <-
-          if !debug then Some (opaque_bg Draw.red) else None in
+          if !debug then Some (color_bg RGBA.red) else None in
       match b with
       | Style s -> Style.unload s
       | Box b -> Box.unload b)
@@ -2828,7 +2829,7 @@ let make_clip
          container is modified after creation, for instance when the user
          resizes the window. *)
       let bar = resident_with_layer ~layer
-          ~background:(color_bg Draw.(lighter scrollbar_color))
+          ~background:(color_bg RGBA.(lighter scrollbar_color))
           (Widget.empty ~w:10 ~h:10 ()) in
       (* The scrollbar is a slider. Its Tvar takes the voffset value into the
          slider value, between 0 and (height room - height container). 0
@@ -3030,7 +3031,7 @@ let relocate ~dst ?(scroll=true) ?(auto_scale=false) room =
 let debug_box ~color room x y =
   let w,h = Draw.scale_size (get_size room) in
   let x,y = Draw.scale_pos (x,y) in
-  let bg = if room.mouse_focus then Some (Draw.lighter color) else None in
+  let bg = if room.mouse_focus then Some (RGBA.lighter color) else None in
   Draw.rect_to_layer ?bg ~color (get_canvas room) (get_layer room)
       (x,y) w h
 
@@ -3161,7 +3162,7 @@ let display ?pos0 room =
           end;
           if !draw_boxes (* we print the room number at the end to make sure
                             it's visible *)
-          then let label = Label.create ~size:7 ~fg:(Draw.(transp blue))
+          then let label = Label.create ~size:7 ~fg:(Draw.(transp RGB.blue))
                    (sprint_id r) in
             let geom = Draw.scale_geom {Draw.x; y; w=g.w+1; h=g.h+1; voffset} in
             let blits = Label.display (get_canvas r) (get_layer r) label geom in

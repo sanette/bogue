@@ -95,6 +95,7 @@ open B_utils
 module Layout = B_layout
 module Widget = B_widget
 module Avar = B_avar
+module RGBA = B_rgba
 module Theme = B_theme
 module Time = B_time
 module Var = B_var
@@ -750,7 +751,7 @@ let make_clip ?name ~w ~h ~scrollbar_width ll room =
     Widget.add_connection slider c2
   end;
   let bar = L.(
-      resident ~name:"bar" ~background:(color_bg Draw.scrollbar_color) slider) in
+      resident ~name:"bar" ~background:(color_bg RGBA.scrollbar_color) slider) in
   let name = default name "long_list" in
   let layout = L.(superpose ~name [container; bar]) in
   L.disable_resize bar;

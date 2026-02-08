@@ -8,16 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- New module: `Ti_Validator` (automatic validating text inputs)
-  Includes an email validator.
+- New module: `Ti_Validator` (automatic validating text inputs).
+  Includes an **email validator**.
 - New module: `Mailbox` for sending arbitrary message to widgets
   (experimental, but should be quite powerful to help organizing large
   and complex UIs)
 - `I18n.make_context` is now public.
 
 ### Changed
+- **breaking!** Colors are now separated in two modules `RGB` and
+  `RGBA`. Several functions have been moved to these modules. If you
+  want to cheaply workaround this, just add
+  ```ocaml
+  open Bogue.RGBA
+  open Bogue.RGB
+  ```
+  at the top of your file, this should do the job in most cases.
 - argument `max_size` of `Text_input.create` and `Widget.text_input`
   is now renamed to `max_len` ("size" is used for font size).
+
+### Removed
+- Remove `colors` dir from the common themes dir.
 
 ## [20250815](https://github.com/sanette/bogue/compare/20250224...20250815)
 

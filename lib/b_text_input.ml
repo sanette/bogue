@@ -17,6 +17,7 @@ module Trigger =  B_trigger
 module Draw = B_draw
 module Label = B_label
 module Mouse = B_mouse
+module RGBA = B_rgba
 
 type selection =
   | Empty
@@ -578,7 +579,7 @@ let mouse_select ti ev=
 
 (* Render letter by letter so that x position is precise *)
 let draw_keys ?fg font keys =
-  let color = if keys = [] then Draw.(transp faint_color) (* inutile ? *)
+  let color = if keys = [] then Draw.(transp RGB.faint_color) (* inutile ? *)
     else default fg (10,11,12,255) in
   printd debug_graphics "Renders keys";
   let rec loop keys surfs w h =
@@ -613,7 +614,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
     | None ->
       let csize = imax 3 (2*(Theme.scale_int ti.size)/3) in
       let cfont = Label.get_font_var ti.cursor_font csize in
-      let s = draw_keys cfont [ti.cursor_char] ~fg:Draw.(opaque cursor_color) in
+      let s = draw_keys cfont [ti.cursor_char] ~fg:RGBA.cursor_color in
       (* TODO use render_key, it should be faster *)
       let tex = Draw.create_texture_from_surface canvas.Draw.renderer s in
       Var.set ti.cursor (Some tex);
@@ -626,9 +627,9 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
     | None ->
       let start_time = if !debug then Unix.gettimeofday () else 0. in (* =for debug only *)
       let keys = Var.get ti.keys in
-      let fg = if keys <> [] then Draw.(opaque !text_color) else
+      let fg = if keys <> [] then !RGBA.text_color else
           (* if is_active ti then Draw.(opaque pale_grey) else *)
-          Draw.(opaque faint_color) in
+          RGBA.faint_color in
       let keys = if keys = [] && not (is_active ti) then [ti.prompt] else keys in
       let surf = draw_keys (font ti) keys ~fg in
       (* TODO: draw only the relevent text, not everything. *)
@@ -652,10 +653,10 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
          let x2 = cursor_xpos ~n:n2 ti in
          let sel_rect = Sdl.Rect.create ~x:x1 ~y:0 ~w:(x2-x1) ~h:th in
          let sel_rect_cw = Draw.rect_translate sel_rect (cw/2, 0) in
-         Draw.fill_rect box (Some sel_rect_cw) Draw.(opaque sel_bg_color);
+         Draw.fill_rect box (Some sel_rect_cw) RGBA.sel_bg_color;
          (* now we reblit the text on the selection rectangle, this time with
             blending *)
-         let sel =  draw_keys (font ti) keys ~fg:Draw.(opaque sel_fg_color) in
+         let sel =  draw_keys (font ti) keys ~fg:RGBA.sel_fg_color in
          (* TODO: draw only the relevent text, not everything. *)
          go (Sdl.set_surface_blend_mode sel Sdl.Blend.mode_blend);
          go (Sdl.blit_surface ~src:sel (Some sel_rect) ~dst:box (Some sel_rect_cw))
@@ -667,7 +668,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
              ~w:(abs (x2-x1)) ~h:th in
          let sel_rect_cw =  Draw.rect_translate sel_rect (cw/2, 0) in
          (* TODO regrouper avec ci-dessus ? *)
-         Draw.fill_rect box (Some sel_rect_cw) Draw.(opaque grey);
+         Draw.fill_rect box (Some sel_rect_cw) RGBA.grey;
          (* now we blend the text on the selection rectangle *)
          go (Sdl.set_surface_blend_mode surf Sdl.Blend.mode_blend);
          go (Sdl.blit_surface ~src:surf (Some sel_rect) ~dst:box (Some sel_rect_cw))
@@ -682,7 +683,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
         (* Sdl.fill_rect : If the color value contains an alpha
            component then the destination is simply filled with that
            alpha information, no blending takes place. *)
-        Draw.fill_rect box (Some hline) Draw.(transp grey);
+        Draw.fill_rect box (Some hline) Draw.(transp RGB.grey);
 
         (* move the offset to have the cursor in the visible area *)
         let cx = cursor_xpos ti in
@@ -700,7 +701,7 @@ let display canvas layer ti g = (* TODO mettre un lock global ? *)
       let bw, bh = Sdl.get_surface_size box in
       let offset = Var.get ti.offset in
       let rect_b = Sdl.Rect.create ~x:offset ~y:0 ~w:(min g.Draw.w (bw - offset)) ~h:bh in
-      let visible = Draw.create_surface ~like:box ~color:Draw.none
+      let visible = Draw.create_surface ~like:box ~color:RGBA.none
           (Sdl.Rect.w rect_b) bh in
       (* this surface (converted to texture) will be *blended* on the canvas *)
       go (Sdl.blit_surface ~src:box (Some rect_b) ~dst:visible None);

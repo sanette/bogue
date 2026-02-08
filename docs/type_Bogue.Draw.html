@@ -8,7 +8,9 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
-<link title="Bogue" rel="Chapter" href="Bogue.html"><title>Bogue.Draw</title>
+<link title="Bogue" rel="Chapter" href="Bogue.html">
+<link title="Rgb_names" rel="Chapter" href="Rgb_names.html">
+<link title="Rgba_names" rel="Chapter" href="Rgba_names.html"><title>Bogue.Draw</title>
 </head>
 <body>
 <pre class="code"><span class="keyword">sig</span><br>
@@ -16,34 +18,14 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;texture&nbsp;=&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.texture<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;video_init&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;quit&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;rgb&nbsp;=&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;int<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;color&nbsp;=&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;rgb&nbsp;=&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">RGB</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;color&nbsp;=&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">RGBA</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;fill&nbsp;=&nbsp;<span class="constructor">Pattern</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.texture&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Solid</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;black&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;grey&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pale_grey&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;dark_grey&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;white&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;red&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;blue&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;green&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;magenta&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;cyan&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;yellow&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;sienna&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;label_color&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;none&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;opaque&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;transp&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;lighter&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;darker&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_alpha&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;random_color&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_alpha&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;rgba_of_int32&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;find_color&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pale&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_color&nbsp;:&nbsp;<span class="constructor">Tsdl</span>.<span class="constructor">Sdl</span>.renderer&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.color&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;set_text_color&nbsp;:&nbsp;<span class="constructor">Bogue</span>.<span class="constructor">Draw</span>.rgb&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_pixels&nbsp;:&nbsp;int&nbsp;*&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;*&nbsp;int<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;line&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;?thick:int&nbsp;<span class="keywordsign">-&gt;</span><br>

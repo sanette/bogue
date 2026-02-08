@@ -5,7 +5,7 @@
 <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Bogue.Sync.html">
+<link rel="previous" href="Bogue.RGBA.html">
 <link rel="next" href="Bogue.Mouse.html">
 <link rel="Up" href="Bogue.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
@@ -13,17 +13,18 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
-<link title="Bogue" rel="Chapter" href="Bogue.html"><link title="Initialization and shutdown" rel="Section" href="#2_Initializationandshutdown">
+<link title="Bogue" rel="Chapter" href="Bogue.html">
+<link title="Rgb_names" rel="Chapter" href="Rgb_names.html">
+<link title="Rgba_names" rel="Chapter" href="Rgba_names.html"><link title="Initialization and shutdown" rel="Section" href="#2_Initializationandshutdown">
 <link title="Colors" rel="Section" href="#2_Colors">
 <link title="Drawing functions" rel="Section" href="#drawing_functions">
 <link title="Misc" rel="Section" href="#2_Misc">
-<link title="Predefined colors" rel="Subsection" href="#3_Predefinedcolors">
 <link title="Creating colors" rel="Subsection" href="#3_Creatingcolors">
 <link title="Using colors" rel="Subsection" href="#3_Usingcolors">
 <title>Bogue.Draw</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Bogue.Sync.html" title="Bogue.Sync">Previous</a>
+<div class="navbar"><a class="pre" href="Bogue.RGBA.html" title="Bogue.RGBA">Previous</a>
 &nbsp;<a class="up" href="Bogue.html" title="Bogue">Up</a>
 &nbsp;<a class="post" href="Bogue.Mouse.html" title="Bogue.Mouse">Next</a>
 </div>
@@ -69,15 +70,10 @@
 </div>
 </div>
 <h3 id="2_Colors">Colors</h3>
-<pre><span id="TYPErgb"><span class="keyword">type</span> <code class="type"></code>rgb</span> = <code class="type">int * int * int</code> </pre>
-<div class="info ">
-<div class="info-desc">
-<p>red, green and blue values are integers in the range <code class="code">0..255</code></p>
-</div>
-</div>
+<pre><span id="TYPErgb"><span class="keyword">type</span> <code class="type"></code>rgb</span> = <code class="type"><a href="Bogue.RGB.html#TYPEt">RGB.t</a></code> </pre>
 
 
-<pre><span id="TYPEcolor"><span class="keyword">type</span> <code class="type"></code>color</span> = <code class="type">int * int * int * int</code> </pre>
+<pre><span id="TYPEcolor"><span class="keyword">type</span> <code class="type"></code>color</span> = <code class="type"><a href="Bogue.RGBA.html#TYPEt">RGBA.t</a></code> </pre>
 <div class="info ">
 <div class="info-desc">
 <p>r,g,b,a</p>
@@ -102,51 +98,14 @@
 </tr></table>
 
 
-<h4 id="3_Predefinedcolors">Predefined colors</h4>
-<pre><span id="VALblack"><span class="keyword">val</span> black</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALgrey"><span class="keyword">val</span> grey</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALpale_grey"><span class="keyword">val</span> pale_grey</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALdark_grey"><span class="keyword">val</span> dark_grey</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALwhite"><span class="keyword">val</span> white</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALred"><span class="keyword">val</span> red</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALblue"><span class="keyword">val</span> blue</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALgreen"><span class="keyword">val</span> green</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALmagenta"><span class="keyword">val</span> magenta</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALcyan"><span class="keyword">val</span> cyan</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALyellow"><span class="keyword">val</span> yellow</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALsienna"><span class="keyword">val</span> sienna</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALlabel_color"><span class="keyword">val</span> label_color</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre>
-<pre><span id="VALnone"><span class="keyword">val</span> none</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">none&nbsp;=&nbsp;(0,0,0,0)</code> is completely transparent black.</p>
-</div>
-</div>
 <h4 id="3_Creatingcolors">Creating colors</h4>
 <pre><span id="VALopaque"><span class="keyword">val</span> opaque</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
 <pre><span id="VALtransp"><span class="keyword">val</span> transp</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALlighter"><span class="keyword">val</span> lighter</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">color</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALdarker"><span class="keyword">val</span> darker</span> : <code class="type"><a href="Bogue.Draw.html#TYPEcolor">color</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALset_alpha"><span class="keyword">val</span> set_alpha</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALrandom_color"><span class="keyword">val</span> random_color</span> : <code class="type">unit -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALrgba_of_int32"><span class="keyword">val</span> rgba_of_int32</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
-<pre><span id="VALfind_color"><span class="keyword">val</span> find_color</span> : <code class="type">string -&gt; <a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre><div class="info ">
-<div class="info-desc">
-<p>Convert a string of the form <code class="code"><span class="string">"grey"</span></code> or <code class="code"><span class="string">"#FE01BC"</span></code> to a rgb code
-     <code class="code">(r,g,b)</code>. Color names are taken from
-     <a href="https://www.rapidtables.com/web/color/html-color-codes.html">here</a>.</p>
-</div>
-</div>
-
-<pre><span id="VALpale"><span class="keyword">val</span> pale</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPErgb">rgb</a></code></pre><h4 id="3_Usingcolors">Using colors</h4>
+<pre><span id="VALadd_alpha"><span class="keyword">val</span> add_alpha</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre>
+<pre><span id="VALrgba_of_int32"><span class="keyword">val</span> rgba_of_int32</span> : <code class="type">int -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a></code></pre><h4 id="3_Usingcolors">Using colors</h4>
 <pre><span id="VALset_color"><span class="keyword">val</span> set_color</span> : <code class="type">Tsdl.Sdl.renderer -&gt; <a href="Bogue.Draw.html#TYPEcolor">color</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
 <p>Equivalent to <code class="code"><span class="constructor">Sdl</span>.set_render_draw_color</code>.</p>
-</div>
-</div>
-
-<pre><span id="VALset_text_color"><span class="keyword">val</span> set_text_color</span> : <code class="type"><a href="Bogue.Draw.html#TYPErgb">rgb</a> -&gt; unit</code></pre><div class="info ">
-<div class="info-desc">
-<p>Overrides the <a href="Bogue.Theme.html"><code class="code"><span class="constructor">Theme</span></code></a> <code class="code"><span class="constructor">TEXT_COLOR</span></code> variable.</p>
 </div>
 </div>
 <h3 id="drawing_functions">Drawing functions</h3>

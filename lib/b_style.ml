@@ -5,6 +5,7 @@
 
 module Draw = B_draw
 module Image = B_image
+module RGBA = B_rgba
 module Theme = B_theme
 open B_utils
 
@@ -102,12 +103,12 @@ let color_bg color =
 let opaque_bg rgb =
   color_bg (Draw.opaque rgb)
 
-let theme_bg = opaque_bg Draw.bg_color
+let theme_bg = color_bg RGBA.bg_color
 
 let get_color = function
   | Solid c -> c
   | _ -> printd debug_error "Cannot get color from non Solid background";
-    Draw.none
+    RGBA.none
 
 let gradient ?(angle = 0.) colors =
   Gradient { colors; angle }
@@ -118,7 +119,7 @@ let hgradient colors =
 let vgradient colors =
   Gradient { colors; angle = 0. }
 
-let mk_line ?(color = Draw.(opaque black)) ?(width = 1)
+let mk_line ?(color = RGBA.black) ?(width = 1)
     ?(style : line_style = Solid) () =
   { color; width; style }
 

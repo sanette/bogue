@@ -11,6 +11,7 @@ module Draw = B_draw
 module I = B_i18n.Popup
 module L = B_layout
 module Main = B_main
+module RGBA = B_rgba
 module Space = B_space
 module Style = B_style
 module Theme = B_theme
@@ -83,7 +84,7 @@ let filter_screen ?color ?layer ?keyboard_focus layout =
    it should be called dynamically and not statically before running
    the board, because if other layers are created afterwards, the
    screen might endup not being on top of everything. *)
-let add_screen ?(color = Draw.(transp pale_grey) (* DEBUG *) ) layout =
+let add_screen ?(color = Draw.(transp RGB.pale_grey) (* DEBUG *) ) layout =
   let base_layer = top_layer layout in
   let screen_layer = new_layer_above base_layer in
   let screen = filter_screen ~color ~layer:screen_layer
@@ -138,15 +139,15 @@ let add_button_line ?background ?w ?h content buttons =
   room
 
 let create ~dst ?bg ?w ?h ?screen_color content buttons =
-  let background = default bg (Style.Solid Draw.(opaque box_bg_color)) in
+  let background = default bg (Style.Solid RGBA.box_bg_color) in
   let style = let open Style in create
-      ~border:(mk_border (mk_line ~color:Draw.(opaque grey) ()))
+      ~border:(mk_border (mk_line ~color:RGBA.grey ()))
       ~shadow:(mk_shadow ())
       (* Warning: currently shadow is quite CPU intensive *)
       ~background () in
   let background = L.Box (Box.create ~style ()) in
   let popup = add_button_line ~background ?w ?h content buttons in
-  let screen_bg = default screen_color (Draw.(set_alpha 200 disabled_bg_color)) in
+  let screen_bg = default screen_color (Draw.(set_alpha 200 RGB.disabled_bg_color)) in
   let screen = attach ~bg:screen_bg dst popup in
   (* L.slide_in ~dst popup; *)
   popup, screen
@@ -267,8 +268,8 @@ let tooltip ?background ?(position = Below) text ~target widget layout =
     | None ->
       let style = Style.(create
                            ~border:(mk_border ~radius:5
-                                      (mk_line ~color:Draw.(opaque disabled_fg_color)()))
-                           ~background:(Solid Draw.(opaque disabled_bg_color)) ()) in
+                                      (mk_line ~color:RGBA.disabled_fg_color()))
+                           ~background:(Solid RGBA.disabled_bg_color) ()) in
       L.Box (Box.create ~style ()) in
   let tooltip = L.tower_of_w ~sep:3 ~background [t] in
   attach_on_top layout tooltip;

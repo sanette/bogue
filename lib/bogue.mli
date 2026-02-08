@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20260131
+@version 20260208
 
 @author Vu Ngoc San
 
@@ -934,6 +934,71 @@ end 2 v}
   *)
 
 end (* of Sync *)
+(* ---------------------------------------------------------------------------- *)
+
+(** RGB colors *)
+module RGB: sig
+
+  type t = int * int * int
+  (** red, green and blue values are integers in the range [0..255] *)
+
+  (** {3 Predefined colors} *)
+
+  include module type of Rgb_names
+  val grey : t
+  val pale_grey : t
+  val dark_grey : t
+
+  (** {3 Theme colors} *)
+
+  val label_color : t
+  val set_text_color : t -> unit
+  (** Overrides the {!Theme} [TEXT_COLOR] variable. *)
+
+  (** {3 Utils} *)
+
+  val find_color : string -> t
+  (** Convert a string of the form ["grey"] or ["#FE01BC"] to a rgb code
+      [(r,g,b)]. Color names are taken from
+      {{:https://www.rapidtables.com/web/color/html-color-codes.html}here}. *)
+
+  val pale : t -> t
+
+end (* of RGB *)
+
+(** RGBA colors *)
+module RGBA: sig
+
+  type t = int * int * int * int
+  (** red, green and blue values are integers in the range [0..255] *)
+
+  (** {3 Predefined colors} *)
+
+  include module type of Rgba_names
+  val grey : t
+  val pale_grey : t
+  val dark_grey : t
+  val none : t
+ (** [none = (0,0,0,0)] is completely transparent black. *)
+
+  (** {3 Theme colors} *)
+
+  val label_color : t
+  val set_text_color : t -> unit
+  (** Overrides the {!Theme} [TEXT_COLOR] variable. *)
+
+  (** {3 Utils} *)
+
+  val lighter : t -> t
+  val darker : t -> t
+  val set_alpha : int -> t -> t
+  val transp : RGB.t -> t
+
+  val random_color : unit -> t
+  val find_color : string -> t
+
+end (* of RGBA *)
+
 
 (* ---------------------------------------------------------------------------- *)
 
@@ -965,51 +1030,26 @@ module Draw: sig
 
   (** {2 Colors} *)
 
-  type rgb = int * int * int
-  (** red, green and blue values are integers in the range [0..255] *)
+  type rgb = RGB.t
 
-  type color = int * int * int * int
+  type color = RGBA.t
   (** r,g,b,a *)
 
   type fill =
     | Pattern of texture
     | Solid of color
 
-  (** {3 Predefined colors} *)
-
-  val black : rgb
-  val grey : rgb
-  val pale_grey : rgb
-  val dark_grey : rgb
-  val white : rgb
-  val red : rgb
-  val blue : rgb
-  val green : rgb
-  val magenta : rgb
-  val cyan : rgb
-  val yellow : rgb
-  val sienna : rgb
-
-  val label_color : rgb
-
-  val none : color
-  (** [none = (0,0,0,0)] is completely transparent black. *)
-
   (** {3 Creating colors} *)
 
   val opaque : rgb -> color
   val transp : rgb -> color
-  val lighter : color -> color
-  val darker : color -> color
-  val set_alpha : int -> rgb -> color
-  val random_color : unit -> color
-  val rgba_of_int32 : int -> color
-  val find_color : string -> rgb
-  (** Convert a string of the form ["grey"] or ["#FE01BC"] to a rgb code
-     [(r,g,b)]. Color names are taken from
-     {{:https://www.rapidtables.com/web/color/html-color-codes.html}here}. *)
 
-  val pale : rgb -> rgb
+  val add_alpha : int -> rgb -> color
+
+  val rgba_of_int32 : int -> color
+
+  val find_color : string -> rgb
+  (** Same as {!RGB.find_color_color}. (For back-compatibility) *)
 
   (** {3 Using colors} *)
 
@@ -1017,7 +1057,8 @@ module Draw: sig
   (** Equivalent to [Sdl.set_render_draw_color]. *)
 
   val set_text_color : rgb -> unit
-  (** Overrides the {!Theme} [TEXT_COLOR] variable. *)
+  (** Same as {!RGB.set_text_color}. (For back-compatibility) *)
+
 
   (** {2:drawing_functions Drawing functions}
 
