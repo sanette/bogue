@@ -253,16 +253,41 @@ See the <a href="Bogue.Widget.html#inner">conversion functions</a> below.</p>
 <pre><span id="VALcheck_box"><span class="keyword">val</span> check_box</span> : <code class="type">?state:bool -&gt; ?style:<a href="Bogue.Check.html#TYPEstyle">Check.style</a> -&gt; unit -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALset_check_state"><span class="keyword">val</span> set_check_state</span> : <code class="type"><a href="Bogue.Widget.html#TYPEt">t</a> -&gt; bool -&gt; unit</code></pre><h4 id="3_Textdisplay">Text display</h4><p>Use this for multi-line text.</p>
 
-<pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
-<pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -&gt;<br>       ?w:int -&gt; ?h:int -&gt; <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
+<pre><span id="VALtext_display"><span class="keyword">val</span> text_display</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>The string may contain newlines. The text will be wrapped to fit the
+      required width. This width is either the <code class="code">~w</code> parameter, or the width of
+      the container in case the layout is resized. If the height <code class="code">~h</code> is
+      provided, the end of the text that does not fit may be discarded (but may
+      reappear after resizing).</p>
+
+<p>If <code class="code">~w</code> is not provided, the initial widget width will default to 256.</p>
+
+<p>If neither <code class="code">~w</code> nor <code class="code">~h</code> are provided, the initial widget size will
+      default to (256, 128).</p>
+
+<p>Immediately after creation, the widget size can be obtained by
+      <a href="Bogue.Widget.html#VALsize"><code class="code"><span class="constructor">Widget</span>.size</code></a>.</p>
+</div>
+<ul class="info-attributes">
+<li><b>See also</b> <i>Example #1h</i> .</li>
+</ul>
+</div>
+
+<pre><span id="VALrich_text"><span class="keyword">val</span> rich_text</span> : <code class="type">?size:int -&gt;<br>       ?w:int -&gt; ?h:int -&gt; <a href="Bogue.Text_display.html#TYPEwords">Text_display.words</a> list -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
+<ul class="info-attributes">
+<li><b>See also</b> <i>Example #1v</i> .</li>
+</ul>
+</div>
+
 <pre><span id="VALverbatim"><span class="keyword">val</span> verbatim</span> : <code class="type">string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre>
 <pre><span id="VALhtml"><span class="keyword">val</span> html</span> : <code class="type">?w:int -&gt; ?h:int -&gt; string -&gt; <a href="Bogue.Widget.html#TYPEt">t</a></code></pre><div class="info ">
 <div class="info-desc">
 <p>Display basic html text by interpreting the following tags: <code class="code">&lt;em&gt;,&lt;/em&gt;,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;b&gt;,&lt;/b&gt;,&nbsp;&lt;strong&gt;,&lt;/strong&gt;,&nbsp;&lt;u&gt;,&nbsp;&lt;/u&gt;,&nbsp;&lt;p&gt;,&lt;/p&gt;,&nbsp;&lt;br&gt;</code> and also a color
       selector with <code class="code">&lt;font&nbsp;color=<span class="string">"???"</span>&gt;,&nbsp;&lt;/font&gt;</code>. The "???" string should be
-      replaced by a color code, either RGB like "#40E0D0" of "#12C" or RGBA, or
-      a color name like "darkturquoise".</p>
+      replaced by a color code, either RGB like "#40E0D0" or "#12C", or RGBA
+      like "#40E0D0AA" or "#12CA", or a color name like "darkturquoise".</p>
 </div>
 <ul class="info-attributes">
 <li><b>See also</b> <i>Example #47</i> .</li>

@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20260208
+@version 20260224
 
 @author Vu Ngoc San
 
@@ -1575,7 +1575,9 @@ end (* of Check *)
  *)
 module Text_display : sig
   type t
+
   type words
+  (** An element of type [words] represents a paragraph. *)
 
   (** {2 Preparing the text} *)
 
@@ -1586,7 +1588,6 @@ module Text_display : sig
   val normal : words -> words
   val underline : words -> words
   val strikethrough : words -> words
-  val page : words list -> words list
   val para : string -> words
   val paragraphs_of_string : string -> words list
 
@@ -1601,7 +1602,8 @@ module Text_display : sig
   (** {2 Modifying the widget} *)
 
   val replace : by:t -> t -> unit
-(** [replace ~by:t2 t1] replaces the text content of [t1] by the one of [t2]. See also {!Widget.get_text_display}. *)
+(** [replace ~by:t2 t1] replaces the text content of [t1] by the one of
+    [t2]. See also {!Widget.get_text_display}. *)
 
   val update_verbatim : t -> string -> unit
 
@@ -1970,15 +1972,33 @@ See the {{!inner}conversion functions} below. *)
       Use this for multi-line text. *)
 
   val text_display :  ?w:int -> ?h:int -> string -> t
+  (** The string may contain newlines. The text will be wrapped to fit the
+      required width. This width is either the [~w] parameter, or the width of
+      the container in case the layout is resized. If the height [~h] is
+      provided, the end of the text that does not fit may be discarded (but may
+      reappear after resizing).
+
+      If [~w] is not provided, the initial widget width will default to 256.
+
+      If neither [~w] nor [~h] are provided, the initial widget size will
+      default to (256, 128).
+
+      Immediately after creation, the widget size can be obtained by
+      {!size}.
+
+      @see "Example #1h".*)
+
   val rich_text : ?size:int -> ?w:int -> ?h:int -> Text_display.words list -> t
+  (** @see "Example #1v". *)
+
   val verbatim : string -> t
 
   val html : ?w:int -> ?h:int -> string -> t
   (** Display basic html text by interpreting the following tags: [<em>,</em>,
       <b>,</b>, <strong>,</strong>, <u>, </u>, <p>,</p>, <br>] and also a color
       selector with [<font color="???">, </font>]. The "???" string should be
-      replaced by a color code, either RGB like "#40E0D0" of "#12C" or RGBA, or
-      a color name like "darkturquoise".
+      replaced by a color code, either RGB like "#40E0D0" or "#12C", or RGBA
+      like "#40E0D0AA" or "#12CA", or a color name like "darkturquoise".
 
       @see "Example #47". *)
 

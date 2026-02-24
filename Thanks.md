@@ -3,8 +3,11 @@
 I know I'm not always very good at this. Don't hesitate to contact me
 if I forgot to mention you here.
 
-# Unreleased
+# 20260208
+thanks to digitallysane for an intensive testing session for improving Windows support
+https://github.com/sanette/tsdl-ttf/issues/9
 
+# 20250815
 thanks to jonahbeckford for using "where" on Windows
 https://github.com/sanette/bogue/pull/34
 

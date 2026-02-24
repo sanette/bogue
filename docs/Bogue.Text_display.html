@@ -39,6 +39,11 @@
 
 
 <pre><span id="TYPEwords"><span class="keyword">type</span> <code class="type"></code>words</span> </pre>
+<div class="info ">
+<div class="info-desc">
+<p>An element of type <code class="code">words</code> represents a paragraph.</p>
+</div>
+</div>
 
 <h3 id="2_Preparingthetext">Preparing the text</h3>
 <pre><span id="VALexample"><span class="keyword">val</span> example</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
@@ -48,7 +53,6 @@
 <pre><span id="VALnormal"><span class="keyword">val</span> normal</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
 <pre><span id="VALunderline"><span class="keyword">val</span> underline</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
 <pre><span id="VALstrikethrough"><span class="keyword">val</span> strikethrough</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
-<pre><span id="VALpage"><span class="keyword">val</span> page</span> : <code class="type"><a href="Bogue.Text_display.html#TYPEwords">words</a> list -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre>
 <pre><span id="VALpara"><span class="keyword">val</span> para</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a></code></pre>
 <pre><span id="VALparagraphs_of_string"><span class="keyword">val</span> paragraphs_of_string</span> : <code class="type">string -&gt; <a href="Bogue.Text_display.html#TYPEwords">words</a> list</code></pre><h3 id="2_Creatingthewidget">Creating the widget</h3>
 <p>Use <a href="Bogue.Widget.html#VALtext_display"><code class="code"><span class="constructor">Widget</span>.text_display</code></a> or <a href="Bogue.Widget.html#VALverbatim"><code class="code"><span class="constructor">Widget</span>.verbatim</code></a> for plain text, or
@@ -58,7 +62,8 @@
 <h3 id="2_Modifyingthewidget">Modifying the widget</h3>
 <pre><span id="VALreplace"><span class="keyword">val</span> replace</span> : <code class="type">by:<a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; <a href="Bogue.Text_display.html#TYPEt">t</a> -&gt; unit</code></pre><div class="info ">
 <div class="info-desc">
-<p><code class="code">replace&nbsp;~by:t2&nbsp;t1</code> replaces the text content of <code class="code">t1</code> by the one of <code class="code">t2</code>. See also <a href="Bogue.Widget.html#VALget_text_display"><code class="code"><span class="constructor">Widget</span>.get_text_display</code></a>.</p>
+<p><code class="code">replace&nbsp;~by:t2&nbsp;t1</code> replaces the text content of <code class="code">t1</code> by the one of
+    <code class="code">t2</code>. See also <a href="Bogue.Widget.html#VALget_text_display"><code class="code"><span class="constructor">Widget</span>.get_text_display</code></a>.</p>
 </div>
 </div>
 

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20260208...HEAD)
 
+### Changed
+
+- Better text wrapping engine for `Text_display`.
+
 ## [20260208](https://github.com/sanette/bogue/compare/20250815..20260208)
 
 ### Added
@@ -18,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `I18n.make_context` is now public.
 
 ### Changed
+
 - **breaking!** Colors are now separated in two modules `RGB` and
   `RGBA`. Several functions have been moved to these modules. If you
   want to cheaply workaround this, just add
@@ -30,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   is now renamed to `max_len` ("size" is used for font size).
 
 ### Removed
+
 - Remove `colors` dir from the common themes dir.
 
 ## [20250815](https://github.com/sanette/bogue/compare/20250224...20250815)
@@ -45,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `Widget.remove_connection`, `Widget.remove_trigger`.
 
 ### Changed
+
 - `Popup.one_button` and `Popup.two_buttons` now have a `bg` optional argument.
 
 ### Fixed

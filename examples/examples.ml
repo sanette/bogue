@@ -103,19 +103,19 @@ let example1v () =
   let tt = W.label "Label" in
   let h = 50 in
   let title = W.rich_text ~size:20 ~h:30
-      Text_display.(page [para "Text samples"]) in
+      Text_display.[para "Text samples"] in
   let td = W.rich_text ~h
-      Text_display.(page [underline (para "Original:"); example]) in
+      Text_display.[underline (para "Original:"); example] in
   let td_normal = W.rich_text ~h
       (let open Text_display in
        [underline (para "Force normal style:"); normal example]) in
   let td_bold = W.rich_text ~h
-      Text_display.(page [underline (raw "Force bold:"); bold example]) in
+      Text_display.[underline (raw "Force bold:"); bold example] in
   let td_italic = W.rich_text ~h
-      Text_display.(page [underline (para "Force italic:"); italic example]) in
+      Text_display.[underline (para "Force italic:"); italic example] in
   let box = W.box () in
   let layout = L.tower_of_w ~align:Draw.Center
-      [b;title;td;td_normal;td_bold;tt;td_italic;box] in
+      [b; title; td; td_normal; td_bold; tt; td_italic; box] in
   L.slide_in ~dst:layout layout;
   let board = of_layout layout in
   run board

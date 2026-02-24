@@ -1,3 +1,5 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 open Str
 open B_utils
 open Tsdl
@@ -8,10 +10,8 @@ module RGBA = B_rgba
 module Theme = B_theme
 module Var = B_var
 
-(* TODO: use TTF_RenderUTF8_Blended_Wrapped *)
+(* TODO?: use TTF_RenderUTF8_Blended_Wrapped? *)
 (* cf SDL_ttf.h *)
-
-(* TODO: use Tsdl_extra.TTF.style *)
 
 (* TODO horiz. align text (Min, Center or Max) *)
 
@@ -33,21 +33,21 @@ let example : words = let open Ttf.Style in
     Style normal; Space; Word "and"; Space;
     Style italic; Word "italic." ]
 
-type t =
-    { paragraphs : (words list) Var.t;
-      render : (Draw.texture option) Var.t;
-      font : (Label.font) Var.t;
-      size: int; (* FONT size *)
-      mutable w: int option; (* width of the widget in pixels. Currently it is
-                                not used, since rendering is done with the
-                                geometry of the housing layout. *)
-      mutable h: int option; (* height in pixels. See above. *)
-    }
+type t = {
+  paragraphs : (words list) Var.t;
+  render : (Draw.texture option) Var.t;
+  font : (Label.font) Var.t;
+  size: int; (* FONT size *)
+  mutable w: int option; (* width of the widget in pixels. Currently it is
+                            not used, since rendering is done with the
+                            geometry of the housing layout. *)
+  mutable h: int option; (* height in pixels. See above. *)
+}
 
 let default_font () = Label.File !Theme.text_font
 
 let unload td =
-    match Var.get td.render with
+  match Var.get td.render with
   | None -> ()
   | Some tex -> begin
       Draw.forget_texture tex;
@@ -65,8 +65,7 @@ let free = unload
    not split them. *)
 let last_style words =
   List.fold_left (fun style entity -> match entity with
-      | Style s when s = Ttf.Style.normal -> s (* not necessary, since normal ==
-                                                  0 *)
+      | Style s when s = Ttf.Style.normal -> s (* note that normal == 0 *)
       | Style s -> Ttf.Style.(s + style)
       | _ -> style) Ttf.Style.normal words
 
@@ -94,7 +93,7 @@ let normal = set_style Ttf.Style.normal
 let underline = set_style Ttf.Style.underline
 let strikethrough = set_style Ttf.Style.strikethrough
 
-(** convert tabs '\t' in a string to the required number of spaces *)
+(* Convert tabs '\t' in a string to the required number of spaces *)
 let tab_to_space ?(sep = 8) s =
   let l = String.length s in
   let b = Buffer.create l in
@@ -113,7 +112,7 @@ let tab_to_space ?(sep = 8) s =
   loop 0 0;
   Buffer.contents b
 
-(** change the content of the text on the fly *)
+(* Change the content of the text on the fly *)
 let update ?w ?h t paragraphs =
   Var.update t.render (fun texo ->
   do_option texo Draw.forget_texture;
@@ -129,8 +128,10 @@ let split_line line =
       | Delim _ -> Space)
 
 let para = split_line
+(* Example: *)
+(* Text_display.[para "Hello"; para "World"] *)
 
-(* raw is used if you don't want to break spaces. This is (currently) the only
+(* [raw] is used if you don't want to break spaces. This is (currently) the only
    way to have spaces underlined *)
 let raw s = [Word s]
 
@@ -138,13 +139,6 @@ let append w1 w2 : words =
   List.append w1 w2
 
 let ( ++ ) = append
-
-(* This is a shorthand which allows the notation: *)
-(* Text_display.(page [para "Hello"; para "World"]) *)
-(* instead of: *)
-(* let open Text_display in *)
-(*   [para "Hello"; para "World"]  *)
-let page list : words list = list
 
 let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ())
     paragraphs =
@@ -155,21 +149,22 @@ let create ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ())
     font = Var.create font;
     size; w; h}
 
-(* convert a full text including '\n' into paragraphs *)
+(* Convert a full text including '\n' into paragraphs *)
 let paragraphs_of_string text =
   split (regexp "\n") text
   |> List.map split_line
 
-(* convert each line into a paragraph *)
+(* Convert each line into a paragraph *)
 let paragraphs_of_lines lines =
   List.map split_line lines
 
-let create_from_string ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ()) text =
+let create_from_string ?(size = Theme.text_font_size) ?w ?h
+    ?(font = default_font ()) text =
   let paragraphs = paragraphs_of_string text in
   create ~size ?w ?h ~font paragraphs
 
-
-let create_from_lines ?(size = Theme.text_font_size) ?w ?h ?(font = default_font ()) lines =
+let create_from_lines ?(size = Theme.text_font_size) ?w ?h
+    ?(font = default_font ()) lines =
   let paragraphs = paragraphs_of_lines lines in
   create ~size ?w ?h ~font paragraphs
 
@@ -184,7 +179,7 @@ let htmltags =
     "<p>"; "</p>"; "<br>";
     "<font[ \t\n]+color=\"[^\"]+\">"; "</font>" ]
   |> String.concat "\\|"
-  |>  regexp
+  |> regexp
 
 let delims = regexp "[ \n]+"
 
@@ -275,9 +270,10 @@ let paragraphs_of_html src =
             stylestack, ((Word d)::line) in
         loop stk paras line rest in
   let list = full_split htmltags src
-             |> List.map (function Text t ->
-                 full_split delims t | Delim d -> [Delim d])
-             |> List.flatten in
+    |> List.map (function
+        | Text t -> full_split delims t
+        | Delim d -> [Delim d])
+    |> List.flatten in
   loop [] [] [] list
 
 (* *** *)
@@ -347,11 +343,6 @@ let text td = unsplit (Var.get td.paragraphs)
 
 let default_size = (256,128)
 
-let size td =
-  let w,h = default_size in
-  (default td.w w),
-  (default td.h h)
-
 let resize (w,h) td =
   unload td;
   td.w <- Some w;
@@ -366,7 +357,152 @@ let render_word ?fg font word =
   go (Sdl.set_surface_blend_mode surf Sdl.Blend.mode_none);
   surf
 
+let word_size font word =
+  Tsdl_ttf.Ttf.size_utf8 font word
+  |> Result.to_option
+
 let get_font td = Label.get_font_var td.font (Theme.scale_int td.size)
+
+(* We implement a wrapping engine *)
+
+type attr = {
+  style : Ttf.Style.t;
+  color : RGBA.t }
+
+(* A chunk is a piece of text that can be rendered by one call to
+   Ttf.render_utf8_blended. *)
+type chunk = {
+  geom : Draw.geometry;
+  attr : attr;
+  text: string }
+
+(* An mbox (LaTeX terminology) is a group of chunks (usually drawn on the same
+   line) that cannot be split into several lines. *)
+type mbox = chunk list
+
+let add_mbox mbox list =
+  if mbox = [] then list else mbox :: list
+
+(* Compute the bounding box of a list of chunks. Another option would be to add
+   a geometry field for the mbox type. *)
+let bbox chunks =
+  let x,y,w,h = match chunks with
+    | [] -> printd debug_error "Empty mbox (should not happen)";
+      0,0,0,0
+    | c0::rest ->
+      let g0 = c0.geom in
+      let (xmin,xmax, ymin,ymax) = List.fold_left
+          (fun (xmin,xmax, ymin,ymax) { geom; attr=_; text=_ } ->
+             (imin xmin geom.x),
+             (imax xmax (geom.w + geom.x)),
+             (imin ymin geom.y),
+             (imax ymax (geom.h + geom.y))) (g0.x, g0.x + g0.w,
+                                             g0.y, g0.y + g0.h) rest
+      in xmin, ymin, xmax-xmin, ymax-ymin in
+  Draw.make_geom ~x ~y ~w ~h ()
+
+(* Relative translation of an mbox *)
+let rel_move_mbox (dx, dy) mbox =
+  List.map (fun chunk ->
+      let geom = { chunk.geom with x = chunk.geom.x + dx;
+                                   y = chunk.geom.y + dy } in
+      {chunk with geom}) mbox
+
+(* Absolute translation (not used) *)
+let move_mbox (x,y) mbox =
+  let g = bbox mbox in
+  let dx = x - g.x in
+  let dy = y - g.y in
+  rel_move_mbox (dx, dy) mbox
+
+(* Compute the positions of the words to render, without rendering. More
+   precisely, [compute_boxes] returns a list of chunks.
+   + Rendering is stopped beyond the height [gh].
+   + Text wrapping is performed so that no text should exceed the width [gw],
+     except if there is no space where we can split.
+   + [style] and [color] are the default attributes for starting the rendering,
+     but they can be changed with [Style] and [Color] entities. *)
+(* TODO: implement optional text justify/center/right align. *)
+let compute_boxes ~dx ~dy (gw, gh) font style color paragraphs =
+
+  let lineskip = Ttf.font_line_skip font in
+  let space = fst (Label.physical_size_text font " ") in
+  let attr = {style; color} in
+
+  let rec loop acc mbox list attr dx dy =
+    if dy > gh then acc
+    else match list with
+      | [] -> add_mbox mbox acc;
+      | []::rest -> (* New line *)
+        loop acc mbox rest attr 0 (dy + lineskip)
+      | [e]::rest when e <> Space ->
+        (* Last item of paragraph is not a space, we add a final space for
+           proper wrapping. *)
+        loop acc mbox ([e; Space]::rest) attr dx dy
+      | (entity::rest_line)::rest ->
+        match entity with
+        | Word text ->
+          Draw.ttf_set_font_style font attr.style;
+          let tw,th = Label.physical_size_text font text in
+          let geom = Draw.make_geom ~x:dx ~y:dy ~w:tw ~h:th () in
+          loop acc ({geom; attr; text}::mbox) (rest_line::rest) attr (dx + tw) dy
+        | Space ->
+          let g = bbox mbox in
+          let space = if Ttf.Style.(test attr.style italic)
+            then round (float space *. 0.6) else space in
+          if g.x <> 0 && dx >= gw
+          then begin (* We go to new line and register the mbox. *)
+            let mbox = rel_move_mbox (-g.x, lineskip) mbox in
+            loop (mbox::acc) [] (rest_line::rest) attr (g.w + space) (dy + lineskip)
+          end else (* We register the mbox and continue. *)
+            loop (mbox::acc) [] (rest_line::rest) attr (dx + space) dy
+        (* TODO Space should be rendered in case of underline or
+           strikethrough. But not when we break at the end of the line, of
+           course. *)
+        | Style s ->
+          let new_style = if s =  Ttf.Style.normal
+            then s else Ttf.Style.(s + attr.style) in
+          loop acc mbox (rest_line::rest) {attr with style = new_style} dx dy
+        | Color c ->
+          let attr = {attr with color = c} in
+          loop acc mbox (rest_line::rest) attr dx dy
+  in
+  loop [] [] paragraphs attr dx dy
+
+(* Return the size of the widget even if it is not rendered yet. *)
+let size td =
+  match Var.get td.render with
+  | Some tex -> Draw.tex_size tex |> Draw.unscale_size
+  | None ->
+    let w,_ = default_size in
+    match td.w, td.h with
+    | None, None -> default_size
+    | Some w, None ->
+      let font = get_font td in
+      let fg = ref !RGBA.text_color in
+      let style = Ttf.get_font_style font in
+      let boxes =  compute_boxes ~dx:0 ~dy:0 (Theme.scale_int w, 65536)
+          font style !fg (paragraphs td) in
+      let g = bbox (List.flatten boxes) in
+      printd debug_graphics "Computed Text_display geometry = %s" (Draw.pr_geometry g);
+      (w, Theme.unscale_int g.h)
+    | None, Some h -> (w, h)
+    | Some w, Some h -> (w, h)
+
+let render_chunk target_surf font last_color {geom; attr={style; color}; text} =
+  Draw.ttf_set_font_style font style;
+  (* print "Render chunk [%s] at %s" text (Draw.pr_geometry geom); *)
+  let src = render_word ~fg:color font text in
+  let dst_rect = Draw.geom_to_rect geom in
+  go (Sdl.blit_surface ~src:src None ~dst:target_surf (Some dst_rect));
+  last_color := color;
+  Draw.free_surface src
+
+let render_mbox target_surf font fg mbox =
+  List.iter (render_chunk target_surf font fg) mbox
+
+let render_boxes target_surf font fg boxes =
+  List.iter (render_mbox target_surf font fg)  boxes
 
 let display canvas layer td g =
   let open Draw in
@@ -375,52 +511,21 @@ let display canvas layer td g =
       | None -> begin
           let font = get_font td in
           let fg = ref !RGBA.text_color in
-          let lineskip = Ttf.font_line_skip font in
-          let space = fst (Label.physical_size_text font " ") in (* idem *)
+          let style = Ttf.get_font_style font in
+          let w = match td.w with None -> g.w | Some w -> Theme.scale_int w in
+          let h = match td.h with None -> g.h | Some h -> Theme.scale_int h in
+          let w = imin g.w w in
+          let h = imin g.h h in
+          (* print "[%s] gw=%i gh=%i    w=%i h=%i" (text td) g.w g.h w h; *)
           let target_surf = create_surface ~renderer:canvas.renderer g.w g.h in
-
-          let rec loop list dx dy =
-            if dy > g.h then ()
-            else match list with
-              | [] -> ();
-              | []::rest -> loop rest 0 (dy + lineskip)
-              | (entity::rest_line)::rest ->
-                match entity with
-                | Word w ->
-                  let surf = render_word ~fg:!fg font w in
-                  let rect = Sdl.get_clip_rect surf in
-                  let tw,th = Sdl.Rect.(w rect, h rect) in
-                  if dx <> 0 && dx+tw >= g.w then begin
-                    free_surface surf;
-                    (* this word will hence be rendered twice. This could be
-                       optimized of course. *)
-                    loop list 0 (dy + lineskip); (* =we go to new line *)
-                  end
-                  else (go (Sdl.blit_surface ~src:surf (Some rect) ~dst:target_surf
-                              (Some (Sdl.Rect.create ~x:dx ~y:dy ~w:tw ~h:th)));
-                        free_surface surf;
-                        loop (rest_line::rest) (dx + tw) dy)
-                | Space ->
-                  let space = if Ttf.Style.(test (Ttf.get_font_style font) italic)
-                    then (round (float space *. 0.6)) else space in
-                  loop (rest_line::rest) (dx + space) dy
-                (* TODO Space should be rendered in case of underline or
-                   strikethrough. But not when we break at the end of the line, of
-                   course *)
-                | Style s ->
-                  let current_style = Ttf.get_font_style font in
-                  let new_style = if s =  Ttf.Style.normal
-                    then s else Ttf.Style.(s + current_style) in
-                  ttf_set_font_style font new_style;
-                  loop (rest_line::rest) dx dy
-                | Color c ->
-                  fg := c;
-                  loop (rest_line::rest) dx dy
-          in
-          loop (paragraphs td) 0 0;
+          (* on pourrait aussi mettre w h et modifier dst ci-dessous pour avoir
+             une surface plus petite *)
+          compute_boxes ~dx:0 ~dy:0 (w,h) font style !fg (paragraphs td)
+          |> render_boxes target_surf font fg;
           let tex = create_texture_from_surface canvas.renderer target_surf in
           free_surface target_surf;
-          Some tex;
+          RGBA.set_text_color !fg;
+          Some tex
         end) with
   | Some tex ->
     let dst = geom_to_rect g in

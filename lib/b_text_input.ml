@@ -1,3 +1,5 @@
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
 (** One-line text-editor widget *)
 
 (* bug bizarre: après execution de l'exemple 12 (et lorsqu'on joue un peu avec),
