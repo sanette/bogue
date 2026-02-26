@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Much better resampling engine for `Mixer`.
 - Better text wrapping engine for `Text_display`.
+- `Text_display.page` is removed.
 
 ## [20260208](https://github.com/sanette/bogue/compare/20250815..20260208)
 

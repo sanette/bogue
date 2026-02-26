@@ -327,94 +327,165 @@ let convert mixer spec sound =
       target
     end
 
+(* Linear interpolation n1=k*e1+1 points -> n2=k*e2+1 points *)
+(*************************************************************)
+(* Initial data is in data1 which has size 2*n1 (2 channels), data2 has size
+   2*n2 and is filled with interpolated values.
+
+   EXACT CASE : (n1-1)*e2 = (n2-1)*e1
+
+   Then we multiply frequncy by (e2/e1) and both data1 and data2 play exactly in
+   the same time length.
+
+   Warning1 : the first and last elements of data2 coincide with those of
+   data1. In case of streaming (concatenating sounds), be careful to remove the
+   last one and restart there with the next chunk. (Physically: the last sample
+   "doesn't have the time to sound". In our algo, having n samples from i=0 to
+   i=n-1 means that the sound stops immediatly at the last sample, so there are
+   only (n-1) periods, which means only (n-1) physically relevant values; the
+   last one is just used to complute the correct interpolation.)
+
+   Warning2 : for instance if you wish to double the frequency and stop exactly
+   at the same time as data1, then n2 should be 2*n1-1 (not 2*n1). This
+   corresponds to e1=1, e2=2, k=n1-1.
+
+   We denote by i1 and i2 the virtual indices for data1 and data2 (in reality,
+   since there are 2 channels, the corresponding indices for data1 are (2*i1,
+   2*i1+1), and similarly for data2.) For means of discussion, we denote by f1
+   the signal of data1, ie
+
+   f1.(i1) = (data1.(2*i1), data1.(2*i1+1))
+
+   We do linear interpolation, in the sense that the "true sound" f is assumed to
+   be obtained by linearly joining the values of data1:
+
+   f(t) = f1.(i1), where t = i1*h1, h1 is the period between two samples
+   (frequency F1 = 1/h1, total time T = h1*(n1-1)), and for a general t,
+
+   f(t) = f1.(i1) + x*(f1.(i1+1) - f1.(i1)), where i1 is the last sample index
+   <= t (so i1 = floor (t/h1)), and x is the fractional part of t/h1.
+
+   Hence, if we resample with n2 points, the period is h2 = h1*(n1-1)/(n2-1),
+   and
+
+   f2.(i2) = f(i2*h2) = f(i2*h1*(n1-1)/(n2-1)) = f(h1*i2*e1/e2).
+
+   Now we notice that there are at most e2 different fractional parts of
+   i2*e1/e2 (because if you add e2 to i2 the difference is an integer e1.) So a
+   natural optimization is to loop over these e2 values, and for each of them
+   fill data2 at the corresponding interpolated times.
+
+   NON EXACT CASE:
+
+   The algo still works. In general, f2.(i2) will be the sampling of
+   f1.("i2*e1/e2"), (for which we need indices i2*e1/e2 and i2*e1/e2+1). This
+   will work for any dimension n1. This means i2 stays in the range [>=0
+   ... <(n1-1)*e2/e1]. (And we keep an extra room for the exact case where we
+   add the final point.)
+
+*)
+
+(* Size of (one channel of) resampled sound (without the last sample) *)
+let resampled_size e1 e2 n1 =
+  let mf = float ((n1-1)*e2) /. float e1 in
+  if mf = floor mf then int_of_float mf else int_of_float mf + 1
+
 let rec gcd a b =
   if b = 0 then a else gcd b (a mod b)
 
-(* linear interpolation e1 points -> e2 points *)
-(* data2 is filled with interpolated values *)
-let interpolate e1 e2 data1 data2 =
+let interpolate ?(last_point = true) e1 e2 data1 data2 =
+  let ch = 2 in (* number of channels (2 = left + right) *)
+  if (Array1.dim data1 - 2) * e2 > (Array1.dim data2 - 2) * e1
+  then failwith (Printf.sprintf
+                   "Invalid array sizes; data2 should have at least %f elements."
+                   (2. +. (float ((Array1.dim data1 - 2) * e2) /. float e1 )));
+  if Array1.dim data1 < ch || Array1.dim data1 mod ch <> 0
+  then failwith "invalid format";
+  let n1 = (Array1.dim data1)/ch in
+  let rec loop_frac m i =
+    if i < e2 then
+      (* frac = fractional part of e1 *. i/. e2 *)
+      let frac = float ((e1 * i) mod e2) /. float e2 in
+      let rec loop i1 i2 =
+        if i1 < n1 - 1 then begin
+          (* print "i1=%i  i2=%i" i1 i2; *)
+          (* left sample *)
+          let j1 = i1*ch in
+          let j2 = i2*ch in
+          let yA = Array1.unsafe_get data1 j1 in
+          let yB = Array1.unsafe_get data1 (j1 + ch) in
+          let value = if frac = 0. (* ce test n'améliore pas la vitesse... *)
+            then yA
+            else round (float yA +. frac *. (float (yB - yA))) in
+          (* print "LEFT A=%i, B=%i, value=%i" yA yB value; *)
+          Array1.unsafe_set data2 j2 value;
+
+          (* right sample *)
+          let yA = Array1.unsafe_get data1 (j1 + 1) in
+          let yB = Array1.unsafe_get data1 (j1 + ch + 1) in
+          let value = if frac = 0. (* ce test n'améliore pas la vitesse... *)
+            then yA
+            else round (float yA +. frac *. (float (yB - yA))) in
+          (* print "RIGHT A=%i, B=%i, value=%i" yA yB value; *)
+          Array1.unsafe_set data2 (j2 + 1) value;
+          loop (i1 + e1) (i2 + e2)
+        end
+        else i2 - e2 in
+      let m2 = loop (i*e1/e2) i in
+      loop_frac (Int.max m m2) (i+1)
+    else m
+  in
+  let m = loop_frac 0 0 in
+  (* Last point: *)
+  if last_point && ((n1-1) * e2) mod e1 = 0
+  (* if (Array1.dim data1 - 2) * e2 = (Array1.dim data2 - 2) * e1 *) then begin
+    printd debug_io
+      "In [interpolate]: Final sample point is added to the output signal.";
+    let n2 = 1+((n1-1) * e2) / e1 in
+    Array1.unsafe_set data2 (2*(n2-1)) (Array1.unsafe_get data1 (Array1.dim data1 - 2));
+    Array1.unsafe_set data2 (2*(n2-1)+1) (Array1.unsafe_get data1 (Array1.dim data1 - 1))
+  end;
+  let mt = resampled_size e1 e2 n1 - 1 in
+  (* print "max i2 index=%i, theory %i." m mt; *)
+  if !debug then assert (m = mt)
+
+let to_array data =
+  Array.init (Array1.dim data) (Array1.unsafe_get data)
+
+let test_interpolate () =
+  let data1 = Array1.of_array Int16_signed c_layout [|0;1; 2;3; 4;5|] in
+  let data2 = Array1.create Int16_signed c_layout 12 in
+  (* 3 values --> 6 values *)
+  let () = interpolate 2 5 data1 data2 in
+  assert (to_array data2 = [|0;1; 1;2; 2;3; 2;3; 3;4; 4;5|]);
+  (* in other words valus for left channel are 0 1 2 2 3 4 *)
+  let data1 = Array1.of_array Int16_signed c_layout [|0;0; 1;1; 2;2|] in
+  let () = interpolate 2 5 data1 data2 in
+  assert (to_array data2 = [|0;0; 0;0; 1;1; 1;1; 2;2; 2;2|])
+
+(* Resample frequency (f1 => f2) for a s16le sound with 2 channels.  [sound] was
+   initially mixed at frequency f1; we want to produce a sound at frequency f2
+   which "sounds the same" (in particular has same playing length). We take
+   advantage of the fact that quite often frequency ratios f1/f2 are simple
+   rationals. *)
+let resample f1 f2 sound =
+  let t = Sys.time () in
   let ch = 2 in
-
-  (* TODO optimize this (inline) *)
-  (* let interpolate_sample i j x value1 value2 = (\* not used: inlined below *\)
-   *   begin
-   *     value2 := Array1.unsafe_get data1 (j + ch);
-   *     let value = if x = 0. (\* ce test n'améliore  pas la vitesse... *\)
-   *                 then !value1
-   *                 else round (float !value1 +. x *. (float (!value2 - !value1))) in
-   *     Array1.unsafe_set data2 i value;
-   *     value1 := !value2
-   *   end in *)
-  if Array1.dim data1 < ch
-  then failwith "invalid format"
-  else begin
-    (* il n'y a qu'un petit (e2) nombre de "x", on les stocke (efficace ??) *)
-    (* x.(i) = fractional part of e1 *. i/. e2 *)
-    let x = Array.init e2 (fun i -> (float ((e1 * i) mod e2) /. float e2)) in
-    let value1left = ref (Array1.unsafe_get data1 0) in
-    let value2left = ref 0 in
-    let value1right = ref (Array1.unsafe_get data1 1) in
-    let value2right = ref 0 in
-    let ii = ref 0 in
-    for i = 0 to (Array1.dim data2)/ch - 1 do
-      let pos = (e1 * i) / e2 in
-      let rest = (*(float ((e1 * i) mod e2) /. float e2)*) Array.unsafe_get x !ii in
-      (* ii = i mod e2 *)
-      let j = (pos + 1) * ch and jj = i * ch in
-
-      (* interpolate_sample jj j rest value1left value2left; *) (* left sample *)
-      (* we inline this: (but this doesn't speed up) *)
-      value2left := Array1.unsafe_get data1 j;
-      let value = if rest = 0. (* ce test n'améliore pas la vitesse... *)
-        then !value1left
-        else round (float !value1left +. rest *. (float (!value2left - !value1left))) in
-      Array1.unsafe_set data2 jj value;
-      value1left := !value2left;
-
-      (* interpolate_sample (jj + 1) (j + 1) rest value1right value2right; *) (* right sample *)
-      (* inlined: *)
-      value2right := Array1.unsafe_get data1 (j + 1);
-      let value = if rest = 0. (* ce test n'améliore  pas la vitesse... *)
-        then !value1right
-        else round (float !value1right +. rest *. (float (!value2right - !value1right))) in
-      Array1.unsafe_set data2 (jj+1) value;
-      value1right := !value2right;
-
-      incr ii; if !ii = e2 then ii:=0;
-    done
-  end
-
-(* stretch frequency (f1 => f2) for a s16le sound with 2 channels *)
-let stretch f1 f2 sound =
-  let t = Time.now() in
-  let ch = 2 in
-  let f1, f2 = if f1 < f2 then f1, f2 else f2, f1 in
+  let n1 = Array1.dim sound / ch in
   let d = gcd f1 f2 in
   let e1, e2 = f1/d, f2/d in
-  (* e1 samples should be played in the same time as e2 samples *)
-  (* we do a linear interpolation *)
-  let l1 = Array1.dim sound / ch in
-  let l2 = if l1 mod e1 = 0 then l1 * e2 / e1 else e2 * (l1 / e1 + 1) in
-  (* we want l2 to be a multiple of e2 (not necessary?) *)
-  printd debug_io "Stretching %u => %u (%u => %u), size=%u" f1 f2 e1 e2 (ch * l2);
-  let output = Array1.create int16_signed c_layout (ch * l2) in
-  Array1.fill output 0;
-  printd debug_io "Interpolate e1=%u e2=%u size1=%u size2=%u."
-    e1 e2 (ch * (e1+1)) (ch * e2);
-  interpolate e1 e2 (* main part *)
-    (Array1.sub sound 0 ((l1/e1 - 2) * ch * e1 + ch))
-    (Array1.sub output 0 ((l1/e1 - 2) * ch * e2));
-  let finalpos = ch * (l1/e1 - 1) * e1 in
-  print "finalpos=%i" finalpos;
-  interpolate e1 e2 (* final small part *)
-    (Array1.sub sound finalpos (imin (ch * e1) (Array1.dim sound - finalpos)))
-    (Array1.sub output (ch * (l1/e1 - 1) * e2) (Array1.dim sound - finalpos - ch));
-  (* this goes up to bps * (e2*(l1/e1), which is the l2 size of output, in case
-     l1 is a multiple of e1, or a bit less than l2 otherwise; we should compute
-     more precisely what we need... *)
-
-  (* TODO remove trailing zeroes *)
-  printd debug_io "Sound was stretched in %u msec." (Time.now() -t);
+  (* e1 samples should be played in the same time (1/d sec) as e2 samples. *)
+  (* However, we have (n1-1) samples (we consider that the last one is not
+     played), and there is no reason why (n1-1) should be a multiple of
+     e1. Hence we do a non-exact linear interpolation (the last sample of
+     [sound] may not be at the exact same time as the last sample of the
+     resampled sound.) *)
+  let n2 = resampled_size e1 e2 n1 + 1 in
+  printd debug_io "Resampling %u Hz => %u Hz (%u => %u), size %u => %u"
+    f1 f2 e1 e2 (ch * n1) (ch * n2);
+  let output = Array1.create int16_signed c_layout (ch * n2) in
+  interpolate e1 e2 sound output;
+  printd debug_io "Sound was resampled in %f sec." (Sys.time () -. t);
   output
 
 let load_chunk mixer filename =
@@ -457,7 +528,7 @@ let load_chunk mixer filename =
       printd (debug_io + debug_warning)
         "WAV chunk has different freq (%u) than the mixer (%u). We try to \
          interpolate." audio_spec.as_freq mixer.have.as_freq;
-      stretch audio_spec.as_freq mixer.have.as_freq chunk
+      resample audio_spec.as_freq mixer.have.as_freq chunk
     end
     else chunk in
   chunk

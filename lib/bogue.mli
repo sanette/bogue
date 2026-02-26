@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20260224
+@version 20260226
 
 @author Vu Ngoc San
 
@@ -1994,11 +1994,12 @@ See the {{!inner}conversion functions} below. *)
   val verbatim : string -> t
 
   val html : ?w:int -> ?h:int -> string -> t
-  (** Display basic html text by interpreting the following tags: [<em>,</em>,
-      <b>,</b>, <strong>,</strong>, <u>, </u>, <p>,</p>, <br>] and also a color
-      selector with [<font color="???">, </font>]. The "???" string should be
-      replaced by a color code, either RGB like "#40E0D0" or "#12C", or RGBA
-      like "#40E0D0AA" or "#12CA", or a color name like "darkturquoise".
+  (** Display basic html text by interpreting the following tags:
+      [<em>,</em>, <b>,</b>, <strong>,</strong>, <u>,</u>, <p>,</p>, <br>]
+      and also a color selector with [<font color="???">, </font>]. The "???"
+      string should be replaced by a color code, either RGB like "#40E0D0" or
+      "#12C", or RGBA like "#40E0D0AA" or "#12CA", or a color name like
+      "darkturquoise".
 
       @see "Example #47". *)
 
