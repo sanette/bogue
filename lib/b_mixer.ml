@@ -432,7 +432,7 @@ let interpolate ?(last_point = true) e1 e2 data1 data2 =
         end
         else i2 - e2 in
       let m2 = loop (i*e1/e2) i in
-      loop_frac (Int.max m m2) (i+1)
+      loop_frac (imax m m2) (i+1)
     else m
   in
   let m = loop_frac 0 0 in
