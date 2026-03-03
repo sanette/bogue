@@ -152,7 +152,7 @@ let full_height ?top_margin ?bottom_margin layout =
       full_height_sync ?top_margin ?bottom_margin layout;
       Layout.resize layout)
 
-(* Wee warning above. Or use reset_scaling = true. *)
+(* See warning above. Or use reset_scaling = true. *)
 let keep_bottom_sync ~reset_scaling ?margin layout =
   let open Layout in
   match layout.house with
@@ -176,7 +176,7 @@ let keep_bottom ?(reset_scaling = false) ?margin layout =
       keep_bottom_sync ~reset_scaling ?margin layout;
       Layout.resize layout)
 
-(* Wee warning above. Or use reset_scaling = true. *)
+(* See warning above. Or use reset_scaling = true. *)
 let keep_right_sync ~reset_scaling ?margin layout =
   let open Layout in
   match layout.house with

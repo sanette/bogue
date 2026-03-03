@@ -126,10 +126,10 @@ and room = {
   mutable resize : ((int * int) -> unit);
   (* The [resize] function is called when the *house* of the current room
      changed size. (int * int) is the new house size (w,h). This function is
-     responsible for effectively changing the size and relative position of the
-     current room (except for the top house = window where this field has no
-     effect). The field is usually set by the house of the room, (when the room
-     is inserted in a house), not at the creation of the room itself. *)
+     responsible for effectively changing the *size and relative position* of
+     the current room (except for the top house = window where this field has no
+     effect). The field is often set by the house of the room, (when the room is
+     inserted in a house), not at the creation of the room itself. *)
   mutable show : bool;
   (* Should we show this room? Warning: when modifying this, it is highly
      advisable to modify also all inhabitants of the room (recursively); use
@@ -476,7 +476,7 @@ let keyboard_focus_before_tab : t option ref = ref None
 
 let fresh_id = fresh_int ()
 
-(** make geometry *)
+(* Make geometry *)
 let geometry ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) ?transform () : geometry =
   { x = Avar.var x;
     y = Avar.var y;
@@ -490,7 +490,7 @@ let geometry ?(x=0) ?(y=0) ?(w=0) ?(h=0) ?(voffset=0) ?transform () : geometry =
           alpha = Avar.var 1.}
   }
 
-(** list of all integer dynamical variables *)
+(* List of all integer dynamical variables *)
 let get_int_avars room =
 let g = room.geometry in [g.x; g.y; g.w; g.h; Var.get g.voffset]
 
@@ -817,7 +817,7 @@ let fix_content house =
   iter_rooms disable_resize house
 
 (* Call the content resize functions with a fixed house size (even if the resize
-   function mutate the house -- which is not recommended...) *)
+   function mutates the house -- which is not recommended...) *)
 let resize_content house =
   let s = get_size house in
   match house.content with
@@ -977,6 +977,23 @@ let set_size ?(keep_resize = false) ?(check_window = true)
   if check_window && is_top l then adjust_window_size l;
   resize_content l
 
+let set_resize l f =
+  l.resize <- f
+
+(* Use the 'self_' versions instead when operating within a room.resize fn *)
+let self_set_size =
+  set_size ~keep_resize:true ~check_window:false
+
+let self_set_height ?update_bg l h =
+  set_size ~keep_resize:true ~check_window:false ?update_bg ~h l
+
+let self_set_width ?update_bg l w =
+  set_size ~keep_resize:true ~check_window:false ?update_bg ~w l
+
+let self_setx = setx ~keep_resize:true
+let self_sety = sety ~keep_resize:true
+
+
 module Resize = struct
   (* Convenience module for setting keep_resize=true.  Warning, when using these
      functions to modify a room's resize field, remember that they will trigger
@@ -985,8 +1002,9 @@ module Resize = struct
      parallel resizing... If really necessary, then make sure the resize
      functions of inhabitants is first disabled.  *)
   (* For the same reason (recursive calls to room content) one should try to
-     call only one of the [set_width/set_height/set_size] function
-     per resize. *)
+     call only one of the [set_width/set_height/set_size] function per
+     resize.TODO add a 'size_changed' field instead and call 'resize_content'
+     accordingly AFTER calling the room.resize fn. *)
 
   let keep_resize = true
   let check_window = false
@@ -1780,6 +1798,7 @@ let compute_linear_scale n scale initial_len ~len ~margin ~sep =
     s
   else 1.
 
+(* TODO don't force reizing rooms that dont want to *)
 let resize_flat_room ~resize_height initial_flat_size scale
     ~hmargin ~vmargin ~sep ~align room =
   let init_w, init_h = get_size room in
@@ -1861,7 +1880,8 @@ let resize_tower_room ~resize_width initial_tower_size scale
 
 (* Equip the flat rooms by a resize function that scales proportionally to the
    initial size, but do not scale margins. *)
-(* TODO allow some elements to have min width and max width *)
+(* TODO allow some elements to have min width and max width, or, better, respect
+   their resize strategies *)
 let resize_flat ?(resize_height = true) ~hmargin ~vmargin ~sep ~align house =
   let size = get_size house in
   let scale = ref None, ref None in
@@ -2476,24 +2496,30 @@ let animate_angle room angle =
   Avar.stop g.transform.angle;
   room.geometry <- { g with transform = { g.transform with angle }}
 
+(* Similar to [slide_to] *)
+let gotox ?duration room x =
+  let x0 = getx (* or get_oldx?*) room in
+  let anim = Avar.fromto ?duration x0 x in
+  animate_x room anim
+
 let stop_pos room =
   printd debug_graphics "Stop position animation for layout %s." (sprint_id room);
   let g = room.geometry in
   Avar.stop g.x;
   Avar.stop g.y
 
-(** get desired room (relative) geometry after applying animation *)
+(** Get desired room (relative) geometry after applying animation *)
 let geom r =
   let g = r.geometry in
   to_current_geom g (* the calculation is there *)
 
 
-(** some predefined animations: *)
+(** Some predefined animations: *)
 (* warning, these animations can be set on-the-fly, so be careful with other
    existing animations *)
 let default_duration = 300
 
-(* add a show animation (vertical sliding) to the room; however: *)
+(* Add a show animation (vertical sliding) to the room; however: *)
 (* 1. if the room is already animated, we replace the old animation by the show,
    and the duration is reduced proportionally to the current voffset of the old
    animation *)
@@ -2782,25 +2808,159 @@ let follow_mouse ?dx ?dy ?modifierx ?modifiery room =
   animate_x room x;
   animate_y room y
 
+(** [hscroll] was used for testing, not necessary anymore. *)
+let hscroll w room =
+  let total = width room in
+  (* NOT: let viewable = cover room in *)
+  let viewable = flat ~margins:0 ~clip:true [room] in
+  set_width viewable w;
+  let slih = Widget.slider_with_action ~value:0 ~length:w ~thickness:10
+      (total-w) ~action:(fun x -> gotox room (-x)) in
+  let hbar = resident slih in
+  let box = tower ~resize:Disable ~margins:0 [viewable; hbar] in
+  let result = superpose [box] in (* this for protecting the resize function *)
+  box.resize <- (fun (w,h) ->
+      let open Resize in
+      let dw = width room - w in
+      set_size ~w ~h box;
+      set_width hbar w;
+      set_width viewable w;
+      sety hbar (h - height hbar);
+      let sli = Widget.get_slider slih in
+      if dw >= 1 then Slider.set_max sli dw;
+      let v = Slider.update_value sli; Slider.value sli in
+      if v < 0 then Slider.set sli 0;
+      if v > dw then Slider.set sli (imax 0 dw);
+      if dw <= 0
+      then (if is_shown hbar then hide ~duration:0 hbar)
+      else (if not (is_shown hbar) then show ~duration:0 hbar));
+  result
+
 (* TODO let insulate room =*)
 
+(* Add a scrollbar attached to the [dst] layout in order to scroll [room] (x and
+   voffset). In general [dst] will be a clipped layout containing [room], see
+   [make_clip] (dst=container). Warning: this changes the resize fn of
+   [dst]. Beware of not cancelling it later (for instance when installing it in
+   a flat/tower -- or protect it with [let dst_new = superpose [dst]]). *)
+let add_scrollbar ?on_hscroll ?on_vscroll ?(inside = false)
+    ?(scrollbar_width = 10) layer ~dst room =
+
+  let w,h = get_size dst in
+  let name = (default room.name "") ^ ":scrollbox" in
+
+  (* Vertical bar *)
+
+  (* We first initialize the bar layout with a dummy widget, so that the
+     var is able to use it. This is only useful if the height of the
+     container is modified after creation, for instance when the user
+     resizes the window. *)
+  let vbar = resident_with_layer ~layer
+      ~background:(color_bg RGBA.(lighter scrollbar_color))
+      (Widget.empty ~w:10 ~h:10 ()) in
+  (* The scrollbar is a slider. Its Tvar takes the voffset value into the
+     slider value, between 0 and (height room - height container). 0
+     corresponds to the bottom position of the slider, so this means the
+     *largest* scroll (voffset is the most negative). *)
+  let old_vo = ref (get_voffset dst) in
+  let var = Tvar.create dst.geometry.voffset
+      ~t_from:(fun vo ->
+          let vo = Avar.get vo in
+          if vo <> !old_vo then do_option on_vscroll (apply (-vo));
+          old_vo := vo;
+          let dh = height room - height vbar in
+          if dh <= 0 then 0 (* then the bar should be hidden *)
+          else dh + vo)
+      ~t_to:(fun v ->
+          let dh = height room - height vbar in
+          let v = imin v dh |> imax 0 in
+          let vo = height vbar - height room + v in
+          if vo <> !old_vo then do_option on_vscroll (apply (-vo));
+          old_vo := vo;
+          Avar.var vo) in
+  let tick_size = if height room > 0 then Some (h * h / (height room)) else None in
+  let sliv = Widget.slider ~kind:Slider.Vertical ~length:h
+      ~thickness:scrollbar_width ?tick_size
+      ~var (imax 0 (height room - h)) in
+  change_resident vbar sliv;
+  if h >= height room then hide ~duration:0 vbar;
+  let r0 = if inside
+    then (setx vbar (w - scrollbar_width);
+          set_layer vbar (Chain.insert_after
+                            (Chain.last (get_layer dst))
+                            (Draw.new_layer ()));
+          (* TODO: is this a bit too much ?? We just want to make sure the
+             scrollbar gets mouse focus. *)
+          superpose ~name ~scale_content:false [dst; vbar])
+    else flat ~resize:Resize.Disable ~name ~margins:0 [dst; vbar] in
+  set_resize dst (fun (w,h) ->
+      let w = if inside then w else w - scrollbar_width in
+      self_set_size ~w ~h dst);
+  set_resize vbar (fun (w,h) ->
+      self_setx vbar (w - scrollbar_width);
+      self_set_height vbar h;
+      let dh = height room - height vbar in
+      let sli = Widget.get_slider sliv in
+      if dh >= 1 then Slider.set_max sli dh
+      else set_voffset dst 0;
+      (* Warning: we set the voffset directly, because when the bar is hidden,
+         the Tvar will never be activated -- except if the user scrolls with the
+         mouse. *)
+      if height room <> 0
+      then Slider.set_tick_size sli
+          (imax (Slider.min_tick_size sli) (h * h / (height room)));
+      let v = Slider.update_value sli; Slider.value sli in
+      if v < 0 then Slider.set sli 0;
+      if dh <= 0
+      then (if is_shown vbar then hide ~duration:0 vbar)
+      else (if not (is_shown vbar) then show ~duration:0 vbar)
+    );
+
+  (* Horizontal bar *)
+  let tick_size = if width room > 0 then Some (w * w / (width room)) else None in
+  let slih = Widget.slider_with_action ~value:0 ~length:w ~thickness:scrollbar_width
+      (imax 0 (width room - w)) ?tick_size
+      ~action:(fun x -> gotox room (-x); do_option on_hscroll (apply x)) in
+  let hbar = resident ~background:(color_bg RGBA.(lighter scrollbar_color)) slih in
+  let r = tower ~resize:Disable ~name ~margins:0 [r0; hbar] in
+  set_resize r0 (fun (w,h) ->
+      let h = if inside then h else h - scrollbar_width in
+      self_set_size ~w ~h r0);
+  set_resize hbar (fun (w,h) ->
+      self_sety hbar (h - scrollbar_width);
+      let w = if inside then w else w - scrollbar_width in
+      self_set_width hbar w;
+      let dw = width room - w in
+      let sli = Widget.get_slider slih in
+      if dw >= 1 then Slider.set_max sli dw;
+      if width room <> 0
+      then Slider.set_tick_size sli
+          (imax (Slider.min_tick_size sli) (w * w / (width room)));
+      let v = Slider.update_value sli; Slider.value sli in
+      if v < 0 then Slider.set sli 0;
+      if v > dw then Slider.set sli (imax 0 dw);
+      if dw <= 0
+      then (if is_shown hbar then hide ~duration:0 hbar)
+      else (if not (is_shown hbar) then show ~duration:0 hbar));
+  if width room <= w then hide ~duration:0 hbar;
+  r
+
 (* Clip a room inside a smaller container and make it scrollable, and optionally
-   add a scrollbar widget (which should appear only when necessary). Currently
-   only vertical scrolling is implemented. The [on_scroll] function is called
-   anytime the scroll is modified or accessed, with the voffset as parameter. *)
+   add a scrollbar widget (which should appear only when necessary). The
+   [on_scroll] function is called anytime the scroll is modified or accessed,
+   with the voffset as parameter. *)
 let make_clip
-    ?w ?(scrollbar = true) ?(scrollbar_inside = false)
-    ?(scrollbar_width = 10) ?on_scroll ~h room =
-  (* iter_rooms disable_resize room; *)
-  let name = (default room.name "") ^ ":clip" in
-  if w <> None
-  then printd debug_error "Horizontal scrolling is not implemented yet";
+    ?w ?h ?(scrollbar = true) ?(scrollbar_inside = false)
+    ?(scrollbar_width = 10) ?on_vscroll ?on_hscroll room =
+
   let w = default w (width room) in
+  let h = default h (height room) in
   let x0 = getx room in
   let y0 = gety room in
+  setx room 0;
   sety room 0;
   let active_bg = Widget.empty ~w:(width room) ~h:(height room) () in
-  (* We add an invisible box (over the room) to make the whole area selectable
+  (* We add an invisible box (below the room) to make the whole area selectable
      by the mouse focus. Otherwise, only the parts of the room that contain a
      widget will react to the *mouse wheel* event. Of course, if the room is
      full of widgets, this is superfluous... *)
@@ -2823,78 +2983,8 @@ let make_clip
 
   let result =
     if scrollbar
-    then begin
-      (* We first initialize the bar layout with a dummy widget, so that the
-         var is able to use it. This is only useful if the height of the
-         container is modified after creation, for instance when the user
-         resizes the window. *)
-      let bar = resident_with_layer ~layer
-          ~background:(color_bg RGBA.(lighter scrollbar_color))
-          (Widget.empty ~w:10 ~h:10 ()) in
-      (* The scrollbar is a slider. Its Tvar takes the voffset value into the
-         slider value, between 0 and (height room - height container). 0
-         corresponds to the bottom position of the slider, so this means the
-         *largest* scroll (voffset is the most negative). *)
-      let old_vo = ref (get_voffset container) in
-      let var = Tvar.create container.geometry.voffset
-          ~t_from:(fun vo ->
-              let vo = Avar.get vo in
-              if vo <> !old_vo then do_option on_scroll (apply vo);
-              old_vo := vo;
-              let dh = height room - height bar in
-              if dh <= 0 then 0 (* then the bar should be hidden *)
-              else dh + vo)
-          ~t_to:(fun v ->
-              let dh = height room - height bar in
-              let v = imin v dh |> imax 0 in
-              let vo = height bar - height room + v in
-              if vo <> !old_vo then do_option on_scroll (apply vo);
-              old_vo := vo;
-              Avar.var vo) in
-      let wsli = Widget.slider ~kind:Slider.Vertical ~length:h
-          ~thickness:scrollbar_width ~tick_size:(h * h / (height room))
-          ~var (imax 0 (height room - h)) in
-      change_resident bar wsli;
-      if h >= (height room) then hide ~duration:0 bar;
-      let r = if scrollbar_inside
-        then (setx bar (w - width bar);
-              set_layer bar (Chain.insert_after
-                               (Chain.last (get_layer container))
-                               (Draw.new_layer ()));
-              (* TODO: is this a bit too much ?? We just want to make sure the
-                 scrollbar gets mouse focus. *)
-              superpose ~name [container; bar])
-        else flat ~name ~margins:0 [container; bar] in
-      disable_resize bar;
-      (* We register a resize function that simultaneously sets the container
-         and the bar sizes. It will hide the bar when the container is large
-         enough to display the whole content. *)
-      container.resize <- (fun (w,h) ->
-          let open Resize in
-          set_height bar h;
-          if scrollbar_inside then set_size container ~w ~h
-          else begin
-            set_size container ~w:(w - width bar) ~h;
-            setx bar (w - width bar)
-          end;
-          let dh = height room - height bar in
-          let sli = Widget.get_slider wsli in
-          if dh >= 1 then Slider.set_max sli dh
-          else set_voffset container 0;
-          (* Warning: we set the voffset directly, because when the bar is
-             hidden, the Tvar will never be activated -- except if the user
-             scrolls with the mouse. *)
-          let h = height bar in
-          if height room <> 0
-          then Slider.set_tick_size sli
-              (imax (Slider.min_tick_size sli) (h * h / (height room)));
-          let v = Slider.update_value sli; Slider.value sli in
-          if v < 0 then Slider.set sli 0;
-          if dh <= 0
-          then (if is_shown bar then hide ~duration:0 bar)
-          else (if not (is_shown bar) then show ~duration:0 bar));
-      r
-    end
+    then add_scrollbar ?on_hscroll ?on_vscroll ~inside:scrollbar_inside
+        ~scrollbar_width layer ~dst:container room
     else container in
 
   sety result y0;

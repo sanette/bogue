@@ -24,7 +24,7 @@
    Bogue is entirely written in {{:https://ocaml.org/}ocaml} except for the
    hardware accelerated graphics library {{:https://www.libsdl.org/}SDL2}.
 
-@version 20260226
+@version 20260303
 
 @author Vu Ngoc San
 
@@ -2400,21 +2400,34 @@ module Layout : sig
       {!set_width}, {!setx} and likes, then the room will stop reacting to
       changes of the house size. *)
 
-  (** {2 Some useful layout combinations} *)
+  (** {3 Clipping a large layout (and add scrollbars)} *)
 
-  val make_clip : ?w:int ->
+  val make_clip : ?w:int -> ?h:int ->
     ?scrollbar:bool ->
     ?scrollbar_inside:bool -> ?scrollbar_width:int ->
-    ?on_scroll:(int -> unit) -> h:int -> t -> t
-  (** Clip a layout inside a smaller container and make it scrollable, and
-      optionally add a scrollbar widget. The [on_scroll] function is called
-      anytime the scroll is modified, with the vertical offset as
-      parameter.
+    ?on_vscroll:(int -> unit) -> ?on_hscroll:(int -> unit) -> t -> t
+  (** Clip a layout inside a container and make it scrollable, and optionally
+      add a vertical and a horizontal scrollbar. Return the container.
 
-      Currently, only vertical scrolling is implemented. The [?w] variable is
-      not used.
+      The [on_vscroll] function is called anytime the vertical scroll is
+      modified, with the positive vertical offset as parameter (the opposite of
+      the layout.voffset).
+
+       The [on_hscroll] function is called anytime the horizontal scrollbar is
+       accessed, with the requested positive horizontal offset as parameter (the
+       x position of the layout).
+
+      The scrollbar are {!Slider}s and hence can be controlled by the keyboard
+      or the mouse (or other pointer devices). The vertical scroll is also
+      controllable by the mouse wheel.
 
       @see "Example #27". *)
+
+  (**/**)
+  val hscroll : int -> t -> t
+  (** Clip a layout inside a container of the given width, and make it
+      scrollable. *)
+  (**/**)
 
   (** {2 Get layout attributes} *)
 

@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased](https://github.com/sanette/bogue/compare/20260208...HEAD)
 
+### Added
+
+- Horizontal scrolling is now available in `Layout.make_clip`.
+
 ### Changed
 
+- Horizontal scrolling is now available in `Layout.make_clip`: slight
+  change of API
 - Much better resampling engine for `Mixer`.
 - Better text wrapping engine for `Text_display`.
 - `Text_display.page` is removed.

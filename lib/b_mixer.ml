@@ -1,24 +1,27 @@
-(* A simple SDL mixer *)
-(* (c) San Vu Ngoc, 2017-2023 *)
-(* for more features (like loading mp3), see SDL_mixer
+(* This file is part of BOGUE, by San Vu Ngoc *)
+
+(* A simple SDL mixer. Can easily be used without Bogue. *)
+
+(* For more features (like loading mp3), see SDL_mixer
    https://github.com/sanette/tsdl-mixer *)
 
 open Bigarray
-open B_utils (* can easily make this independent of Utils if needed *)
+open B_utils (* Note: it's easy to remove the dependence on B_utils if necessary *)
 open Tsdl
 module Time = B_time
 module Theme = B_theme
 
-type audio_spec = (*(int, Bigarray.int16_signed_elt)*) Sdl.audio_spec
+type audio_spec = Sdl.audio_spec
 
 type sound = (int, Bigarray.int16_signed_elt) Sdl.bigarray
+(* Each channel is coded on signed 16 bits: -32768..32767 *)
 
 type repeat = Repeat of int | Forever
 
 type sound_effect = sound -> unit
 
 type track = {
-  mutable soundpos : int;  (* this should only be modified by the callback *)
+  mutable soundpos : int;  (* this should only be modified by the SDL callback *)
   soundlen : int;
   mutable repeat : repeat; (* note that (Repeat n) in fact means "play n times" *)
   sound : sound;
@@ -35,7 +38,6 @@ type t = {
   tracks : (track option) array (* this array is manipulated by the callback thread. Any other manipulation thus requires locking = TODO *)
 }
 
-(* Currently this only returns either None or Some "default". *)
 let init  () =
   match Sdl.(init_sub_system Init.audio) with
   | Error (`Msg e) ->
@@ -55,6 +57,19 @@ let init  () =
     | Ok devname ->
       printd debug_io "Using audio device: %s." devname;
       Some devname
+
+(* TODO use: Sdl.get_default_audio_info false
+
+   example:
+
+utop # Sdl.get_default_audio_info false;;
+- : (string option * Sdl.audio_spec) Sdl.result =
+Ok
+ (Some "Jabra EVOLVE Link MS Stéréo analogique",
+  {Sdl.as_freq = 48000; as_format = 32784; as_channels = 2; as_silence = 0;
+   as_samples = 0; as_size = 0l; as_callback = None})
+
+*)
 
 let print_spec spec =
   let open Sdl in
@@ -183,14 +198,14 @@ let callback mixer =
     end
     else no_sound := false
 
-(* change volume in-place *)
-(* warning, volume is here just a linear factor (from 0 to 1 in principle) *)
-(* the energy is proportional to the square of the intensity. Thus, sqrt(volume)
+(* Change volume in-place. *)
+(* Warning, volume is here just a linear factor (from 0 to 1 in principle). *)
+(* The energy is proportional to the square of the intensity. Thus, sqrt(volume)
    is a more meaningful quantity. To reduce volume by half, use 0.25. *)
 let change_volume factor sound =
   blit_or_sum true true factor sound sound
 
-(* create the mixer an open sound device. Only format s16le is supported by the
+(* Create the mixer an open sound device. Only format s16le is supported by the
    callback at this time. *)
 (* SDL DOC: This structure is used by SDL_OpenAudioDevice() and
    SDL_LoadWAV(). While all fields are used by SDL_OpenAudioDevice(), only freq,

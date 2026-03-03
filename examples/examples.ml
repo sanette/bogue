@@ -68,6 +68,10 @@ let shadow_box = let open Style in
   create ~background:(color_bg RGBA.grey)
     ~shadow:(mk_shadow ()) ()
 
+let desc_test = "Developpment tests"
+let test () =
+  run_tests ()
+
 (*************************)
 (* Here are the examples *)
 (*************************)
@@ -679,10 +683,11 @@ let example27 () =
   let td () = L.resident (W.text_display ~w:600 ~h:300 lorem) in
   let fin () = L.resident (W.label "END") in
   let debut = L.resident (W.label "START") in
-  let long = L.tower ~sep:0 [debut; td (); td (); td (); td (); td (); td (); td (); fin ()] in
+  let long = L.tower ~sep:0 [debut; td (); td (); td (); L.resident (W.check_box ()); td (); td (); td (); td (); fin ()] in
   let short = L.tower ~sep:0 [td (); fin()(* ; td (); td (); td (); td () *)] in
-  let on_scroll v = print_endline (sprintf "Vertical offset: %i" v) in
-  let container = L.make_clip ~h:300 ~on_scroll long in
+  let on_vscroll v = print_endline (sprintf "Vertical offset: %i" v) in
+  let on_hscroll x = print_endline (sprintf "Horizontal offset: %i" x) in
+  let container = L.make_clip ~h:300 ~w:300 ~on_vscroll ~on_hscroll long in
   let container2 = L.make_clip ~h:300 short in
   let layout = L.flat [hello; container; container2] in
   (* L.scroll_to ~duration:2000 300 long; *)
@@ -1380,6 +1385,7 @@ let example59 () =
 
 let _ =
   let examples = [
+    "test", (test, desc_test) ;
     "00", (example00, desc00) ;
     "0", (example0, desc0) ;
     "1h", (example1h, desc1h) ;

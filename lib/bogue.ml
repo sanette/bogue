@@ -94,6 +94,10 @@ let run_tests () =
     run_test File.test "I18n.File.test"
   end;
 
+  begin let open Mixer in
+    run_test test_interpolate "Mixer.interpolate"
+  end;
+
   begin let open Utf8 in
     run_test test "Utf8.test";
     run_test test_perf "Utf8.test_perf";
