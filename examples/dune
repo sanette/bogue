@@ -9,7 +9,8 @@
 
 (rule
  (alias runtest)
- (deps (source_tree "../share/themes/"))
+ (deps
+  (source_tree "../share/"))
  (action
   (setenv
    SDL_VIDEODRIVER
@@ -17,4 +18,7 @@
    (setenv
     BOGUE_DEBUG
     true
-    (run ./examples.exe 00)))))
+    (setenv
+     BOGUE_DIR
+     "../share/themes"
+     (run ./examples.exe 00))))))
